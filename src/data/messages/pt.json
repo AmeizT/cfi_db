@@ -1,0 +1,56 @@
+{
+    "HomePage": {
+        "title": "Olá mundo!",
+        "about": "Vá para a página sobre"
+    },
+    "Auth": {
+        "title": "Acesse sua conta do CFI Workspace",
+        "terms": "Ao continuar a usar o CFI Workspace, você concorda com nossos <Link>Termos de Serviço</Link> e Política de Privacidade.",
+        "input": "E-mail ou nome de usuário",
+        "cta": "Continuar",
+        "pending": "Verificando o usuário..."
+    },
+    "Password": {
+        "warningText": "Por segurança, recomendamos o uso da navegação privada se estiver num dispositivo partilhado ou público.",
+        "reset-password": "Esqueceu a sua palavra-passe?",
+        "title": "Insira sua senha para entrar",
+        "pending": "Fazendo login...",
+        "action": "Continuar",
+        "input": "Senha"
+    },
+    "Recover": {
+        "heading": "Recupere a sua conta",
+        "subheading": "Vamos confirmar a sua identidade",
+        "description": "Insira o seu e-mail ou nome de utilizador e enviaremos um link para recuperar o acesso à sua conta.",
+        "actionLabel": "Iniciar sessão",
+        "actionUrl": "/auth/login",
+        "input": "E-mail ou nome de usuário",
+        "promptText": "Já tem uma conta?",	
+        "action": "Enviar link de login",
+        "pending": "Enviando..."
+    },
+    "Reset": {
+        "heading": "Redefina a sua palavra-passe",
+        "subheading": "Insira a sua nova palavra-passe",
+        "description": "",
+        "actionLabel": "Iniciar sessão",
+        "promptText": "Já tem uma conta?",
+        "actionUrl": "/auth/login",
+        "helpText": "Palavras-passe fortes combinam letras maiúsculas e minúsculas, números e caracteres especiais.",
+        "pending": "Salvando...",
+        "input": "Nova senha",
+        "input-2": "Confirmar senha"
+    },
+    "Initialize": {
+        "heading": "E-mail de recuperação enviado",
+        "description": "Enviámos um link de recuperação para o seu e-mail. Verifique a sua caixa de entrada e siga as instruções para redefinir a sua palavra-passe. Se não encontrar o e-mail, verifique a pasta de spam ou lixo.",
+        "action": "Voltar ao login"
+    },
+    "PasswordUpdated": {
+        "heading": "Senha Atualizada",
+        "description": "Sua senha foi atualizada com sucesso. Agora você pode entrar com suas novas credenciais.",
+        "action": "Entrar"
+    }
+}
+
+

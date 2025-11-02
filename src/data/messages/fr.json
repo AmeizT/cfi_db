@@ -1,0 +1,66 @@
+{
+    "HomePage": {
+        "title": "Bonjour le monde!",
+        "about": "Acceder a la page a propos"
+    },
+    "Auth": {
+        "title": "Connectez-vous à votre compte CFI Workspace",
+        "terms": "En continuant à utiliser CFI Workspace, vous acceptez nos <Link>Conditions d'utilisation</Link> et notre Politique de confidentialité.",
+        "input": "E-mail ou nom d'utilisateur",
+        "cta": "Continuer",
+        "pending": "Vérification de l'utilisateur..."
+    },
+    "Password": {
+        "warningText": "Pour votre sécurité, nous vous recommandons d'utiliser la navigation privée si vous êtes sur un appareil partagé ou public.",
+        "reset-password": "Mot de passe oublié?",
+        "title": "Veuillez entrer votre mot de passe pour vous connecter",
+        "pending": "Connexion...",
+        "action": "Continuer",
+        "input": "Mot de passe"
+    },
+    "Recover": {
+        "heading": "Récupérez votre compte",
+        "subheading": "Confirmons votre identité",
+        "description": "Entrez votre e-mail ou nom d'utilisateur et nous vous enverrons un lien pour accéder à votre compte.",
+        "actionLabel": "Se connecter",
+        "actionUrl": "/auth/login",
+        "input": "E-mail ou nom d'utilisateur",
+        "promptText": "Vous avez déjà un compte ?",
+        "action": "Envoyer le lien de connexion",
+        "pending": "Envoi..."
+    },
+    "Reset": {
+        "heading": "Réinitialisez votre mot de passe",
+        "subheading": "Entrez votre nouveau mot de passe",
+        "description": "",
+        "actionLabel": "Se connecter",
+        "promptText": "Vous avez déjà un compte ?",
+        "actionUrl": "/auth/login",
+        "helpText": "Les mots de passe forts combinent des lettres majuscules et minuscules, des chiffres et des caractères spéciaux.",
+        "pending": "Enregistrement...",
+        "input": "Nouveau mot de passe",
+        "input-2": "Confirmer le mot de passe"
+    },
+    "Initialize": {
+        "heading": "E-mail de réinitialisation envoyé",
+        "description": "Nous avons envoyé un lien de réinitialisation à votre adresse e-mail. Veuillez vérifier votre boîte de réception et suivre les instructions pour réinitialiser votre mot de passe. Si vous ne le voyez pas, vérifiez votre dossier spam ou courrier indésirable.",
+        "action": "Retour à la connexion"
+    },
+    "PasswordUpdated": {
+        "heading": "Mot de passe mis à jour",
+        "description": "Votre mot de passe a été mis à jour avec succès. Vous pouvez maintenant vous connecter avec vos nouvelles informations.",
+        "action": "Se connecter"
+    }
+}
+
+
+
+
+
+
+
+	
+
+
+
+

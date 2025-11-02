@@ -1,0 +1,54 @@
+{
+    "HomePage": {
+        "title": "Habari za dunia",
+        "about": "Nenda kwenye ukurasa wa kuhusu"
+    },
+    "Auth": {
+        "title": "Ingia kwenye akaunti yako ya CFI Workspace",
+        "terms": "Kwa kuendelea kutumia CFI Workspace, unakubali <Link>Masharti ya Huduma</Link> na Sera ya Faragha yetu.",
+        "input": "Barua pepe au jina la mtumiaji",
+        "cta": "Endelea",
+        "pending": "Inakagua mtumiaji..."
+    },
+    "Password": {
+        "warningText": "Kwa usalama, tunapendekeza utumie kuvinjari kwa faragha ikiwa unatumia kifaa cha umma au cha pamoja.",
+        "reset-password": "Umesahau nenosiri lako?",
+        "title": "Tafadhali ingiza nenosiri lako ili kuingia",
+        "pending": "Inaingia...",
+        "action": "Endelea",
+        "input": "Nenosiri"
+    },
+    "Recover": {
+        "heading": "Rejesha akaunti yako",
+        "subheading": "Tuthibitishe utambulisho wako",
+        "description": "Weka barua pepe au jina la mtumiaji na tutakutumia kiungo cha kurejesha akaunti yako.",
+        "actionLabel": "Ingia",
+        "actionUrl": "/auth/login",
+        "promptText": "Tayari una akaunti?",
+        "action": "Tuma kiungo cha kuingia",
+        "pending": "Inatuma...",
+        "input": "Barua pepe au jina la mtumiaji"
+    },
+    "Reset": {
+        "heading": "Weka upya nenosiri lako",
+        "subheading": "Weka nenosiri jipya",
+        "description": "",
+        "actionLabel": "Ingia",
+        "promptText": "Tayari una akaunti?",
+        "actionUrl": "/auth/login",
+        "helpText": "Nenosiri imara linachanganya herufi kubwa na ndogo, nambari, na alama maalum.",
+        "pending": "Inaokoa...",
+        "input": "Nenosiri jipya",
+        "input-2": "Thibitisha nenosiri"
+    },
+    "Initialize": {
+        "heading": "Barua Pepe ya Urejeshaji Imetumwa",
+        "description": "Tumepeleka kiungo cha urejeshaji kwa barua pepe yako. Tafadhali angalia kikasha chako na fuata maagizo kurejesha nenosiri lako. Ikiwa huioni, angalia kwenye folda ya taka au barua taka.",
+        "action": "Rudi kwenye kuingia"
+    },
+    "PasswordUpdated": {
+        "heading": "Nenosiri Limesasishwa",
+        "description": "Nenosiri lako limesasishwa kwa mafanikio. Sasa unaweza kuingia ukitumia taarifa mpya.",
+        "action": "Ingia"
+    }
+}

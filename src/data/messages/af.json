@@ -1,0 +1,59 @@
+{
+    "Auth": {
+        "title": "Meld aan by jou CFI Workspace-rekening",
+        "terms": "Deur voort te gaan om CFI Workspace te gebruik, stem jy in tot ons <Link>Diensbepalings</Link> en Privaatheidsbeleid.",
+        "input": "E-pos of gebruikersnaam",
+        "cta": "Gaan voort",
+        "pending": "Verifieer gebruiker..."
+    },
+    "Password": {
+        "warningText": "Vir veiligheid beveel ons aan dat jy privaat blaai gebruik as jy op 'n gedeelde of publieke toestel is.",
+        "reset-password": "Het jy jou wagwoord vergeet?",
+        "title": "Voer asseblief jou wagwoord in om aan te meld",
+        "pending": "Meld tans aan...",
+        "input": "Wagwoord",
+        "action": "Gaan voort"
+    },
+    "Recover": {
+        "heading": "Herstel jou rekening",
+        "subheading": "Laat ons jou identiteit bevestig",
+        "description": "Voer jou e-posadres of gebruikersnaam in en ons sal vir jou 'n skakel stuur om toegang tot jou rekening te herstel.",
+        "action": "Stuur aanmeldskakel",
+        "actionLabel": "Meld aan",
+        "actionUrl": "/auth/login",
+        "promptText": "Het jy reeds 'n rekening?",
+        "pending": "Stuur...",
+        "input": "E-pos of gebruikersnaam"
+    },
+    "Reset": {
+        "heading": "Stel jou wagwoord terug",
+        "subheading": "Voer jou nuwe wagwoord in",
+        "description": "",
+        "actionLabel": "Meld aan",
+        "promptText": "Het jy reeds 'n rekening?",
+        "actionUrl": "/en/auth/login",
+        "helpText": "Sterk wagwoorde kombineer hoofletters, kleinletters, syfers en spesiale karakters.",
+        "pending": "Stoor...",
+        "input": "Nuwe wagwoord",
+        "input-2": "Bevestig wagwoord"
+    },
+    "Initialize": {
+        "heading": "Herstel-e-pos Gestuur",
+        "description": "Ons het 'n herstel-skakel na jou e-pos gestuur. Gaan asseblief jou inbox na en volg die instruksies om jou wagwoord terug te stel. As jy dit nie sien nie, kyk in jou strooipos- of gemorspos-lêer.",
+        "action": "Terug na aanmelding"
+    },
+    "PasswordUpdated": {
+        "heading": "Wagwoord Opgedateer",
+        "description": "Jou wagwoord is suksesvol opgedateer. Jy kan nou aanmeld met jou nuwe besonderhede.",
+        "action": "Meld aan"
+    }
+}
+
+	
+
+
+
+
+
+
+

@@ -1,7 +1,34 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
+import createNextIntlPlugin from "next-intl/plugin"
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production"
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "8000",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+      },
+    ],
+  },
+}
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin()
+
+export default withNextIntl(nextConfig)
+
+
+
