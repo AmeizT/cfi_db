@@ -159,7 +159,7 @@ function PasswordUpdatedMessage() {
         <Container>
             <Container.Auth type="password-updated">
                 <div className="block content-center">
-                    <Link href="/en/auth/login?stage=verification" className="py-2 px-4 text-sm dark:text-white font-semibold rounded-lg border dark:border-neutral-700 dark:bg-gradient-to-b dark:from-neutral-800 dark:to-neutral-900 hover:bg-zinc-50 transition-colors duration-200">
+                    <Link href="/en/auth/login?stage=verification" className="py-2 px-4 text-sm dark:text-white font-semibold rounded-lg border dark:border-neutral-700 dark:bg-linear-to-b dark:from-neutral-800 dark:to-neutral-900 hover:bg-zinc-50 transition-colors duration-200">
                         {t("action")}
                     </Link>
                 </div>

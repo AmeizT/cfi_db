@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 
 export function GradientHeaderText({ children }: HeaderTextProps){
     return (
-        <h1 className={cn(`text-2xl tracking-tight font-semibold bg-gradient-to-r from-[#4285f4] to-[#d96570] bg-clip-text text-transparent`)}>
+        <h1 className={cn(`text-2xl tracking-tight font-semibold bg-linear-to-r from-[#4285f4] to-[#d96570] bg-clip-text text-transparent`)}>
             {children}
         </h1>
     )

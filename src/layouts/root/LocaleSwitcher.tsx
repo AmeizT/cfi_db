@@ -54,7 +54,7 @@ export function LocaleSwitcherDropdown({ locale }: LocalSwitcherProps) {
         <div className="">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button type="button" disabled={isPending} className="h-fit block content-center py-1.5 px-2 text-sm text-gray-600 dark:text-white font-medium rounded-lg border border-gray-300/70 dark:border-neutral-700 bg-gradient-to-b from-gray-50 to-white dark:from-neutral-800 dark:to-neutral-900 hover:bg-zinc-50 transition-colors duration-200 shadow-none" suppressHydrationWarning>
+                    <button type="button" disabled={isPending} className="h-fit block content-center py-1.5 px-2 text-sm text-gray-600 dark:text-white font-medium rounded-lg border border-gray-300/70 dark:border-neutral-700 bg-linear-to-b from-gray-50 to-white dark:from-neutral-800 dark:to-neutral-900 hover:bg-zinc-50 transition-colors duration-200 shadow-none" suppressHydrationWarning>
                         {isPending ? (
                             <span className="flex items-center gap-x-4">
                                 <Spinner className="bg-neutral-700 dark:bg-white" />
@@ -75,9 +75,9 @@ export function LocaleSwitcherDropdown({ locale }: LocalSwitcherProps) {
                         value={locale}
                         onValueChange={onChange}
                     >
-                        {locales.map((val) => (
-                            <DropdownMenuRadioItem key={val.value} value={val.value} className="dark:text-white dark:hover:bg-neutral-800">
-                                {val.label}
+                        {locales.map((locale) => (
+                            <DropdownMenuRadioItem key={locale.value} value={locale.value} className="dark:text-white dark:hover:bg-neutral-800">
+                                {locale.label}
                             </DropdownMenuRadioItem>
                         ))}
                     </DropdownMenuRadioGroup>
@@ -86,3 +86,4 @@ export function LocaleSwitcherDropdown({ locale }: LocalSwitcherProps) {
         </div>
     )
 }
+

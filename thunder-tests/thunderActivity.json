@@ -1,0 +1,33 @@
+[
+    {
+        "_id": "03ebe314-d99c-45cd-9905-a6b1ea8ef354",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://127.0.0.1:8000/api/v1/auth/jwt/create/",
+        "url": "http://127.0.0.1:8000/api/v1/auth/jwt/create/",
+        "method": "POST",
+        "sortNum": 0,
+        "created": "2026-03-24T23:25:35.673Z",
+        "modified": "2026-03-24T23:25:35.673Z",
+        "headers": [
+            {
+                "name": "Authorization",
+                "value": "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyNjk1NDQwLCJpYXQiOjE3NzI2OTE4NDAsImp0aSI6IjdmNzBiOTAxMDEyYjRkNmM4NmRjY2QxOTE3ODllMjY5IiwidXNlcl9pZCI6MjB9.tVvi2J2HDROi5HtBLbJ0C0ac9I7Np6cPU3jzyTHAa4o"
+            }
+        ],
+        "body": {
+            "type": "json",
+            "raw": [
+                "{",
+                "  \"email\": \"tawanda@cfi.church\",",
+                "  \"password\": \"akosha26\"",
+                "}",
+                "",
+                "",
+                "",
+                ""
+            ],
+            "form": []
+        }
+    }
+]

@@ -12,7 +12,7 @@ interface AttendanceCardsProps {
 }
 
 const categoryColors = {
-    sunday: "bg-blue-100 text-blue-800 dark:text-primary dark:bg-primary/20",
+    sunday: "bg-theme-100 text-theme-800 dark:text-primary dark:bg-primary/20",
     friday: "bg-purple-100 text-purple-800 dark:text-purple-500 dark:bg-purple-500/20",
     homecell: "bg-green-100 text-green-800 dark:text-green-500 dark:bg-green-500/20",
 }
@@ -165,7 +165,7 @@ export function AttendanceCards({ data }: AttendanceCardsProps) {
 
                             <CardFooter className="px-4 w-full flex flex-col gap-1.5">
                                 {record?.baptism > 0 && (
-                                    <div className="w-full bg-blue-50 dark:bg-primary/10 p-3 rounded-xl">
+                                    <div className="w-full bg-theme-50 dark:bg-primary/10 p-3 rounded-xl">
                                         <div className="flex items-center gap-2">
                                             <TrendingUp className="size-4 text-primary" />
                                             <span className="text-sm font-medium text-primary">

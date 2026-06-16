@@ -16,7 +16,7 @@ export function FancyIcon({ icon, size=20, label="icon", ...props }: FancyIconPr
             role="img"
             aria-label={label}
             className={cn(
-                "p-5 w-fit block relative rounded-full bg-gradient-to-b from-zinc-200/60 to-white dark:from-neutral-700 dark:to-neutral-900 data-[variant=success]:from-green-50 dark:data-[variant=success]:from-green-500/20 data-[variant=success]:[&>span]:border-green-600/15",
+                "p-5 w-fit block relative rounded-full bg-linear-to-b from-zinc-200/60 to-white dark:from-neutral-700 dark:to-neutral-900 data-[variant=success]:from-green-50 dark:data-[variant=success]:from-green-500/20 data-[variant=success]:[&>span]:border-green-600/15",
                 props.className
             )}
             {...props}

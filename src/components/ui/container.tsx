@@ -8,6 +8,7 @@ import { FancyIcon } from "../icons/FancyIcon"
 import { Check } from "lucide-react"
 import { Hint } from "./hint"
 import Link from "next/link"
+import { UrlObject } from "url"
 
 interface ContainerProps<E extends React.ElementType = "div"> {
     as?: E
@@ -181,8 +182,8 @@ export function CreationSuccess({ label, redirectPath, onCreateAnother }: Creati
 
                 <footer className="flex flex-col sm:flex-row gap-3 mt-4 w-full justify-center">
                     <Link
-                        href={redirectPath}
-                        className="inline-flex items-center justify-center px-3 h-8 rounded-lg bg-primary text-white text-sm font-medium hover:bg-blue-500 transition"
+                        href={redirectPath as unknown as UrlObject}
+                        className="inline-flex items-center justify-center px-3 h-8 rounded-lg bg-primary text-white text-sm font-medium hover:bg-theme-500 transition"
                     >
                         View Item
                     </Link>

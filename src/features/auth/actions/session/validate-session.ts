@@ -7,6 +7,8 @@ export async function validateSession() {
     const cookieStore = await cookies()
     const accessToken: string | undefined = cookieStore.get("accessToken")?.value ?? undefined
 
+    console.log("Validating session with token:", cookieStore) // Debug log to check the token value
+
     if (accessToken) {
         try {
             const response = await fetch(url.verifySession, {

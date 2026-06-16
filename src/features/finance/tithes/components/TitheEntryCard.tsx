@@ -17,6 +17,21 @@ import { useMembers } from "@/hooks/query/use-members"
 import { useUser } from "@/hooks/query/use-user"
 import { IconTrash } from "@tabler/icons-react"
 import { Member } from "@/features/people/schemas/member"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Controller, useForm } from "react-hook-form"
+import z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+const formSchema = z.object({
+    title: z
+        .string()
+        .min(5, "Bug title must be at least 5 characters.")
+        .max(32, "Bug title must be at most 32 characters."),
+    description: z
+        .string()
+        .min(20, "Description must be at least 20 characters.")
+        .max(100, "Description must be at most 100 characters."),
+})
 
 export function TitheEntryCard({
     index,
@@ -58,6 +73,16 @@ export function TitheEntryCard({
         }
     }
 
+    
+
+    const myform = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            title: "",
+            description: "",
+        },
+    })
+
     return (
         <Card className="p-4 rounded-xl shadow-none border-none bg-gray-100">
             <CardHeader className="px-0 flex flex-row items-center justify-between space-y-0">
@@ -68,7 +93,7 @@ export function TitheEntryCard({
                         variant="ghost"
                         size="sm"
                         onClick={onRemove}
-                        className="!px-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="px-0! text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                         <IconTrash className="size-6 lg:size-4" />
                     </Button>
@@ -76,7 +101,28 @@ export function TitheEntryCard({
             </CardHeader>
             <CardContent className="p-0 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <FieldGroup className="space-y-2">
+                        <Controller
+                            name="title"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor="form-rhf-demo-title">
+                                        Bug Title
+                                    </FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id="form-rhf-demo-title"
+                                        aria-invalid={fieldState.invalid}
+                                        placeholder="Login button not working on mobile"
+                                        autoComplete="off"
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError errors={[fieldState.error]} />
+                                    )}
+                                </Field>
+                            )}
+                        />
                         <Label htmlFor={`assembly-${index}`}>Assembly *</Label>
                         {hasManyAssemblies ? 
                             <Select
@@ -106,7 +152,7 @@ export function TitheEntryCard({
                         {form.formState.errors.tithes?.[index]?.assembly && (
                             <p className="text-sm text-red-600">{form.formState.errors.tithes[index].assembly?.message}</p>
                         )}
-                    </div>
+                    </FieldGroup>
 
                     <div className="space-y-2">
                         <Label htmlFor={`member-${index}`}>Member</Label>

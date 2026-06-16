@@ -1,114 +1,22 @@
-// "use client"
+import { Separator } from "@/components/ui/separator"
+import { AuthForm } from "../components/AuthForm"
+import { AuthSidebar } from "../components/AuthSidebar"
 
-// import React from "react"
-// import { toast } from "sonner"
-// import { AuthData } from "../../types/auth-data"
-// import { checkUserEmail } from "../../services"
-// import { EmailSchema } from "../../schemas/login"
-// import { AuthFooter } from "../components/Footer"
-// import { EmailStep } from "../components/EmailStep"
-// import { Separator } from "@/components/ui/separator"
-// import { InfoBanner } from "../../components/InfoBanner"
-// import { PasswordStep } from "../components/PasswordStep"
-// import { normalizeEmail } from "@/features/auth/utils/normalize-email"
+export function LoginView(){
+    return (
+        <div className="w-full h-dvh flex flex-col lg:flex-row items-center">
+            <AuthSidebar />
 
-// export function Login() {
-//     const [data, setData] = React.useState<AuthData>()
-//     const [email, setEmail] = React.useState<string>("")
-//     const [loading, setPending] = React.useState<boolean>(false)
-//     const [isValidUser, setIsValidUser] = React.useState<boolean>(false)
-//     const [formErrors, setFormErrors] = React.useState<{ email?: string[] } | null>(null)
+            <Separator orientation="vertical" className="hidden lg:block data-[orientation=vertical]:w-px data-[orientation=vertical]:h-[80%] bg-mist-200" />
 
-//     async function handleCheck() {
-//         setPending(true)
-//         const rawEmail = normalizeEmail(email)
+            <div className="relative w-full lg:w-1/2 h-full bg-inherit">
+                <div className="absolute z-0 h-full w-full bg-[radial-gradient(#d0d6d8_1px,transparent_1px)] bg-size-[16px_16px] mask-[radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]">
+                </div>
 
-//         const validatedFields = EmailSchema.safeParse({
-//             email: rawEmail,
-//         })
-
-//         if (!rawEmail.includes("cfi.church")) {
-//             if (!validatedFields.success || !rawEmail.includes("cfi.church")) {
-//                 const zodErrors = validatedFields.success ? {}
-//                     : validatedFields.error.flatten().fieldErrors
-
-//                 setFormErrors({
-//                     ...zodErrors,
-//                     email: [
-//                         ...(zodErrors.email || []),
-//                         ...(email.includes("cfi.church") ? [] :
-//                             ["Please enter a valid CFI Workspace ID"]),
-//                     ],
-//                 })
-
-//                 setPending(false)
-
-//                 toast("Please enter a valid CFI Workspace ID")
-//                 return
-//             }
-//         }
-
-//         if (validatedFields.success) {
-//             const user = await checkUserEmail({ email: rawEmail })
-//             if ("user" in user) {
-//                 setData(user)
-//                 setPending(false)
-//                 setIsValidUser(true)
-//             } else {
-//                 toast.error(user.error || "An error occurred.")
-//             }
-//         }
-
-//         setPending(false)
-//     }
-
-//     function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-//         if (e.key === "Enter" && !loading && email.length > 0) {
-//             handleCheck()
-//         }
-//     }
-
-//     return (
-//         <div className="px-3 lg:p-0 w-full h-[calc(100dvh-3rem)] relative flex justify-center">
-//             <Separator className="hidden w-full absolute inset-x-0 top-12" />
-//             <Separator orientation="vertical" className="w-full absolute inset-y-0 left-1/2 -translate-x-1/2 data-[orientation=vertical]:h-dvh z-10 hidden" />
-
-//             <InfoBanner />
-            
-
-//             <div className="w-full flex justify-center items-center gap-x-20">
-//                 {/* <Hero /> */}
-
-//                 {/* <Separator 
-//                     orientation="vertical" 
-//                     className="hidden lg:block data-[orientation=vertical]:h-2/3 data-[orientation=vertical]:w-[1px] rounded-full bg-zinc-300 dark:bg-neutral-800" 
-//                 /> */}
-                
-//                 {!isValidUser ? (
-//                     <EmailStep
-//                         email={email}
-//                         onChange={setEmail}
-//                         onClick={handleCheck}
-//                         onKeyDown={handleKeyDown}
-//                         loading={loading}
-//                         error={formErrors?.email?.[0] ?? ""}
-//                     />
-//                 ) : (
-//                     <PasswordStep
-//                         data={{ user: data?.user }}
-//                         email={email}
-//                     />
-//                 )}
-//             </div>
-
-//             <AuthFooter />
-//         </div>
-//     )
-// }
-
-// {/* <blockquote className="mt-2 hidden text-blue-200 text-sm">
-//     Whatever you do, work at it with all your heart, as working for the Lord, not for <br />human masters. – Colossians 3:23 (NIV)
-// </blockquote> */}
-
-
-
+                <div className="absolute inset-0 z-10 self-center">
+                    <AuthForm />
+                </div>
+            </div>
+        </div>
+    )
+}

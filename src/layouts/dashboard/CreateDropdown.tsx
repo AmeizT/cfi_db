@@ -69,7 +69,7 @@ const createMenu: CreateMenuProps[] = [
     {
         name: "Report",
         icon: DocumentText,
-        color: "text-blue-500",
+        color: "text-theme-500",
         action: "/editor?form=initial",
         description: "Create and submit church reports."
     },

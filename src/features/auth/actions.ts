@@ -1,7 +1,7 @@
 "use server"
 
 import { z } from "zod"
-import { url } from "@/config/urls"
+import { apiRoutes, url } from "@/config/urls"
 import { formatISO } from "date-fns"
 import { cookies } from "next/headers"
 import axios, { AxiosError } from "axios"
@@ -69,38 +69,47 @@ export async function createSession(prevState: AuthFormState, formData: FormData
         return {
             ...prevState,
             formErrors: validatedFields.error.flatten().fieldErrors,
-            data: {
-                user: undefined,
-                error: "Failed to verify your identity"
-            },
-            httpStatusCode: 404,
+            error: "Failed to verify your identity",
+            status: 404,
             message: "Failed to verify your identity. Please check your username or password and try again."
         }
     }
 
+    const body = {
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+    }
+
     try {
-        const response = await axios.post(url.createSession, rawFormData)
+        const response = await fetch("http://localhost:8000/api/v1/auth/login/", {
+            method: "POST",
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include", // 🔥 REQUIRED for cookies
+        });
 
         if (response?.status === 200) {
-            cookieStore.set({
-                name: "accessToken",
-                value: response?.data?.access,
-                httpOnly: true,
-                path: "/",
-                secure: !Boolean(process.env.NEXT_PUBLIC_DEVMODE),
-                maxAge: 60 * 60,
-                sameSite: "strict",
-            })
+            // cookieStore.set({
+            //     name: "accessToken",
+            //     value: response?.data?.access,
+            //     httpOnly: true,
+            //     path: "/",
+            //     secure: !Boolean(process.env.NEXT_PUBLIC_DEVMODE),
+            //     maxAge: 60 * 60,
+            //     sameSite: "strict",
+            // })
 
-            cookieStore.set({
-                name: "refreshToken",
-                value: response?.data?.refresh,
-                httpOnly: true,
-                path: "/",
-                secure: !Boolean(process.env.NEXT_PUBLIC_DEVMODE),
-                maxAge: 60 * 60 * 24 * 7,
-                sameSite: "strict",
-            })
+            // cookieStore.set({
+            //     name: "refreshToken",
+            //     value: response?.data?.refresh,
+            //     httpOnly: true,
+            //     path: "/",
+            //     secure: !Boolean(process.env.NEXT_PUBLIC_DEVMODE),
+            //     maxAge: 60 * 60 * 24 * 7,
+            //     sameSite: "strict",
+            // })
 
             cookieStore.set({
                 name: "sessionCreatedAt",
@@ -108,24 +117,34 @@ export async function createSession(prevState: AuthFormState, formData: FormData
                 path: "/",
                 sameSite: "strict",
             })
+
+            cookieStore.set({
+                name: "startupSoundPlayed",
+                value: "false",
+                path: "/",
+                sameSite: "strict",
+            })
         }
 
+        console.log("Login response:", response)
+
         return {
-            data: {
-                user: response?.data,
-            },
-            message: String(response?.statusText),
-            httpStatusCode: Number(response?.status) || 200,
+            status: Number(response?.status) || 200,
             success: true,
         }
     } catch (error: unknown) {
         const axiosError = error as AxiosError
 
+        const status = axiosError.response?.status
+
+        const isAuthError = status === 401 || status === 403
+
         return {
-            data: { error: "We couldn't sign you in. Please try again." },
-            message: axiosError.response?.statusText || "Server error. Please try again later.",
-            httpStatusCode: axiosError.response?.status || 500,
-            success: false
+            error: isAuthError
+                ? "Invalid username or password"
+                : "We couldn't sign you in. Please try again.",
+            status: status || 500,
+            success: false,
         }
     }
 }
@@ -133,3 +152,16 @@ export async function createSession(prevState: AuthFormState, formData: FormData
 
 
 
+
+
+export async function checkSession() {
+    const res = await fetch(apiRoutes.auth.currentUser(), {
+        method: "GET",
+        credentials: "include", // ✅ correct for fetch
+        cache: "no-store",
+    })
+
+    console.log("Check session response:", res)
+
+    return res.ok
+}

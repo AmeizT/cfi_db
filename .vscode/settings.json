@@ -1,0 +1,10 @@
+{
+    "python.defaultInterpreterPath": "/Users/ameiz_t/Desktop/Developer/cfiapps/project_name/venv/bin/python",
+    "python.analysis.extraPaths": [
+        "/Users/ameiz_t/Desktop/Developer/cfiapps/project_name/venv/lib/python3.12/site-packages"
+    ],
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.typeCheckingMode": "standard",
+    "python.analysis.useLibraryCodeForTypes": true,
+    "python.analysis.autoSearchPaths": true
+}

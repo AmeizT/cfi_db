@@ -191,7 +191,7 @@ export function AttendanceContainer() {
                     <h1 className="text-3xl font-bold text-gray-900">Attendance Dashboard</h1>
                     <p className="text-gray-600 mt-1">Track and analyze church service attendance</p>
                 </div>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button className="bg-theme-600 hover:bg-theme-700">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Attendance
                 </Button>

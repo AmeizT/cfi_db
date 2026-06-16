@@ -1,0 +1,65 @@
+{
+    "Auth": {
+        "heading": "Meld aan by CFI Workspace",
+        "tagline": "Een veilige identiteit. Al jou werkruimte-hulpmiddels op een plek.",
+        "sso": {
+            "explanation": "<strong>Waarom SSO?</strong> Enkel-aanmelding gee jou naatlose toegang tot al CFI Workspace se hulpmiddels met een stel aanmeldbesonderhede—geen behoefte om verskeie wagwoorde te bestuur nie. Jou identiteit word veilig binne CFI Workspace bestuur."
+        },
+        "fields": {
+            "identifier": "Werksompos of gebruikersnaam",
+            "password": "Wagwoord"
+        },
+        "actions": {
+            "submit": "Meld aan met SSO",
+            "loading": "Besig om jou aan te meld..."
+        },
+        "links": {
+            "forgotPassword": "Wagwoord vergeet?"
+        },
+        "legal": {
+            "notice": "Deur voort te gaan om CFI Workspace te gebruik, stem jy in tot ons <Link>Diensbepalings</Link> en Privaatheidsbeleid."
+        }
+    },
+    "Recover": {
+        "heading": "Herstel jou rekening",
+        "subheading": "Laat ons jou identiteit bevestig",
+        "description": "Voer jou e-posadres of gebruikersnaam in en ons sal vir jou 'n skakel stuur om toegang tot jou rekening te herstel.",
+        "action": "Stuur aanmeldskakel",
+        "actionLabel": "Meld aan",
+        "actionUrl": "/auth/login",
+        "promptText": "Het jy reeds 'n rekening?",
+        "pending": "Stuur...",
+        "input": "E-pos of gebruikersnaam"
+    },
+    "Reset": {
+        "heading": "Stel jou wagwoord terug",
+        "subheading": "Voer jou nuwe wagwoord in",
+        "description": "",
+        "actionLabel": "Meld aan",
+        "promptText": "Het jy reeds 'n rekening?",
+        "actionUrl": "/en/auth/login",
+        "helpText": "Sterk wagwoorde kombineer hoofletters, kleinletters, syfers en spesiale karakters.",
+        "pending": "Stoor...",
+        "input": "Nuwe wagwoord",
+        "input-2": "Bevestig wagwoord"
+    },
+    "Initialize": {
+        "heading": "Herstel-e-pos Gestuur",
+        "description": "Ons het 'n herstel-skakel na jou e-pos gestuur. Gaan asseblief jou inbox na en volg die instruksies om jou wagwoord terug te stel. As jy dit nie sien nie, kyk in jou strooipos- of gemorspos-lêer.",
+        "action": "Terug na aanmelding"
+    },
+    "PasswordUpdated": {
+        "heading": "Wagwoord Opgedateer",
+        "description": "Jou wagwoord is suksesvol opgedateer. Jy kan nou aanmeld met jou nuwe besonderhede.",
+        "action": "Meld aan"
+    }
+}
+
+	
+
+
+
+
+
+
+

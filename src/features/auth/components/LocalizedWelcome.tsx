@@ -24,17 +24,14 @@ export function LocalizedWelcome() {
     ]
 
     const [currentIndex, setCurrentIndex] = React.useState(0);
-    // const [isEntering, setIsEntering] = React.useState(true);
 
     React.useEffect(() => {
         const intervalId = setInterval(() => {
-            // setIsEntering(false)
 
             setTimeout(() => {
                 setCurrentIndex((prevIndex) =>
                     prevIndex === translations.length - 1 ? 0 : prevIndex + 1
                 )
-                // setIsEntering(true)
             }, 500)
         }, 4000)
 
@@ -57,38 +54,8 @@ export function LocalizedWelcome() {
 
                     <SplitText 
                         text={translations[currentIndex].greeting} 
-                        className={translations[currentIndex].languageName.toLowerCase().includes("amharic") ? "text-[24px]" : "text-3xl"} 
+                        className={translations[currentIndex].languageName.toLowerCase().includes("amharic") ? "text-3xl" : "text-3xl"} 
                     />
-                    
-                    {/* <motion.h1
-                        className={cn(
-                            "text-4xl text-center leading-[1] tracking-tight font-semibold text-balance",
-                            currentIndex % 2 === 0 ? "text-primary" : "text-primary"
-                        )}
-                        initial="hidden"
-                        animate="visible"
-                        variants={{
-                            hidden: {},
-                            visible: {
-                                transition: {
-                                    staggerChildren: 0.05,
-                                },
-                            },
-                        }}
-                    >
-                        {translations[currentIndex].greeting.split("").map((char, idx) => (
-                            <motion.span
-                                key={idx}
-                                className="inline-block"
-                                variants={{
-                                    hidden: { opacity: 0, y: 20 },
-                                    visible: { opacity: 1, y: 0 },
-                                }}
-                            >
-                                {char === " " ? "\u00A0" : char}
-                            </motion.span>
-                        ))}
-                    </motion.h1> */}
                 </motion.div>
             </AnimatePresence>
         </div>

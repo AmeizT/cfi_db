@@ -99,7 +99,7 @@
 //     } satisfies ChartConfig
 
 //     return (
-//         <Card className="p-3 xl:p-6 w-full flex flex-col gap-y-3 xl:gap-y-6 rounded-xl border border-border-muted bg-gradient-to-br from-white to-white dark:from-dark-900 dark:to-dark-900 dark:shadow-layered-depth">
+//         <Card className="p-3 xl:p-6 w-full flex flex-col gap-y-3 xl:gap-y-6 rounded-xl border border-border-muted bg-linear-to-br from-white to-white dark:from-dark-900 dark:to-dark-900 dark:shadow-layered-depth">
 //             <CardHeader>
 //                 <CardTitle>Yearly Generated Income</CardTitle>
 

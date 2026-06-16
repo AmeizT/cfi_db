@@ -38,10 +38,10 @@ export default function SplitText({ text, ...props }: SplitTextProps) {
         <h1
         {...props}
         ref={containerRef}
-        className={cn("flex flex-wrap text-center text-4xl text-neutral-800 dark:text-white font-semibold visibility-hidden", props.className)}
+        className={cn("flex flex-wrap items-center text-center text-4xl text-neutral-800 dark:text-white font-semibold visibility-hidden", props.className)}
         style={{ visibility: "hidden" }}>
             {words.map((word, i) => (
-                <span data-index={i} key={i} className="inline-block opacity-0 translate-y-2 transition-all">
+                <span data-index={i} key={i} className="inline-block opacity-0 transition-all">
                     {word}&nbsp;
                 </span>
             ))}

@@ -3,6 +3,7 @@ import Link from "next/link"
 import { format } from "date-fns"
 import { Separator } from "@/components/ui/separator"
 import { ArrowUpRight } from "lucide-react"
+import { UrlObject } from "url"
 
 interface MenuItem {
     label: string
@@ -28,7 +29,7 @@ export function AuthFooter() {
                             <React.Fragment key={item.label}>
                                 <li className="flex items-center">
                                     <Link
-                                        href={item.path}
+                                        href={item.path as unknown as UrlObject}
                                         target={item.external ? "_blank" : "_self"}
                                         rel={item.external ? "noopener noreferrer" : undefined}
                                         className="transition-colors duration-100 dark:hover:text-white"
@@ -37,7 +38,7 @@ export function AuthFooter() {
                                         <span className="flex items-center gap-x-0.5">
                                             {item.label}
                                             {item.external && (
-                                                <sup className="p-[1px] rounded-[3px] bg-zinc-200 dark:bg-neutral-700">
+                                                <sup className="p-px rounded-[3px] bg-zinc-200 dark:bg-neutral-700">
                                                     <ArrowUpRight className="size-2.5 text-body-muted" strokeWidth={2.25} />
                                                 </sup>
                                             )}

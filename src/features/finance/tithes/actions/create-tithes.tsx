@@ -8,6 +8,7 @@ import { PaymentMethod, paymentMethods } from "../schemas/payment-methods"
 import { withJwt } from "@/config/headers"
 
 const TitheEntrySchema = z.object({
+    report: z.string(),
     assembly: z.string().min(1, "Assembly is required"),
     created_by: z.string().optional(),
     member: z.string().optional(),
@@ -40,6 +41,8 @@ export async function createTithes(prevData: PrevData, formData: FormData) {
     const jsonData = formData.get("data") as string
     const parsedData = JSON.parse(jsonData)
     const validatedData = MultipleTithesSchema.parse(parsedData)
+
+    console.log("validatedData", validatedData)
 
     const processedTithes = await Promise.all(
         validatedData.tithes.map(async (tithe, index) => {

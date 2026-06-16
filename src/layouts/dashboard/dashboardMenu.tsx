@@ -266,19 +266,19 @@ export const dashboardMenu: {
                         },
                     },
                     {
-                        name: "Monthly",
+                        name: "Statistics",
                         description: "Month-by-month performance breakdown",
                         get pathname() {
-                            return `/reports/monthly?month=${month}&year=${year}`
+                            return `/reports/stats/monthly?month=${month}&year=${year}`
                         },
                     },
-                    {
-                        name: "Annual",
-                        description: "Year-to-date summaries and comparisons",
-                        get pathname() {
-                            return `/reports/annual?year=${year}`
-                        },
-                    },
+                    // {
+                    //     name: "Annual",
+                    //     description: "Year-to-date summaries and comparisons",
+                    //     get pathname() {
+                    //         return `/reports/stats/annual?year=${year}`
+                    //     },
+                    // },
                     {
                         name: "Insights",
                         description: "Trends and visual analytics across categories",
@@ -286,14 +286,14 @@ export const dashboardMenu: {
                             return `/reports/insights?year=${year}`
                         },
                     },
-                    {
-                        name: "Zones",
-                        description: "Zone-level performance and summaries",
-                        get pathname() {
-                            return `/reports/zones?year=${year}`
-                        },
-                        permissions: ["isZoneAdmin"],
-                    },
+                    // {
+                    //     name: "Zones",
+                    //     description: "Zone-level performance and summaries",
+                    //     get pathname() {
+                    //         return `/reports/zones?year=${year}`
+                    //     },
+                    //     permissions: ["isZoneAdmin"],
+                    // },
                     {
                         name: "Compliance",
                         description: "Tracking of reporting and submission status",

@@ -2,22 +2,15 @@ import { formatCurrency } from "@/utils"
 import { useFinanceSummary } from "../hooks/use-finance-summary"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 export function ExpensesList(){
     const { data: finance, isLoading } = useFinanceSummary()
     const fixedExpenses = finance?.fixedExpenses || {}
 
     return (
-        <div className="w-full flex flex-col xl:flex-row rounded-r-3xl">
+        <div className="w-full flex flex-col xl:flex-row">
             <div className="w-full flex flex-col overflow-hidden">
-                <div className="px-3 xl:px-4 h-16 flex items-center text-body text-sm font-semibold rounded-t-md border-b">
-                    <span className="px-4 py-1 bg-red-500/10 text-red-500 rounded-full">
-                        Expenses
-                    </span>
-                </div>
-
-                <ScrollArea className="px-3 xl:px-4 w-full h-[576px] flex flex-col overflow-hidden">
+                <div className="w-full h-full flex flex-col overflow-hidden">
                     <table className="w-full text-sm">
                         <thead className="hidden">
                             <tr>
@@ -31,17 +24,16 @@ export function ExpensesList(){
                         ) : (
                             <tbody className="w-full">
                                 {Object?.entries(fixedExpenses)?.map(([item, amount]) => (
-                                    <tr key={item} className="border-b border-dashed h-10">
-                                        <td className="capitalize text-sm text-muted-foreground">
+                                    <tr key={item} className="h-10 border-b border-dashed border-slate-200">
+                                        <td className="capitalize text-sm">
                                             {item.replace(/_/g, " ")}
                                         </td>
 
-                                        <td className="text-sm font-medium text-right font-geist">
-                                            {formatCurrency(
-                                                finance?.locale?.language,
-                                                finance?.locale?.currency,
-                                                Number(amount) || 0
-                                            )}
+                                        <td className="text-sm font-bold text-right font-geist">
+                                            {formatCurrency(Number(amount) || 0, {
+                                                language: finance?.locale?.language || "en-US",
+                                                currency: finance?.locale?.currency || "USD",
+                                            })}
                                         </td>
                                     </tr>
                                 ))}
@@ -55,11 +47,10 @@ export function ExpensesList(){
                                         </td>
 
                                         <td className="text-sm font-medium text-right font-geist">
-                                            {formatCurrency(
-                                                finance?.locale?.language,
-                                                finance?.locale?.currency,
-                                                Number(expense?.amount) || 0
-                                            )}
+                                            {formatCurrency(Number(expense?.amount) || 0, {
+                                                language: finance?.locale?.language || "en-US",
+                                                currency: finance?.locale?.currency || "USD",
+                                            })}
                                         </td>
                                     </tr>
                                 ))}
@@ -70,16 +61,15 @@ export function ExpensesList(){
                             <tr className="h-10 border-t">
                                 <td className="font-semibold">Total Expenses</td>
                                 <td className="xl:w-1/6 text-right font-geist font-semibold">
-                                    {formatCurrency(
-                                        finance?.locale?.language,
-                                        finance?.locale?.currency,
-                                        finance?.totals?.totalExpenses || 0
-                                    )}
+                                    {formatCurrency(finance?.totals?.totalExpenses || 0, {
+                                        language: finance?.locale?.language || "en-US",
+                                        currency: finance?.locale?.currency || "USD",
+                                    })}
                                 </td>
                             </tr>
                         </tfoot>
-                    </table>
-                </ScrollArea>
+                    </table> 
+                </div>
             </div>
         </div>
     )

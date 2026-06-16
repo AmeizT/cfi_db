@@ -27,8 +27,7 @@ import { useUser } from "@/hooks/query/use-user"
 import { useHomecell } from "../hooks/use-homecells"
 import { createAttendance } from "../actions/create-attendance"
 import { FormState } from "@/types/form-state"
-import FormContainer from "@/features/reports/components/FormContainer"
-import { Homecell } from "@/features/groups/schemas/homecell"
+import { Homecell } from "@/features/spaces/schemas/homecell"
 
 const initialFormState: FormState = {
     message: "Idle",
@@ -95,13 +94,7 @@ export function AttendanceForm() {
     }
 
     return (
-        <FormContainer
-        ref={ref}
-        context={form}
-        action={attendanceFormAction}
-        isPending={isPending}
-        onClick={() => form.reset()}
-        >
+        <div>
             <div className="px-4">
                 <div className="space-y-6">
                     {/* Basic Information */}
@@ -364,32 +357,32 @@ export function AttendanceForm() {
 
                     {/* Summary Card */}
                     {headcountNumber > 0 && (
-                        <Card className="border-blue-200 bg-blue-50">
+                        <Card className="border-theme-200 bg-theme-50">
                             <CardHeader>
-                                <CardTitle className="text-blue-800">Attendance Summary</CardTitle>
+                                <CardTitle className="text-theme-800">Attendance Summary</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                                     <div>
-                                        <p className="text-2xl font-bold text-blue-700">{headcountNumber}</p>
-                                        <p className="text-sm text-blue-600">Total Attendance</p>
+                                        <p className="text-2xl font-bold text-theme-700">{headcountNumber}</p>
+                                        <p className="text-sm text-theme-600">Total Attendance</p>
                                     </div>
                                     {Number(adults) > 0 && (
                                         <div>
-                                            <p className="text-2xl font-bold text-blue-700">{adults}</p>
-                                            <p className="text-sm text-blue-600">Adults</p>
+                                            <p className="text-2xl font-bold text-theme-700">{adults}</p>
+                                            <p className="text-sm text-theme-600">Adults</p>
                                         </div>
                                     )}
                                     {Number(children) > 0 && (
                                         <div>
-                                            <p className="text-2xl font-bold text-blue-700">{children}</p>
-                                            <p className="text-sm text-blue-600">Children</p>
+                                            <p className="text-2xl font-bold text-theme-700">{children}</p>
+                                            <p className="text-sm text-theme-600">Children</p>
                                         </div>
                                     )}
                                     {Number(form.watch("visitors")) > 0 && (
                                         <div>
-                                            <p className="text-2xl font-bold text-blue-700">{form.watch("visitors")}</p>
-                                            <p className="text-sm text-blue-600">Visitors</p>
+                                            <p className="text-2xl font-bold text-theme-700">{form.watch("visitors")}</p>
+                                            <p className="text-sm text-theme-600">Visitors</p>
                                         </div>
                                     )}
                                 </div>
@@ -398,7 +391,7 @@ export function AttendanceForm() {
                     )}
                 </div>
             </div>
-        </FormContainer>
+        </div>
         
     )
 }

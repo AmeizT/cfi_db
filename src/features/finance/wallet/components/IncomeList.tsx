@@ -4,14 +4,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import React, { useState } from "react"
 
 interface IncomeListProps {
-    ref: React.RefObject<HTMLDivElement | null>,
+    ref?: React.RefObject<HTMLDivElement | null>,
     editMode?: "income" | "expenses" | null
 }
 
-export function IncomeList({ ref, editMode }: IncomeListProps){
+export function IncomeList({ editMode }: IncomeListProps){
     const { data: finance, isLoading } = useFinanceSummary()
-
-    console.log("finance", finance)
     
     const income = [
         { name: "Tithes", amount: finance?.totals?.totalTithes },
@@ -19,7 +17,7 @@ export function IncomeList({ ref, editMode }: IncomeListProps){
         { name: "Thanksgiving", amount: finance?.income?.breakdown?.thanksgiving },
         { name: "Fundraising", amount: finance?.income?.breakdown?.fundraising },
         { name: "Donations", amount: finance?.income?.breakdown?.donations },
-        { name: "Total", amount: finance?.totals?.totalIncome },
+        { name: "Total Income", amount: finance?.totals?.totalIncome },
     ]
 
     const [editedIncome, setEditedIncome] = useState(
@@ -45,22 +43,8 @@ export function IncomeList({ ref, editMode }: IncomeListProps){
     }
 
     return (
-        <div ref={ref} aria-label="Income" aria-describedby="Monthly Income" className="w-full min-h-[597px] flex flex-col gap-y-0 rounded-l-3xl border-r border-zinc-200 dark:border-neutral-700">
-            <div className="px-3 xl:px-4 h-16 flex items-center text-body text-sm font-semibold rounded-t-md border-b">
-                <span className="px-4 py-1 bg-green-500/10 text-green-500 rounded-full">
-                    Income
-                </span>
-
-                
-                {editMode && (
-                    <button
-                        className="ml-auto text-green-500 font-semibold hover:underline"
-                        onClick={() => setIsEditing(!isEditing)}
-                    >
-                        {isEditing ? "Cancel" : "Edit"}
-                    </button>
-                )}
-            </div>
+        <div aria-label="Income" aria-describedby="Monthly Income" className="w-full h-fit flex flex-col gap-y-0">
+            
 
             <div className="w-full pb-0">
                 <div
@@ -74,13 +58,13 @@ export function IncomeList({ ref, editMode }: IncomeListProps){
                         </div>
                     </div>
 
-                    <div role="rowgroup" className="px-4">
+                    <div role="rowgroup" className="">
                         {income?.map((item, index) => (
-                            <div key={index} role="row" className="py-4 w-full h-24 flex flex-col justify-center gap-y-1 last:border-b-0 border-b border-dashed border-zinc-200 dark:border-neutral-700">
+                            <div key={index} role="row" className="py-4 w-full h-10 flex justify-between items-center gap-y-1 last:border-b-0 border-b border-dashed border-slate-200 dark:border-neutral-700">
                                 {isLoading ? (
                                     <Skeleton className="h-3 w-[250px]" />
                                 ) : (
-                                    <span role="cell" className="text-left text-sm text-body-muted">
+                                    <span role="cell" className="text-left text-sm">
                                         {item.name}
                                     </span>
                                 )}
@@ -97,12 +81,11 @@ export function IncomeList({ ref, editMode }: IncomeListProps){
                                         defaultValue={item?.amount}
                                     />
                                 ) : (
-                                    <span role="cell" className="text-left text-2xl font-bold font-geist">
-                                        {formatCurrency(
-                                            finance?.locale?.language,
-                                            finance?.locale?.currency,
-                                            item.amount || 0)
-                                        }
+                                    <span role="cell" className={`text-left text-sm font-bold font-geist`}>
+                                        {formatCurrency(item.amount || 0, {
+                                            language: finance?.locale?.language || "en-US",
+                                            currency: finance?.locale?.currency || "USD",
+                                        })}
                                     </span>
                                 )}
                             </div>

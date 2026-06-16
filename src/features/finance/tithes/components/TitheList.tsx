@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { FileText, MoreHorizontal } from "lucide-react"
+import { MoreHorizontal } from "lucide-react"
 import { format } from "date-fns"
 import {
   Pagination,
@@ -32,18 +32,18 @@ import {
 import { useTithes } from "../../wallet/hooks/use-tithes"
 import { Tithe } from "@/types"
 import { formatCurrency } from "@/utils"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { deleteTithe, restoreTithe } from "../actions/delete-tithe"
-import { IconChartPie, IconDownload, IconHistory, IconPaperclip, IconPencilMinus, IconSettings } from "@tabler/icons-react"
+import { IconHistory, IconPaperclip, IconPencilMinus, IconSettings } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import Link from "next/link"
 import { TitheActionButton } from "./TitheActionButton"
 import { EmptyState } from "@/components/ui/empty-state"
 import { IconUpload, IconNote } from "@tabler/icons-react"
-import { Separator } from "@/components/ui/separator"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { UrlObject } from "url"
 
 const inititalState = {
     message: "",
@@ -60,8 +60,27 @@ export function TithesList() {
     const isTrashPage = pathname?.includes("trash")
     const { data } = useTithes({ trashed: isTrashPage })
     const [formState, formAction] = React.useActionState(isTrashPage ? restoreTithe : deleteTithe, inititalState)
+    const searchParams = useSearchParams()
 
-    const tithesData = isTrashPage ? (data ?? []) : (data?.results ?? [])
+    const params = {
+        month: searchParams.get("month") || new Date().getMonth().toString().padStart(2, "0"),
+        year: searchParams.get("year") || new Date().getFullYear().toString(),
+    }
+
+    console.log(params)
+
+    const targetYear = Number(params.year)
+    const targetMonth = new Date(`${params.month} 1, ${params.year}`).getMonth() // 0-based
+
+    const monthlyTithesData = (data?.results ?? []).filter((item: Tithe) => {
+        const date = new Date(item.timestamp)
+        return date.getFullYear() === targetYear && date.getMonth() === targetMonth
+    })
+
+    console.log("Monthly Tithes:", monthlyTithesData)
+    
+
+    const tithesData = isTrashPage ? (data ?? []) : (monthlyTithesData ?? [])
 
     const actionButtonLink = isTrashPage ? "/finance/tithes" : "/trash/tithes"
 
@@ -103,7 +122,7 @@ export function TithesList() {
     React.useEffect(() => {
         if (formState.status === 200 || formState.status === 204){
             toast(formState?.message || "Moved to trash", {
-                action: <Link href={actionButtonLink} className="px-2 py-1.5 rounded-md hover:bg-primary/10 text-primary font-semibold text-sm">{isTrashPage ? "Open tithes" : "Open trash"}</Link>,
+                action: <Link href={actionButtonLink as unknown as UrlObject} className="px-2 py-1.5 rounded-md hover:bg-primary/10 text-primary font-semibold text-sm">{isTrashPage ? "Open tithes" : "Open trash"}</Link>,
             })
         }
     }, [actionButtonLink, formState, isTrashPage])
@@ -127,35 +146,35 @@ export function TithesList() {
                         <CardContent className="px-0">
                             <div className="gap-4 w-full flex flex-col lg:flex-row lg:justify-between items-center mb-4">
                                 <div className="w-full lg:w-fit flex gap-x-2">
-                                    <div className="px-3 lg:px-2 w-full lg:w-[250px] flex items-center gap-x-2 rounded-full bg-white shadow-xs border border-gray-200 dark:border-neutral-700 focus-within:ring-[0px] focus-within:ring-neutral-800/10 focus-within:border-gray-400/50 dark:focus-within:ring-primary/10 dark:focus-within:border-primary transition-all duration-300">
-                                        <BsSearch className="size-4.5 text-gray-400" />
+                                    <div className="px-3 lg:px-2 w-full lg:w-[250px] flex items-center gap-x-2 rounded-full bg-white shadow-xs border border-slate-200 dark:border-neutral-700 focus-within:ring-0 focus-within:ring-neutral-800/10 focus-within:border-slate-300 dark:focus-within:ring-primary/10 dark:focus-within:border-primary transition-all duration-300">
+                                        <BsSearch className="size-4.5 text-slate-400" />
                                         <Input
                                             id="search_tithes"
                                             name="search_tithes"
                                             placeholder="Type a member's name..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="px-0 w-full h-10 lg:w-[15rem] lg:h-7.5 font-medium caret-primary border-none focus-visible:ring-0 focus:border-0"
+                                            className="px-0 w-full h-10 lg:w-60 lg:h-7.5 font-medium caret-primary border-none focus-visible:ring-0 focus:border-0"
                                         />
                                     </div>
 
-                                    <button className="hidden px-2.5 h-9 lg:h-7.5 lg:flex items-center gap-x-2 rounded-md border border-dashed border-gray-300 dark:bg-neutral-950 dark:border-neutral-600 dark:text-white text-sm font-semibold hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">
+                                    <button className="hidden px-2.5 h-9 lg:h-7.5 lg:flex items-center gap-x-2 rounded-md border border-dashed border-slate-300 dark:bg-neutral-950 dark:border-neutral-600 dark:text-white text-sm font-semibold hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">
                                         <BsFilter className="size-5 text-gray-400 dark:text-neutral-400" /> More Filters
                                     </button>
                                 </div>
 
                                 <div className="w-full lg:w-fit flex flex-wrap items-center gap-2 lg:gap-x-2">
-                                    <button className="flex-1 lg:flex-none px-2.5 h-9 lg:h-7.5 flex items-center justify-center gap-x-2 rounded-lg border border-gray-300 dark:bg-neutral-950 dark:border-neutral-600 dark:text-white text-sm font-semibold">
+                                    {/* <button className="hidden flex-1 lg:flex-none px-2.5 h-9 lg:h-7.5 _flex items-center justify-center gap-x-2 rounded-lg border border-slate-300 dark:bg-neutral-950 dark:border-neutral-600 dark:text-white text-sm font-semibold">
                                         <IconChartPie strokeWidth={2.2} className="size-5 lg:size-4 text-gray-500" /> Analyze
                                     </button>
 
-                                    <button className="flex-1 lg:flex-none px-2.5 h-9 lg:h-7.5 flex items-center justify-center gap-x-2 rounded-lg border border-gray-300 dark:bg-neutral-950 dark:border-neutral-600 dark:text-white text-sm font-semibold hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">
+                                    <button className="flex-1 lg:flex-none px-2.5 h-9 lg:h-7.5 flex items-center justify-center gap-x-2 rounded-lg border border-slate-300 dark:bg-neutral-950 dark:border-neutral-600 dark:text-white text-sm font-semibold hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">
                                         <IconDownload strokeWidth={2.2} className="size-5 lg:size-4 text-gray-500" /> Export
                                     </button>
 
-                                    <Separator orientation="vertical" className="flex mx-1 data-[orientation=vertical]:h-5 bg-gray-300 dark:bg-neutral-600" />
+                                    <Separator orientation="vertical" className="flex mx-1 data-[orientation=vertical]:h-5 bg-gray-300 dark:bg-neutral-600" /> */}
 
-                                    <button className="flex-1 lg:flex-none px-2.5 h-9 lg:h-7.5 flex items-center justify-center gap-x-2 rounded-lg border border-gray-300 dark:bg-neutral-950 dark:border-neutral-600 dark:text-white text-sm font-semibold">
+                                    <button className="flex-1 lg:flex-none px-2.5 h-9 lg:h-7.5 flex items-center justify-center gap-x-2 rounded-lg border border-slate-300 dark:bg-neutral-950 dark:border-neutral-600 dark:text-white text-sm font-semibold">
                                         <IconSettings strokeWidth={2.2} className="size-5 lg:size-4 text-gray-500" /> Customize
                                     </button>
                                 </div>
@@ -167,17 +186,17 @@ export function TithesList() {
                                         <TableRow className="hover:bg-inherit">
                                             <TableHead className="px-0 w-7 sticky left-0 z-30 bg-white dark:bg-neutral-900">
                                                 <span className="flex items-center gap-3">
-                                                    <Checkbox className="lg:size-4.5 lg:rounded-md bg-transparent border border-gray-300 dark:border-neutral-600 rounded-md shadow-xs" id="select_all_tithes" />
+                                                    <Checkbox className="lg:size-4.5 lg:rounded-md bg-transparent border border-slate-300 dark:border-neutral-600 rounded-md shadow-xs" id="select_all_tithes" />
                                                     <Label hidden htmlFor="select_all_tithes" />
                                                 </span>
                                             </TableHead>
-                                            <TableHead>Name</TableHead>
+                                            <TableHead>Contributor</TableHead>
                                             <TableHead>Amount</TableHead>
                                             <TableHead>Payment Method</TableHead>
                                             {/* <TableHead>Reference Code</TableHead> */}
-                                            <TableHead>Uploaded Receipt</TableHead>
+                                            {/* <TableHead>Uploaded Receipt</TableHead> */}
                                             <TableHead>Payment Date</TableHead>
-                                            <TableHead className="w-[80px]"></TableHead>
+                                            <TableHead className="w-20"></TableHead>
                                         </TableRow>
                                     </TableHeader>
 
@@ -186,26 +205,30 @@ export function TithesList() {
                                             <TableRow key={item?.id}>
                                                 <TableCell className="pl-0 pr-4 sticky left-0 z-20 bg-white dark:bg-neutral-900">
                                                     <span className="flex items-center gap-3">
-                                                        <Checkbox id={item?.id} className="lg:size-4.5 lg:rounded-md bg-transparent border border-gray-300 dark:border-neutral-600 rounded-md shadow-xs" />
+                                                        <Checkbox id={item?.id} className="lg:size-4.5 lg:rounded-md bg-transparent border border-slate-300 dark:border-neutral-600 rounded-md shadow-xs" />
                                                         <Label hidden htmlFor={item?.id} />
                                                     </span>
                                                 </TableCell>
-                                                <TableCell className={`${item?.member ? "text-neutral-700 dark:text-white" : "!text-red-500"} font-semibold`}>
+                                                <TableCell className={`${item?.member ? "text-neutral-700 dark:text-white" : "text-red-500!"} font-semibold`}>
                                                     {item?.member?.full_name || "Private"}
                                                 </TableCell>
 
                                                 <TableCell className="slashed-zero font-geist">
-                                                    {formatCurrency(item?.assembly?.language, item?.assembly?.currency, item?.amount)}
+                                                    {formatCurrency(item?.amount, {
+                                                        language: item?.assembly?.language, 
+                                                        currency: item?.assembly?.currency
+                                                    })}
+                                                    
                                                 </TableCell>
 
                                                 <TableCell>
                                                     {getPaymentMethodBadge(item.payment_method)}
                                                 </TableCell>
 
-                                                <TableCell>
+                                                {/* <TableCell>
                                                     {item?.receipt ? (
                                                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                            <FileText className="h-4 w-4 text-blue-500" />
+                                                            <FileText className="h-4 w-4 text-theme-500" />
                                                             <span className="sr-only">View Receipt</span>
                                                         </Button>
                                                     ) : (
@@ -213,7 +236,7 @@ export function TithesList() {
                                                             No file
                                                         </Badge>
                                                     )}
-                                                </TableCell>
+                                                </TableCell> */}
 
                                                 <TableCell>
                                                     {format(new Date(item?.timestamp), "MMMM d, yyyy")}
@@ -222,12 +245,12 @@ export function TithesList() {
                                                 <TableCell>
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" className="size-6 p-0 rounded-md hover:bg-white dark:hover:bg-neutral-800 hover:border border-gray-300 dark:border-neutral-700 transition-[colors]">
+                                                            <Button variant="ghost" className="size-6 p-0 rounded-md hover:bg-white dark:hover:bg-neutral-800 hover:border border-slate-300 dark:border-neutral-700 transition-[colors]">
                                                                 <span className="sr-only">Open menu</span>
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
                                                         </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className="w-[15rem] flex flex-col justify-center items-center border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 rounded-[10px]">
+                                                        <DropdownMenuContent align="end" className="w-60 flex flex-col justify-center items-center border-slate-300 dark:border-neutral-600 dark:bg-neutral-800 rounded-[10px]">
                                                             {actions
                                                             .filter(action => action.show(isTrashPage))
                                                             .map((action, index) => {
@@ -244,7 +267,7 @@ export function TithesList() {
                                                                 )
                                                             })}
                                                             <DropdownMenuSeparator className="w-[calc(100%-16px)] bg-gray-200 dark:bg-neutral-700" />
-                                                            <DropdownMenuItem asChild className={`p-0 ${isTrashPage ? "focus:text-blue-500" : "focus:text-red-500"}`}>
+                                                            <DropdownMenuItem asChild className={`p-0 ${isTrashPage ? "focus:text-theme-500" : "focus:text-red-500"}`}>
                                                                 <form action={handleTitheAction}>
                                                                     <input hidden name="titheId" type="text" defaultValue={String(item.id)} />
                                                                     <TitheActionButton isTrashPage={isTrashPage} />
@@ -326,9 +349,7 @@ export function TithesList() {
                     </Card>
                 </div>
             ) : (
-                <EmptyState 
-                    emptyStateFor={`${isTrashPage ? "trash" : "tithes"}`} 
-                />
+                <EmptyState type="tithes" />
             )}
         </React.Fragment>
     )

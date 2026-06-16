@@ -2,8 +2,14 @@ import type { NextConfig } from "next"
 import createNextIntlPlugin from "next-intl/plugin"
 
 const nextConfig: NextConfig = {
+  reactCompiler: true,
+  // typedRoutes: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === "production"
+  },
+  experimental: {
+    typedEnv: true,
+    globalNotFound: true,
   },
   images: {
     remotePatterns: [

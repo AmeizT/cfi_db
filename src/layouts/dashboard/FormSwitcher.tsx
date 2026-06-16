@@ -1,5 +1,4 @@
 import React from "react"
-import { TitheForm } from "@/features/finance/tithes/forms/TitheForm"
 import { AttendanceForm } from "@/features/attendance/forms/AttendanceForm"
 
 interface FormSwitcherProps {
@@ -17,9 +16,9 @@ export function FormSwitcher({ currentForm }: FormSwitcherProps){
         case "members":
             return
         case "tithes":
-            return <TitheForm />
+            return
         case "attendance":
-            return <AttendanceForm />
+            return
         default:
             return null
     }

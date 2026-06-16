@@ -1,11 +1,18 @@
 import { z } from "zod"
 
-export const EmailSchema = z.object({
-    email: z
+export const workspaceLoginSchema = z.object({
+    username: z
         .string()
-        .min(1, { message: "Workspace ID is required." })
-        .email({ message: "Invalid email address" })
-        .refine((val) => val.endsWith("@cfi.church"), {
-            message: "Please enter a valid CFI Workspace ID",
-        }),
+        .trim()
+        .min(1, { message: "Username or email is required." }),
+
+    password: z
+        .string()
+        .min(8, { message: "Password must be at least 8 characters long." }),
+})
+
+export const passwordRecoverySchema = z.object({
+    email: z
+    .email()
+    .min(1, {message: "Enter a valid email"})
 })

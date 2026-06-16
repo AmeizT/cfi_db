@@ -28,7 +28,7 @@ export function WalletSummary(){
     ]
 
     return (
-        <Card className="w-full flex gap-y-4 px-0 py-0 shadow-none rounded-3xl bg-gradient-to-b from-gray-50 to-gray-50 dark:from-neutral-800 dark:to-neutral-900 border-none dark:border-neutral-600">
+        <Card className="w-full flex gap-y-4 px-0 py-0 shadow-none rounded-3xl bg-linear-to-b from-gray-50 to-gray-50 dark:from-neutral-800 dark:to-neutral-900 border-none dark:border-neutral-600">
             <CardHeader className="hidden">
                 <CardTitle />
             </CardHeader>
@@ -57,11 +57,10 @@ export function WalletSummary(){
                                 <Skeleton className="h-7 w-[220px] rounded-lg" />
                             ) : (
                                 <h1 className={`flex flex-col text-3xl font-bold leading-snug tracking-tight font-geist ${summary.name.toLowerCase().includes("balance") && summary?.value < 0 ? "text-red-500" : summary.name.toLowerCase().includes("balance") && summary?.value > 0 ? "text-green-500" : "text-body"}`}>
-                                    {formatCurrency(
-                                        finance?.locale?.language,
-                                        finance?.locale?.currency,
-                                        summary?.value
-                                    )}
+                                    {formatCurrency(summary?.value, {
+                                        language: finance?.locale?.language,
+                                        currency: finance?.locale?.currency,
+                                    })}
                                 </h1>
                             )}
                         </div>

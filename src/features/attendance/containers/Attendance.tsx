@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react';
 import { Calendar, BarChart3, Table, TrendingUp, Users } from 'lucide-react';
 
@@ -113,7 +115,7 @@ const AttendanceVisualizations = () => {
     const [view, setView] = useState('improved-table');
 
     const categoryColors = {
-        Sunday: 'bg-blue-100 text-blue-700 border-blue-200',
+        Sunday: 'bg-theme-100 text-theme-700 border-theme-200',
         Friday: 'bg-purple-100 text-purple-700 border-purple-200',
         Homecell: 'bg-green-100 text-green-700 border-green-200'
     };
@@ -122,20 +124,20 @@ const AttendanceVisualizations = () => {
         <div className="overflow-x-auto">
             <table className="min-w-full bg-white border-collapse">
                 <thead>
-                    <tr className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                        <th className="px-4 py-3 text-left text-sm font-semibold border-r border-blue-500">Date & Time</th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold border-r border-blue-500">Service Info</th>
-                        <th className="px-4 py-3 text-center text-sm font-semibold border-r border-blue-500">Total</th>
-                        <th className="px-4 py-3 text-center text-sm font-semibold border-r border-blue-500">Adults</th>
-                        <th className="px-4 py-3 text-center text-sm font-semibold border-r border-blue-500">Children</th>
-                        <th className="px-4 py-3 text-center text-sm font-semibold border-r border-blue-500">Visitors</th>
-                        <th className="px-4 py-3 text-center text-sm font-semibold border-r border-blue-500">Altar Call</th>
+                    <tr className="bg-linear-to-r from-blue-600 to-blue-700 text-white">
+                        <th className="px-4 py-3 text-left text-sm font-semibold border-r border-theme-500">Date & Time</th>
+                        <th className="px-4 py-3 text-left text-sm font-semibold border-r border-theme-500">Service Info</th>
+                        <th className="px-4 py-3 text-center text-sm font-semibold border-r border-theme-500">Total</th>
+                        <th className="px-4 py-3 text-center text-sm font-semibold border-r border-theme-500">Adults</th>
+                        <th className="px-4 py-3 text-center text-sm font-semibold border-r border-theme-500">Children</th>
+                        <th className="px-4 py-3 text-center text-sm font-semibold border-r border-theme-500">Visitors</th>
+                        <th className="px-4 py-3 text-center text-sm font-semibold border-r border-theme-500">Altar Call</th>
                         <th className="px-4 py-3 text-center text-sm font-semibold">Baptisms</th>
                     </tr>
                 </thead>
                 <tbody>
                     {attendanceData.map((record, idx) => (
-                        <tr key={idx} className={`${idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-blue-50 transition-colors`}>
+                        <tr key={idx} className={`${idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-theme-50 transition-colors`}>
                             <td className="px-4 py-4 border-b border-r">
                                 <div className="flex flex-col">
                                     <span className="font-semibold text-gray-800">{record.date}</span>
@@ -149,11 +151,11 @@ const AttendanceVisualizations = () => {
                                 <div className="flex flex-col gap-1">
                                     <span className="font-semibold text-gray-800">{record.sermon}</span>
                                     <span className="text-sm text-gray-600">by {record.speaker}</span>
-                                    <span className="text-xs text-blue-600">{record.scripture}</span>
+                                    <span className="text-xs text-theme-600">{record.scripture}</span>
                                 </div>
                             </td>
                             <td className="px-4 py-4 border-b border-r text-center">
-                                <span className="inline-block px-3 py-1 bg-blue-600 text-white font-bold rounded-lg text-lg">{record.total}</span>
+                                <span className="inline-block px-3 py-1 bg-theme-600 text-white font-bold rounded-lg text-lg">{record.total}</span>
                             </td>
                             <td className="px-4 py-4 border-b border-r text-center font-semibold text-gray-700">{record.adults}</td>
                             <td className="px-4 py-4 border-b border-r text-center font-semibold text-gray-700">{record.children}</td>
@@ -164,7 +166,7 @@ const AttendanceVisualizations = () => {
                                 <span className="inline-block px-2 py-1 bg-red-100 text-red-700 font-semibold rounded">{record.altarCall}</span>
                             </td>
                             <td className="px-4 py-4 border-b text-center">
-                                <span className={`inline-block px-2 py-1 font-semibold rounded ${record.baptisms ? 'bg-blue-100 text-blue-700' : 'text-gray-400'}`}>
+                                <span className={`inline-block px-2 py-1 font-semibold rounded ${record.baptisms ? 'bg-theme-100 text-theme-700' : 'text-gray-400'}`}>
                                     {record.baptisms || '—'}
                                 </span>
                             </td>
@@ -179,7 +181,7 @@ const AttendanceVisualizations = () => {
         <div className="grid grid-cols-1 gap-6">
             {attendanceData.map((record, idx) => (
                 <div key={idx} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-200 overflow-hidden">
-                    <div className={`px-6 py-4 ${record.category === 'Sunday' ? 'bg-blue-600' : record.category === 'Friday' ? 'bg-purple-600' : 'bg-green-600'}`}>
+                    <div className={`px-6 py-4 ${record.category === 'Sunday' ? 'bg-theme-600' : record.category === 'Friday' ? 'bg-purple-600' : 'bg-green-600'}`}>
                         <div className="flex justify-between items-start">
                             <div className="text-white">
                                 <h3 className="font-bold text-xl">{record.sermon}</h3>
@@ -200,9 +202,9 @@ const AttendanceVisualizations = () => {
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                                <div className="text-blue-600 text-sm font-semibold mb-1">Total</div>
-                                <div className="text-3xl font-bold text-blue-700">{record.total}</div>
+                            <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-theme-200">
+                                <div className="text-theme-600 text-sm font-semibold mb-1">Total</div>
+                                <div className="text-3xl font-bold text-theme-700">{record.total}</div>
                             </div>
 
                             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -238,11 +240,11 @@ const AttendanceVisualizations = () => {
 
     const renderTimeline = () => (
         <div className="relative">
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-600 to-purple-600"></div>
+            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-linear-to-b from-blue-600 to-purple-600"></div>
 
             {attendanceData.map((record, idx) => (
                 <div key={idx} className="relative pl-20 pb-8 group">
-                    <div className={`absolute left-5 w-6 h-6 rounded-full border-4 border-white shadow-lg ${record.category === 'Sunday' ? 'bg-blue-600' :
+                    <div className={`absolute left-5 w-6 h-6 rounded-full border-4 border-white shadow-lg ${record.category === 'Sunday' ? 'bg-theme-600' :
                             record.category === 'Friday' ? 'bg-purple-600' : 'bg-green-600'
                         }`}></div>
 
@@ -259,14 +261,14 @@ const AttendanceVisualizations = () => {
                             </div>
                             <div className="text-right">
                                 <div className="text-sm text-gray-600 mb-1">Total Attendance</div>
-                                <div className="text-3xl font-bold text-blue-600">{record.total}</div>
+                                <div className="text-3xl font-bold text-theme-600">{record.total}</div>
                             </div>
                         </div>
 
                         <div className="mb-3 p-3 bg-gray-50 rounded-lg">
                             <div className="font-semibold text-gray-800">{record.sermon}</div>
                             <div className="text-sm text-gray-600 mt-1">by {record.speaker}</div>
-                            <div className="text-xs text-blue-600 mt-1">{record.scripture}</div>
+                            <div className="text-xs text-theme-600 mt-1">{record.scripture}</div>
                         </div>
 
                         <div className="grid grid-cols-5 gap-3">
@@ -315,7 +317,7 @@ const AttendanceVisualizations = () => {
 
                         <div className="flex items-center gap-6">
                             <div className="text-center">
-                                <div className="text-2xl font-bold text-blue-600">{record.total}</div>
+                                <div className="text-2xl font-bold text-theme-600">{record.total}</div>
                                 <div className="text-xs text-gray-600">Total</div>
                             </div>
 
@@ -351,7 +353,7 @@ const AttendanceVisualizations = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+        <div className="min-h-screen bg-linear-to-br from-blue-50 to-purple-50 p-6">
             <div className="max-w-7xl mx-auto">
                 <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">Church Attendance Dashboard</h1>
@@ -361,7 +363,7 @@ const AttendanceVisualizations = () => {
                         <button
                             onClick={() => setView('improved-table')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${view === 'improved-table'
-                                    ? 'bg-blue-600 text-white shadow-md'
+                                    ? 'bg-theme-600 text-white shadow-md'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                         >
@@ -372,7 +374,7 @@ const AttendanceVisualizations = () => {
                         <button
                             onClick={() => setView('cards')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${view === 'cards'
-                                    ? 'bg-blue-600 text-white shadow-md'
+                                    ? 'bg-theme-600 text-white shadow-md'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                         >
@@ -383,7 +385,7 @@ const AttendanceVisualizations = () => {
                         <button
                             onClick={() => setView('timeline')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${view === 'timeline'
-                                    ? 'bg-blue-600 text-white shadow-md'
+                                    ? 'bg-theme-600 text-white shadow-md'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                         >
@@ -394,7 +396,7 @@ const AttendanceVisualizations = () => {
                         <button
                             onClick={() => setView('compact')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${view === 'compact'
-                                    ? 'bg-blue-600 text-white shadow-md'
+                                    ? 'bg-theme-600 text-white shadow-md'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                         >

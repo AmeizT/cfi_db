@@ -14,7 +14,7 @@ export function AttendanceCalendar({ data }: AttendanceCalendarProps) {
     const [currentDate, setCurrentDate] = useState(new Date())
 
     const categoryColors = {
-        SUNDAY: "bg-blue-500",
+        SUNDAY: "bg-theme-500",
         FRIDAY: "bg-purple-500",
         HOMECELL: "bg-green-500",
     }
@@ -118,7 +118,7 @@ export function AttendanceCalendar({ data }: AttendanceCalendarProps) {
                             return (
                                 <div
                                     key={index}
-                                    className={`min-h-[80px] p-1 border rounded-lg ${day ? "bg-white hover:bg-gray-50" : "bg-gray-50"}`}
+                                    className={`min-h-20 p-1 border rounded-lg ${day ? "bg-white hover:bg-gray-50" : "bg-gray-50"}`}
                                 >
                                     {day && (
                                         <>
@@ -146,7 +146,7 @@ export function AttendanceCalendar({ data }: AttendanceCalendarProps) {
                     <div className="flex items-center gap-4 mt-4 pt-4 border-t">
                         <span className="text-sm text-gray-600">Legend:</span>
                         <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded bg-blue-500"></div>
+                            <div className="w-3 h-3 rounded bg-theme-500"></div>
                             <span className="text-xs">Sunday</span>
                         </div>
                         <div className="flex items-center gap-2">

@@ -7,10 +7,22 @@ export const RoleSchema = z.object({
 
 const nanoidRegex = /^[a-zA-Z0-9_-]{12}$/
 
+export const AssemblySummarySchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    zone: z.number().nullable(),
+    country_code: z.string(),
+    language: z.string(),
+    currency: z.string(),
+    avatar: z.string().url().nullable(),
+    avatar_fallback: z.string().nullable(),
+})
+
 export const UserSchema = z.object({
     id: z.number(),
     user_id: z.string().regex(nanoidRegex, "Invalid NanoID format"),
     church: z.number(),
+    assembly: AssemblySummarySchema.nullable(),
     assemblies: z.array(z.any()),
     full_name: z.string(),
     first_name: z.string(),
@@ -25,6 +37,7 @@ export const UserSchema = z.object({
     is_onboarded: z.boolean(),
     is_student: z.boolean(),
     is_db_staff: z.boolean(),
+    is_db_zone_staff: z.boolean(),
     is_academy_staff: z.boolean(),
     is_staff: z.boolean(),
     created_at: z.string().refine(val => !isNaN(Date.parse(val)), {
@@ -36,3 +49,4 @@ export const UserSchema = z.object({
 })
 
 export type User = z.infer<typeof UserSchema>
+export type AssemblySummary = z.infer<typeof AssemblySummarySchema>

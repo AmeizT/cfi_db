@@ -12,13 +12,8 @@ import { Spinner } from "@/components/ui/spinner"
 import { Text } from "@/components/ui/text"
 import { FormButton } from "../login/components/Button"
 import { normalizeEmail } from "../utils/normalize-email"
-import { EmailSchema } from "../schemas/login"
+import { passwordRecoverySchema } from "../schemas/login"
 import Container from "@/components/ui/container"
-
-// type Props = {
-//     open: boolean,
-//     handleClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-// }
 
 const initialState = {
     message: "",
@@ -38,7 +33,7 @@ export default function PasswordRecovery() {
     async function formAction(formData: FormData) {
         const normalizedEmail = normalizeEmail(email)
 
-        const validatedFields = EmailSchema.safeParse({
+        const validatedFields = passwordRecoverySchema.safeParse({
             email: normalizedEmail,
         })
 
@@ -136,7 +131,7 @@ export default function PasswordRecovery() {
                                             animate={{ opacity: 1, y: 8 }}
                                             exit={{ opacity: 0, y: 0 }}
                                             transition={{ type: "spring", bounce: 0.6, duration: 0.9, ease: "easeInOut" }}
-                                            className="block text-[13px] text-center text-body-muted text-balance font-[400] leading-[1.25rem]"
+                                            className="block text-[13px] text-center text-body-muted text-balance leading-5"
                                         >
 
                                         </motion.small>
@@ -160,7 +155,7 @@ function RecoveryInitializedMessage() {
         <Container>
             <Container.Auth type="initialize-recovery">
                 <div className="block content-center">
-                    <Link href="/en/auth/login?stage=verification" className="py-2 px-4 text-sm dark:text-white font-semibold rounded-lg border dark:border-neutral-700 dark:bg-gradient-to-b dark:from-neutral-800 dark:to-neutral-900 hover:bg-zinc-50 transition-colors duration-200">
+                    <Link href="/en/auth/login?stage=verification" className="py-2 px-4 text-sm dark:text-white font-semibold rounded-lg border dark:border-neutral-700 dark:bg-linear-to-b dark:from-neutral-800 dark:to-neutral-900 hover:bg-zinc-50 transition-colors duration-200">
                         {t("action")}
                     </Link>
                 </div>

@@ -2,7 +2,6 @@ import React from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Church } from "@/types"
 import { useUser } from "@/hooks/query/use-user"
-import { changeWorkspace } from "@/layouts/actions/change-workspace"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
 import { FormState } from "@/types/form-state"
@@ -21,21 +20,21 @@ const initialState: FormState = {
 export function WorkspaceSwitchForm({ workspace, setSelectedWorkspace }: WorkspaceButtonProps){
     const { data: user } = useUser()
     const queryClient = useQueryClient()
-    const [formState, formAction] = React.useActionState(changeWorkspace, initialState)
+    // const [formState, formAction] = React.useActionState(changeWorkspace, initialState)
 
-    React.useEffect(() => {
-        if (formState?.success) {
-            toast("Workspace changed")
-            queryClient.invalidateQueries({ queryKey: ["user"] })
-        } else if (formState?.status !== -1 && !formState?.success) {
-            toast("Failed to change your workspace")
-        }
-    }, [formState, queryClient])
+    // React.useEffect(() => {
+    //     if (formState?.success) {
+    //         toast("Workspace changed")
+    //         queryClient.invalidateQueries({ queryKey: ["user"] })
+    //     } else if (formState?.status !== -1 && !formState?.success) {
+    //         toast("Failed to change your workspace")
+    //     }
+    // }, [formState, queryClient])
 
-    async function changeWorkspaceAction(formData: FormData) {
-        formData.append("user", user?.id as unknown as string)
-        await formAction(formData)
-    }
+    // async function changeWorkspaceAction(formData: FormData) {
+    //     formData.append("user", user?.id as unknown as string)
+    //     await formAction(formData)
+    // }
 
     const updateWorkspace = (event: React.ChangeEvent<HTMLInputElement>) => {
         event.preventDefault()
@@ -44,7 +43,7 @@ export function WorkspaceSwitchForm({ workspace, setSelectedWorkspace }: Workspa
     }
 
     return (
-        <form action={changeWorkspaceAction} className="w-full">
+        <form className="w-full">
             <label htmlFor={workspace?.name} className="flex items-center text-sm gap-x-2 capitalize">
                 <input
                     id={workspace?.name}

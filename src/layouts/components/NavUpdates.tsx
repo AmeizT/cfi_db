@@ -47,7 +47,7 @@ export function NavFeed({ items }: { items: MenuItem[] }) {
                         href={{
                             pathname: "/editor"
                         }}
-                        className="group px-3.5 py-1.5 flex items-center gap-x-2 rounded-md bg-gradient-to-br from-charcoal-950 to-charcoal-600 hover:bg-gradient-to-b dark:from-blue-500 dark:to-blue-700 text-white text-sm font-medium shadow-xl transition-colors duration-300">
+                        className="group px-3.5 py-1.5 flex items-center gap-x-2 rounded-md bg-linear-to-br from-charcoal-950 to-charcoal-600 hover:bg-linear-to-b dark:from-blue-500 dark:to-blue-700 text-white text-sm font-medium shadow-xl transition-colors duration-300">
                             Create
                         </Link>
                     </SidebarMenuButton>

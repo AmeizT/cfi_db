@@ -1,25 +1,21 @@
 "use server"
 
 import React from "react"
-import { cookies } from "next/headers"
 import { url } from "@/config/urls"
+import { cookies } from "next/headers"
 import { User, UserSchema } from "../schemas/user"
-import { withJwt } from "@/config/headers"
 
 export const getUser = React.cache(async () => {
     const cookieStore = await cookies()
-    const accessToken = cookieStore.get("accessToken")?.value
-
-    if (!accessToken) {
-        return null
-    }
 
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 5000)
 
     try {
         const response = await fetch(url.currentUser, {
-            ...withJwt(accessToken),
+            headers: {
+                Cookie: cookieStore.toString(),
+            },
             signal: controller.signal
         })
 

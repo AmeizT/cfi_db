@@ -64,7 +64,7 @@ export function AttendanceTable() {
         })
 
     const categoryColors = {
-        sunday: "bg-blue-100 dark:bg-primary/20 dark:text-primary text-blue-500",
+        sunday: "bg-theme-100 dark:bg-primary/20 dark:text-primary text-theme-500",
         friday: "bg-purple-100 dark:bg-purple-500/20 text-purple-500",
         homecell: "bg-green-100 dark:bg-green-500/20 text-green-500",
     }
@@ -106,7 +106,7 @@ export function AttendanceTable() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setCategoryFilter(category)}
-                                className={`${categoryFilter === category ? "bg-blue-100 dark:bg-primary/20 dark:text-primary text-primary border-primary/20" : ""} h-7.5 text-sm`}
+                                className={`${categoryFilter === category ? "bg-theme-100 dark:bg-primary/20 dark:text-primary text-primary border-primary/20" : ""} h-7.5 text-sm`}
                             >
                                 {category.charAt(0).toUpperCase() + category.slice(1)}
                             </Button>
@@ -185,7 +185,7 @@ export function AttendanceTable() {
                                 <TableCell className="text-center text-red-600 font-medium">{record.altar_call}</TableCell>
                                 <TableCell className="text-center">
                                     {record?.baptism && record?.baptism > 0 ? (
-                                        <Badge className=" bg-blue-100 text-blue-800 dark:bg-primary/20 dark:text-primary">{record.baptism}</Badge>
+                                        <Badge className=" bg-theme-100 text-theme-800 dark:bg-primary/20 dark:text-primary">{record.baptism}</Badge>
                                     ) : (
                                         <span className="text-muted-foreground">-</span>
                                     )}

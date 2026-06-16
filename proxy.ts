@@ -1,40 +1,49 @@
-import { url } from "./src/config/urls"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { routing } from "./src/i18n/routing"
 import createMiddleware from "next-intl/middleware"
 
-interface Token {
-    token: string
+function isTokenExpired(token: string) {
+    try {
+        const payload = JSON.parse(
+            Buffer.from(token.split(".")[1], "base64").toString()
+        )
+
+        const exp = payload.exp * 1000
+        return Date.now() > exp
+    } catch {
+        return true
+    }
 }
 
 export async function proxy(request: NextRequest) {
-    const nextUrl = new URL("/", request.nextUrl)
+    const nextUrl = new URL("/app/dashboard", request.nextUrl)
     const authUrl = new URL("/en/auth/login", request.nextUrl)
-    const accessToken = request.cookies.get("accessToken")?.value ?? undefined
-    let isAuthenticated = !!accessToken
+    const expiredAuthUrl = new URL("/en/auth/login?expired=1", request.nextUrl)
+    const refreshToken = request.cookies.get("refreshToken")?.value
 
-    if (isAuthenticated) {
-        try {
-            const response = await fetch(url.verifySession, {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ token: accessToken as Token["token"] }),
-            })
+    let isAuthenticated = false
 
-            isAuthenticated = response.ok
-        } catch (error) {
-            console.error("Failed to verify session", error)
-            isAuthenticated = false
+    if (refreshToken) {
+        const expired = isTokenExpired(refreshToken)
+        
+        if (!expired) {
+            isAuthenticated = true
+        } else {
+            const response = NextResponse.redirect(expiredAuthUrl)
+            response.cookies.delete("accessToken")
+            response.cookies.delete("refreshToken")
+            return response
         }
     }
 
-    if (!isAuthenticated && !request.nextUrl.pathname.startsWith("/auth")) {
+    const isAuthRoute = request.nextUrl.pathname.includes("/auth")
+
+    if (!isAuthenticated && !isAuthRoute) {
         return NextResponse.redirect(authUrl)
-    } else if (isAuthenticated && request.nextUrl.pathname.startsWith("/auth")) {
+    }
+
+    if (isAuthenticated && isAuthRoute) {
         return NextResponse.redirect(nextUrl)
     }
 
@@ -46,6 +55,7 @@ export default createMiddleware(routing)
 export const config = {
     matcher: [
         "/",
+        "/app/:path*",
         "/auth/:path*",
         "/admin/:path*",
         "/analytics/:path*",
@@ -61,6 +71,7 @@ export const config = {
         "/events/:path*",
         "/feed/:path*",
         "/fellowship/:path*",
+        "/forms/:path*",
         "/finance/:path*",
         "/gallery/:path*",
         "/groups/:path*",
@@ -68,6 +79,7 @@ export const config = {
         "/inbox/:path*",
         "/insights:path*",
         "/lab/:path*",
+        "/manage/:path*",
         "/messages/:path*",
         "/meetings/:path*",
         "/people/:path*",

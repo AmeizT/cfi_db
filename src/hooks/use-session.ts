@@ -96,19 +96,5 @@ export const useSession = ({
         }
     }, [countdown, showInactivityAlert, userID, signOut])
 
-    // React.useEffect(() => {
-    //     const onUseKeyboardShortcut = (event: KeyboardEvent) => {
-    //         if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "q") {
-    //             event.preventDefault()
-    //         }
-    //     }
-
-    //     document.addEventListener("keydown", onUseKeyboardShortcut)
-
-    //     return () => {
-    //         document.removeEventListener("keydown", onUseKeyboardShortcut)
-    //     }
-    // }, [])
-
     return { countdown, setShowInactivityAlert, showInactivityAlert }
 }

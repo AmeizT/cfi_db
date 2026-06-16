@@ -1,0 +1,79 @@
+/* Design System tokens and component primitives
+   - Relies on variables defined in src/styles/globals.css
+   - Provides spacing, type scale, shadows, and base component classes
+*/
+
+:root {
+  /* Spacing scale */
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* Type scale */
+  --type-xs: 12px;
+  --type-sm: 14px;
+  --type-md: 16px;
+  --type-lg: 20px;
+  --type-xl: 24px;
+
+  /* Shadows (semantic aliases) */
+  --shadow-sm: 0 1px 2px rgba(11,29,58,0.04);
+  --shadow-md: 0 4px 10px rgba(11,29,58,0.06);
+  --shadow-lg: 0 8px 30px rgba(11,29,58,0.08);
+}
+
+/* =====================
+   Buttons (primitive)
+   Use `ds-btn` as the base and `ds-btn--<variant>` modifier classes
+   ===================== */
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 var(--space-sm);
+  height: 2rem;
+  border-radius: var(--radius-md);
+  font-size: var(--type-sm);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 180ms cubic-bezier(.25,1,.5,1), box-shadow 120ms ease, background-color 120ms ease, color 120ms ease;
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-sm);
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.ds-btn:disabled { opacity: 0.5; pointer-events: none; }
+.ds-btn:focus-visible { outline: 3px solid var(--color-ring); outline-offset: 2px; }
+
+.ds-btn--primary { background: var(--color-primary); color: var(--color-primary-foreground); }
+.ds-btn--secondary { background: var(--color-secondary); color: var(--color-secondary-foreground); }
+.ds-btn--destructive { background: var(--color-destructive); color: var(--color-primary-foreground); }
+.ds-btn--muted { background: var(--color-muted); color: var(--color-muted-foreground); }
+.ds-btn--accent { background: var(--color-accent); color: var(--color-accent-foreground); }
+.ds-btn--outline { background: transparent; color: var(--color-foreground); border-color: var(--color-border); }
+.ds-btn--ghost { background: transparent; color: var(--color-muted-foreground); }
+.ds-btn--link { background: transparent; color: var(--color-primary); text-decoration: underline; padding: 0; height: auto; }
+.ds-btn--toolbar { border-radius: 9999px; background: var(--color-surface); color: var(--color-foreground); box-shadow: none; border-color: var(--color-border); }
+
+/* Sizes */
+.ds-btn--sm { height: 2rem; padding: 0 var(--space-sm); font-size: var(--type-sm); }
+.ds-btn--default { height: 2.25rem; padding: 0 var(--space-md); font-size: var(--type-md); }
+.ds-btn--lg { height: 2.75rem; padding: 0 var(--space-lg); font-size: var(--type-lg); }
+.ds-btn--icon { width: 2rem; height: 2rem; padding: 0; }
+
+/* Hover/active states using tokens (keeps dark mode semantics) */
+.ds-btn--primary:hover { background: color-mix(in srgb, var(--color-primary) 85%, black 15%); }
+.ds-btn--secondary:hover { background: color-mix(in srgb, var(--color-secondary) 85%, black 15%); }
+.ds-btn--destructive:hover { background: color-mix(in srgb, var(--color-destructive) 85%, black 15%); }
+.ds-btn--outline:hover { background: color-mix(in srgb, var(--color-border) 8%, transparent); }
+.ds-btn--ghost:hover { background: color-mix(in srgb, var(--color-border) 6%, transparent); }
+
+/* Utility: small icon inside button */
+.ds-btn svg.size-4 { width: 1rem; height: 1rem; }

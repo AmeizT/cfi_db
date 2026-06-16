@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+export const CashflowItemSchema = z.object({
+    name: z.string(),
+    amount: z.number(),
+    previous: z.number(),
+    trend: z.number(),
+    percentage: z.number()
+})
+
 export const financeSummarySchema = z.object({
     income: z.object({
         gross_income: z.number(),
@@ -28,7 +36,6 @@ export const financeSummarySchema = z.object({
         bank_charges: z.number(),
         remittance: z.number(),
     }),
-
     flexibleExpenses: z.array(
         z.object({
             title: z.string(),
@@ -37,7 +44,8 @@ export const financeSummarySchema = z.object({
             amount: z.number(),
         })
     ),
-
+    fixedExpensesList: z.array(CashflowItemSchema),
+    incomeList: z.array(CashflowItemSchema),
     totals: z.object({
         totalTithes: z.number(),
         totalIncome: z.number(),

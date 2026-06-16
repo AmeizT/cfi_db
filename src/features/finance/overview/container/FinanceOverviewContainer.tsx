@@ -70,7 +70,7 @@ export function Shortcuts() {
                     <li key={s.url}>
                         <Link
                             href={s.url}
-                            className="text-blue-600 hover:underline text-sm"
+                            className="text-theme-600 hover:underline text-sm"
                         >
                             {s.label}
                         </Link>

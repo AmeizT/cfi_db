@@ -92,7 +92,7 @@ export function ExpensesChart() {
                     Overview of monthly expenses including both fixed and variable costs.
                 </p>
             </div>
-            <ChartContainer config={chartConfig} className="min-h-[240px] w-full">
+            <ChartContainer config={chartConfig} className="min-h-60 w-full">
                 <BarChart accessibilityLayer data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     {/* <XAxis

@@ -5,57 +5,48 @@ import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { FormState } from "@/types/form-state"
 
-export async function changeWorkspace(formState: FormState, formData: FormData) {
-    const assemblyId = formData.get("church")?.toString().trim()
-    const userId = formData.get("user")?.toString().trim()
+const fail = (status: number, message: string): FormState => ({
+    success: false,
+    status,
+    message,
+})
 
-    if (!assemblyId || !userId) {
-        return {
-            success: false,
-            status: 400,
-            message: "Missing user or church ID"
-        }
-    }
+export async function setActiveTeamspace(
+    _prev: FormState,
+    formData: FormData
+): Promise<FormState> {
+    const teamspaceId = formData.get("church")?.toString().trim()
+    if (!teamspaceId) return fail(400, "Missing teamspace ID")
 
-    const cookieStore = await cookies();
-    const accessToken: string | undefined = cookieStore.get("accessToken")?.value
-
-    const userUrl = `${url.user}${userId}/`
+    const cookieStore = await cookies()
+    const accessToken = cookieStore.get("accessToken")?.value
+    if (!accessToken) return fail(401, "Not authenticated")
 
     try {
-        const response = await fetch(userUrl, {
+        const response = await fetch(url.currentUser, {
             method: "PATCH",
-            body: JSON.stringify({ church: assemblyId }),
+            cache: "no-store",
             headers: {
-                accept: "application/json",
                 "Content-Type": "application/json",
                 authorization: `JWT ${accessToken}`,
-            }
-        });
+            },
+            body: JSON.stringify({ church: teamspaceId }),
+        })
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}))
-            return {
-                success: false,
-                status: response.status,
-                message: errorData?.detail || "Failed to update workspace"
-            }
+            const error = await response.json().catch(() => ({}))
+            return fail(response.status, error?.detail ?? "Failed to switch teamspace")
         }
 
-        revalidatePath("/")
+        revalidatePath("/", "layout")
 
         return {
             success: true,
             status: response.status,
-            message: "Workspace changed"
+            message: "Teamspace switched",
         }
-    } catch (error: unknown) {
-        console.error("Error changing workspace:", error)
-
-        return {
-            success: false,
-            status: 500,
-            message: "An unexpected error occurred while changing the workspace"
-        }
+    } catch (error) {
+        console.error("Teamspace switch failed:", error)
+        return fail(500, "Unexpected error while switching teamspace")
     }
 }

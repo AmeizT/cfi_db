@@ -4,8 +4,9 @@ import { User } from "@/features/auth/types/user"
 import DashboardAppLayout from "./dashboard/AppLayout"
 import { MemberBookLayout } from "./memberbook/Layout"
 import { HeadlessLayout } from "./headless/HeadlessLayout"
+import HeadlessSidebarLayout from "./dashboard/SidebarLayout"
 
-type LayoutKey = "root" | "dashboard" | "home" | "headless" | "memberbook"
+type LayoutKey = "root" | "dashboard" | "home" | "headless" | "headlessSidebar" | "memberbook"
 
 export type LayoutConfig = {
     key: LayoutKey
@@ -23,6 +24,7 @@ type LayoutRegistry = {
     dashboard: React.ComponentType<{ children: React.ReactNode }>
     home: React.ComponentType<HomeLayoutProps>
     headless: React.ComponentType<{ children: React.ReactNode }>
+    headlessSidebar: React.ComponentType<{ children: React.ReactNode }>
     memberbook: React.ComponentType<{ children: React.ReactNode }>
 }
 
@@ -31,7 +33,8 @@ const layoutRegistry: LayoutRegistry = {
     dashboard: DashboardAppLayout,
     home: HomeLayout,
     headless: HeadlessLayout,
-    memberbook: MemberBookLayout
+    memberbook: MemberBookLayout,
+    headlessSidebar: HeadlessSidebarLayout,
 }
 
 export function getLayoutComponent(key: LayoutKey) {

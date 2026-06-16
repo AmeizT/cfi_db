@@ -95,8 +95,8 @@ export function TithePreview({ data, onBack, isSubmitted = false }: TithePreview
                                 ${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                             </p>
                         </div>
-                        <div className="text-center p-4 bg-blue-50 rounded-lg">
-                            <p className="text-sm text-blue-600 font-medium">Payment Methods</p>
+                        <div className="text-center p-4 bg-theme-50 rounded-lg">
+                            <p className="text-sm text-theme-600 font-medium">Payment Methods</p>
                             <div className="flex flex-wrap gap-1 justify-center mt-1">
                                 {[...new Set(data.map((t) => t.payment_method))].map((method) => (
                                     <Badge key={method} variant="outline" className="text-xs">
