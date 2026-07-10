@@ -10,18 +10,25 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
 import { getNavigation } from "../navigation/config/get-navigation"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { NavItem, QueryParams } from "../navigation/types"
+import { NavGroup, NavItem, RailNavigation } from "../navigation/types"
+
+type NavigationEntry = NavItem | NavGroup | RailNavigation
+
+function isNavItem(entry: NavigationEntry): entry is NavItem {
+    return "icon" in entry && "activeIcon" in entry
+}
 
 export function NavBar() {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
-    const period = searchParams.get("period") ?? undefined
     const currentTab = searchParams.get("tab") ?? undefined
     const mode = searchParams.get("mode") ?? undefined
     const defaultMode = mode?.includes("default") ?? false
-    const navigation = getNavigation(undefined, searchParams as unknown as QueryParams)
-    const menuGroups = Object.values(navigation).flat()
+    const navigation = getNavigation({ searchParams })
+    const menuGroups = Object.values(navigation)
+        .flat()
+        .filter(isNavItem)
 
     const activePage = React.useMemo(() => {
         return menuGroups.find(item => {

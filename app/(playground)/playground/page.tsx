@@ -164,7 +164,7 @@ export default function LoginPage() {
                                 <Button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition-all"
+                                    className="w-full bg-theme hover:bg-theme-600 text-theme-foreground font-semibold py-3 rounded-lg transition-all"
                                 >
                                     {isLoading ? (
                                         <motion.span
@@ -196,7 +196,7 @@ export default function LoginPage() {
                     <motion.div className="py-3 text-center" variants={itemVariants}>
                         <p className="text-sm">
                             Forgot you password?{" "}
-                            <a href="#" className="text-blue-500 font-semibold hover:underline transition-all">
+                            <a href="#" className="text-theme font-semibold hover:underline transition-all">
                                 Reset your password
                             </a>
                         </p>

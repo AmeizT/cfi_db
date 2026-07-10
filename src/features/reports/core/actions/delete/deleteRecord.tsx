@@ -1,15 +1,11 @@
 "use server"
 
 import { cookies } from "next/headers"
-import { apiRoutes } from "@/config/urls"
+import { apiRoutes, type ApiDetailRouteKey } from "@/config/urls"
 
-export async function softDeleteRecord(resource: keyof typeof apiRoutes, recordId: string) {
+export async function softDeleteRecord(resource: ApiDetailRouteKey, recordId: string) {
     const cookieStore = await cookies()
     const route = apiRoutes[resource]
-
-    if (!route?.detail) {
-        throw new Error(`No detail route for resource: ${resource}`)
-    }
 
     const endpoint = route.detail(recordId)
 

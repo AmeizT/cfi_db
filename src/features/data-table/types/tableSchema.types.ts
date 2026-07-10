@@ -2,7 +2,9 @@ import { DataTableVariant } from "./tableVariant.types"
 
 export type ColumnFormatter =
     | "text"
+    | "avatar"
     | "number"
+    | "numeric"
     | "currency"
     | "date"
     | "percentage"
@@ -18,6 +20,10 @@ export type TableColumnSchema = {
 export type TableSchema = {
     intent?: TableIntent
     columns: TableColumnConfig[]
+    children?: {
+        rowKey: string
+        columns: TableColumnConfig[]
+    }
     footer?: TableFooterConfig
     variant?: DataTableVariant
 }
@@ -25,6 +31,11 @@ export type TableSchema = {
 export type TableIntent =
     | "finance"
     | "attendance"
+    | "growth"
+    | "ministry"
+    | "leadership"
+    | "compliance"
+    | "risk"
     | "minimal"
 
 export type TableColumnConfig = {
@@ -34,9 +45,14 @@ export type TableColumnConfig = {
 
     // behavior
     isFooterSum?: boolean
+    isNumeric?: boolean
 
     // styling
     align?: "left" | "center" | "right"
+    meta?: {
+        align?: "left" | "center" | "right"
+        [key: string]: unknown
+    }
 
     // 🔥 future-proof
     type?: "text" | "avatar" | "badge" | "currency" | "date"

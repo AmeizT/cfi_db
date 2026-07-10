@@ -3,12 +3,16 @@
 import { useState, useRef, useEffect } from "react";
 
 const NUMERIC_FIELDS = [
-    { key: "adults", label: "Adults", icon: "👤" },
-    { key: "children", label: "Children", icon: "🧒" },
-    { key: "guest_attendance", label: "Guests", icon: "🙋" },
-    { key: "new_converts", label: "New Converts", icon: "✨" },
-    { key: "altar_call", label: "Altar Call", icon: "🙏" },
-    { key: "baptisms", label: "Baptisms", icon: "💧" },
+    { key: "men", label: "Men", icon: "👤" },
+    { key: "women", label: "Women", icon: "👤" },
+    { key: "visitor_men", label: "Visitor Men", icon: "🙋" },
+    { key: "visitor_women", label: "Visitor Women", icon: "🙋" },
+    { key: "new_convert_men", label: "Convert Men", icon: "✨" },
+    { key: "new_convert_women", label: "Convert Women", icon: "✨" },
+    { key: "altar_call_men", label: "Altar Men", icon: "🙏" },
+    { key: "altar_call_women", label: "Altar Women", icon: "🙏" },
+    { key: "baptism_men", label: "Baptism Men", icon: "💧" },
+    { key: "baptism_women", label: "Baptism Women", icon: "💧" },
     { key: "online_viewers", label: "Online", icon: "📺" },
     { key: "volunteers_on_duty", label: "Volunteers", icon: "🦺" },
     { key: "total_leaders_present", label: "Leaders", icon: "⭐" },
@@ -23,26 +27,27 @@ function makeEmpty() {
         id: nextId++, timestamp: new Date().toISOString().split("T")[0],
         service_type: "Sunday", is_special_event: false, special_event_name: "",
         weather: "", preacher: "", sermon: "", scriptures: "", notes: "",
-        adults: 0, children: 0, guest_attendance: 0, new_converts: 0,
-        altar_call: 0, baptisms: 0, online_viewers: 0, volunteers_on_duty: 0, total_leaders_present: 0,
+        men: 0, women: 0, visitor_men: 0, visitor_women: 0,
+        new_convert_men: 0, new_convert_women: 0, altar_call_men: 0, altar_call_women: 0,
+        baptism_men: 0, baptism_women: 0, online_viewers: 0, volunteers_on_duty: 0, total_leaders_present: 0,
     };
 }
 
 const SEED = [
-    { id: 1, timestamp: "2025-03-02", service_type: "Sunday", is_special_event: false, special_event_name: "", weather: "Sunny", preacher: "Pastor John", sermon: "Walking by Faith", scriptures: "Heb 11:1-6", notes: "", adults: 312, children: 87, guest_attendance: 24, new_converts: 8, altar_call: 22, baptisms: 3, online_viewers: 145, volunteers_on_duty: 18, total_leaders_present: 34 },
-    { id: 2, timestamp: "2025-02-23", service_type: "Sunday", is_special_event: false, special_event_name: "", weather: "Cloudy", preacher: "Pastor Sarah", sermon: "The Power of Praise", scriptures: "Ps 22:3", notes: "Good turnout despite weather", adults: 289, children: 72, guest_attendance: 31, new_converts: 5, altar_call: 18, baptisms: 0, online_viewers: 201, volunteers_on_duty: 16, total_leaders_present: 28 },
-    { id: 3, timestamp: "2025-02-19", service_type: "Wednesday", is_special_event: false, special_event_name: "", weather: "Rainy", preacher: "Elder Mike", sermon: "Prayer & Fasting", scriptures: "Matt 6:16-18", notes: "", adults: 134, children: 21, guest_attendance: 9, new_converts: 2, altar_call: 7, baptisms: 0, online_viewers: 89, volunteers_on_duty: 10, total_leaders_present: 19 },
-    { id: 4, timestamp: "2025-02-16", service_type: "Sunday", is_special_event: true, special_event_name: "Valentine's Sunday", weather: "Sunny", preacher: "Pastor John", sermon: "Love of God", scriptures: "John 3:16", notes: "Special couples event", adults: 401, children: 95, guest_attendance: 67, new_converts: 14, altar_call: 38, baptisms: 7, online_viewers: 312, volunteers_on_duty: 24, total_leaders_present: 41 },
-    { id: 5, timestamp: "2025-02-09", service_type: "Sunday", is_special_event: false, special_event_name: "", weather: "Clear", preacher: "Pastor John", sermon: "Renewed Strength", scriptures: "Isa 40:31", notes: "", adults: 276, children: 64, guest_attendance: 19, new_converts: 4, altar_call: 12, baptisms: 1, online_viewers: 178, volunteers_on_duty: 15, total_leaders_present: 26 },
+    { id: 1, timestamp: "2025-03-02", service_type: "Sunday", is_special_event: false, special_event_name: "", weather: "Sunny", preacher: "Pastor John", sermon: "Walking by Faith", scriptures: "Heb 11:1-6", notes: "", men: 148, women: 164, visitor_men: 10, visitor_women: 14, new_convert_men: 3, new_convert_women: 5, altar_call_men: 9, altar_call_women: 13, baptism_men: 1, baptism_women: 2, online_viewers: 145, volunteers_on_duty: 18, total_leaders_present: 34 },
+    { id: 2, timestamp: "2025-02-23", service_type: "Sunday", is_special_event: false, special_event_name: "", weather: "Cloudy", preacher: "Pastor Sarah", sermon: "The Power of Praise", scriptures: "Ps 22:3", notes: "Good turnout despite weather", men: 139, women: 150, visitor_men: 13, visitor_women: 18, new_convert_men: 2, new_convert_women: 3, altar_call_men: 7, altar_call_women: 11, baptism_men: 0, baptism_women: 0, online_viewers: 201, volunteers_on_duty: 16, total_leaders_present: 28 },
+    { id: 3, timestamp: "2025-02-19", service_type: "Wednesday", is_special_event: false, special_event_name: "", weather: "Rainy", preacher: "Elder Mike", sermon: "Prayer & Fasting", scriptures: "Matt 6:16-18", notes: "", men: 62, women: 72, visitor_men: 4, visitor_women: 5, new_convert_men: 1, new_convert_women: 1, altar_call_men: 3, altar_call_women: 4, baptism_men: 0, baptism_women: 0, online_viewers: 89, volunteers_on_duty: 10, total_leaders_present: 19 },
+    { id: 4, timestamp: "2025-02-16", service_type: "Sunday", is_special_event: true, special_event_name: "Valentine's Sunday", weather: "Sunny", preacher: "Pastor John", sermon: "Love of God", scriptures: "John 3:16", notes: "Special couples event", men: 190, women: 211, visitor_men: 28, visitor_women: 39, new_convert_men: 6, new_convert_women: 8, altar_call_men: 16, altar_call_women: 22, baptism_men: 3, baptism_women: 4, online_viewers: 312, volunteers_on_duty: 24, total_leaders_present: 41 },
+    { id: 5, timestamp: "2025-02-09", service_type: "Sunday", is_special_event: false, special_event_name: "", weather: "Clear", preacher: "Pastor John", sermon: "Renewed Strength", scriptures: "Isa 40:31", notes: "", men: 130, women: 146, visitor_men: 8, visitor_women: 11, new_convert_men: 2, new_convert_women: 2, altar_call_men: 5, altar_call_women: 7, baptism_men: 1, baptism_women: 0, online_viewers: 178, volunteers_on_duty: 15, total_leaders_present: 26 },
 ];
 
 function EditableNumber({ value, onChange }) {
     const [editing, setEditing] = useState(false);
     const [draft, setDraft] = useState(String(value));
     const ref = useRef();
-    useEffect(() => { setDraft(String(value)); }, [value]);
     useEffect(() => { if (editing) { ref.current?.focus(); ref.current?.select(); } }, [editing]);
     const commit = () => { setEditing(false); const n = Math.max(0, parseInt(draft) || 0); if (n !== value) onChange(n); };
+    const startEditing = () => { setDraft(String(value)); setEditing(true); };
     return editing ? (
         <input ref={ref} type="number" min={0} value={draft}
             onChange={e => setDraft(e.target.value)} onBlur={commit}
@@ -50,7 +55,7 @@ function EditableNumber({ value, onChange }) {
             style={{ width: "100%", background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.4)", borderRadius: 4, outline: "none", color: "#f1f5f9", fontFamily: "inherit", fontSize: 13, fontVariantNumeric: "tabular-nums", fontWeight: 600, textAlign: "center", padding: "4px 2px" }}
         />
     ) : (
-        <div onClick={() => setEditing(true)}
+        <div onClick={startEditing}
             style={{ textAlign: "center", cursor: "text", padding: "5px 2px", borderRadius: 4, fontVariantNumeric: "tabular-nums", fontSize: 13, fontWeight: 600, color: value === 0 ? "#374151" : "#e2e8f0", transition: "background 0.1s" }}
             onMouseEnter={e => e.currentTarget.style.background = "rgba(74,222,128,0.07)"}
             onMouseLeave={e => e.currentTarget.style.background = "transparent"}
@@ -190,13 +195,31 @@ export function AttendanceTableForm() {
     const saveDrawer = (updated) => setRows(r => r.map(row => row.id === updated.id ? updated : row));
     const deleteRow = (id) => { setRows(r => r.filter(row => row.id !== id)); setSelected(s => { const n = new Set(s); n.delete(id); return n; }); };
     const addRow = () => { const r = makeEmpty(); setRows(p => [r, ...p]); setDrawer(r); };
-    const toggleSelect = (id) => setSelected(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    const toggleSelect = (id) => setSelected(s => {
+        const n = new Set(s);
+        if (n.has(id)) {
+            n.delete(id);
+        } else {
+            n.add(id);
+        }
+        return n;
+    });
     const allSelected = rows.length > 0 && selected.size === rows.length;
     const toggleAll = () => setSelected(allSelected ? new Set() : new Set(rows.map(r => r.id)));
     const deleteSelected = () => { setRows(r => r.filter(row => !selected.has(row.id))); setSelected(new Set()); };
 
+    const totalAdultsFor = (row) => (row.men || 0) + (row.women || 0);
+    const totalVisitorsFor = (row) => (row.visitor_men || 0) + (row.visitor_women || 0);
+    const totalNewConvertsFor = (row) => (row.new_convert_men || 0) + (row.new_convert_women || 0);
+    const totalBaptismsFor = (row) => (row.baptism_men || 0) + (row.baptism_women || 0);
+    const headcountFor = (row) => totalAdultsFor(row) + totalVisitorsFor(row) + (row.online_viewers || 0);
+
     const totals = NUMERIC_FIELDS.reduce((acc, { key }) => ({ ...acc, [key]: rows.reduce((s, r) => s + (r[key] || 0), 0) }), {});
-    const totalHeadcount = rows.reduce((s, r) => s + r.adults + r.children + r.guest_attendance, 0);
+    const totalAdults = rows.reduce((sum, row) => sum + totalAdultsFor(row), 0);
+    const totalVisitors = rows.reduce((sum, row) => sum + totalVisitorsFor(row), 0);
+    const totalNewConverts = rows.reduce((sum, row) => sum + totalNewConvertsFor(row), 0);
+    const totalBaptisms = rows.reduce((sum, row) => sum + totalBaptismsFor(row), 0);
+    const totalHeadcount = rows.reduce((sum, row) => sum + headcountFor(row), 0);
 
     const serviceColor = (row) => row.is_special_event
         ? { bg: "#1a1006", text: "#fb923c", border: "#431407" }
@@ -259,11 +282,10 @@ export function AttendanceTableForm() {
                 {/* Summary chips */}
                 <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
                     {[
-                        { label: "Adults", value: totals.adults, color: "#4ade80" },
-                        { label: "Children", value: totals.children, color: "#67e8f9" },
-                        { label: "Guests", value: totals.guest_attendance, color: "#a78bfa" },
-                        { label: "Converts", value: totals.new_converts, color: "#fb923c" },
-                        { label: "Baptisms", value: totals.baptisms, color: "#38bdf8" },
+                        { label: "Adults", value: totalAdults, color: "#4ade80" },
+                        { label: "Visitors", value: totalVisitors, color: "#a78bfa" },
+                        { label: "Converts", value: totalNewConverts, color: "#fb923c" },
+                        { label: "Baptisms", value: totalBaptisms, color: "#38bdf8" },
                         { label: "Online", value: totals.online_viewers, color: "#e879f9" },
                     ].map(({ label, value, color }) => (
                         <div key={label} style={{ padding: "6px 14px", background: "#0b1017", border: "1px solid #141f2a", borderRadius: 20, display: "flex", alignItems: "center", gap: 8 }}>
@@ -301,7 +323,7 @@ export function AttendanceTableForm() {
 
                     {/* Data rows */}
                     {rows.map((row) => {
-                        const headcount = row.adults + row.children + row.guest_attendance;
+                        const headcount = headcountFor(row);
                         const sc = serviceColor(row);
                         const isHovered = hoveredRow === row.id;
                         return (

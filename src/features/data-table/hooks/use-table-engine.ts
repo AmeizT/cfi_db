@@ -31,6 +31,7 @@ type UseTableEngineProps<T> = {
     config?: TableConfig<T>
     user?: User
     expandable?: boolean
+    enablePinning?: boolean
 }
 
 export function useTableEngine<T extends Record<string, unknown>>({
@@ -38,6 +39,7 @@ export function useTableEngine<T extends Record<string, unknown>>({
     config,
     user,
     expandable = false,
+    enablePinning = false,
 }: UseTableEngineProps<T>) {
     const safeConfig = React.useMemo(() => {
         return config ?? { columns: [] }
@@ -71,14 +73,19 @@ export function useTableEngine<T extends Record<string, unknown>>({
         getExpandedRowModel: expandable ? getExpandedRowModel() : undefined,
         getRowCanExpand: expandable ? () => true : undefined,   
         columnResizeMode: "onChange",
+        enableColumnPinning: enablePinning,
         initialState: {
             columnPinning: {
-            left: normalizedColumns
-                .filter(c => c.pinned === "left")
-                .map(c => String(c.id)),
-            right: normalizedColumns
-                .filter(c => c.pinned === "right")
-                .map(c => String(c.id)),
+                left: enablePinning
+                    ? normalizedColumns
+                        .filter(c => c.pinned === "left")
+                        .map(c => String(c.id))
+                    : [],
+                right: enablePinning
+                    ? normalizedColumns
+                        .filter(c => c.pinned === "right")
+                        .map(c => String(c.id))
+                    : [],
             },
         },
     })

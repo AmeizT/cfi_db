@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { EllipsisVertical } from "lucide-react"
 import { softDeleteRecord } from "@/features/reports/core/actions/delete/deleteRecord"
-import { apiRoutes } from "@/config/urls"
+import type { ApiDetailRouteKey } from "@/config/urls"
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Delete03Icon, Edit02Icon } from "@hugeicons/core-free-icons";
 import { IconSvgElement } from "@hugeicons/react"
@@ -22,12 +22,15 @@ export interface DataTableAction {
     icon: IconSvgElement
     variant: "default" | "destructive" | ""
     onClick: () => void
+    disabled?: boolean
 }
 
 interface Props {
     actions?: DataTableAction[]
     rowId: string
-    resource: keyof typeof apiRoutes
+    resource: ApiDetailRouteKey
+    enableDelete?: boolean
+    showDefaultActions?: boolean
 }
 
 function handleTableAction() {
@@ -40,8 +43,14 @@ const initialState = {
     error: ""
 }
 
-export function DataTableDropdownMenu({ actions, resource, rowId }: Props){
-    const [state, action, pending] = React.useActionState(
+export function DataTableDropdownMenu({
+    actions,
+    resource,
+    rowId,
+    enableDelete = true,
+    showDefaultActions = true,
+}: Props){
+    const [, action] = React.useActionState(
         softDeleteRecord.bind(null, resource, rowId),
         initialState
     )
@@ -53,24 +62,29 @@ export function DataTableDropdownMenu({ actions, resource, rowId }: Props){
             onClick: handleTableAction,
             icon: Edit02Icon
         },
-        {
+        ...(enableDelete ? [{
             label: "Delete",
             variant: "destructive",
             onClick: () => React.startTransition(action),
             icon: Delete03Icon,
-        },
+        } satisfies DataTableAction] : []),
     ]
 
     const resolvedActions = [
-        ...defaultActions,
+        ...(showDefaultActions ? defaultActions : []),
         ...(actions ?? []),
     ]
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                    <EllipsisVertical />
+                <Button
+                    aria-label="Open row actions"
+                    className="size-8 rounded-md"
+                    size="icon"
+                    variant="ghost"
+                >
+                    <EllipsisVertical aria-hidden="true" />
                 </Button>
             </DropdownMenuTrigger>
 
@@ -80,18 +94,29 @@ export function DataTableDropdownMenu({ actions, resource, rowId }: Props){
                         Actions
                     </DropdownMenuLabel>
 
-                    {resolvedActions?.map(action => {
+                    {resolvedActions.length ? resolvedActions.map(action => {
                         return (
-                            <DropdownMenuItem key={action.label} asChild>
-                                <button onClick={action.onClick}>
-                                    {action.icon && <HugeiconsIcon icon={action.icon} strokeWidth={2} />}
-                                    {action.label}
-                                </button>
+                            <DropdownMenuItem
+                                key={action.label}
+                                disabled={action.disabled}
+                                variant={action.variant === "destructive" ? "destructive" : "default"}
+                                onSelect={(event) => {
+                                    event.preventDefault()
+                                    if (action.disabled) return
+                                    action.onClick()
+                                }}
+                            >
+                                {action.icon && <HugeiconsIcon icon={action.icon} strokeWidth={2} />}
+                                {action.label}
                             </DropdownMenuItem>
                         )
-                    })}
+                    }) : (
+                        <DropdownMenuItem disabled>
+                            No actions
+                        </DropdownMenuItem>
+                    )}
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator />
+                {resolvedActions.length ? <DropdownMenuSeparator /> : null}
             </DropdownMenuContent>
         </DropdownMenu>
     )

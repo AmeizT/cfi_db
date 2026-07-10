@@ -60,14 +60,14 @@ function PageAction({ tab }: {tab: ReportTabKey, year: string | undefined}) {
         <Flex gap={2}>
             <PeriodSelector />
 
-            <Flex align="center" className="h-10 relative z-20 bg-linear-to-b from-indigo-500 to-indigo-600 rounded-xl">
+            <Flex align="center" className="h-10 relative z-20 bg-theme-gradient-b rounded-xl">
                 <Button className="has-[>svg]:px-3 h-full gap-1 rounded-none rounded-l-xl bg-transparent hover:bg-theme-600">
                     <Plus className="size-4" /> Create {tab}
                 </Button>
 
                 <Separator orientation="vertical" className="data-[orientation=vertical]:h-3/5 bg-theme-400" />
 
-                <Button className="size-10 flex justify-center items-center rounded-none rounded-r-xl bg-transparent hover:bg-linear-to-b from-indigo-600 to-indigo-700">
+                <Button className="size-10 flex justify-center items-center rounded-none rounded-r-xl bg-transparent hover:bg-theme-600">
                     <ChevronDown />
                 </Button>
             </Flex>

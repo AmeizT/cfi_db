@@ -3,20 +3,17 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 import { updateCell } from "@/features/reports/core/actions/cell-edit"
-import { apiRoutes } from "@/config/urls"
-import { toast } from "sonner"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useSearchParams } from "next/navigation";
-import { useOptimisticMutation } from "@/hooks/use-optimistic-mutation";
-import { optimisticUpdateRecord } from "@/helpers/optistimicUpdate";
+import type { ApiDetailRouteKey } from "@/config/urls"
+import { useSearchParams } from "next/navigation"
+import { useOptimisticMutation } from "@/hooks/use-optimistic-mutation"
+import { optimisticUpdateRecord } from "@/helpers/optistimicUpdate"
 
 type EditableCellProps<T, K extends keyof T> = React.InputHTMLAttributes<HTMLInputElement> & {
     value: T[K] | undefined
     rowIndex: number
     columnId: K
-    resource: keyof typeof apiRoutes 
+    resource: ApiDetailRouteKey
     recordId: number
-    // onSave: (rowIndex: number, columnId: K, value: T[K]) => void
     autoFocus?: boolean
     formatter?: (value: T[K]) => React.ReactNode
     displayValue?: React.ReactNode
@@ -29,12 +26,10 @@ export const queryKeys = {
 
 export function EditableCell<T, K extends keyof T>({
     value: initialValue,
-    rowIndex,
     recordId,
     columnId,
     autoFocus = false,
     displayValue,
-    onNavigate,
     resource,
     ...inputProps
 }: EditableCellProps<T, K>) {
@@ -43,65 +38,7 @@ export function EditableCell<T, K extends keyof T>({
     const [editing, setEditing] = React.useState(autoFocus)
     const [value, setValue] = React.useState<T[K] | undefined>(initialValue)
     const queryKey = queryKeys[resource as keyof typeof queryKeys]?.(reportId)
-    
     const isNumeric = typeof value === "number"
-
-    const queryClient = useQueryClient()
-
-    // const mutation = useMutation({
-    //     mutationFn: updateCell,
-
-    //     onMutate: async (payload) => {
-    //         await queryClient.cancelQueries({ queryKey })
-
-    //         const previous = queryClient.getQueryData(queryKey)
-
-    //         queryClient.setQueryData(queryKey, (old: unknown) => {
-    //             if (!old) return old
-
-    //             type RowData = {
-    //                 id: number
-    //                 [key: string]: unknown
-    //             }
-
-    //             const updateRow = (row: RowData): RowData =>
-    //                 row.id === payload.recordId
-    //                     ? { ...row, [payload.columnId]: payload.value }
-    //                     : row
-
-    //             if (Array.isArray(old)) {
-    //                 return old.map((row) => updateRow(row as RowData))
-    //             }
-
-    //             if (
-    //                 typeof old === "object" &&
-    //                 old !== null &&
-    //                 "results" in old &&
-    //                 Array.isArray(old.results)
-    //             ) {
-    //                 return {
-    //                     ...old,
-    //                     results: old.results.map((row) => updateRow(row as RowData)),
-    //                 }
-    //             }
-
-    //             return old
-    //         })
-
-    //         return { previous }
-    //     },
-
-    //     onError: (_, __, context) => {
-    //         queryClient.setQueryData(queryKey, context?.previous)
-    //         toast.error("Update failed")
-    //     },
-
-    //     onSuccess: async () => {
-    //         await queryClient.invalidateQueries({ queryKey })
-    //         toast.success("Updated successfully")
-    //         setEditing(false)
-    //     },
-    // })
 
     const mutation = useOptimisticMutation({
         queryKey,
@@ -129,8 +66,8 @@ export function EditableCell<T, K extends keyof T>({
 
     return (
         <div title="Double-click to edit" className={`px-2 h-full w-full flex items-center rounded-md transition-colors border border-transparent relative ${
-                editing ? "z-20 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.08)]" : "hover:bg-white hover:border-gray-300"
-            } focus:bg-white focus:border-mist-300 data-invalid:border-destructive focus-within:border-primary focus-within:ring-1 focus-within:ring-primary`}
+                editing ? "z-20 bg-background shadow-[0_4px_12px_rgba(0,0,0,0.08)]" : "hover:bg-accent hover:border-border"
+            } focus:bg-background focus:border-border data-invalid:border-destructive focus-within:border-primary focus-within:ring-1 focus-within:ring-primary`}
             onDoubleClick={() => setEditing(true)}
         >
             {editing ? (

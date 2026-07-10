@@ -8,8 +8,6 @@ interface AnalyticsKPIProps {
 export function AnalyticsKPI({ item }: AnalyticsKPIProps) {
     return (
         <KPI className="border-none bg-none">
-            
-
             <KPI.Content className="mt-0">
                 <KPI.Value className="text-4xl">{item.value}</KPI.Value>
 

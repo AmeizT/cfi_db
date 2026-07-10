@@ -9,12 +9,12 @@ export interface AttendanceRecord {
   sermon: string;
   scriptures: string;
   notes: string;
-  adults: number;
-  children: number;
-  guest_attendance: number;
-  new_converts: number;
-  altar_call: number;
-  baptisms: number;
+  total_adults: number;
+  total_children: number;
+  total_visitors: number;
+  total_new_converts: number;
+  total_altar_call: number;
+  total_baptisms: number;
   online_viewers: number;
   volunteers_on_duty: number;
   total_leaders_present: number;
@@ -23,12 +23,12 @@ export interface AttendanceRecord {
 export interface NumericField {
   key: keyof Pick<
     AttendanceRecord,
-    | "adults"
-    | "children"
-    | "guest_attendance"
-    | "new_converts"
-    | "altar_call"
-    | "baptisms"
+    | "total_adults"
+    | "total_children"
+    | "total_visitors"
+    | "total_new_converts"
+    | "total_altar_call"
+    | "total_baptisms"
     | "online_viewers"
     | "volunteers_on_duty"
     | "total_leaders_present"

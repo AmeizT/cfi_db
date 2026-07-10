@@ -124,7 +124,7 @@ const AttendanceVisualizations = () => {
         <div className="overflow-x-auto">
             <table className="min-w-full bg-white border-collapse">
                 <thead>
-                    <tr className="bg-linear-to-r from-blue-600 to-blue-700 text-white">
+                    <tr className="bg-theme-gradient-x text-theme-foreground">
                         <th className="px-4 py-3 text-left text-sm font-semibold border-r border-theme-500">Date & Time</th>
                         <th className="px-4 py-3 text-left text-sm font-semibold border-r border-theme-500">Service Info</th>
                         <th className="px-4 py-3 text-center text-sm font-semibold border-r border-theme-500">Total</th>
@@ -155,7 +155,7 @@ const AttendanceVisualizations = () => {
                                 </div>
                             </td>
                             <td className="px-4 py-4 border-b border-r text-center">
-                                <span className="inline-block px-3 py-1 bg-theme-600 text-white font-bold rounded-lg text-lg">{record.total}</span>
+                                <span className="inline-block px-3 py-1 bg-theme-600 text-theme-foreground font-bold rounded-lg text-lg">{record.total}</span>
                             </td>
                             <td className="px-4 py-4 border-b border-r text-center font-semibold text-gray-700">{record.adults}</td>
                             <td className="px-4 py-4 border-b border-r text-center font-semibold text-gray-700">{record.children}</td>
@@ -202,7 +202,7 @@ const AttendanceVisualizations = () => {
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-theme-200">
+                            <div className="bg-theme-50 rounded-lg p-4 border border-theme-200">
                                 <div className="text-theme-600 text-sm font-semibold mb-1">Total</div>
                                 <div className="text-3xl font-bold text-theme-700">{record.total}</div>
                             </div>
@@ -240,7 +240,7 @@ const AttendanceVisualizations = () => {
 
     const renderTimeline = () => (
         <div className="relative">
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-linear-to-b from-blue-600 to-purple-600"></div>
+            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-theme-gradient-b"></div>
 
             {attendanceData.map((record, idx) => (
                 <div key={idx} className="relative pl-20 pb-8 group">
@@ -353,7 +353,7 @@ const AttendanceVisualizations = () => {
     );
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-blue-50 to-purple-50 p-6">
+        <div className="min-h-screen bg-theme-50 p-6">
             <div className="max-w-7xl mx-auto">
                 <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">Church Attendance Dashboard</h1>
@@ -363,7 +363,7 @@ const AttendanceVisualizations = () => {
                         <button
                             onClick={() => setView('improved-table')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${view === 'improved-table'
-                                    ? 'bg-theme-600 text-white shadow-md'
+                                    ? 'bg-theme-600 text-theme-foreground shadow-md'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                         >
@@ -374,7 +374,7 @@ const AttendanceVisualizations = () => {
                         <button
                             onClick={() => setView('cards')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${view === 'cards'
-                                    ? 'bg-theme-600 text-white shadow-md'
+                                    ? 'bg-theme-600 text-theme-foreground shadow-md'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                         >
@@ -385,7 +385,7 @@ const AttendanceVisualizations = () => {
                         <button
                             onClick={() => setView('timeline')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${view === 'timeline'
-                                    ? 'bg-theme-600 text-white shadow-md'
+                                    ? 'bg-theme-600 text-theme-foreground shadow-md'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                         >
@@ -396,7 +396,7 @@ const AttendanceVisualizations = () => {
                         <button
                             onClick={() => setView('compact')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${view === 'compact'
-                                    ? 'bg-theme-600 text-white shadow-md'
+                                    ? 'bg-theme-600 text-theme-foreground shadow-md'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                         >

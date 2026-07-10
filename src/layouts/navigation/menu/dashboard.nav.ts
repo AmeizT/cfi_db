@@ -1,6 +1,6 @@
 import { NavItem } from "../types"
 import { getPath } from "@/utils/get-path"
-import { FolderDownloadIcon, Layers02Icon, UserMultiple02Icon, Wallet03Icon } from "@hugeicons/core-free-icons"
+import { BookOpen02Icon, FolderDownloadIcon, Layers02Icon, UserMultiple02Icon, UserSwitchIcon, Wallet03Icon } from "@hugeicons/core-free-icons"
 
 export function dashboard(): NavItem[] {
     return [
@@ -33,25 +33,33 @@ export function dashboard(): NavItem[] {
             }
         },
         {
-            label: "People",
-            href: "/app/people",
-            defaultHref: "/people/members",
+            label: "Members",
+            href: "/app/members",
+            defaultHref: "/app/members/directory",
             icon: UserMultiple02Icon,
             activeIcon: UserMultiple02Icon,
             mobile: true,
             get children() {
                 return [
                     {
-                        label: "Overview",
-                        description: "Members Summary",
+                        label: "Directory",
+                        description: "Members directory",
                         get href() {
                             return getPath(this.label, this.basePath);
                         },
                         basePath: this.href
                     },
                     {
-                        label: "Members",
-                        description: "Members",
+                        label: "Households",
+                        description: "Household directory",
+                        get href() {
+                            return getPath(this.label, this.basePath);
+                        },
+                        basePath: this.href
+                    },
+                    {
+                        label: "Onboarding",
+                        description: "New member onboarding",
                         get href() {
                             return getPath(this.label, this.basePath);
                         },
@@ -59,16 +67,26 @@ export function dashboard(): NavItem[] {
                     },
                     {
 
-                        label: "Newcomers",
-                        description: "New members",
+                        label: "Baptisms",
+                        description: "Baptism records",
                         get href() {
                             return getPath(this.label, this.basePath);
                         },
                         basePath: this.href
                     },
                     {
-                        label: "Baptism",
-                        description: "Baptism",
+                        label: "Former Members",
+                        description: "Former members",
+                        get href() {
+                            return getPath(this.label, this.basePath);
+                        },
+                        basePath: this.href
+                    },
+                    {
+                        label: "Transfers",
+                        description: "Member transfers",
+                        icon: UserSwitchIcon,
+                        activeIcon: UserSwitchIcon,
                         get href() {
                             return getPath(this.label, this.basePath);
                         },
@@ -94,12 +112,9 @@ export function dashboard(): NavItem[] {
                         basePath: this.href
                     },
                     {
-                        label: "Homecells",
-                        description: "Homecells",
-                        get href() {
-                            return getPath(this.label, this.basePath);
-                        },
-                        basePath: this.href
+                        label: "Home Cells",
+                        description: "Home Cells",
+                        href: "/app/spaces/home-cells",
                     },
                     {
                         label: "Ministry Teams",

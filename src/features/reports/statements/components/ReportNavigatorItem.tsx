@@ -39,7 +39,7 @@ export function ReportNavigatorItem({ report, index, isActive, ...rest }: Props)
 
     return (
         <Link href={`${pathname}?${createQueryString(searchParams, {
-            reportid: String(report?.id), 
+            reportId: String(report?.id), 
             tab: tab,
         })}`}>
             <div
@@ -52,7 +52,7 @@ export function ReportNavigatorItem({ report, index, isActive, ...rest }: Props)
                 }}
                 {...rest}
                 className={cn(
-                    "group relative cursor-pointer bg-gray-200/50 hover:bg-gray-200/80 snap-center",
+                    "group relative cursor-pointer bg-surface-foreground/70 hover:bg-surface-foreground snap-center",
                     "border-[1.5px] border-transparent",
                     "px-4 py-1.5 h-fit flex flex-col gap-4 rounded-full relative",
                     "transition-all duration-200 ease-out z-0 hover:z-10",

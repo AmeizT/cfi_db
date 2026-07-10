@@ -1,19 +1,44 @@
+import { Button } from "@/components/ui/button"
+
 type UploadActionsProps = {
     onSubmit: () => void
     loading?: boolean
     disabled?: boolean
+    submitLabel?: string
+    loadingLabel?: string
+    secondaryLabel?: string
+    onSecondary?: () => void
+    secondaryDisabled?: boolean
 }
 
-export function UploadActions({ onSubmit, loading = false, disabled = false }: UploadActionsProps) {
+export function UploadActions({
+    onSubmit,
+    loading = false,
+    disabled = false,
+    submitLabel = "Submit",
+    loadingLabel = "Uploading...",
+    secondaryLabel,
+    onSecondary,
+    secondaryDisabled = false,
+}: UploadActionsProps) {
     return (
         <div className="flex gap-3">
-            <button
+            <Button
                 onClick={onSubmit}
                 disabled={disabled || loading}
-                className="px-4 py-2 bg-black text-white rounded-xl disabled:opacity-50"
             >
-                {loading ? "Uploading..." : "Submit"}
-            </button>
+                {loading ? loadingLabel : submitLabel}
+            </Button>
+
+            {onSecondary && secondaryLabel && (
+                <Button
+                    variant="secondary"
+                    onClick={onSecondary}
+                    disabled={secondaryDisabled || loading}
+                >
+                    {secondaryLabel}
+                </Button>
+            )}
         </div>
     )
 }

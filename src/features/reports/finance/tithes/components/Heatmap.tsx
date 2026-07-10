@@ -1,4 +1,5 @@
 import { Bar } from "react-chartjs-2";
+import type { ChartOptions, TooltipItem } from "chart.js";
 
 export function ChartCard() {
     const data = {
@@ -12,13 +13,16 @@ export function ChartCard() {
         ],
     };
 
-    const options = {
+    const options: ChartOptions<"bar"> = {
         responsive: true,
         plugins: {
             legend: { display: false },
             tooltip: {
                 callbacks: {
-                    label: (ctx: any) => ` P${ctx.parsed.y.toLocaleString()}`,
+                    label: (ctx: TooltipItem<"bar">) => {
+                        const value = Number(ctx.parsed.y ?? 0)
+                        return ` P${value.toLocaleString()}`
+                    },
                 },
             },
         },
@@ -53,7 +57,7 @@ function Heatmap() {
     );
 }
 
-function Cell({ label, active }: any) {
+function Cell({ label, active }: { label: string; active?: boolean }) {
     return (
         <div
             className={`w-9 h-5 rounded flex items-center justify-center text-[10px] font-medium ${active

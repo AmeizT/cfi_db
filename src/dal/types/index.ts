@@ -381,12 +381,12 @@ export const NullEnum = {
 } as const;
 
 export interface AttendanceMonthlySummary {
-  adults: number;
-  children: number;
-  guest_attendance: number;
-  new_converts: number;
-  baptisms: number;
-  altar_call: number;
+  total_adults: number;
+  total_children: number;
+  total_visitors: number;
+  total_new_converts: number;
+  total_baptisms: number;
+  total_altar_call: number;
   online_viewers: number;
   volunteers_on_duty: number;
   total_leaders_present: number;
@@ -407,12 +407,19 @@ export interface Attendance {
   sermon?: string;
   scriptures?: string;
   notes?: string;
-  adults?: number;
-  children?: number;
-  guest_attendance?: number;
-  new_converts?: number;
-  altar_call?: number;
-  baptisms?: number;
+  total_adults?: number;
+  total_children?: number;
+  total_visitors?: number;
+  total_new_converts?: number;
+  total_altar_call?: number;
+  total_baptisms?: number;
+  legacy?: {
+    adults?: number;
+    guest_attendance?: number;
+    new_converts?: number;
+    altar_call?: number;
+    baptisms?: number;
+  };
   online_viewers?: number;
   volunteers_on_duty?: number;
   total_leaders_present?: number;
@@ -1886,12 +1893,16 @@ export interface PatchedAttendance {
   sermon?: string;
   scriptures?: string;
   notes?: string;
-  adults?: number;
-  children?: number;
-  guest_attendance?: number;
-  new_converts?: number;
-  altar_call?: number;
-  baptisms?: number;
+  men?: number;
+  women?: number;
+  visitor_men?: number;
+  visitor_women?: number;
+  new_convert_men?: number;
+  new_convert_women?: number;
+  altar_call_men?: number;
+  altar_call_women?: number;
+  baptism_men?: number;
+  baptism_women?: number;
   online_viewers?: number;
   volunteers_on_duty?: number;
   total_leaders_present?: number;
@@ -3038,4 +3049,3 @@ page?: number;
  */
 page_size?: number;
 };
-

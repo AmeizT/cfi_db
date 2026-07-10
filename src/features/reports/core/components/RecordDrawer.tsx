@@ -25,30 +25,50 @@ type RecordDrawerProps<T> = {
     displayKeys?: (string)[]
 }
 
-export function RecordDrawer<T extends Record<string, unknown>>({
+type RecordDrawerDraftProps<T> = Omit<RecordDrawerProps<T>, "rowData"> & {
+    rowData: T
+}
+
+function getRecordKey(rowData: Record<string, unknown>) {
+    const id = rowData.id
+
+    if (typeof id === "string" || typeof id === "number") {
+        return String(id)
+    }
+
+    return JSON.stringify(rowData)
+}
+
+export function RecordDrawer<T extends Record<string, unknown>>(props: RecordDrawerProps<T>) {
+    if (!props.rowData) return null
+
+    return (
+        <RecordDrawerDraft
+            key={getRecordKey(props.rowData)}
+            {...props}
+            rowData={props.rowData}
+        />
+    )
+}
+
+function RecordDrawerDraft<T extends Record<string, unknown>>({
     rowData,
     open,
     onClose,
     onUpdateRow,
     displayKeys,
-}: RecordDrawerProps<T>) {
+}: RecordDrawerDraftProps<T>) {
 
-    const [editableData, setEditableData] = React.useState<T | null>(rowData)
-
-    React.useEffect(() => {
-        setEditableData(rowData)
-    }, [rowData])
-
-    if (!editableData) return null
+    const [editableData, setEditableData] = React.useState<T>(rowData)
 
     const keysToDisplay = displayKeys ?? Object.keys(editableData)
 
     const handleChange = (key: keyof T, value: unknown) => {
-        setEditableData(prev => prev ? { ...prev, [key]: value } : prev)
+        setEditableData(prev => ({ ...prev, [key]: value }))
     }
 
     const handleSave = () => {
-        if (editableData) onUpdateRow(editableData)
+        onUpdateRow(editableData)
         onClose()
     }
 
@@ -84,11 +104,11 @@ export function RecordDrawer<T extends Record<string, unknown>>({
 
                 <div className="mt-6 flex justify-end gap-2">
                     <SheetClose asChild>
-                        <button className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                        <button className="px-4 py-2 rounded bg-muted text-foreground hover:bg-accent">Cancel</button>
                     </SheetClose>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 bg-theme-500 text-white rounded"
+                        className="px-4 py-2 bg-theme-500 text-theme-foreground rounded"
                     >
                         Save
                     </button>

@@ -1,10 +1,10 @@
 "use server"
 
 import { cookies } from "next/headers"
-import { apiRoutes } from "@/config/urls"
+import { apiRoutes, type ApiBulkDeleteRouteKey } from "@/config/urls"
 
 type BulkDeletePayload = {
-    resource: keyof typeof apiRoutes
+    resource: ApiBulkDeleteRouteKey
     ids: number[]
 }
 
@@ -13,10 +13,6 @@ export async function bulksoftDeleteRecords({resource, ids}: BulkDeletePayload) 
     const route = apiRoutes[resource]
     console.log("server bulk delete action started", "ids", ids, "resource", resource)
 
-
-    if (!route) {
-        throw new Error(`No detail route for resource: ${resource}`)
-    }
 
     const endpoint = route.bulkDelete()
     console.log("endpoint", endpoint)

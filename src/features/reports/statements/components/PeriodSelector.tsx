@@ -51,7 +51,7 @@ export function PeriodSelector() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const currentYear = new Date().getFullYear().toString()
-    const period = searchParams.get("period") ?? currentYear
+    const period = searchParams.get("period") ?? buildTab("year", currentYear)
     const { sub: year } = parseTab(period)
 
     const selectedOption = yearOptions.find((option) => option.year.toString() === year)

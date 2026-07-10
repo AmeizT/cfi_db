@@ -58,7 +58,7 @@ export function DataTableRow<T extends { id: string | number }>({
                             <Button
                                 aria-expanded={isExpanded}
                                 aria-label={isExpanded ? "Collapse row" : "Expand row"}
-                                className="size-7 rounded-md shadow-none text-muted hover:bg-gray-100 [&_svg:not([class*='size-'])]:size-4"
+                                className="size-7 rounded-md shadow-none text-muted-foreground hover:bg-accent hover:text-foreground [&_svg:not([class*='size-'])]:size-4"
                                 onClick={row.getToggleExpandedHandler()}
                                 size="icon"
                                 variant="ghost"

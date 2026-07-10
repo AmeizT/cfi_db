@@ -1,6 +1,6 @@
 "use client"
 
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import View from "@/components/ui/view"
 import { getPageTabs } from "@/layouts/navigation/config/get-page-tabs"
 
@@ -29,6 +29,7 @@ import AssemblyComplianceView from "../../assembly/views/AssemblyComplianceView"
 
 export function ComplianceStatusView() {
     const pathname = usePathname()
+    const searchParams = useSearchParams()
     const [selected, setSelected] = useState<Assembly | null>(null)
     const { data: user } = useUser()
     const isStaff = user?.is_db_staff
@@ -40,7 +41,7 @@ export function ComplianceStatusView() {
                     <View.Header
                         pathname={pathname}
                         pagename="Compliance Status"
-                        tabs={getPageTabs("compliance")}
+                        tabs={getPageTabs("compliance", { searchParams })}
                     />
                     <View.Body>
                         

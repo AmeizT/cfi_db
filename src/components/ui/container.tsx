@@ -100,7 +100,7 @@ export function AuthLayout({ type, children }: AuthLayoutProps) {
     const successVariant = type === "initialize-recovery" || type === "password-updated"
 
     return (
-        <div className="flex-col px-4 w-full h-dvh flex justify-center items-center bg-white dark:bg-neutral-900">
+        <div className="flex-col px-4 w-full h-dvh flex justify-center items-center bg-background text-foreground">
             {/* <header className="w-full flex items-center px-3 lg:px-8">
                 <span className="text-body-muted text-base font-normal flex items-center gap-1">
                     {page.promptText && <span>{page.promptText}</span>}
@@ -118,7 +118,7 @@ export function AuthLayout({ type, children }: AuthLayoutProps) {
                 />
 
                 <div className="flex flex-col gap-y-2">
-                    <h3 className="text-2xl text-center text-balance font-semibold dark:text-white">
+                    <h3 className="text-2xl text-center text-balance font-semibold text-foreground">
                         {page.heading}
                     </h3>
 
@@ -127,7 +127,7 @@ export function AuthLayout({ type, children }: AuthLayoutProps) {
                     </h4> */}
 
                     {page.description && 
-                        <p className="pt-0 block text-sm text-center text-body-muted">
+                        <p className="pt-0 block text-sm text-center text-muted-foreground">
                             {page.description}
                         </p>
                     }
@@ -146,7 +146,7 @@ export function AuthLayout({ type, children }: AuthLayoutProps) {
             </main>
 
             <footer className="fixed bottom-4 left-0 w-full flex justify-center">
-                <small className="text-xs text-body-muted">
+                <small className="text-xs text-muted-foreground">
                     &copy; {currentYear} CFI Workspace. All rights reserved.
                 </small>
             </footer>
@@ -163,7 +163,7 @@ interface CreationSuccessProps {
 
 export function CreationSuccess({ label, redirectPath, onCreateAnother }: CreationSuccessProps) {
     return (
-        <div className="flex flex-col w-full h-dvh justify-center items-center px-4 bg-white dark:bg-neutral-900">
+        <div className="flex flex-col w-full h-dvh justify-center items-center px-4 bg-background text-foreground">
             <main className="w-full max-w-md flex flex-col items-center gap-6 text-center">
                 <FancyIcon
                     data-variant="success"
@@ -172,10 +172,10 @@ export function CreationSuccess({ label, redirectPath, onCreateAnother }: Creati
                 />
 
                 <div className="flex flex-col gap-2">
-                    <h3 className="text-2xl font-semibold text-balance text-gray-900 dark:text-white capitalize">
+                    <h3 className="text-2xl font-semibold text-balance text-foreground capitalize">
                         {label} Submitted
                     </h3>
-                    <p className="text-[15px] text-gray-600 dark:text-gray-300">
+                    <p className="text-[15px] text-muted-foreground">
                         The {label} has been created successfully.
                     </p>
                 </div>
@@ -183,13 +183,13 @@ export function CreationSuccess({ label, redirectPath, onCreateAnother }: Creati
                 <footer className="flex flex-col sm:flex-row gap-3 mt-4 w-full justify-center">
                     <Link
                         href={redirectPath as unknown as UrlObject}
-                        className="inline-flex items-center justify-center px-3 h-8 rounded-lg bg-primary text-white text-sm font-medium hover:bg-theme-500 transition"
+                        className="inline-flex items-center justify-center px-3 h-8 rounded-lg bg-theme text-theme-foreground text-sm font-medium hover:bg-theme-600 transition"
                     >
                         View Item
                     </Link>
                     <button
                         onClick={onCreateAnother}
-                        className="inline-flex items-center justify-center px-3 h-8 rounded-lg border border-gray-300 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition"
+                        className="inline-flex items-center justify-center px-3 h-8 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-accent transition"
                     >
                         Add Another
                     </button>

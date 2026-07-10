@@ -19,11 +19,10 @@ import {
 } from "lucide-react"
 import { getPinningStyles } from "@/components/ui/data-table/styles/pinning"
 
-const PINNING_THRESHOLD = 6
-
 export function renderDataTableHead<T>(
     header: Header<T, unknown>,
-    pinning?: boolean
+    enablePinning: boolean,
+    leftPinnedOffset = 0
 ) {
     const { column } = header
     const isPinned = column.getIsPinned()
@@ -33,10 +32,6 @@ export function renderDataTableHead<T>(
     const isNumeric = Boolean(
         (header.column.columnDef.meta as { isNumeric?: boolean } | undefined)?.isNumeric
     )
-
-    // Auto-detect from column count, override with explicit prop if provided
-    const totalColumns = header.headerGroup.headers.length
-    const isPinningEnabled = pinning ?? totalColumns > PINNING_THRESHOLD
 
     const isLastColumn = header.index === header.headerGroup.headers.length - 1
 
@@ -60,7 +55,7 @@ export function renderDataTableHead<T>(
                 isLastLeftPinned ? "left" : isFirstRightPinned ? "right" : undefined
             }
             data-pinned={isPinned || undefined}
-            style={{ ...getPinningStyles(column, true) }}
+            style={{ ...getPinningStyles(column, true, leftPinnedOffset) }}
         >
             <div className="flex items-center justify-between gap-2">
                 <span
@@ -75,7 +70,7 @@ export function renderDataTableHead<T>(
                 </span>
 
                 {/* Pin / Unpin controls — only when pinning is enabled */}
-                {isPinningEnabled && !header.isPlaceholder && column.getCanPin() && (
+                {enablePinning && !header.isPlaceholder && column.getCanPin() && (
                     column.getIsPinned() ? (
                         <Button
                             aria-label={`Unpin ${headerLabel} column`}
@@ -119,13 +114,13 @@ export function renderDataTableHead<T>(
                     <div
                         data-resize-handle=""
                         className="
-                            absolute h-1/2 w-5 self-center 
+                            absolute top-0 right-0 h-full w-4 translate-x-1/2 
                             cursor-col-resize user-select-none touch-none 
-                            -right-2 z-20 flex justify-center 
+                            z-20 flex justify-center 
                             opacity-0 transition-[opacity,colors]
                             group-hover/resizer:opacity-100
-                            before:absolute before:w-[1.5px] before:inset-y-0 
-                            before:bg-border before:-translate-x-px
+                            before:absolute before:left-1/2 before:w-px before:inset-y-0 
+                            before:bg-border before:-translate-x-1/2
                             hover:before:bg-theme-300
                         "
                         onDoubleClick={() => column.resetSize()}

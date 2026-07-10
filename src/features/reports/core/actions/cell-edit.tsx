@@ -1,10 +1,10 @@
 "use server"
 
 import { cookies } from "next/headers"
-import { apiRoutes } from "@/config/urls"
+import { apiRoutes, type ApiDetailRouteKey } from "@/config/urls"
 
 interface ActionProps {
-    resource: keyof typeof apiRoutes
+    resource: ApiDetailRouteKey
     recordId: number 
     columnId: string
     value: unknown
@@ -19,10 +19,6 @@ export async function updateCell({
 {
     const cookieStore = await cookies()
     const route = apiRoutes[resource]
-
-    if (!route?.detail) {
-        throw new Error(`No detail route for resource: ${resource}`)
-    }
 
     const endpoint = route.detail(recordId)
 

@@ -28,8 +28,10 @@ export const assemblyReportSchema = z.object({
 
     total_adults: z.number(),
     total_children: z.number(),
-    total_guests: z.number(),
+    total_guests: z.number().optional(),
+    total_visitors: z.number(),
     total_new_converts: z.number(),
+    total_altar_call: z.number(),
     total_baptisms: z.number(),
     total_online_viewers: z.number(),
 

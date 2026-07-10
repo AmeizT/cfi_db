@@ -30,7 +30,7 @@ export function ExpensesChart() {
 
     const chartConfig = {
         total: {
-            color: "#2563eb",
+            color: "var(--user-theme)",
         }
     } satisfies ChartConfig
 

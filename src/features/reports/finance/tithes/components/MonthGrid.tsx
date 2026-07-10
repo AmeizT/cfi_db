@@ -1,7 +1,7 @@
-import { QuarterResponse, TithesQuarterStatement } from "@/features/reports/statements/types/summary.types";
+import { QuarterResponse, TithesKpis, TithesQuarterStatement } from "@/features/reports/statements/types/summary.types";
 import { Badge } from "./Badge";
 
-export function MonthGrid({ data }: {data: QuarterResponse<TithesQuarterStatement> }) {
+export function MonthGrid({ data }: {data: QuarterResponse<TithesQuarterStatement, TithesKpis> }) {
     if (!data) return null;
 
     console.log("monthgriddata", data)

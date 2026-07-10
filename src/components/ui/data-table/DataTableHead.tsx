@@ -19,20 +19,15 @@ import {
 } from "lucide-react"
 import { getPinningStyles } from "@/components/ui/data-table/styles/pinning"
 
-const PINNING_THRESHOLD = 6
-
 export function dataTableHeadRender<T>(
     header: Header<T, unknown>,
-    pinning?: boolean
+    enablePinning: boolean
 ) {
     const { column } = header
     const isPinned = column.getIsPinned()
     const isLastLeftPinned = isPinned === "left" && column.getIsLastColumn("left")
     const isFirstRightPinned = isPinned === "right" && column.getIsFirstColumn("right")
     const headerLabel = header.column.columnDef.header as string
-
-    const totalColumns = header.headerGroup.headers.length
-    const isPinningEnabled = pinning ?? totalColumns > PINNING_THRESHOLD
 
     const isLastColumn = header.index === header.headerGroup.headers.length - 1
 
@@ -66,7 +61,7 @@ export function dataTableHeadRender<T>(
                 </span>
 
                 {/* Pin / Unpin controls — only when pinning is enabled */}
-                {isPinningEnabled && !header.isPlaceholder && column.getCanPin() && (
+                {enablePinning && !header.isPlaceholder && column.getCanPin() && (
                     column.getIsPinned() ? (
                         <Button
                             aria-label={`Unpin ${headerLabel} column`}
@@ -109,7 +104,7 @@ export function dataTableHeadRender<T>(
                 {column.getCanResize() && !isLastColumn && (
                     <div
                         data-resize-handle=""
-                        className="absolute h-2/3 w-4 self-center cursor-col-resize user-select-none touch-none -right-2 z-20 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border before:-translate-x-px"
+                        className="absolute top-0 right-0 h-full w-4 translate-x-1/2 cursor-col-resize user-select-none touch-none z-20 flex justify-center before:absolute before:left-1/2 before:w-px before:inset-y-0 before:bg-border before:-translate-x-1/2"
                         onDoubleClick={() => column.resetSize()}
                         onMouseDown={header.getResizeHandler()}
                         onTouchStart={header.getResizeHandler()}

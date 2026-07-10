@@ -50,7 +50,7 @@ export function InactivityView({ accessToken, user }: InactivityViewProps) {
                             Stay Logged In
                         </button>
 
-                        <button className="w-full lg:w-fit px-2.5 py-1.5 flex items-center gap-2 rounded-[9px] text-sm text-white font-medium bg-linear-to-br from-neutral-700 to-neutral-900 dark:from-blue-400 dark:to-blue-600">
+                        <button className="w-full lg:w-fit px-2.5 py-1.5 flex items-center gap-2 rounded-[9px] text-sm text-white font-medium bg-destructive hover:bg-destructive/90">
                             <IconPower className="size-5" /> Log Out Now
                         </button>
                     </div>

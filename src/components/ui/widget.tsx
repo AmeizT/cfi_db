@@ -12,7 +12,7 @@ function Root({
   return (
     <section
       className={cn(
-        "w-full rounded-xl border-0 bg-gray-50",
+        "w-full rounded-xl border-0 bg-card text-card-foreground",
         className
       )}
       {...props}

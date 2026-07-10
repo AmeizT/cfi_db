@@ -6,6 +6,7 @@ import { TableCell as BaseTableCell } from "@/components/ui/table"
 import { getPinningStyles } from "@/components/ui/data-table/styles/pinning"
 import { cn } from "@/lib/utils"
 import type { DataTableResource, DataTableStyles } from "./DataTable.types"
+import React from "react";
 
 type ColumnMeta<T> = {
     editable?: boolean
@@ -19,6 +20,7 @@ type DataTableCellProps<T extends { id: number }> = {
     styles: DataTableStyles
     isEditable: boolean
     resource: DataTableResource
+    utilityPinnedOffset?: number
 }
 
 export function DataTableCell<T extends { id: number }>({
@@ -27,6 +29,7 @@ export function DataTableCell<T extends { id: number }>({
     styles,
     isEditable,
     resource,
+    utilityPinnedOffset = 0,
 }: DataTableCellProps<T>) {
     "use no memo"
 
@@ -50,7 +53,7 @@ export function DataTableCell<T extends { id: number }>({
                 minWidth: cell.column.getSize(),
                 maxWidth: cell.column.getSize(),
                 flexShrink: 0,
-                ...getPinningStyles(cell.column),
+                ...getPinningStyles(cell.column, false, utilityPinnedOffset),
             }}
         >
             {isCellEditable ? (
@@ -64,9 +67,9 @@ export function DataTableCell<T extends { id: number }>({
                     recordId={Number(row.original.id)}
                 />
             ) : (
-                <span className={cn("w-full", isNumericColumn && "text-right tabular-nums")}>
+                <React.Fragment>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </span>
+                </React.Fragment>
             )}
         </BaseTableCell>
     )

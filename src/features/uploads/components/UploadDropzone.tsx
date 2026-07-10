@@ -1,31 +1,52 @@
 "use client"
 
+/* eslint-disable @next/next/no-img-element */
+
 import React from "react"
 import { toast } from "sonner"
 import { FileIcons } from "./FileIcons"
+import { cn } from "@/lib/utils"
 
 type UploadDropzoneProps = {
     onUpload: (file: File) => void
     accept?: string[]
+    capture?: boolean | "user" | "environment"
+    label?: string
+    disabled?: boolean
+    previewUrl?: string | null
+    children?: React.ReactNode
 }
 
 export function UploadDropzone({
     onUpload,
     accept = [".xlsx", ".xls"],
+    capture,
+    label = "Drag & drop or click to browse",
+    disabled = false,
+    previewUrl,
+    children,
 }: UploadDropzoneProps) {
     const [isDragging, setIsDragging] = React.useState(false)
     const fileInputRef = React.useRef<HTMLInputElement>(null)
 
-    // -------------------------
-    // Helpers
-    // -------------------------
     const isValidFile = (file: File) => {
-        return accept.some((ext) =>
-            file.name.toLowerCase().endsWith(ext)
-        )
+        return accept.some((accepted) => {
+            const value = accepted.toLowerCase()
+
+            if (value.startsWith(".")) {
+                return file.name.toLowerCase().endsWith(value)
+            }
+
+            if (value.endsWith("/*")) {
+                return file.type.toLowerCase().startsWith(value.replace("/*", "/"))
+            }
+
+            return file.type.toLowerCase() === value
+        })
     }
 
     const handleFile = (file: File | undefined) => {
+        if (disabled) return
         if (!file) return
 
         if (!isValidFile(file)) {
@@ -33,14 +54,12 @@ export function UploadDropzone({
             return
         }
 
-        onUpload(file) // 🔥 unified entry point
+        onUpload(file)
     }
 
-    // -------------------------
-    // Drag Events
-    // -------------------------
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault()
+        if (disabled) return
         setIsDragging(true)
     }
 
@@ -50,18 +69,26 @@ export function UploadDropzone({
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault()
+        if (disabled) return
         setIsDragging(false)
 
         const file = e.dataTransfer.files?.[0]
-        handleFile(file) // ✅ uses same logic
+        handleFile(file)
     }
 
-    // -------------------------
-    // Input Change
-    // -------------------------
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        handleFile(file) // ✅ same logic again
+        handleFile(file)
+        e.target.value = ""
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (disabled) return
+
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault()
+            fileInputRef.current?.click()
+        }
     }
 
     return (
@@ -70,28 +97,41 @@ export function UploadDropzone({
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                className={`
-                relative h-full flex flex-col items-center justify-center gap-3
-                rounded-[20px] border-[1.5px] border-dashed px-6 py-10
-                cursor-pointer select-none transition-all duration-200
-                ${isDragging
+                onClick={() => {
+                    if (!disabled) fileInputRef.current?.click()
+                }}
+                onKeyDown={handleKeyDown}
+                role="button"
+                tabIndex={disabled ? -1 : 0}
+                aria-disabled={disabled}
+                aria-busy={disabled}
+                className={cn(
+                    "relative h-full min-h-56 overflow-hidden flex flex-col items-center justify-center gap-3",
+                    "rounded-[20px] border-[1.5px] border-dashed px-6 py-10",
+                    "select-none transition-all duration-200 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                    disabled ? "cursor-wait" : "cursor-pointer",
+                    isDragging && !disabled
                         ? "border-theme-500 bg-theme-50 scale-[1.01]"
                         : "border-mist-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-theme-500 hover:bg-theme-50"
-                    }
-            `}
+                )}
             >
-                {/* Icon */}
-                <div className="transition-transform duration-200">
+                {previewUrl && (
+                    <img
+                        src={previewUrl}
+                        alt="Selected upload preview"
+                        className="absolute inset-0 h-full w-full object-cover opacity-40"
+                    />
+                )}
+
+                <div className="relative transition-transform duration-200">
                     <FileIcons />
                 </div>
 
-                {/* Text */}
-                <div className="text-center">
-                    <p className="text-sm font-medium text-gray-700">
+                <div className="relative text-center">
+                    <p className="text-sm font-medium text-gray-700 dark:text-neutral-200">
                         {isDragging
                             ? "Drop your file here"
-                            : "Drag & drop or click to browse"}
+                            : label}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">
                         {accept.join(", ")} files only
@@ -103,9 +143,13 @@ export function UploadDropzone({
                     ref={fileInputRef}
                     type="file"
                     accept={accept.join(",")}
+                    capture={capture}
+                    disabled={disabled}
                     className="sr-only"
                     onChange={handleChange}
                 />
+
+                {children}
             </div>
         </div>
     )

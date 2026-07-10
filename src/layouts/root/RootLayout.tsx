@@ -12,10 +12,10 @@ import { ThemeProvider } from "@/providers/theme.provider"
 const inter = LocalFont({
     src: '../../../public/fonts/InterVariable.woff2',
     variable: "--inter-variable",
-    declarations: [{ prop: "font-feature-settings", value: "'ss01' 1, 'ss07' 1, 'ss08' 1, 'cv01', 'cv09',", }],
+    declarations: [{ prop: "font-feature-settings", 
+        value: "'ss01' 1, 'ss07' 1, 'ss08' 1, 'cv01', 'cv09',", 
+    }],
     display: "swap",
-
-
 })
 
 export const playfair = Playfair({
@@ -34,7 +34,7 @@ interface LayoutProps {
 export default function RootLayout(props: LayoutProps) {
     return (
         <html lang={props.locale || "en"} dir="ltr" suppressHydrationWarning={true}>
-            <body className={`font-sans ${inter.variable} ${GeistSans.variable} ${GeistMono.variable} bg-gray-50 dark:bg-neutral-900 ${props.overflowY ? "overflow-y-auto" : "overflow-y-hidden"}`}>
+            <body className={`font-sans ${inter.variable} ${GeistSans.variable} ${GeistMono.variable} dark:bg-neutral-900 ${props.overflowY ? "overflow-y-auto" : "overflow-y-hidden"}`}>
                 <div className="w-full h-dvh">
                     <ThemeProvider
                         attribute="class"

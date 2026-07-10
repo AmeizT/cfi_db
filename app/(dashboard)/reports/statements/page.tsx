@@ -1,29 +1,61 @@
-import { Metadata } from "next"
+import { redirect } from "next/navigation"
+import {
+    reportHref,
+    type ReportRouteSearchParams,
+} from "@/features/reports/modules/lib/report-route-redirect"
 import { parseTab } from "@/utils/parse-tab"
-import ReportStatementView from "@/features/reports/statements/views/ReportStatementView"
 
-function capitalize(word: string) {
-    return word?.charAt(0)?.toUpperCase() + word?.slice(1)
+type ReportStatementsPageProps = {
+    searchParams: Promise<ReportRouteSearchParams>
 }
 
-type Props = {
-    params: Promise<{ slug: string }>
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
+function getStatementRedirect(searchParams: ReportRouteSearchParams) {
+    const tab = typeof searchParams.tab === "string" ? searchParams.tab : null
+    const { main } = parseTab(tab)
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-    const activeTab = searchParams.then((sp) => sp.tab as string)
-    const { main: tab } = parseTab(await activeTab)
+    switch (main) {
+        case "cashflow":
+        case "finance":
+        case "income-expenditure":
+            return {
+                pathname: "/reports/finance/income-expenditure",
+                tab: "statement",
+            }
 
+        case "tithes":
+        case "giving":
+            return {
+                pathname: "/reports/finance/tithes",
+                tab: "data",
+            }
 
-    return {
-        title: `${capitalize(await tab)} Statement`,
-        description: `Comprehensive ${capitalize(await tab)} statement for your church. Explore detailed ${await tab} data, trends, and performance insights to support informed decision-making and improve overall ${await tab} management.`,
+        case "remittance":
+            return {
+                pathname: "/reports/finance/remittance",
+                tab: null,
+            }
+
+        case "attendance":
+        case "overview":
+        default:
+            return {
+                pathname: "/reports/ministry/attendance",
+                tab: main === "analytics" ? "analytics" : "monthly",
+            }
     }
 }
 
-export default function ReportStatementPage() {
-    return (
-        <ReportStatementView />
+export default async function ReportStatementsPage({
+    searchParams,
+}: ReportStatementsPageProps) {
+    const resolvedSearchParams = await searchParams
+    const redirectTarget = getStatementRedirect(resolvedSearchParams)
+
+    redirect(
+        reportHref(
+            redirectTarget.pathname,
+            resolvedSearchParams,
+            { tab: redirectTarget.tab }
+        )
     )
 }

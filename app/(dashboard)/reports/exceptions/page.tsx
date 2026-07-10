@@ -1,5 +1,15 @@
-import { ExceptionView } from "@/features/reports/exceptions/views/ExceptionView"
+import { redirect } from "next/navigation"
+import {
+    reportHref,
+    type ReportRouteSearchParams,
+} from "@/features/reports/modules/lib/report-route-redirect"
 
-export default function ExceptionsReportPage() {
-    return <ExceptionView />
+type ExceptionsRedirectPageProps = {
+    searchParams: Promise<ReportRouteSearchParams>
+}
+
+export default async function ExceptionsRedirectPage({
+    searchParams,
+}: ExceptionsRedirectPageProps) {
+    redirect(reportHref("/reports/review/exceptions", await searchParams))
 }

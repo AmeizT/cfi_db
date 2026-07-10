@@ -3,24 +3,30 @@ import { ColumnDef } from "@tanstack/react-table"
 import { User } from "@/features/auth/schemas/user"
 import { formatCurrency } from "@/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { IncognitoIcon } from "@hugeicons/core-free-icons"
 import { format } from "date-fns"
 import { oklchLinearGradient } from "@/layouts/utils/get-oklch-gradient"
 import { getTextColor } from "@/layouts/utils/get-text-color"
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge"
 
 type RowFlags = {
     is_section?: boolean
     is_total?: boolean
+    tone?: "income" | "expense" | "neutral"
 }
 
-type Formatter = "text" | "currency" | "date" | "avatar" | "percentage" | "numeric"
+type CurrencyRow = {
+    currency?: unknown
+    country_currency?: unknown
+    primary_currency?: unknown
+}
+
+type Formatter = "text" | "currency" | "date" | "avatar" | "percentage" | "numeric" | "number"
 
 export type ColumnMeta<T> = {
     id: keyof T
     label?: string
     formatter?: Formatter
+    isNumeric?: boolean
     width?: number
     sortable?: boolean
     editable?: boolean
@@ -91,6 +97,24 @@ function getAlignClass(align?: "left" | "center" | "right") {
     }
 }
 
+function getStringValue(value: unknown) {
+    return typeof value === "string" && value.trim() ? value : undefined
+}
+
+function resolveCurrency(row: Record<string, unknown>, user?: User) {
+    const currencyRow = row as CurrencyRow
+    const regionalCurrency =
+        getStringValue(currencyRow.currency) ??
+        getStringValue(currencyRow.country_currency)
+    const assemblyCurrency =
+        getStringValue(user?.assembly?.primary_currency) ??
+        getStringValue(currencyRow.primary_currency)
+
+    return user?.is_region_staff
+        ? regionalCurrency ?? assemblyCurrency ?? "USD"
+        : assemblyCurrency ?? "USD"
+}
+
 function renderBadge(
     value: unknown,
     badge:
@@ -141,7 +165,7 @@ function renderTrend(
             ? <span className="inline-block text-[10px]">▼</span>
             : numericValue > 0
             ? <span className="text-xs!">▲</span>
-            : <span className="text-gray-200">●</span>
+            : <span className="text-muted-foreground/40">●</span>
 
     const className =
         typeof trend === "object"
@@ -149,12 +173,12 @@ function renderTrend(
                 ? trend.negativeClassName ?? "bg-red-100 text-red-600"
                 : numericValue > 0
                 ? trend.positiveClassName ?? "bg-green-100 text-green-600"
-                : trend.neutralClassName ?? "bg-gray-100 text-gray-600"
+                : trend.neutralClassName ?? "bg-muted text-muted-foreground"
             : numericValue < 0
             ? "bg-red-100 text-red-600"
             : numericValue > 0
             ? "bg-green-100 text-green-600"
-            : "bg-gray-100 text-gray-600"
+            : "bg-muted text-muted-foreground"
 
     return (
         <Badge className={className}>
@@ -169,14 +193,15 @@ export function buildColumns<T extends Record<string, unknown>>(
     onRowClick?: (row: T) => void
 ): ColumnDef<T>[] {
 
-    function formatValue(value: unknown, formatter?: Formatter) {
+    function formatValue(value: unknown, formatter: Formatter | undefined, row: T) {
         if (value == null) return "-"
 
         if (formatter === "currency") {
             const num = Number(value)
             return formatCurrency(num, {
-                language: user?.assembly?.language,
-                currency: user?.assembly?.currency,
+                language: user?.assembly?.locale,
+                currency: resolveCurrency(row, user),
+                currencyDisplay: "narrowSymbol"
             })
         }
 
@@ -214,58 +239,56 @@ export function buildColumns<T extends Record<string, unknown>>(
     const isFlexible = (col: ColumnMeta<T>) =>
         col.formatter === "text" || col.id === "notes"
 
-    return config.map((col) => ({
-        accessorKey: String(col.id),
-        header: () => {
-            if (col.id === "income") {
-                return (
-                    <button className="ml-auto block px-2 py-1 text-xs rounded-full bg-green-100 text-green-700 hover:bg-green-200">
-                        {col.label ?? "Income"}
-                    </button>
-                )
-            }
+    return config.map((col) => {
+        const isNumeric = col.isNumeric ?? (
+            col.formatter === "currency" ||
+            col.formatter === "numeric" ||
+            col.formatter === "number" ||
+            col.formatter === "percentage"
+        )
+        const align = col.meta?.align ?? (isNumeric ? "right" : undefined)
 
-            if (col.id === "expense") {
-                return (
-                    <button className="ml-auto block px-2 py-1 text-xs rounded-full bg-red-100 text-red-700 hover:bg-red-200">
-                        {col.label ?? "Expense"}
-                    </button>
-                )
-            }
-
-            return col.label ?? formatHeader(String(col.id))
-        },
-        size: getDefaultSize(col),
-        minSize: isFlexible(col) ? 120 : 60,
-        maxSize: isFlexible(col) ? 1000 : 400,
-        meta: {
-            editable: col.editable ?? false,
-            disableEditForRow: (row: T) => {
-                const r = row as unknown as RowFlags
-                if (r.is_section && col.meta?.disableEditForSection) return true
-                if (r.is_total) return true
-                return false
+        return ({
+            accessorKey: String(col.id),
+            header: () => col.label ?? formatHeader(String(col.id)),
+            size: getDefaultSize(col),
+            minSize: isFlexible(col) ? 120 : 60,
+            maxSize: isFlexible(col) ? 1000 : 400,
+            meta: {
+                editable: col.editable ?? false,
+                isNumeric,
+                disableEditForRow: (row: T) => {
+                    const r = row as unknown as RowFlags
+                    if (r.is_section && col.meta?.disableEditForSection) return true
+                    if (r.is_total) return true
+                    return false
+                },
+                avatarField: col.meta?.avatarField,
+                avatarFallback: col.meta?.avatarFallback,
+                badge: col.meta?.badge,
+                trend: col.meta?.trend,
+                font: col.meta?.font,
+                weight: col.meta?.weight,
+                descriptionField: col.meta?.descriptionField,
+                align,
             },
-            avatarField: col.meta?.avatarField,
-            avatarFallback: col.meta?.avatarFallback,
-            badge: col.meta?.badge,
-            trend: col.meta?.trend,
-            font: col.meta?.font,
-            weight: col.meta?.weight,
-            descriptionField: col.meta?.descriptionField,
-            align: col.meta?.align,
-        },
 
-        cell: ({ row }) => {
+            cell: ({ row }) => {
             const flags = row.original as unknown as RowFlags
             const isSection = !!flags.is_section
             const isTotal = !!flags.is_total
+            const toneClass =
+                flags.tone === "income"
+                    ? "text-emerald-700 dark:text-emerald-400"
+                    : flags.tone === "expense"
+                    ? "text-red-700 dark:text-red-400"
+                    : ""
 
             const value = row.original[col.id]
 
             if (isSection && col.id === "label") {
                 return (
-                    <div className="font-bold text-sm py-1">
+                    <div className={`font-bold text-sm py-2 ${toneClass}`}>
                         {String(value)}
                     </div>
                 )
@@ -295,7 +318,6 @@ export function buildColumns<T extends Record<string, unknown>>(
                 const avatar = avatarField ? row.original[avatarField] : undefined
                 const fallbackColor = fallbackField ? row.original[fallbackField] : "red"
                 const name = value
-                const notes = (row.original)["notes"] as string
                 const isAnonymous = !name
                 const displayName = isAnonymous ? "Anonymous Giver" : name
                 const placeholderColor = "oklch(0.65 0.2 174.88864402807843)"
@@ -347,7 +369,7 @@ export function buildColumns<T extends Record<string, unknown>>(
                                     e.stopPropagation()
                                     onRowClick(row.original as T)
                                 }}
-                                className="opacity-0 group-hover:opacity-100 transition text-neutral-400 hover:text-black"
+                                className="text-muted-foreground opacity-0 transition hover:text-foreground group-hover:opacity-100"
                             >
                                 ...
                             </button>
@@ -356,7 +378,7 @@ export function buildColumns<T extends Record<string, unknown>>(
                 )
             }
 
-            const displayValue = formatValue(value, col.formatter)
+            const displayValue = formatValue(value, col.formatter, row.original)
             if (col.meta?.trend) {
                 return renderTrend(
                     value,
@@ -366,25 +388,28 @@ export function buildColumns<T extends Record<string, unknown>>(
             }
 
             const typographyClass = [
+                "w-full block",
                 getWeightClass(col.meta?.weight),
                 getFontClass(col.meta?.font),
-                getAlignClass(col.meta?.align),
+                getAlignClass(align),
+                isNumeric ? "tabular-nums" : "",
+                isTotal ? "py-2 font-semibold" : "",
+                col.id === "label" ? toneClass : "",
                 col.cellClassName,
             ]
                 .filter(Boolean)
                 .join(" ")
 
             return (
-                <div className="w-full">
-                    <span className={typographyClass}>
-                        {displayValue?.toString().trim() ? (
-                            displayValue
-                        ) : (
-                            <span className="h-0.5 w-6 block rounded-full bg-gray-200"></span>
-                        )}
-                    </span>
+                <div className={typographyClass}>
+                    {displayValue?.toString().trim() ? (
+                        displayValue
+                    ) : (
+                        <span className="block h-0.5 w-6 rounded-full bg-muted"></span>
+                    )}
                 </div>
             )
-        },
-    }))
+            },
+        })
+    })
 }

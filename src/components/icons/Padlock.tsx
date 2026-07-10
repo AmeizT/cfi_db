@@ -21,7 +21,7 @@ export function PadlockIcon(props: React.SVGProps<SVGSVGElement>) {
             </defs>
 
             
-            <circle cx="29" cy="36" r="22" fill="#3b82f6" mask="url(#cutout)" />
+            <circle cx="29" cy="36" r="22" fill="var(--user-theme)" mask="url(#cutout)" />
             <g>
                 <path style={{ fill: "#93c5fd" }} d="M29,16c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1s1-0.447,1-1v-4C30,16.447,29.552,16,29,16z" />
                 <path style={{ fill: "#93c5fd" }} d="M29,50c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1s1-0.447,1-1v-4C30,50.447,29.552,50,29,50z" />

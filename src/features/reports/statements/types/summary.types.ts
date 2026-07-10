@@ -78,7 +78,7 @@ export interface BaseMeta<T extends BaseStatement, K> {
 export interface AttendanceKpis {
     total_adults: number
     total_children: number
-    total_guests: number
+    total_visitors: number
     total_online_viewers: number
     total_attendance: number
     average_attendance: number
@@ -134,4 +134,3 @@ export interface QuarterResponse<T extends BaseStatement, K> {
     data: QuarterData<T>
     meta: BaseMeta<T, K>
 }
-

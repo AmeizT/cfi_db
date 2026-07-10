@@ -187,7 +187,7 @@ export function StatsUploader() {
                         <Button
                             type="submit"
                             disabled={!selectedFile || pending}
-                            className="mt-1 w-full flex items-center justify-center gap-2 rounded-lg bg-theme-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-theme-700 active:scale-[0.98] disabled:border disabled:border-mist-400 disabled:bg-mist-200 disabled:text-mist-600 disabled:shadow-none transition-all duration-150 cursor-pointer disabled:cursor-not-allowed"
+                            className="mt-1 w-full flex items-center justify-center gap-2 rounded-lg bg-theme-600 px-4 py-2.5 text-sm font-semibold text-theme-foreground shadow-sm hover:bg-theme-700 active:scale-[0.98] disabled:border disabled:border-mist-400 disabled:bg-mist-200 disabled:text-mist-600 disabled:shadow-none transition-all duration-150 cursor-pointer disabled:cursor-not-allowed"
                         >
                             {pending ? (
                                 <>

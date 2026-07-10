@@ -70,7 +70,7 @@ export function AppBar({ isAuthenticated, user }: AppBarProps){
             <div className="flex items-center gap-x-4">
                 <Link
                 href={isAuthenticated ? "/dashboard" : "/en/auth/login?stage=verification"}
-                className="group px-4 w-fit h-9 flex items-center gap-x-2 rounded-[10px] bg-gradient-to-br from-neutral-900 to-neutral-950 hover:bg-gradient-to-b dark:from-blue-500 dark:to-blue-700 text-white text-sm font-medium transition-colors duration-300">
+                className="group px-4 w-fit h-9 flex items-center gap-x-2 rounded-[10px] bg-theme-gradient-br text-theme-foreground text-sm font-medium transition-colors duration-300">
                     {isAuthenticated ? "Dashboard" : "Sign in"} <span className="text-[0.375rem] text-white/70 group-hover:text-white transition-colors duration-200">
                         <IoCaretForward className="size-2.5" />
                     </span>

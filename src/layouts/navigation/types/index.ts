@@ -6,14 +6,23 @@ interface NavItemBase {
     href?: string
     description?: string
     defaultHref?: string
+    disabled?: boolean
+    hidden?: boolean
     mobile?: boolean
     permissions?: string[]
+    exact?: boolean
 }
 
 export interface NavItem extends NavItemBase {
     icon: IconSvgElement
     activeIcon: IconSvgElement
     children?: NavItemBase[]
+}
+
+export interface NavGroup {
+    id: string
+    label: string
+    items: NavItem[]
 }
 
 export type QueryParams = ReadonlyURLSearchParams

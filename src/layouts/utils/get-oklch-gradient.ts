@@ -34,3 +34,20 @@ export function oklchLinearGradient(
             .join(", ")}
   )`
 }
+
+
+export function themeVariant(
+    base: string,
+    options?: {
+        lightness?: number;
+        chromaFactor?: number;
+        alpha?: number;
+    }
+): string {
+    return adjustOklch(
+        base,
+        options?.lightness ?? 0.92,
+        options?.chromaFactor ?? 0.55,
+        options?.alpha ?? 1
+    );
+}

@@ -2,7 +2,7 @@ import { Attendance } from "@/dal/types"
 import { ServiceBadgeColors } from "../types/attendance"
 
 export function getHeadcount(row: Attendance): number {
-    return (row.adults ?? 0) + (row.children ?? 0) + (row.guest_attendance ?? 0)
+    return (row.total_adults ?? 0) + (row.total_children ?? 0) + (row.total_visitors ?? 0)
 }
 
 export function getServiceColor(row: Attendance): ServiceBadgeColors {

@@ -34,7 +34,7 @@ export default function DocsLayout({ accessToken, children }: DocsLayoutProps) {
                         href={{
                             pathname: accessToken ? "/dashboard" : "/auth/login"
                         }}
-                        className="group px-3.5 py-1.5 flex items-center gap-x-2 rounded-md bg-gradient-to-br from-charcoal-950 to-charcoal-600 hover:bg-gradient-to-b dark:from-blue-500 dark:to-blue-700 text-white text-sm font-medium shadow-xl transition-colors duration-300">
+                        className="group px-3.5 py-1.5 flex items-center gap-x-2 rounded-md bg-theme-gradient-br text-theme-foreground text-sm font-medium shadow-xl transition-colors duration-300">
                         {accessToken ? "Dashboard" : "Login"} <span className="text-[0.375rem] text-white/50 group-hover:text-white transition-colors duration-200">&#9654;</span>
                     </Link>
 

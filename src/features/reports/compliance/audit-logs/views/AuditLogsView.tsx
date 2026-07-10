@@ -1,6 +1,6 @@
 "use client"
 
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import View from "@/components/ui/view"
 import { getPageTabs } from "@/layouts/navigation/config/get-page-tabs"
 import { useAuditLogs } from "../hooks/use-audit-logs"
@@ -8,6 +8,7 @@ import { AuditLogPage } from "../components"
 
 export function AuditLogsView() {
     const pathname = usePathname()
+    const searchParams = useSearchParams()
     const { data: auditLogs, isLoading } = useAuditLogs()
 
     return (
@@ -15,7 +16,7 @@ export function AuditLogsView() {
             <View.Header 
                 pathname={pathname}
                 pagename="History" 
-                tabs={getPageTabs("reports")}
+                tabs={getPageTabs("reports", { searchParams })}
             />
             <View.Body>
                 <AuditLogPage

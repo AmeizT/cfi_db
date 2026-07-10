@@ -1,9 +1,9 @@
 import { Badge } from "./Badge"
-import { QuarterResponse, TithesQuarterStatement } from "@/features/reports/statements/types/summary.types"
+import { QuarterResponse, TithesKpis, TithesQuarterStatement } from "@/features/reports/statements/types/summary.types"
 
 interface KPIGridProps {
     q: string
-    data: QuarterResponse<TithesQuarterStatement>
+    data: QuarterResponse<TithesQuarterStatement, TithesKpis>
 }
 
 export function KPIGrid({ q, data }: KPIGridProps) {

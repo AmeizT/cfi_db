@@ -1,18 +1,17 @@
 import { motion, AnimatePresence } from "motion/react"
 import { Trash2, X } from "lucide-react"
 import { useOptimisticMutation } from "@/hooks/use-optimistic-mutation";
-import { optimisticUpdateRecord } from "@/helpers/optistimicUpdate";
 import { queryKeys } from "../editable-cell";
 import { useSearchParams } from "next/navigation";
 import { bulksoftDeleteRecords } from "@/features/reports/core/actions/delete/bulkSoftDelete";
-import { apiRoutes } from "@/config/urls";
+import type { ApiBulkDeleteRouteKey } from "@/config/urls";
 import { removeRecordsFromCache } from "@/helpers/removeFromCache";
 
 type BulkActionToolbarProps = {
     selectedCount: number
     selectedIds: (number)[]
     // onDelete: (ids: (number)[]) => void
-    resource: keyof typeof apiRoutes
+    resource: ApiBulkDeleteRouteKey
     onClear: () => void
 }
 
@@ -65,7 +64,7 @@ export function DataTableBulkActionToolbar({
                     }}
                     className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
                 >
-                    <div className="flex items-center gap-3 rounded-full bg-white px-3 py-2 shadow-lg border border-gray-200">
+                    <div className="flex items-center gap-3 rounded-full border border-border bg-popover px-3 py-2 text-popover-foreground shadow-lg">
                         {/* Selection Count */}
                         <span className="text-sm font-medium px-3">
                             {selectedCount} selected
@@ -74,7 +73,7 @@ export function DataTableBulkActionToolbar({
                         {/* Delete */}
                         <button
                             onClick={() => handleBulkDelete()}
-                            className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
+                            className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10"
                         >
                             <Trash2 className="h-4 w-4" />
                             Delete
@@ -83,7 +82,7 @@ export function DataTableBulkActionToolbar({
                         {/* Clear */}
                         <button
                             onClick={onClear}
-                            className="p-2 rounded-full hover:bg-gray-100"
+                            className="p-2 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
                         >
                             <X className="h-4 w-4" />
                         </button>

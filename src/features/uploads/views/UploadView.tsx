@@ -15,6 +15,7 @@ import View from "@/components/ui/view"
 interface UploadData {
     type: string 
     uploadUrl: string
+    imageUploadUrl?: string
     templateUrl: string
 }
 
@@ -39,6 +40,7 @@ export default function UploadView(){
             expenses: {
                 type: "expenditure",
                 uploadUrl: apiRoutes.uploadExcel.expenses,
+                imageUploadUrl: apiRoutes.uploadImage.expenses,
                 templateUrl: apiRoutes.downloadTemplate.expenses
             },
             overhead: {
@@ -77,7 +79,7 @@ export default function UploadView(){
             'capitalize text-[13px] font-semibold',
             'px-3.5 h-8 flex items-center rounded-full', 
             'transition-colors duration-150',
-            isActive ? "bg-primary text-white" : "text-muted-foreground bg-surface hover:bg-hover"
+            isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground bg-surface hover:bg-hover"
         )
 
         return styles
@@ -150,6 +152,7 @@ export default function UploadView(){
                             config={{
                                 type: selectedUploadConfig.type,
                                 uploadUrl: selectedUploadConfig.uploadUrl,
+                                imageUploadUrl: selectedUploadConfig.imageUploadUrl,
                                 templateUrl: selectedUploadConfig.templateUrl,
                                 columns: [],
                             }}

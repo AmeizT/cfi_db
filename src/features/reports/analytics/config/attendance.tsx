@@ -90,12 +90,12 @@ export function useAttendanceConfig(): AnalyticsConfig {
                 })}`
             },
             {
-                label: "Guests Attendance",
-                value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_guests ?? 0, {
+                label: "Visitor Attendance",
+                value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_visitors ?? 0, {
                     notation: "compact"
                 }),
                 pathname: `/reports/analytics?${createQueryString(searchParams, { 
-                    kpi: "guests",
+                    kpi: "visitors",
                     chart: "bar"
                 })}`
             },
@@ -122,7 +122,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
             },
 
             {
-                key: "adults",
+                key: "total_adults",
                 label: "Adults",
                 value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_adults ?? 0, { 
                     notation: "compact" 
@@ -132,7 +132,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
                     xKey: "label",
                     series: [
                         {
-                            key: "adults",
+                            key: "total_adults",
                             label: "Adults",
                             color: "var(--chart-2)",
                         },
@@ -141,7 +141,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
             },
 
             {
-                key: "children",
+                key: "total_children",
                 label: "Total Children",
                 value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_children ?? 0, {
                     notation: "compact"
@@ -151,7 +151,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
                     xKey: "label",
                     series: [
                         {
-                            key: "children",
+                            key: "total_children",
                             label: "Children",
                             color: "var(--chart-3)",
                         },
@@ -160,9 +160,9 @@ export function useAttendanceConfig(): AnalyticsConfig {
             },
 
             {
-                key: "guests",
-                label: "Guests",
-                value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_guests ?? 0, {
+                key: "total_visitors",
+                label: "Visitors",
+                value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_visitors ?? 0, {
                     notation: "compact"
                 }),
                 pathname: "/reports/analytics?kpi=median",
@@ -170,8 +170,8 @@ export function useAttendanceConfig(): AnalyticsConfig {
                     xKey: "label",
                     series: [
                         {
-                            key: "guests",
-                            label: "Guests",
+                            key: "total_visitors",
+                            label: "Visitors",
                             color: "var(--chart-4)",
                         },
                     ],
@@ -208,18 +208,18 @@ export function useAttendanceConfig(): AnalyticsConfig {
                     color: "var(--chart-2)",
                 },
                 {
-                    key: "adults",
+                    key: "total_adults",
                     label: "Adults",
                     color: "var(--chart-3)",
                 },
                 {
-                    key: "children",
+                    key: "total_children",
                     label: "Children",
                     color: "var(--chart-4)",
                 },
                 {
-                    key: "guests",
-                    label: "Guests",
+                    key: "total_visitors",
+                    label: "Visitors",
                     color: "var(--chart-5)",
                 },
             ],
@@ -228,8 +228,6 @@ export function useAttendanceConfig(): AnalyticsConfig {
 
     return config
 }
-
-
 
 
 

@@ -47,7 +47,7 @@ export function PremiumThemeSelector({ open, onOpenChange }: Props) {
                                 className={cn(
                                     "relative rounded-xl p-0.5 transition-all group",
                                     active
-                                        ? "bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 animate-[gradientGlow_4s_ease_infinite]"
+                                        ? "bg-theme-gradient-x animate-[gradientGlow_4s_ease_infinite]"
                                         : "bg-border"
                                 )}
                             >

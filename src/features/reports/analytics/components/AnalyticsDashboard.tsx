@@ -44,6 +44,11 @@ T extends { id: string | number } & Record<string, unknown>
     config,
     activeIndex
 }: AnalyticsDashboardProps<T>) {
+    const tableRows = data.map((row, index) => ({
+        ...row,
+        id: typeof row.id === "number" ? row.id : index + 1,
+    }))
+
     return (
         <div className="w-full space-y-4">
             <AnalyticsSectionHeading
@@ -87,10 +92,12 @@ T extends { id: string | number } & Record<string, unknown>
             </div>
 
             <DataTable
-                data={data}
+                data={tableRows}
                 config={config.table}
                 rowHeight={36}
                 footerData={undefined}
+                showRowActions={false}
+                enableDelete={false}
             />
       </div>
     )

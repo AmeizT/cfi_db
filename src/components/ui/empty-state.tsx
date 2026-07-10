@@ -4,7 +4,7 @@ import React, { SVGProps } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { BsTrash } from "react-icons/bs"
-import { Binoculars } from "lucide-react"
+import { BarChart, Binoculars, Rocket } from "lucide-react"
 import { GiTwoCoins as Coins } from "react-icons/gi"
 import { HiInboxStack as Tray } from "react-icons/hi2"
 import { RiBubbleChartFill as Bubble, RiDraftFill } from "react-icons/ri"
@@ -12,9 +12,23 @@ import { HiMiniCalendarDays as Calendar, HiMiniWallet as Vault } from "react-ico
 import { PieChartIcon } from "../icons/PieChart"
 import { ClipboardIcon } from "../icons/Clipboard"
 import { Button } from "./button"
-import { MissingFilesIcon } from "../icons/MissingFiles";
-import { FileSearchIcon } from "../icons/FileSearch";
-import { FinancialChartIcon } from "../icons/FinancialChart";
+import { MissingFilesIcon } from "../icons/MissingFiles"
+import { FileSearchIcon } from "../icons/FileSearch"
+import { DropletIcon, Target02Icon, UserMultiple02Icon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
+
+const PerformanceIcon = (
+  props: Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon">
+) => <HugeiconsIcon icon={Target02Icon} {...props} />
+
+const BaptismIcon = (
+  props: Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon">
+) => <HugeiconsIcon icon={DropletIcon} {...props} />
+
+const DemographicsIcon = (
+  props: Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon">
+) => <HugeiconsIcon icon={UserMultiple02Icon} {...props} />
+
 
 
 type EmptyStateVariant = "action" | "heading" | "both"
@@ -34,29 +48,36 @@ interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
 type EmptyStateType =
     | "analyticsChart"
     | "assets"
+    | "baptisms"
+    | "demographics"
     | "drafts"
-    | "tithes"
-    | "sunday"
+    | "events"
+    | "exceptions"
+    | "filteredReports"
+    | "formerMembers"
     | "friday"
     | "homecell"
-    | "events"
-    | "tally"
-    | "demographics"
-    | "messages"
     | "inbox"
-    | "observability"
     | "insights"
-    | "trash"
+    | "messages"
+    | "observability"
+    | "onboarding"
+    | "performance"
     | "reports"
-    | "filteredReports"
-    | "exceptions"
+    | "sunday"
+    | "tally"
+    | "tithes"
+    | "trash"
 
 interface EmptyStateConfig {
     description: string | ((ctx?: { label?: string; period?: string }) => string)
     heading?: string | ((ctx?: { label?: string; period?: string }) => string)
     actionLabel?: string
     href?: string
-    Icon: React.ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+    Icon: React.ComponentType<{
+        className?: string
+        size?: number | string
+    }>
     banner?: string
 }
 
@@ -68,6 +89,10 @@ const EMPTY_STATES: Record<EmptyStateType, EmptyStateConfig> = {
         actionLabel: "Create an asset",
         href: "/finance/asset/add/",
         Icon: Vault
+    },
+    baptisms: {
+        description: "No baptisms have been recorded.",
+        Icon: BaptismIcon
     },
     drafts: {
         description: "No drafts have been saved.",
@@ -109,13 +134,21 @@ const EMPTY_STATES: Record<EmptyStateType, EmptyStateConfig> = {
         description: "No members have been added yet.",
         actionLabel: "Create a member",
         href: "/demographics/members/add/",
-        Icon: Bubble
+        Icon: DemographicsIcon
     },
     messages: {
         description: "You have no unread messages.",
         actionLabel: "Compose a message",
         href: "/messages/add/",
         Icon: Tray
+    },
+    onboarding: {
+        description: "No members are currently being onboarded.",
+        Icon: Rocket
+    },
+    formerMembers: {
+        description: "No former members have been recorded.",
+        Icon: DemographicsIcon
     },
     inbox: {
         description: "You have no notifications.",
@@ -126,6 +159,13 @@ const EMPTY_STATES: Record<EmptyStateType, EmptyStateConfig> = {
     observability: {
         description: "Observability data will appear once available.",
         Icon: Binoculars
+    },
+    performance: {
+        heading: "No performance data",
+        description: "Set monthly or yearly targets to start tracking performance against your goals.",
+        Icon: PerformanceIcon,
+        href: "/reports/performance/tithes",
+        actionLabel: "Set performance targets"
     },
     insights: {
         description: "Insights will appear once data is ready.",
@@ -204,16 +244,16 @@ function EmptyStateCard({
 
     return (
         <div className="flex flex-col items-center gap-y-4 text-center">
-            <Icon className="size-32" />
+            <Icon className="size-20 text-muted-foreground" />
 
             <div className="max-w-md">
                 {showHeading && heading && (
-                    <h5 className="text-xl text-center tracking-tight font-bold">
+                    <h5 className="text-[20px] text-center tracking-tight font-semibold text-neutral-700">
                         {heading}
                     </h5>
                 )}
 
-                <p className="text-sm text-center text-muted">
+                <p className="max-w-xs text-[14.5px] leading-5 text-center text-muted-foreground">
                     {description}
                 </p>
             </div>
@@ -223,8 +263,8 @@ function EmptyStateCard({
                     actionOverride
                 ) : (
                     actionLabel && href && (
-                        <Button asChild variant="outline">
-                            <Link href={href}>
+                        <Button asChild>
+                            <Link href={href} className="h-9">
                                 {actionLabel}
                             </Link>
                         </Button>
@@ -254,7 +294,7 @@ export function EmptyState({
             {...props}
             data-empty-state
             className={cn(
-                "relative w-full h-full flex items-center justify-center rounded-3xl border-[0px] border-dashed bg-linear-to-b from-surface to-white",
+                "relative w-full h-full flex items-center justify-center border-0 border-dashed",
                 className
             )}
         >

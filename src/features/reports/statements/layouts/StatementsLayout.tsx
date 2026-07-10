@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-import { parseTab } from "@/utils/parse-tab"
 import { usePathname, useSearchParams } from "next/navigation"
 import AttendanceView from "../../attendance/views/AttendanceDataGrid"
 import View from "@/components/ui/view"
@@ -48,12 +47,8 @@ export default function StatementsLayout({ children, page }: Props) {
     
     const queryParams = Object.fromEntries(searchParams.entries())
     
-    const currentYear = new Date().getFullYear().toString()
-    const period = searchParams.get("period") ?? currentYear
-    const { sub: year } = parseTab(period)
-
     const { data: attendance } = useReportAttendance(reportId as unknown as string)
-    const { data: finance, isLoading } = useReportFinance(reportId as unknown as string)
+    const { data: finance } = useReportFinance(reportId as unknown as string)
     
     const tabs = getPageTabs("stats", {
         reportPage: "attendance",

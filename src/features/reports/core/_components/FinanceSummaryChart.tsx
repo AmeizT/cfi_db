@@ -22,7 +22,13 @@ interface FinanceSummaryChartProps {
     }[]
 }
 
-const COLORS = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6"]
+const COLORS = [
+    "var(--user-theme)",
+    "#ef4444",
+    "#10b981",
+    "#f59e0b",
+    "color-mix(in srgb, var(--user-theme) 60%, white)",
+]
 
 export function FinanceSummaryChart({ data }: FinanceSummaryChartProps) {
     // Format numbers for better readability

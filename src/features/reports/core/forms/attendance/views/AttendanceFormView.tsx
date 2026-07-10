@@ -11,12 +11,16 @@ export default function AttendanceFormView() {
     const [records, setRecords] = useState<AttendanceRecord[]>([
         {
             timestamp: "2026-09-01",
-            adults: 120,
-            children: 40,
-            guest_attendance: 12,
-            new_converts: 2,
-            baptisms: 1,
-            altar_call: 4,
+            men: 58,
+            women: 62,
+            visitor_men: 5,
+            visitor_women: 7,
+            new_convert_men: 1,
+            new_convert_women: 1,
+            baptism_men: 1,
+            baptism_women: 0,
+            altar_call_men: 2,
+            altar_call_women: 2,
             online_viewers: 20,
             volunteers_on_duty: 8,
             total_leaders_present: 6,
@@ -25,21 +29,6 @@ export default function AttendanceFormView() {
 
     const [selected, setSelected] =
         useState<AttendanceRecord | null>(null)
-
-    const updateCell = (
-        date: string,
-        metric: keyof Omit<AttendanceRecord, 'timestamp'>,
-        value: number
-    ) => {
-
-        setRecords((prev) =>
-            prev.map((record) =>
-                record.timestamp === date
-                    ? { ...record, [metric]: value }
-                    : record
-            )
-        )
-    }
 
     const updateRecord = async (updated: AttendanceRecord): Promise<void> => {
         setRecords((prev) =>

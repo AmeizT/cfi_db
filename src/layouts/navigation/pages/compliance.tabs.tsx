@@ -1,17 +1,30 @@
-export function getComplianceTabs() {
+import type { ReadonlyURLSearchParams } from "next/navigation"
+import { createQueryString } from "@/features/reports/core/lib/create-query-string"
+
+export function getComplianceTabs(searchParams?: ReadonlyURLSearchParams) {
+    const hrefFor = (tab: string) =>
+        `/reports/review/compliance?${createQueryString(searchParams, { tab })}`
+
     const tabs = [
         {
             label: "Status",
             key: "status",
             get href() {
-                return `/reports/compliance/status`
+                return hrefFor("status")
+            },
+        },
+        {
+            label: "Issues",
+            key: "issues",
+            get href() {
+                return hrefFor("issues")
             },
         },
         {
             label: "Audit Logs",
             key: "audit-logs",
             get href() {
-                return `/reports/compliance/audit-logs`
+                return hrefFor("audit-logs")
             },
         },
     ]

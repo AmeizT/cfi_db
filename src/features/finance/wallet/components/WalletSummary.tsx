@@ -47,7 +47,7 @@ export function WalletSummary(){
                                         {summary?.description}
                                     </small>
                                 ) : (
-                                    <Badge className={`w-fit text-xs text-white font-normal ${summary?.description.toLowerCase()?.includes("not") ? "bg-red-500 hover:bg-red-600" : "bg-primary"}`}>
+                                    <Badge className={`w-fit text-xs font-normal ${summary?.description.toLowerCase()?.includes("not") ? "bg-red-500 text-white hover:bg-red-600" : "bg-primary text-primary-foreground"}`}>
                                         {summary.description}
                                     </Badge>
                                 )}

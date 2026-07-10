@@ -1,33 +1,38 @@
 "use client"
 
-import React from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { DownloadCircle01Icon } from "@hugeicons/core-free-icons"
-import { Tithe, TitheConfig } from "@/dal/types"
 import { apiRoutes } from "@/config/urls"
 import { DataTable } from "../../core/components/DataTable"
-import { RecordDrawer } from "../../core/components/RecordDrawer"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Widget } from "@/components/ui/widget";
+import type { DataTablePaginationProps } from "../../core/components/DataTable.types"
+import type { TableSchema } from "@/features/data-table/types/tableSchema.types"
+import type { TitheRecord, TithesMeta } from "./types"
 
-interface ViewProps {
-    tithes: TitheConfig | undefined
-    isLoading: boolean
+type TithesViewData = {
+    rows?: TitheRecord[]
+    results?: TitheRecord[]
+    data?: TitheRecord[]
+    count?: number
+    config?: TableSchema
+    table_schema?: TableSchema
+    meta?: TithesMeta
 }
 
-export default function TithesView({ tithes, isLoading }: ViewProps) {
-    const [sheetOpen, setSheetOpen] = React.useState(false)
-    const [selectedRow, setSelectedRow] = React.useState<Tithe | null>(null)
+interface ViewProps {
+    tithes: TithesViewData | undefined
+    isLoading: boolean
+    pagination?: DataTablePaginationProps
+}
 
-    function handleRowClick(row: Tithe) {
-        setSelectedRow(row)
-        setSheetOpen(true)
-    }
+export default function TithesView({ tithes, isLoading, pagination }: ViewProps) {
+    const rows = tithes?.rows ?? tithes?.data ?? []
+    const config = tithes?.config ?? tithes?.meta?.config
 
-    const handleCellEdit = (rowIndex: number, columnId: string, value: unknown) => {
-        console.log("Edited cell:", { rowIndex, columnId, value })
+    const tableOptions = {
+        selectable: true,
     }
 
     return (
@@ -51,35 +56,23 @@ export default function TithesView({ tithes, isLoading }: ViewProps) {
                     </div>
 
                     <DataTable
-                        data={tithes?.data || []}
-                        config={tithes?.config}
+                        data={rows as TitheRecord[]}
+                        config={config}
+                        options={tableOptions}
                         rowHeight={36}
-                        onCellEdit={handleCellEdit}
                         footerData={undefined}
+                        totalRows={tithes?.count ?? rows.length}
+                        currentPage={pagination?.currentPage}
+                        pageSize={pagination?.pageSize}
+                        pageSizeOptions={pagination?.pageSizeOptions}
+                        onPageChange={pagination?.onPageChange}
+                        onPageSizeChange={pagination?.onPageSizeChange}
                         expandedRow={(row) => (
                             <p className="text-sm text-wrap text-gray-700">
                                 {row.notes ? row.notes : "No additional notes for this record."}
                             </p>
                         )}
                     />
-
-                    
-
-                    {/* {selectedRow && (
-                        <RecordDrawer
-                            rowData={selectedRow}
-                            open={sheetOpen}
-                            onClose={() => setSheetOpen(false)}
-                            onUpdateRow={(row) => console.log(row)}
-                            displayKeys={[
-                                'timestamp',
-                                'amount',
-                                'payment_method',
-                                'reference_code',
-                                'notes'
-                            ]}
-                        />
-                    )} */}
                 </div>
             )}
         </div>

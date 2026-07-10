@@ -37,7 +37,7 @@ export const url = {
     announcements: api("announcements"),
     assemblyAdmins: api("assembly_admins"),
     assemblies: api("assemblies"),
-    assets: api("assets"),
+    assets: api("bookkeeper/assets"),
     attendance: api("people/attendance"),
     blogs: api("blogs"),
     createSession: api("auth/jwt/create"),
@@ -45,11 +45,12 @@ export const url = {
     emailCheck: api("auth/check-email"),
     financeSummary: api("finance/monthly-summary"),
     yearlySummary: api("finance/yearly"),
-    homecells: api("homecells"),
+    homecells: api("people/homecells"),
     income: api("income"),
-    juniorMembers: api("junior_members"),
+    juniorMembers: api("people/junior_members"),
     expenditures: api("expenditure"),
-    members: api("members"),
+    members: api("people/members"),
+    sundaySchoolAttendance: api("people/sunday-school-attendance"),
     passwordReset: api("auth/users/reset_password"),
     passwordResetConfirm: api("auth/users/reset_password_confirm"),
     posts: api("posts"),
@@ -74,22 +75,86 @@ export const url = {
 // =========================
 
 export const apiRoutes = {
+    regional: {
+        overview: (regionId: string | number) =>
+            api(`reports/region/${regionId}/overview`),
+        finance: (regionId: string | number) =>
+            api(`reports/region/${regionId}/finance`),
+        compliance: (regionId: string | number) =>
+            api(`reports/region/${regionId}/compliance`),
+        complianceMonthlyReportPdf: (regionId: string | number) =>
+            api(`reports/region/${regionId}/compliance/monthly-report.pdf`, {
+                trailingSlash: false,
+            }),
+        risk: (regionId: string | number) =>
+            api(`reports/region/${regionId}/risk`),
+        growth: (regionId: string | number) =>
+            api(`reports/region/${regionId}/growth`),
+        ministry: (regionId: string | number) =>
+            api(`reports/region/${regionId}/ministry`),
+        leadership: (regionId: string | number) =>
+            api(`reports/region/${regionId}/leadership`),
+    },
+
+    regionalAdministration: {
+        assemblies: () => api("regions/churches"),
+        users: () => api("regions/users"),
+    },
+
+    assemblies: {
+        list: () => api("churches/assemblies"),
+        detail: (id: string | number) => api(`churches/assemblies/${id}`),
+    },
+
     attendance: {
         list: () => api("people/attendance"),
         detail: (id: string | number) => api(`people/attendance/${id}`),
+        bulkCreate: () => api("people/attendance/bulk-create"),
         bulkDelete: () => api("people/attendance/bulk_delete"),
     },
 
+    sundaySchoolAttendance: {
+        list: () => api("people/sunday-school-attendance"),
+        detail: (id: string | number) => api(`people/sunday-school-attendance/${id}`),
+        aggregates: () => api("people/sunday-school-attendance/aggregates"),
+        approve: (id: string | number) => api(`people/sunday-school-attendance/${id}/approve`),
+        reject: (id: string | number) => api(`people/sunday-school-attendance/${id}/reject`),
+        review: (id: string | number) => api(`people/sunday-school-attendance/${id}/review`),
+    },
+
     members: {
-        list: () => api("members"),
-        detail: (id: string | number) => api(`members/${id}`),
+        list: () => api("people/members"),
+        detail: (id: string | number) => api(`people/members/${id}`),
+        transfers: (id: string | number) => api(`people/members/${id}/transfers`),
+        assemblyMemberships: (id: string | number) =>
+            api(`people/members/${id}/assembly-memberships`),
         junior: {
-            list: () => api("junior_members"),
-            detail: (id: string | number) => api(`junior_members/${id}`),
+            list: () => api("people/junior_members"),
+            detail: (id: string | number) => api(`people/junior_members/${id}`),
         },
     },
 
+    memberTransfers: {
+        list: () => api("people/member-transfers"),
+        detail: (id: string | number) => api(`people/member-transfers/${id}`),
+        incoming: () => api("people/member-transfers/incoming"),
+        outgoing: () => api("people/member-transfers/outgoing"),
+        history: () => api("people/member-transfers/history"),
+        accept: (id: string | number) => api(`people/member-transfers/${id}/accept`),
+        reject: (id: string | number) => api(`people/member-transfers/${id}/reject`),
+        cancel: (id: string | number) => api(`people/member-transfers/${id}/cancel`),
+    },
+
+    assemblyMemberships: {
+        list: () => api("people/assembly-memberships"),
+        detail: (id: string | number) => api(`people/assembly-memberships/${id}`),
+    },
+
     finance: {
+        assets: {
+            list: () => api("bookkeeper/assets"),
+            detail: (id: string | number) => api(`bookkeeper/assets/${id}`),
+        },
         income: {
             list: () => api("income"),
             detail: (id: string | number) => api(`income/${id}`),
@@ -117,6 +182,17 @@ export const apiRoutes = {
             list: () => api("tithes"),
             detail: (id: string | number) => api(`tithes/${id}`),
             trashed: () => api("tithes/trashed"),
+            contributors: () => api("tithes/contributors"),
+            receipts: () => api("tithes/receipts"),
+            performance: () => api("tithes/performance"),
+            auditLog: () => api("tithes/audit-log"),
+        },
+    },
+
+    spaces: {
+        homecells: {
+            list: () => api("people/homecells"),
+            detail: (id: string | number) => api(`people/homecells/${id}`),
         },
     },
 
@@ -128,10 +204,54 @@ export const apiRoutes = {
         zoneReport: (zoneId: number) =>
             api(`zone-reports/${zoneId}`),
 
+        regions: {
+            dashboard: (id: string | number) =>
+                api(`reports/metrics/regions/${id}`),
+            country: (id: string | number, country: string) =>
+                api(`reports/metrics/regions/${id}/countries/${encodeURIComponent(country)}`),
+            zoneCompliance: (id: string | number, zoneId: string | number) =>
+                api(`reports/metrics/regions/${id}/zones/${zoneId}/compliance`),
+            complianceAuditLog: (id: string | number) =>
+                api(`reports/metrics/regions/${id}/compliance/audit-log`),
+        },
+
         auditLogs: {
             list: () => api("reports/audit-logs"),
             detail: (id: string | number) =>
                 api(`reports/audit-logs/${id}`),
+        },
+
+        tithes: {
+            list: (reportId: string | number) =>
+                api(`reports/${reportId}/tithes`),
+            contributors: (reportId: string | number) =>
+                api(`reports/${reportId}/tithes/contributors`),
+            contributorsPdf: (reportId: string | number) =>
+                api(`reports/${reportId}/tithes/contributors/export.pdf`),
+            contributorHistory: (
+                reportId: string | number,
+                memberId: string | number
+            ) => api(`reports/${reportId}/tithes/contributors/${memberId}/history`),
+            contributorHistoryPdf: (
+                reportId: string | number,
+                memberId: string | number
+            ) => api(`reports/${reportId}/tithes/contributors/${memberId}/history/pdf`),
+            analytics: (reportId: string | number) =>
+                api(`reports/${reportId}/tithes/analytics`),
+            performance: (reportId: string | number) =>
+                api(`reports/${reportId}/tithes/performance`),
+            receipts: (reportId: string | number) =>
+                api(`reports/${reportId}/tithes/receipts`),
+            auditLog: (reportId: string | number) =>
+                api(`reports/${reportId}/tithes/audit-log`),
+        },
+
+        sections: {
+            list: () => api("reports/sections"),
+            detail: (id: string | number) => api(`reports/sections/${id}`),
+            submit: (id: string | number) => api(`reports/sections/${id}/submit`),
+            skip: (id: string | number) => api(`reports/sections/${id}/skip`),
+            reset: (id: string | number) => api(`reports/sections/${id}/reset`),
         },
 
         compliance: {
@@ -176,8 +296,30 @@ export const apiRoutes = {
         revenue: api("bookkeeper/revenue/upload_excel/"),
         overhead: api("bookkeeper/overhead/upload_excel/"),
         expenses: api("bookkeeper/expenditure/upload_excel/"),
+    },
+
+    uploadImage: {
+        expenses: api("bookkeeper/expenditure/upload-image/"),
     }
 }
+
+type ApiRoutes = typeof apiRoutes
+
+export type ApiDetailRouteKey = {
+    [Key in keyof ApiRoutes]: ApiRoutes[Key] extends {
+        detail: (id: string | number) => string
+    }
+        ? Key
+        : never
+}[keyof ApiRoutes]
+
+export type ApiBulkDeleteRouteKey = {
+    [Key in keyof ApiRoutes]: ApiRoutes[Key] extends {
+        bulkDelete: () => string
+    }
+        ? Key
+        : never
+}[keyof ApiRoutes]
 
 
 // =========================

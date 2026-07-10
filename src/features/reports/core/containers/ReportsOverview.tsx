@@ -329,7 +329,7 @@ export function ReportsOverview() {
                                 placeholder="Search reports..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100"
+                                className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100"
                             />
                         </div>
 
@@ -340,7 +340,7 @@ export function ReportsOverview() {
                                 className={cn(
                                     'p-2 rounded-lg transition-colors',
                                     viewMode === 'grid'
-                                        ? 'bg-theme-500 text-white'
+                                        ? 'bg-theme-500 text-theme-foreground'
                                         : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'
                                 )}
                             >
@@ -351,7 +351,7 @@ export function ReportsOverview() {
                                 className={cn(
                                     'p-2 rounded-lg transition-colors',
                                     viewMode === 'timeline'
-                                        ? 'bg-theme-500 text-white'
+                                        ? 'bg-theme-500 text-theme-foreground'
                                         : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'
                                 )}
                             >
@@ -455,7 +455,7 @@ export function ReportsOverview() {
                             ))}
                         </div>
                         <button
-                            className="w-full mt-6 py-3 bg-theme-500 hover:bg-theme-600 text-white font-bold rounded-xl transition-colors"
+                            className="w-full mt-6 py-3 bg-theme-500 hover:bg-theme-600 text-theme-foreground font-bold rounded-xl transition-colors"
                             onClick={() => setSelectedReport(null)}
                         >
                             {selectedReport.status === 'missing' ? 'Create Report' : 'Open Report'}

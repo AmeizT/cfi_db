@@ -19,7 +19,7 @@ type PageTabsMap = {
 }
 
 const pageTabsMap: PageTabsMap = {
-    compliance: () => getComplianceTabs(),
+    compliance: ({ searchParams }) => getComplianceTabs(searchParams),
     imports: () => getDataImportTabs(),
     reports: ({ searchParams }) => getReportTabs(searchParams),
     statements: ({ searchParams }) => getStatementTabs(searchParams),

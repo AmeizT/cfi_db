@@ -63,7 +63,7 @@ export default function FormContainer<T extends FieldValues>({
 
                     <Button
                         type="submit"
-                        className="w-fit px-3 h-8 flex content-center dark:text-white font-semibold bg-neutral-900 dark:bg-primary rounded-lg"
+                        className="w-fit px-3 h-8 flex content-center dark:text-primary-foreground font-semibold bg-neutral-900 dark:bg-primary rounded-lg"
                         disabled={isPending}
                     >
                         {isPending ? <Text variant="shine">Submitting...</Text> : `Submit`}
@@ -74,5 +74,4 @@ export default function FormContainer<T extends FieldValues>({
         </FormPortal>
     )
 }
-
 

@@ -11,6 +11,7 @@ import { DataTable } from "../../core/components/DataTable"
 import { TableTab } from "../../core/types/tabletabs.type"
 import { Flex } from "@/components/ui/box"
 import { SunCloud02Icon } from "@hugeicons/core-free-icons";
+import type { DataTablePaginationProps } from "../../core/components/DataTable.types"
 
 const columnTypes = {
     currency: (value: number) => `P ${value.toLocaleString()}`,
@@ -31,23 +32,31 @@ const columnTypes = {
 }
 
 interface ViewProps {
-    attendance: AttendanceResponse | undefined
+    attendance: (AttendanceResponse & {
+        count?: number
+        results?: Attendance[]
+    }) | undefined
     isLoading: boolean
+    pagination?: DataTablePaginationProps
 }
 
-export default function AttendanceView({ attendance, isLoading }: ViewProps) {
+export default function AttendanceView({ attendance, isLoading, pagination }: ViewProps) {
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const activeSheet = searchParams.get("sheet") || "sunday"
     const queryParams = Object.fromEntries(searchParams.entries())
+    const attendanceRows = React.useMemo(
+        () => attendance?.results ?? attendance?.data ?? [],
+        [attendance]
+    )
 
     const slugify = (value: string) =>
       value.toLowerCase().trim().replace(/\s+/g, "-")
 
     const groupedAttendance = React.useMemo(() => {
-      if (!attendance?.data?.length) return {}
+      if (!attendanceRows.length) return {}
 
-      return attendance.data.reduce<Record<string, Attendance[]>>((acc, item) => {
+      return attendanceRows.reduce<Record<string, Attendance[]>>((acc, item) => {
         const rawKey = item.service_type?.trim() || "Other"
         const key = slugify(rawKey)
 
@@ -56,10 +65,13 @@ export default function AttendanceView({ attendance, isLoading }: ViewProps) {
 
         return acc
       }, {})
-    }, [attendance])
+    }, [attendanceRows])
 
     const firstKey = Object.keys(groupedAttendance)[0]
-    const currentData = groupedAttendance[activeSheet] || groupedAttendance[firstKey] || []
+    const currentData = React.useMemo(
+        () => groupedAttendance[activeSheet] ?? groupedAttendance[firstKey] ?? [],
+        [activeSheet, firstKey, groupedAttendance]
+    )
 
     const status = (searchParams.get("status") ?? "active") as
         | "active"
@@ -75,7 +87,7 @@ export default function AttendanceView({ attendance, isLoading }: ViewProps) {
         }
     }, [currentData, status])
 
-    const monthlySummary = attendance?.data?.[0]?.monthly_summary
+    const monthlySummary = attendanceRows[0]?.monthly_summary
 
     const handleCellEdit = (rowIndex: number, columnId: string, value: unknown) => {
         console.log("Edited cell:", { rowIndex, columnId, value })
@@ -167,18 +179,29 @@ export default function AttendanceView({ attendance, isLoading }: ViewProps) {
             pathname: `${pathname}?${createQueryString(searchParams, { sheet: slug })}`,
         }))
     }
+    
+    const tableOptions = {
+        selectable: true,
+    }
 
     return (
         <Flex className="w-full" direction="column" gap={4}>
             <DataTable
                 data={filteredAttendance}
                 config={attendance?.config}
+                options={tableOptions}
                 isLoading={isLoading}
                 loadingMode="overlay"
                 rowHeight={36}
                 onCellEdit={handleCellEdit}
                 footerData={undefined}
                 resource="attendance"
+                totalRows={attendance?.count ?? filteredAttendance.length}
+                currentPage={pagination?.currentPage}
+                pageSize={pagination?.pageSize}
+                pageSizeOptions={pagination?.pageSizeOptions}
+                onPageChange={pagination?.onPageChange}
+                onPageSizeChange={pagination?.onPageSizeChange}
                 emptyState={
                     <div className="text-center">
                         <p>No attendance yet</p>
@@ -197,22 +220,6 @@ export default function AttendanceView({ attendance, isLoading }: ViewProps) {
                     </div>
                 )}
             />
-
-            {/* {selectedRow && (
-                <RecordDrawer
-                    rowData={selectedRow}
-                    open={sheetOpen}
-                    onClose={() => setSheetOpen(false)}
-                    onUpdateRow={(row) => console.log(row)}
-                    displayKeys={[
-                        'weather',
-                        'preacher',
-                        'sermon',
-                        'notes',
-                        'scriptures'
-                    ]}
-                />
-            )} */}
         </Flex>
     )
 }

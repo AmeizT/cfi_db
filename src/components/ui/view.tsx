@@ -1,11 +1,10 @@
 import React from "react"
+import { Flex } from "./box"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { motion } from "motion/react"
 import { Separator } from "./separator"
-import { IconPlus } from "@tabler/icons-react"
-import { ReportNavigator } from "@/features/reports/statements/components/ReportNavigator";
-import { Flex } from "./box";
+import { ReportNavigator } from "@/features/reports/statements/components/ReportNavigator"
 
 
 type AsProp<T extends React.ElementType> = {
@@ -50,6 +49,7 @@ type ViewCompound = {
         activeKey?: string
         className?: string
         variant?: "default" | "report"
+        showReportNavigator?: boolean
     }) => React.JSX.Element | null) & { displayName?: string }
     Body: ((props: React.ComponentPropsWithoutRef<"div">) => React.JSX.Element) & { displayName?: string }
     Footer: ((props: React.ComponentPropsWithoutRef<"footer">) => React.JSX.Element) & { displayName?: string }
@@ -78,16 +78,16 @@ const View = (<T extends React.ElementType = "div">({
 
 View.Header = ({ tabs, pathname, pagename, description, actions, activeTab, ...props }) => {
     return (
-        <header {...props} className={cn("py-2 h-fit flex flex-col shrink-0 relative bg-white", props.className)}>
-            <div className="lg:px-4 w-full h-fit flex items-center gap-4">
+        <header {...props} className={cn("py-4 h-fit flex flex-col shrink-0 relative bg-inherit overflow-hidden", props.className)}>
+            <div className="lg:px-6 w-full h-fit flex items-center gap-4">
                 <div className="flex flex-col">
                     <div className="text-2xl lg:text-[28px] font-bold tracking-tight text-foreground capitalize">
                         {pagename}
                     </div>
 
                     {description ? (
-                        <div className="w-2/3">
-                            <p className="text-xs text-balance text-muted-foreground mt-1.5">
+                        <div className="w-full">
+                            <p className="text-lg text-balance text-muted-foreground mt-1.5">
                                 {description}
                             </p>
                         </div>
@@ -129,7 +129,7 @@ View.Header = ({ tabs, pathname, pagename, description, actions, activeTab, ...p
                                         <Link
                                             key={tab.label}
                                             href={tab?.href || "#"}
-                                            className={`px-4 lg:px-2 h-full inline-flex justify-center items-center relative z-0 text-sm font-semibold whitespace-nowrap rounded-full lg:rounded-lg ${isActiveTab ? "text-white lg:text-primary lg:hover:bg-primary/5 dark:hover:bg-neutral-700" : "dark:text-white lg:hover:bg-gray-100 dark:hover:bg-neutral-700"}`}
+                                            className={`px-4 lg:px-2 h-full inline-flex justify-center items-center relative z-0 text-sm font-semibold whitespace-nowrap rounded-full lg:rounded-lg ${isActiveTab ? "text-primary-foreground lg:text-primary lg:hover:bg-primary/5" : "text-foreground hover:bg-accent"}`}
                                         >
                                             {tab?.label}
 
@@ -137,7 +137,7 @@ View.Header = ({ tabs, pathname, pagename, description, actions, activeTab, ...p
                                                 <motion.span
                                                     id="active-pill"
                                                     layoutId="active-pill"
-                                                    className={`w-full lg:w-[calc(100%-1rem)] h-full lg:h-0.5 absolute inset-x-0 lg:left-2 lg:-bottom-[5.5px] -z-10 rounded-full ${isActiveTab ? "block bg-gray-800 lg:bg-primary lg:dark:bg-primary" : "hidden"} transition-discrete`}
+                                                    className={`w-full lg:w-[calc(100%-1rem)] h-full lg:h-0.5 absolute inset-x-0 lg:left-2 lg:bottom-[-5.5px] -z-10 rounded-full ${isActiveTab ? "block bg-primary" : "hidden"} transition-discrete`}
                                                 />
                                             ) : null}
                                         </Link>
@@ -145,10 +145,6 @@ View.Header = ({ tabs, pathname, pagename, description, actions, activeTab, ...p
                                 })}
                             </div>
                         </div>
-
-                        {/* <div className="px-4 mt-1 hidden lg:flex">
-                            <Separator className="w-full bg-gray-200 dark:bg-neutral-700" />
-                        </div> */}
                     </div>
                 </div>
             ) : null}
@@ -158,48 +154,49 @@ View.Header = ({ tabs, pathname, pagename, description, actions, activeTab, ...p
     )
 }
 
-View.TabBar = ({ items, activeKey, className, variant }) => {
+View.TabBar = ({ items, activeKey, className, variant, showReportNavigator = true }) => {
     if (!items?.length) return null
 
     return (
-        <div className={cn("w-full flex shrink-0 bg-white", className)}>
-            <div className="flex flex-col w-full gap-4 px-2 lg:px-0 lg:gap-0">
+        <div className={cn("w-full flex shrink-0 text-foreground", className)}>
+            <div className="flex flex-col w-full gap-4 lg:gap-0">
                 <div
-                        className={cn(
-                            "px-2 h-8 lg:h-7 flex items-center space-x-2",
-                            "lg:space-x-1 overflow-y-hidden overflow-x-auto lg:overflow-y-visible lg:overflow-x-visible no-scrollbar"
-                        )}
-                    >
-                        {items.map((tab) => {
-                            const isActiveTab = tab.key === activeKey
+                    className={cn(
+                        "px-4 h-8 lg:h-7 flex items-center gap-x-1",
+                        "lg:space-x-0 overflow-y-hidden overflow-x-auto lg:overflow-y-visible lg:overflow-x-visible no-scrollbar"
+                    )}
+                >
+                    {items.map((tab) => {
+                        const isActiveTab = tab.key === activeKey
 
-                            return (
-                                <Link
-                                    key={tab.key}
-                                    href={tab.href}
-                                    className={`px-4 lg:px-2 h-full inline-flex justify-center items-center relative z-0 text-sm font-semibold whitespace-nowrap rounded-full lg:rounded-lg ${isActiveTab ? "text-white lg:text-primary lg:hover:bg-primary/5 dark:hover:bg-neutral-700" : "dark:text-white lg:hover:bg-gray-100 dark:hover:bg-neutral-700"}`}
-                                >
-                                    {tab.label}
+                        return (
+                            <Link
+                                key={tab.key}
+                                href={tab.href}
+                                className={`px-4 lg:px-2 h-full inline-flex justify-center items-center relative z-0 text-sm font-semibold whitespace-nowrap rounded-full lg:rounded-lg ${isActiveTab ? "text-primary-foreground lg:text-primary lg:hover:bg-primary/5" : "text-foreground hover:bg-accent"}`}
+                            >
+                                {tab.label}
 
-                                    {isActiveTab ? (
-                                        <motion.span
-                                            id="active-pill"
-                                            layoutId="active-pill"
-                                            className="w-full lg:w-[calc(100%-1rem)] h-full lg:h-0.5 absolute inset-x-0 lg:left-2 lg:bottom-[-5.5px] -z-10 rounded-full block bg-gray-800 lg:bg-primary lg:dark:bg-primary transition-discrete"
-                                        />
-                                    ) : null}
-                                </Link>
-                            )
-                        })}
-                    </div>
-
-                <div className="px-0 mt-1 hidden lg:flex">
-                    <Separator className="w-full bg-border dark:bg-neutral-700" />
+                                {isActiveTab ? (
+                                    <motion.span
+                                        id="active-pill"
+                                        layoutId="active-pill"
+                                        className="w-full lg:w-[calc(100%-1rem)] h-full lg:h-0.5 absolute lg:left-2 lg:bottom-[-5.5px] -z-10 rounded-full block bg-primary transition-discrete"
+                                    />
+                                ) : null}
+                            </Link>
+                        )
+                    })}
                 </div>
 
-                {variant === "report" ? (
-                    <Flex align="center" className="px-4 py-2 w-full border-b">
+                <div data-id="separator" className="px-6 mt-1 hidden lg:flex">
+                    <Separator className="w-full bg-border-subtle" />
+                </div>
+
+                {variant === "report" && showReportNavigator ? (
+                    <Flex direction="column" align="center" className="px-6 py-2 w-full">
                         <ReportNavigator />
+                        <Separator className="mt-2 w-full bg-border-subtle" />
                     </Flex>
                 ) : null}
             </div>
@@ -208,7 +205,11 @@ View.TabBar = ({ items, activeKey, className, variant }) => {
 }
 
 View.Body = ({ children, ...props }) => {
-    return <div {...props} className={cn("px-4 min-h-0 flex-1 flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent", props.className)}>{children}</div>;
+    return (
+        <div {...props} className={cn("px-6 min-h-0 flex-1 flex flex-col", props.className)}>
+            {children}
+        </div>
+    )
 }
 
 View.Footer = ({ children, ...props }) => {
@@ -221,5 +222,3 @@ View.Body.displayName = "View.Body"
 View.Footer.displayName = "View.Footer"
 
 export default View
-
-

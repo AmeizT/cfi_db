@@ -1,6 +1,11 @@
 import { cn } from "@/lib/utils"
 import { RailNavigation } from "../navigation/types"
 import { HugeiconsIcon, IconSvgElement } from "@hugeicons/react"
+import {
+    Building2Icon,
+    PackageIcon,
+    UserRoundIcon,
+} from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -13,6 +18,13 @@ import { ProfileDropdown } from "./ProfileDropdown"
 import { cva } from "class-variance-authority"
 import { Flex } from "@/components/ui/box"
 import { Button } from "@/components/ui/button"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface NavRailProps {
     menu: RailNavigation
@@ -48,7 +60,7 @@ function RailItem({
                     >
                         <HugeiconsIcon
                             icon={icon}
-                            className="size-6.5"
+                            className="size-6"
                             strokeWidth={1.75}
                         />
                     </Link>
@@ -61,9 +73,80 @@ function RailItem({
     )
 }
 
+function RailCreateMenu({
+    icon,
+    label,
+    isActive,
+}: {
+    icon: IconSvgElement
+    label: string
+    isActive?: boolean
+}) {
+    const items = [
+        {
+            label: "Assembly",
+            href: "/administration/assemblies",
+            icon: Building2Icon,
+        },
+        {
+            label: "Member",
+            href: "/app/people/members",
+            icon: UserRoundIcon,
+        },
+        {
+            label: "Asset",
+            href: "/app/finance/assets",
+            icon: PackageIcon,
+        },
+    ]
+
+    return (
+        <li>
+            <DropdownMenu>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                type="button"
+                                aria-label={label}
+                                aria-current={isActive ? "page" : undefined}
+                                data-active={isActive}
+                                variant="ghost"
+                                size="icon"
+                                className={cn(railItemClasses, "border-none shadow-none")}
+                            >
+                                <HugeiconsIcon
+                                    icon={icon}
+                                    className="size-6.5"
+                                    strokeWidth={1.75}
+                                />
+                            </Button>
+                        </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" align="center">
+                        <p>{label}</p>
+                    </TooltipContent>
+                </Tooltip>
+
+                <DropdownMenuContent side="right" align="end" className="w-52">
+                    <DropdownMenuLabel>Create</DropdownMenuLabel>
+                    {items.map((item) => (
+                        <DropdownMenuItem key={item.label} asChild>
+                            <Link href={item.href}>
+                                <item.icon className="size-4" />
+                                {item.label}
+                            </Link>
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </li>
+    )
+}
+
 const railItemClasses = cn(
-    "size-11 flex items-center justify-center rounded-[10px] text-sidebar-icon transition-colors hover:bg-user-theme/5 hover:text-icon-active",
-    "data-[active=true]:bg-linear-to-b data-[active=true]:from-[#ffffff20] data-[active=true]:to-[#ffffff30] dark:data-[active=true]:from-taupe-800 dark:data-[active=true]:to-taupe-900 dark:data-[active=true]:border-[1.25px] dark:data-[active=true]:border-taupe-800 data-[active=true]:text-icon-active",
+    "size-11 flex items-center justify-center squircle rounded-[20px] text-sidebar-icon transition-colors hover:bg-surface hover:text-user-theme",
+    "data-[active=true]:bg-surface data-[active=true]:text-user-theme",
 )
 
 const sidebarIconButton = cva(
@@ -71,8 +154,8 @@ const sidebarIconButton = cva(
     {
         variants: {
             active: {
-                true: "bg-surface-subtle text-icon-active",
-                false: "text-sidebar-icon hover:bg-mist-100 dark:hover:bg-taupe-900 hover:text-icon-active"
+                true: "bg-surface-subtle text-user-theme",
+                false: "text-sidebar-icon hover:bg-mist-100 dark:hover:bg-taupe-900 hover:text-user-theme"
             }
         }
     }
@@ -83,7 +166,7 @@ export function NavRail({ menu, handleAssembliesClick }: NavRailProps){
     const { data: user, isLoading } = useUser()
 
     return (
-        <Flex direction={"column"} justify={"between"} className="px-2 py-2 h-full bg-user-theme">
+        <Flex direction={"column"} justify={"between"} className="px-2 py-2 h-full rounded-none">
             <ul className="w-full flex flex-col items-center gap-1">
                 <li>
                     <Tooltip>
@@ -123,7 +206,21 @@ export function NavRail({ menu, handleAssembliesClick }: NavRailProps){
                         .split("/")
                         .filter(Boolean)[0]
 
-                    const isActive = firstSegment === itemFirstSegment
+                    const isCreateMenu = item.label === "Forms"
+                    const isActive = isCreateMenu
+                        ? firstSegment === "forms"
+                        : firstSegment === itemFirstSegment
+
+                    if (isCreateMenu) {
+                        return (
+                            <RailCreateMenu
+                                key={item.label}
+                                icon={item.icon}
+                                label={item.label}
+                                isActive={isActive}
+                            />
+                        )
+                    }
                     
                     return (
                         <RailItem 

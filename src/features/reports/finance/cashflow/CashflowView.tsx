@@ -6,15 +6,32 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { DownloadCircle01Icon } from "@hugeicons/core-free-icons"
 import { apiRoutes } from "@/config/urls"
 import { DataTable } from "../../core/components/DataTable"
+import type { DataTablePaginationProps } from "../../core/components/DataTable.types"
 
 interface ViewProps {
-    cashflow: CashflowResponse | undefined
+    cashflow: (CashflowResponse & {
+        count?: number
+        results?: Array<CashflowRow & { id?: number }>
+    }) | undefined
     isLoading: boolean
+    pagination?: DataTablePaginationProps
 }
 
-export default function CashFlowView({ cashflow, isLoading }: ViewProps) {
+export default function CashFlowView({ cashflow, isLoading, pagination }: ViewProps) {
     const handleCellEdit = (rowIndex: number, columnId: string, value: unknown) => {
         console.log("Edited cell:", { rowIndex, columnId, value })
+    }
+    const sourceRows: Array<CashflowRow & { id?: number }> = (
+        cashflow?.results ??
+        cashflow?.data?.rows ??
+        []
+    )
+    const rows = sourceRows.map((row, index) => ({
+        ...row,
+        id: row.id ?? index,
+    }))
+    const tableOptions = {
+        selectable: true,
     }
 
     return (
@@ -35,12 +52,20 @@ export default function CashFlowView({ cashflow, isLoading }: ViewProps) {
                 </div>
 
                 <DataTable
-                    data={cashflow?.data?.rows?.map((row, index) => ({ ...row, id: index })) || []}
+                    data={rows}
                     config={cashflow?.config as TableSchema}
+                    options={tableOptions}
                     rowHeight={36}
                     onCellEdit={handleCellEdit}
                     footerData={undefined}
                     isLoading={isLoading}
+                    totalRows={cashflow?.count ?? rows.length}
+                    currentPage={pagination?.currentPage}
+                    pageSize={pagination?.pageSize}
+                    pageSizeOptions={pagination?.pageSizeOptions}
+                    onPageChange={pagination?.onPageChange}
+                    onPageSizeChange={pagination?.onPageSizeChange}
+                    showRowActions={false}
                     emptyState={
                         <EmptyState type={"reports"} />
                     }
@@ -51,7 +76,7 @@ export default function CashFlowView({ cashflow, isLoading }: ViewProps) {
 }
 
 import { Skeleton } from "@/components/ui/skeleton"
-import { CashflowResponse } from "./types/cashflow"
+import { CashflowResponse, CashflowRow } from "./types/cashflow"
 import { TableSchema } from "@/features/data-table/types/tableSchema.types"
 import { Empty } from "@/components/ui/empty"
 import { EmptyState } from "@/components/ui/empty-state"

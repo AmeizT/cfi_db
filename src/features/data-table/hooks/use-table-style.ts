@@ -4,16 +4,16 @@ export function useTableStyleSystem(variant: DataTableVariant) {
 
     const containerClass = [
         variant.mode === "card" ? "rounded-xl shadow-sm" : "",
-        variant.mode !== "grid" && variant.border === "subtle" ? "border border-border" : "",
-        variant.mode !== "grid" && variant.border === "full" ? "border border-border" : "",
-        variant.border === "y" ? "border-0 border-border" : "",
+        variant.mode !== "grid" && variant.border === "subtle" ? "border border-border-subtle" : "",
+        variant.mode !== "grid" && variant.border === "full" ? "border border-border-subtle" : "",
+        variant.border === "y" ? "border-0 border-border-subtle" : "",
     ].join(" ")
 
     const rowClass =
         variant.mode === "list"
-            ? "border-b border-border"
+            ? "border-b border-border-subtle"
             : variant.mode === "grid" && variant.border === "full"
-                ? "border-b border-border"
+                ? "border-b border-border-subtle"
                 : ""
 
     const paddingMap = {
@@ -23,7 +23,7 @@ export function useTableStyleSystem(variant: DataTableVariant) {
             list: "px-1 py-2",
             card: "p-4",
         },
-        comfortable: "h-10",
+        comfortable: "h-10.5",
     }
 
     const density = variant?.interaction?.density || "default"
@@ -38,9 +38,9 @@ export function useTableStyleSystem(variant: DataTableVariant) {
     const cellClass =
         variant.mode === "grid"
             ? variant.border === "full"
-                ? "border-r border-b border-border last:border-r-0 last:border-b-0"
+                ? "border-r border-b border-border-subtle last:border-r-0"
                 : variant.border === "subtle"
-                    ? "border-r border-b border-border last:border-r-0"
+                    ? "border-r border-b border-border-subtle last:border-r-0"
                     : ""
             : ""
 

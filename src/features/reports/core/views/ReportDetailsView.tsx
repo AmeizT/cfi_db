@@ -20,19 +20,22 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { Flex } from "@/components/ui/box"
 import { InformationSquareIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import { useDataTablePagination } from "../components/hooks/useDataTablePagination"
+import type { DataTablePaginationProps } from "../components/DataTable.types"
 
 interface ReportContextProps {
     isLoading: boolean
     tab: string 
     attendance: AttendanceResponse | undefined
     finance: FinanceResponse | undefined
+    pagination: DataTablePaginationProps
 }
 
-function ReportContext({ tab, isLoading, attendance, finance }: ReportContextProps) {
+function ReportContext({ tab, isLoading, attendance, finance, pagination }: ReportContextProps) {
     const TAB_COMPONENTS: Record<string, React.ReactNode> = {
-        attendance: <AttendanceView attendance={attendance} isLoading={isLoading} />,
-        cashflow: <CashflowView cashflow={finance?.cashflow} isLoading={isLoading} />,
-        tithes: <TithesView tithes={finance?.tithes} isLoading={isLoading} />,
+        attendance: <AttendanceView attendance={attendance} isLoading={isLoading} pagination={pagination} />,
+        cashflow: <CashflowView cashflow={finance?.cashflow} isLoading={isLoading} pagination={pagination} />,
+        tithes: <TithesView tithes={finance?.tithes} isLoading={isLoading} pagination={pagination} />,
     }
 
     return TAB_COMPONENTS[tab] ?? "attendance data"
@@ -55,7 +58,7 @@ interface PagenameProps {
 function PageName({ tab, meta, user }: PagenameProps){
     function intlCurrency(value: number) {
         return formatCurrency(value, {
-            language: user?.assembly?.language,
+            language: user?.assembly?.locale,
             currency: user?.assembly?.currency
         })
     }
@@ -91,7 +94,7 @@ function PageName({ tab, meta, user }: PagenameProps){
 
 function PageAction({ tab }: {tab: ReportTabKey}) {
     return (
-        <Button className="h-9 rounded-[11px] bg-linear-to-b from-indigo-500 to-indigo-500">
+        <Button className="h-9 rounded-[11px] bg-theme">
             Create {tab}
         </Button>
     )
@@ -103,8 +106,14 @@ export function ReportDetailsView() {
     const reportId = searchParams.get("report_id") ?? undefined
     const tab = (searchParams.get("tab") as ReportTabKey) ?? "attendance"
     const { data: user } = useUser()
-    const { data: attendance } = useReportAttendance(reportId as unknown as string)
-    const { data: finance, isLoading } = useReportFinance(reportId as unknown as string)
+    const pagination = useDataTablePagination()
+    const paginationParams = {
+        page: pagination.currentPage,
+        pageSize: pagination.pageSize,
+    }
+    const { data: attendance, isLoading: isAttendanceLoading } = useReportAttendance(reportId, paginationParams)
+    const { data: finance, isLoading: isFinanceLoading } = useReportFinance(reportId, paginationParams)
+    const isLoading = tab === "attendance" ? isAttendanceLoading : isFinanceLoading
     const _reportTabs = reportTabs(searchParams as unknown as QueryParams)
 
     const meta = React.useMemo<PageMeta>(() => {
@@ -156,6 +165,7 @@ export function ReportDetailsView() {
                     attendance={attendance}
                     finance={finance}
                     isLoading={isLoading}
+                    pagination={pagination}
                 />
             </View.Body>
         </View>

@@ -28,7 +28,7 @@ export function ReminderForm({ assemblies }: Props) {
             <select
               value={assembly}
               onChange={(e) => setAssembly(e.target.value)}
-              className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-theme-500"
             >
               <option value="all-noncompliant">All non-compliant</option>
               {/* {assemblies
@@ -43,7 +43,7 @@ export function ReminderForm({ assemblies }: Props) {
             <select
               value={channel}
               onChange={(e) => setChannel(e.target.value)}
-              className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-theme-500"
             >
               {["Email", "SMS", "WhatsApp"].map((c) => (
                 <option key={c}>{c}</option>
@@ -58,7 +58,7 @@ export function ReminderForm({ assemblies }: Props) {
             rows={4}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-theme-500"
           />
         </div>
 
@@ -68,7 +68,7 @@ export function ReminderForm({ assemblies }: Props) {
           </button>
           <button
             onClick={handleSend}
-            className="flex-1 text-xs py-2 px-3 rounded-lg bg-theme-600 text-white hover:bg-theme-700 transition-colors font-medium"
+            className="flex-1 text-xs py-2 px-3 rounded-lg bg-theme-600 text-theme-foreground hover:bg-theme-700 transition-colors font-medium"
           >
             Send reminder
           </button>

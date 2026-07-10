@@ -90,7 +90,7 @@ export function ReportSummaryCard(props: ReportSummaryCardProps) {
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
                         <div
-                            className="bg-linear-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500"
+                            className="bg-theme-gradient-x h-full rounded-full transition-all duration-500"
                             style={{ width: `${(50 / 100) * 100}%` }}
                         />
                     </div>

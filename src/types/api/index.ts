@@ -30,12 +30,12 @@ export interface AttendanceInstance {
     sermon: string;
     scriptures: string;
     headcount: number;
-    adults: number;
-    children: number;
-    visitors: number;
-    newcomers: number;
-    altar_call: number;
-    baptism: number;
+    total_adults: number;
+    total_children: number;
+    total_visitors: number;
+    total_new_converts: number;
+    total_altar_call: number;
+    total_baptisms: number;
     summary: string;
     achievements: string;
     slug: string;

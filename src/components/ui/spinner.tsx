@@ -19,7 +19,7 @@ export function Spinner({
             key={`spinner-bar-${String(i)}`}
             aria-label={`spinner-bar-${i + 1}`}
             className={cn(
-              "-left-[10%] -top-[3.9%] absolute h-[8%] w-[24%] animate-spinner rounded-md bg-slate-400 dark:bg-white",
+              "-left-[10%] -top-[3.9%] absolute h-[8%] w-[24%] animate-spinner rounded-md bg-muted-foreground",
               `bar:nth-child(${i + 1})`,
               className,
             )}

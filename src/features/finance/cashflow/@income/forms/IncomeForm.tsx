@@ -171,7 +171,7 @@ export function IncomeForm({ formId }: { formId: string }) {
                                                 </FormControl>
                                                 <SelectContent>
                                                     <div className="w-full border-b border-gray-200">
-                                                        <button onClick={() => console.log("add report")} className="w-full flex items-center gap-2 px-2 py-1 rounded-lg bg-primary text-white text-sm">
+                                                        <button onClick={() => console.log("add report")} className="w-full flex items-center gap-2 px-2 py-1 rounded-lg bg-primary text-primary-foreground text-sm">
                                                             <IconPlus className="size-4" /> Create new report
                                                         </button>
                                                     </div>

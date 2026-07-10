@@ -19,9 +19,9 @@ const buttonVariants = cva(
           "shadow-offset-muted border border-border-offset",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
-        ghost: "hover:bg-gray-200 hover:text-accent-foreground",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        toolbar: "rounded-full text-gray-800 bg-white",
+        toolbar: "rounded-full bg-surface-foreground/70 hover:bg-surface-foreground text-foreground",
       },
       size: {
         default: "px-3 h-8 has-[>svg]:px-3",

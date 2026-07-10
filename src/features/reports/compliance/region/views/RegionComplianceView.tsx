@@ -35,7 +35,7 @@ export function RegionComplianceView() {
                         <button className="text-sm px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-white transition-colors">
                             Export report
                         </button>
-                        <button className="text-sm px-4 py-2 rounded-lg bg-theme-600 text-white hover:bg-theme-700 transition-colors font-medium">
+                        <button className="text-sm px-4 py-2 rounded-lg bg-theme-600 text-theme-foreground hover:bg-theme-700 transition-colors font-medium">
                             Send reminders
                         </button>
                     </div>

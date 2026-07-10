@@ -23,12 +23,16 @@ export function getSundays(year: number, month: number) {
 
 // Metrics
 export const attendanceMetrics = [
-    "adults",
-    "children",
-    "guest_attendance",
-    "new_converts",
-    "baptisms",
-    "altar_call",
+    "men",
+    "women",
+    "visitor_men",
+    "visitor_women",
+    "new_convert_men",
+    "new_convert_women",
+    "baptism_men",
+    "baptism_women",
+    "altar_call_men",
+    "altar_call_women",
     "online_viewers",
     "volunteers_on_duty",
     "total_leaders_present",
@@ -56,7 +60,7 @@ export function AttendanceGrid({
     const recordMap = Object.fromEntries(records.map((r) => [r.timestamp, r]));
 
     // Focus & refs
-    const [_activeCell, setActiveCell] = useState<{ row: number; col: number }>({ row: 0, col: 1 });
+    const [, setActiveCell] = useState<{ row: number; col: number }>({ row: 0, col: 1 });
     const inputRefs = useRef<(HTMLInputElement | null)[][]>([]);
 
     useEffect(() => {
