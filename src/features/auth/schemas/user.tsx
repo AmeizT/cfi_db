@@ -6,6 +6,16 @@ const dateString = z.string().refine((val) => !isNaN(Date.parse(val)), {
 
 const nanoidRegex = /^[a-zA-Z0-9_-]{12}$/
 
+const flexibleBoolean = z.preprocess((value) => {
+    if (typeof value !== "string") return value
+
+    const normalized = value.trim().toLowerCase()
+    if (["true", "1", "yes"].includes(normalized)) return true
+    if (["false", "0", "no"].includes(normalized)) return false
+
+    return value
+}, z.boolean())
+
 export const RoleSchema = z.object({
     id: z.number(),
     name: z.string(),
@@ -28,13 +38,16 @@ export const RegionRoleSchema = z.object({
 export const AssemblySummarySchema = z.object({
     id: z.number(),
     name: z.string(),
-    zone: z.number().nullable(),
-    country_code: z.string().nullable(),
-    locale: z.string(),
-    currency: z.string(),
-    primary_currency: z.string().nullable(),
-    avatar: z.string().url().nullable(),
-    avatar_fallback: z.string().nullable(),
+    uuid: z.string().uuid().optional(),
+    zone: z.number().nullable().optional(),
+    country: z.string().optional(),
+    country_code: z.string().nullable().optional(),
+    language: z.string().optional(),
+    locale: z.string().optional(),
+    currency: z.string().optional(),
+    primary_currency: z.string().nullable().optional(),
+    avatar: z.string().url().nullable().optional(),
+    avatar_fallback: z.string().nullable().optional(),
 })
 
 export const AssemblySchema = AssemblySummarySchema.extend({
@@ -74,23 +87,23 @@ export const UserSchema = z.object({
 
     roles: z.array(RoleSchema),
 
-    is_region_staff: z.boolean(),
+    is_region_staff: z.boolean().optional().default(false),
     active_region: RegionSummarySchema.nullable(),
     region_roles: z.array(RegionRoleSchema),
     assigned_regions: z.array(RegionSummarySchema),
     assigned_zones: z.array(z.any()),
 
     avatar: z.string().url().nullable(),
-    avatar_fallback: z.string(),
+    avatar_fallback: z.string().nullable().optional().default(null),
 
     is_active: z.boolean(),
     is_admin: z.boolean(),
     is_onboarded: z.boolean(),
-    is_student: z.boolean(),
-    is_db_staff: z.boolean(),
-    is_db_zone_staff: z.boolean(),
-    is_academy_staff: z.boolean(),
-    is_staff: z.boolean(),
+    is_student: flexibleBoolean,
+    is_db_staff: flexibleBoolean,
+    is_db_zone_staff: flexibleBoolean,
+    is_academy_staff: flexibleBoolean,
+    is_staff: flexibleBoolean,
 
     created_at: dateString,
     updated_at: dateString,

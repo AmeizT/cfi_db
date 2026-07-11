@@ -32,32 +32,38 @@ const MAX_SHORTCUTS = 5;
 
 export function Shortcuts() {
     const pathname = usePathname();
-    const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
+    const [shortcuts, setShortcuts] = useState<Shortcut[]>(() => {
+        if (typeof window === "undefined") return []
 
-    // Load from localStorage on mount
-    useEffect(() => {
         const stored = localStorage.getItem("shortcuts");
-        if (stored) {
-            setShortcuts(JSON.parse(stored));
+        if (!stored) return []
+
+        try {
+            const parsed = JSON.parse(stored)
+            return Array.isArray(parsed) ? parsed : []
+        } catch {
+            return []
         }
-    }, []);
+    });
 
     // Track URL changes
     useEffect(() => {
         if (!pathname) return;
 
-        setShortcuts((prev) => {
-            // Avoid duplicates
-            const existing = prev.filter((s) => s.url !== pathname);
+        queueMicrotask(() => {
+            setShortcuts((prev) => {
+                // Avoid duplicates
+                const existing = prev.filter((s) => s.url !== pathname);
 
-            const updated = [
-                { url: pathname, label: pathname.replace("/", "") || "Home" },
-                ...existing,
-            ].slice(0, MAX_SHORTCUTS);
+                const updated = [
+                    { url: pathname, label: pathname.replace("/", "") || "Home" },
+                    ...existing,
+                ].slice(0, MAX_SHORTCUTS);
 
-            localStorage.setItem("shortcuts", JSON.stringify(updated));
-            return updated;
-        });
+                localStorage.setItem("shortcuts", JSON.stringify(updated));
+                return updated;
+            });
+        })
     }, [pathname]);
 
     if (shortcuts.length === 0) return null;

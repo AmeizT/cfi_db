@@ -3,7 +3,9 @@
 import { cookies } from "next/headers"
 import { 
     AttendanceStatement, 
+    AttendanceKpis,
     QuarterResponse, 
+    TithesKpis,
     TithesQuarterStatement 
 } from "../../statements/types/summary.types"
 
@@ -11,15 +13,21 @@ import {
 export type ReportTab = "attendance" | "tithes"
 
 export type ReportMap = {
-    attendance: AttendanceStatement
-    tithes: TithesQuarterStatement
+    attendance: {
+        statement: AttendanceStatement
+        kpis: AttendanceKpis
+    }
+    tithes: {
+        statement: TithesQuarterStatement
+        kpis: TithesKpis
+    }
 }
 
 export async function getQuarterStatement<T extends ReportTab>(
     tab: T,
     q: string,
     period: string
-): Promise<QuarterResponse<ReportMap[T]>> {
+): Promise<QuarterResponse<ReportMap[T]["statement"], ReportMap[T]["kpis"]>> {
         
     const cookieStore = await cookies()
 
@@ -46,5 +54,4 @@ export async function getAttendanceQuarter(q: string, period: string) {
 export async function getTithesQuarter(q: string, period: string) {
     return await getQuarterStatement("tithes", q, period);
 }
-
 

@@ -5,8 +5,7 @@ interface CommonControlledStateProps<T> {
   defaultValue?: T;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function useControlledState<T, Rest extends any[] = []>(
+export function useControlledState<T, Rest extends unknown[] = []>(
   props: CommonControlledStateProps<T> & {
     onChange?: (value: T, ...args: Rest) => void;
   },
@@ -17,17 +16,16 @@ export function useControlledState<T, Rest extends any[] = []>(
     value !== undefined ? value : (defaultValue as T),
   );
 
-  React.useEffect(() => {
-    if (value !== undefined) setInternalState(value);
-  }, [value]);
+  const isControlled = value !== undefined;
+  const currentState = isControlled ? value : state;
 
   const setState = React.useCallback(
     (next: T, ...args: Rest) => {
-      setInternalState(next);
+      if (!isControlled) setInternalState(next);
       onChange?.(next, ...args);
     },
-    [onChange],
+    [isControlled, onChange],
   );
 
-  return [state, setState] as const;
+  return [currentState, setState] as const;
 }

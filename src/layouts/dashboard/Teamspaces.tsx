@@ -60,11 +60,9 @@ export function Teamspaces() {
     const [isHovered, setIsHovered] = React.useState(false)
 
     const [selectedTeamspaceId, setSelectedTeamspaceId] = React.useState<string>("")
-    React.useEffect(() => {
-        setSelectedTeamspaceId(String(user?.church))
-    }, [user?.church])
+    const currentTeamspaceId = selectedTeamspaceId || String(user?.church ?? "")
 
-    const activeTeamspace = teamspaces?.find(teamspace => teamspace?.id === Number(selectedTeamspaceId))
+    const activeTeamspace = teamspaces?.find(teamspace => teamspace?.id === Number(currentTeamspaceId))
 
     return (
         <SidebarGroup className="px-0">
@@ -127,7 +125,7 @@ export function Teamspaces() {
                                 <SidebarMenuItem key={teamspace.id} className="px-2 h-9 flex items-center rounded-lg hover:bg-mist-200">
                                     <TeamspaceSwitcher
                                         teamspace={teamspace}
-                                        selectedTeamspaceId={selectedTeamspaceId}
+                                        selectedTeamspaceId={currentTeamspaceId}
                                         setSelectedTeamspaceId={setSelectedTeamspaceId}
                                     />
                                 </SidebarMenuItem>

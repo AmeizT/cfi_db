@@ -10,7 +10,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { AlarmClockCheck, Bug, LogOut, Settings, type LucideIcon } from "lucide-react"
-import { User } from "@/features/auth/types/user"
+import type { User } from "@/features/auth/schemas/user"
 import { signOut } from "@/features/auth/actions/sign-out"
 
 
@@ -55,8 +55,8 @@ export function AccountMenu({ user }: AccountMenuProps){
         <DropdownMenu>
             <DropdownMenuTrigger>
                 <Avatar className="size-8">
-                    <AvatarImage src={user?.avatar as unknown as string} alt={user?.first_name} />
-                    <AvatarFallback className="text-white text-sm font-semibold" style={{ background: user?.avatar_fallback }}>
+                    <AvatarImage src={user.avatar ?? undefined} alt={user.first_name} />
+                    <AvatarFallback className="text-white text-sm font-semibold" style={{ background: user.avatar_fallback ?? undefined }}>
                         {user?.first_name.charAt(0)}{user?.last_name.charAt(0)}
                     </AvatarFallback>
                 </Avatar>

@@ -12,14 +12,11 @@ export function WorkspaceSwitcher() {
     const { data: user } = useUser()
     const workspaces = user?.assemblies || []    
     const [selectedWorkspace, setSelectedWorkspace] = React.useState<string>("")
-    const workspacesMap = workspaces?.map(assembly => assembly.country)
+    const currentWorkspaceId = selectedWorkspace || String(user?.church ?? "")
+    const workspacesMap = workspaces.map((assembly) => assembly.country ?? assembly.country_code ?? "Other")
     const groupedWorkspaces = [...new Set(workspacesMap)]
 
-    React.useEffect(() => {
-        setSelectedWorkspace(String(user?.church))
-    }, [user?.church])
-
-    const currentWorkspace = workspaces?.find(workspace => workspace?.id === Number(selectedWorkspace))
+    const currentWorkspace = workspaces?.find(workspace => workspace?.id === Number(currentWorkspaceId))
 
     return (
         <Command className="rounded-t-3xl w-full overflow-y-hidden ">
@@ -35,7 +32,7 @@ export function WorkspaceSwitcher() {
                         <React.Fragment>
                             {groupedWorkspaces?.sort()?.map((workspace) => (
                                 <CommandGroup key={workspace} heading={workspace} className="px-0">
-                                    {user?.assemblies?.filter((assembly) => assembly?.country?.toLowerCase() === workspace?.toLowerCase())
+                                    {user?.assemblies?.filter((assembly) => (assembly.country ?? assembly.country_code ?? "Other").toLowerCase() === workspace.toLowerCase())
                                         .map((assembly) => (
                                             <CommandItem key={assembly?.id} className="px-0 flex items-center gap-3">
                                                 <WorkspaceSwitchForm
@@ -106,5 +103,3 @@ export function WorkspaceSwitcher() {
         </Command>
     </PopoverContent>
 </Popover> */}
-
-

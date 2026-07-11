@@ -12,7 +12,7 @@ export function useCompleteReports() {
     const year = searchParams.get("year")
     const yearValue = typeof year === "string" ? parseInt(year, 10) : currentYear
 
-    const { data: reports = [], isLoading, isError } = useReports({ year })
+    const { data: reports = [], isLoading, isError } = useReports({ year: year ?? undefined })
 
     function getReportingMonth(date: Date) {
         const d = new Date(date)

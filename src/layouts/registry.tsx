@@ -1,10 +1,10 @@
 import RootLayout from "./root/RootLayout"
 import { HomeLayout } from "./home/HomeLayout"
-import { User } from "@/features/auth/types/user"
 import DashboardAppLayout from "./dashboard/AppLayout"
 import { MemberBookLayout } from "./memberbook/Layout"
 import { HeadlessLayout } from "./headless/HeadlessLayout"
 import HeadlessSidebarLayout from "./dashboard/SidebarLayout"
+import type { User } from "@/features/auth/schemas/user"
 
 type LayoutKey = "root" | "dashboard" | "home" | "headless" | "headlessSidebar" | "memberbook"
 
@@ -20,7 +20,7 @@ interface HomeLayoutProps {
 }
 
 type LayoutRegistry = {
-    root: React.ComponentType<{ children: React.ReactNode, locale?: string }>
+    root: React.ComponentType<{ children: React.ReactNode, locale?: string, isAuthenticated?: boolean, user?: User | null }>
     dashboard: React.ComponentType<{ children: React.ReactNode }>
     home: React.ComponentType<HomeLayoutProps>
     headless: React.ComponentType<{ children: React.ReactNode }>

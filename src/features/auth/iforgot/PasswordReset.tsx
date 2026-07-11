@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { z } from "zod"
@@ -39,8 +38,8 @@ export function PasswordReset({ params: { uid, token } }: URLParamsProps) {
     const reset = useTranslations("Reset")
     const base = useTranslations("Password")
     const isPasswordUpdated = searchParams.get("password_updated") === "true"
-    const [formErrors, setFormErrors] = React.useState<any>(null)
     const [formState, action, isPending] = React.useActionState(createPassword, initialState)
+    const formErrors = formState?.errors?.new_password || formState?.errors?.non_field_errors || null
 
     const form = useForm({
         resolver: zodResolver(resetPasswordSchema),
@@ -66,10 +65,6 @@ export function PasswordReset({ params: { uid, token } }: URLParamsProps) {
         router.prefetch("/en/auth/login/")
 
     }, [router, formState, searchParams, uid, token])
-
-    React.useEffect(() => {
-        setFormErrors(formState?.errors?.new_password || formState?.errors?.non_field_errors || null)
-    }, [formState?.errors?.new_password, formState?.errors?.non_field_errors])
 
     return (
         <React.Fragment>

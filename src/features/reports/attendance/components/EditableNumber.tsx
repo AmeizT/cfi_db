@@ -13,7 +13,7 @@ export function EditableNumber({ value, onChange }: EditableNumberProps) {
   const ref = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => { 
-    setDraft(String(value))
+    queueMicrotask(() => setDraft(String(value)))
   }, [value])
 
   React.useEffect(() => {

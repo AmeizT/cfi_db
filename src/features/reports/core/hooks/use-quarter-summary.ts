@@ -20,7 +20,7 @@ export function useQuarterSummary<T extends ReportTab>(
     const summary = useMemo(() => {
         if (!query.data) return null;
 
-        const response: QuarterResponse<ReportMap[T]> = query.data;
+        const response: QuarterResponse<ReportMap[T]["statement"], ReportMap[T]["kpis"]> = query.data;
         const { data, meta } = response;
 
         const heatmapMap = new Map(

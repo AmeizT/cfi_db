@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronDownIcon, ChevronUpIcon, Info } from "lucide-react"
 import { getPinningStyles } from "@/components/ui/data-table/styles/pinning"
 import { cn } from "@/lib/utils"
+import type { ApiDetailRouteKey } from "@/config/urls"
 
 const CHECKBOX_COLUMN_WIDTH = 32
 
@@ -19,6 +20,7 @@ type DataTableRowProps<T extends { id: string | number }> = {
     hoveredRowId: string | number | null
     selectedRows: Set<string | number>
     expandedRow?: (row: T) => React.ReactNode
+    resource?: ApiDetailRouteKey
     onHoverEnter: (id: string | number) => void
     onHoverLeave: () => void
     onToggleRow: (id: string | number) => void
@@ -31,6 +33,7 @@ export function DataTableRow<T extends { id: string | number }>({
     hoveredRowId,
     selectedRows,
     expandedRow,
+    resource,
     onHoverEnter,
     onHoverLeave,
     onToggleRow,
@@ -106,7 +109,8 @@ export function DataTableRow<T extends { id: string | number }>({
                     }
                     
                     const isRowDisabled = columnMeta?.disableEditForRow?.(row.original) ?? false
-                    const isCellEditable = isEditable && columnMeta?.editable && !isRowDisabled
+                    const canPersistCell = typeof row.original.id === "number" && Boolean(resource)
+                    const isCellEditable = isEditable && columnMeta?.editable && !isRowDisabled && canPersistCell
                     const isNumericColumn = Boolean(columnMeta?.isNumeric)
                     const isPinned = cell.column.getIsPinned()
 
@@ -134,8 +138,9 @@ export function DataTableRow<T extends { id: string | number }>({
                                     displayValue={flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     rowIndex={row.index}
                                     columnId={cell.column.id as keyof T as never}
-                                    onSave={() => console.log("editing")}
                                     className={cn("w-full", isNumericColumn && "text-right tabular-nums")}
+                                    resource={resource as ApiDetailRouteKey}
+                                    recordId={Number(row.original.id)}
                                 />
                             ) : (
                                 <span className={cn("w-full", isNumericColumn && "text-right tabular-nums")}>

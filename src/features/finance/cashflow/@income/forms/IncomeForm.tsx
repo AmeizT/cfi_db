@@ -103,7 +103,7 @@ export function IncomeForm({ formId }: { formId: string }) {
         if (state?.success) {
             toast.success(state.message || "Created successfully")
             form.reset()
-            setSelectedFile(null)
+            queueMicrotask(() => setSelectedFile(null))
         }
 
         if (state?.httpStatusCode !== -1 && state?.errors) {

@@ -39,7 +39,7 @@ export function RegionalDirectoryToolbar({
         : orderingOptions[0]?.value
 
     React.useEffect(() => {
-        setLocalSearch(search)
+        queueMicrotask(() => setLocalSearch(search))
     }, [search])
 
     React.useEffect(() => {

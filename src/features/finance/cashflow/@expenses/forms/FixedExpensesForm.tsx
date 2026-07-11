@@ -58,39 +58,37 @@ const initialState: FormActionState = {
     success: false
 }
 
+const STORAGE_KEY = "customizedFieldnames"
+
+function getSavedFieldNames() {
+    if (typeof window === "undefined") return fieldNames
+
+    const savedPreferences = window.localStorage.getItem(STORAGE_KEY)
+    if (!savedPreferences) return fieldNames
+
+    try {
+        const parsed = JSON.parse(savedPreferences)
+        return Array.isArray(parsed) ? parsed.filter((field): field is string => typeof field === "string") : fieldNames
+    } catch {
+        return fieldNames
+    }
+}
+
 export function FixedExpensesForm({ expenditure }: FixedExpensesProps) {
     const router = useRouter()
     const { data: user } = useUser()
     const ref = React.useRef<HTMLFormElement>(null)
-    const [selectedFields, setSelectedFields] = React.useState<string[]>([])
+    const [selectedFields, setSelectedFields] = React.useState<string[]>(getSavedFieldNames)
     const [state, formAction, isPending] = React.useActionState(
         fixedExpenditureFormAction, 
         initialState
     )
-    const STORAGE_KEY = "customizedFieldnames"
-    
     const form = useForm<FixedExpense>()
-
-    React.useEffect(() => {
-        const savedPreferences = localStorage?.getItem(STORAGE_KEY)
-        if (savedPreferences) {
-            setSelectedFields(JSON.parse(savedPreferences))
-        }
-    }, [])
 
     const savePreferences = (fields: string[]) => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(fields))
         setSelectedFields(fields)
     }
-
-    React.useEffect(() => {
-        const savedPreferences = localStorage.getItem(STORAGE_KEY)
-        if (savedPreferences) {
-            setSelectedFields(JSON.parse(savedPreferences))
-        } else {
-            setSelectedFields(fieldNames)
-        }
-    }, [])
 
     const handleFieldSelection = (field: string) => {
         const updatedFields = selectedFields.includes(field)

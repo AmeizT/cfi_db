@@ -1,17 +1,19 @@
 import React from "react"
 import { toast } from "sonner"
-import { Church } from "@/types"
 import { FormState } from "@/types/form-state"
 import { useUser } from "@/hooks/query/use-user"
 import { useQueryClient } from "@tanstack/react-query"
 import { setActiveTeamspace } from "@/layouts/actions/change-workspace"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import type { AssemblySummary } from "@/features/auth/schemas/user"
 
 interface TeamspaceSwitchProps {
-    teamspace: Church
+    teamspace: AssemblySummary
     selectedTeamspaceId: string
     setSelectedTeamspaceId: React.Dispatch<React.SetStateAction<string>>
 }
+
+const DEFAULT_AVATAR_COLOR = "oklch(0.55 0.08 250)"
 
 const initialFormState: FormState = {
     success: false,
@@ -63,7 +65,9 @@ export function TeamspaceSwitcher({
     }
     
     function withLightness(oklch: string, lightness: number, alpha = 1) {
-        const [, , c, h] = oklch.match(/oklch\(([^ ]+) ([^ ]+) ([^)]+)\)/)!
+        const match = oklch.match(/oklch\(([^ ]+) ([^ ]+) ([^)]+)\)/)
+        if (!match) return oklch
+        const [, , c, h] = match
         return `oklch(${lightness} ${c} ${h} / ${alpha})`
     }
 
@@ -91,11 +95,11 @@ export function TeamspaceSwitcher({
                 />
 
                 <Avatar className="size-7">
-                    <AvatarImage src={teamspace.avatar as string} />
+                    <AvatarImage src={teamspace.avatar ?? undefined} />
                     <AvatarFallback
                         className="text-sm font-medium text-white uppercase"
                         style={{
-                            background: gradient(teamspace.avatar_fallback),
+                            background: gradient(teamspace.avatar_fallback ?? DEFAULT_AVATAR_COLOR),
                         }}
                     >
                         {teamspace.name?.[0]}

@@ -3,7 +3,6 @@
 import React from "react"
 import "@/styles/globals.css"
 import LocalFont from "next/font/local"
-import { Playfair } from "next/font/google"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Toaster } from "@/components/ui/sonner"
@@ -15,12 +14,6 @@ const inter = LocalFont({
     declarations: [{ prop: "font-feature-settings", 
         value: "'ss01' 1, 'ss07' 1, 'ss08' 1, 'cv01', 'cv09',", 
     }],
-    display: "swap",
-})
-
-export const playfair = Playfair({
-    subsets: ["latin"],
-    variable: "--playfair-var",
     display: "swap",
 })
 

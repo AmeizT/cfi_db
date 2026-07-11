@@ -248,7 +248,7 @@ function SundaySchoolDialog({
 
     React.useEffect(() => {
         if (!open) return
-        setForm(record ? recordToFormState(record) : defaultFormState)
+        queueMicrotask(() => setForm(record ? recordToFormState(record) : defaultFormState))
     }, [open, record])
 
     const saveMutation = useMutation({

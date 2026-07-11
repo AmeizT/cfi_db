@@ -23,8 +23,10 @@ export function AuthCarousel(){
 
     React.useEffect(() => {
         if (!carouselAPI) return
-        onSelect()
-        setScrollSnaps(carouselAPI.scrollSnapList())
+        queueMicrotask(() => {
+            onSelect()
+            setScrollSnaps(carouselAPI.scrollSnapList())
+        })
 
         carouselAPI.on("select", onSelect)
     }, [carouselAPI, onSelect])

@@ -232,14 +232,17 @@ const textPlaceholder: React.CSSProperties = {
 // if this is important to know on initial client render.
 // It would be safer to  return null for unmeasured states.
 const useDimensions = (ref: React.RefObject<HTMLDivElement | null>) => {
-    const dimensions = useRef({ width: 0, height: 0 })
+    const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
     useEffect(() => {
         if (ref.current) {
-            dimensions.current.width = ref.current.offsetWidth
-            dimensions.current.height = ref.current.offsetHeight
+            const nextDimensions = {
+                width: ref.current.offsetWidth,
+                height: ref.current.offsetHeight,
+            }
+            queueMicrotask(() => setDimensions(nextDimensions))
         }
     }, [ref])
 
-    return dimensions.current
+    return dimensions
 }

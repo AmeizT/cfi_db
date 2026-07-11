@@ -18,10 +18,6 @@ export const AnimatedCheckbox = ({
 }: AnimatedCheckboxProps) => {
     const [isChecked, setIsChecked] = React.useState(checked ?? false);
 
-    React.useEffect(() => {
-        setIsChecked(checked);
-    }, [checked]);
-
     return (
         <Label className="flex items-center gap-x-3">
             <Checkbox

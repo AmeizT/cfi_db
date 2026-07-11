@@ -15,7 +15,7 @@ export function useCashflowConfig(): AnalyticsConfig {
     
     const { data: cashflowAnalytics } = useCashflowAnalytics(year ?? currentYear)
 
-    const LANGUAGE = user?.assembly?.language
+    const LANGUAGE = user?.assembly?.locale ?? user?.assembly?.language
     const CURRENCY = user?.assembly?.currency
 
     const kpi = searchParams.get("kpi") || "total"
@@ -219,7 +219,6 @@ export function useCashflowConfig(): AnalyticsConfig {
 
     return config
 }
-
 
 
 

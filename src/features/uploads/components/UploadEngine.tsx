@@ -113,10 +113,12 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
     const showSpreadsheetUpload = mode === "spreadsheet"
 
     React.useEffect(() => {
-        setMode(initialMode)
-        resetPreview()
-        setOcrUploadState("idle")
-        setImagePreviewUrl(null)
+        queueMicrotask(() => {
+            setMode(initialMode)
+            resetPreview()
+            setOcrUploadState("idle")
+            setImagePreviewUrl(null)
+        })
     }, [config.type, initialMode, resetPreview])
 
     const resetOcrUpload = () => {

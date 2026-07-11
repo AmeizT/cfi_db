@@ -3,14 +3,9 @@ import Link from "next/link"
 import { MoveUpRight, X } from "lucide-react"
 
 export function InfoBanner() {
-    const [isVisible, setIsVisible] = React.useState(false)
-
-    React.useEffect(() => {
-        const dismissed = localStorage.getItem("bannerDismissed")
-        if (!dismissed) {
-            setIsVisible(true);
-        }
-    }, [])
+    const [isVisible, setIsVisible] = React.useState(() => (
+        typeof window !== "undefined" && !window.localStorage.getItem("bannerDismissed")
+    ))
 
     const handleClose = () => {
         localStorage.setItem("bannerDismissed", "true")

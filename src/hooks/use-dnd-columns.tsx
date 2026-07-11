@@ -27,7 +27,7 @@ export function useDnDColumnOrder({ initialOrder }: UseDnDColumnOrderProps) {
 
     // sync when backend changes
     React.useEffect(() => {
-        setOrder(initialOrder)
+        queueMicrotask(() => setOrder(initialOrder))
     }, [initialOrder])
 
     const sensors = useSensors(

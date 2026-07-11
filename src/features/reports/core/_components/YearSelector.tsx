@@ -24,12 +24,14 @@ export function ReportsHeader() {
 
     // Sync state with URL on mount and when URL changes
     React.useEffect(() => {
-        if (urlYear !== null) {
-            setYear(urlYear)
-        }
-        if (urlMonth !== null) {
-            setMonth(urlMonth)
-        }
+        queueMicrotask(() => {
+            if (urlYear !== null) {
+                setYear(urlYear)
+            }
+            if (urlMonth !== null) {
+                setMonth(urlMonth)
+            }
+        })
     }, [urlYear, urlMonth])
 
     const period = React.useMemo(

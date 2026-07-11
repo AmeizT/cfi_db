@@ -238,9 +238,9 @@ import {
 
 
 
-import { Save, Copy, MoreHorizontal, X, Share2, Trash2 } from "lucide-react"
+import { Save, Copy, MoreHorizontal, Share2, Trash2 } from "lucide-react"
 
-export function ExpandableToolbar() {
+function ExpandableToolbar() {
     const [isExpanded, setIsExpanded] = useState(false)
 
     const handleSave = () => console.log("Save clicked")

@@ -1,13 +1,10 @@
 import React from "react"
-import { useQueryClient } from "@tanstack/react-query"
-import { Church } from "@/types"
-import { useUser } from "@/hooks/query/use-user"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { toast } from "sonner"
 import { FormState } from "@/types/form-state"
+import type { AssemblySummary } from "@/features/auth/schemas/user"
 
 interface WorkspaceButtonProps {
-    workspace: Church;
+    workspace: AssemblySummary
     setSelectedWorkspace: React.Dispatch<React.SetStateAction<string>>
   }
 
@@ -18,8 +15,6 @@ const initialState: FormState = {
 }
 
 export function WorkspaceSwitchForm({ workspace, setSelectedWorkspace }: WorkspaceButtonProps){
-    const { data: user } = useUser()
-    const queryClient = useQueryClient()
     // const [formState, formAction] = React.useActionState(changeWorkspace, initialState)
 
     // React.useEffect(() => {
@@ -56,7 +51,7 @@ export function WorkspaceSwitchForm({ workspace, setSelectedWorkspace }: Workspa
                 />
 
                 <Avatar className="w-7 h-7">
-                    <AvatarImage src={workspace?.avatar as unknown as string} />
+                    <AvatarImage src={workspace.avatar ?? undefined} />
                     <AvatarFallback aria-label="avatar-fallback" className="uppercase text-sm font-medium text-white" style={{ backgroundImage: `linear-gradient(to bottom, ${workspace?.avatar_fallback}, ${workspace?.avatar_fallback})` }}>
                         {workspace?.name?.slice(0, 1)}
                     </AvatarFallback>

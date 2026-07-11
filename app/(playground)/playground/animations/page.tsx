@@ -1,18 +1,15 @@
 "use client"
 
-import React, { useEffect, useState, useCallback } from "react"
-import useEmblaCarousel from "embla-carousel-react"
+import React from "react"
 import Autoplay from "embla-carousel-autoplay"
 import { motion } from "motion/react"
 import SplitText from "@/components/ui/split-text"
 import { cn } from "@/lib/utils"
 import {
     Carousel,
-    CarouselApi,
+    type CarouselApi,
     CarouselContent,
     CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
 } from "@/components/ui/carousel"
 
 type TranslationItem = {
@@ -39,7 +36,7 @@ const translations: TranslationItem[] = [
     { greeting: "欢迎回来", languageName: "Chinese (Simplified)" },
 ]
 
-export function LocalizedWelcomeCarousel() {
+function LocalizedWelcomeCarousel() {
     
 
     return (
@@ -120,7 +117,7 @@ export default function LoginScreen() {
     )
 }
 
-export function CarouselOrientation() {
+function CarouselOrientation() {
     const [api, setApi] = React.useState<CarouselApi>()
     const [activeIndex, setActiveIndex] = React.useState(0)
 

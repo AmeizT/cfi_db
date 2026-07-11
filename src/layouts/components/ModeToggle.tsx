@@ -46,13 +46,9 @@ const themeOptions: ThemeModeButton[] = [
 
 export default function Component() {
     const { setTheme, theme } = useTheme()
-    const [selectedMode, setSelectedMode] = React.useState<"light" | "dark" | "system">("system")
-
-    React.useEffect(() => {
-        if (theme === "light" || theme === "dark" || theme === "system") {
-            setSelectedMode(theme)
-        }
-    }, [theme])
+    const selectedMode = theme === "light" || theme === "dark" || theme === "system"
+        ? theme
+        : "system"
 
     return (
         <div className="p-[1.5px] w-fit inline-flex gap-x-0.5 h-fit items-center text-sm font-medium rounded-full bg-white dark:bg-gradient-to-b dark:from-neutral-800 dark:to-neutral-900 border border-gray-300/70 dark:border-neutral-600">
@@ -64,7 +60,6 @@ export default function Component() {
                         key={option.mode}
                         onClick={() => {
                             setTheme(option.mode)
-                            setSelectedMode(option.mode)
                         }}
                         className={`relative p-0.5 flex items-center justify-center rounded-full transition-colors ${isActive ? "text-neutral-700 dark:text-white" : "text-muted-foreground"
                             }`}
@@ -86,4 +81,3 @@ export default function Component() {
         </div>
     )
 }
-

@@ -36,7 +36,7 @@ export function RowDetailSheet<T extends Record<string, unknown>>({
     const [editableData, setEditableData] = React.useState<T | null>(rowData)
 
     React.useEffect(() => {
-        setEditableData(rowData)
+        queueMicrotask(() => setEditableData(rowData))
     }, [rowData])
 
     if (!editableData) return null

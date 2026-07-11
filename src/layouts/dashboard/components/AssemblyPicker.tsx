@@ -17,6 +17,7 @@ export default function DropdownWorkspaceSelector() {
     const workspaces = user?.assemblies || []
     const selectedWorkspace = workspaces?.find(workspace => Number(workspace?.id) === user?.church)
     const hasManyWorkspaces = Boolean((workspaces?.length ?? 0) > 1)
+    const selectedWorkspaceLabel = selectedWorkspace?.country ?? selectedWorkspace?.country_code ?? ""
 
     return (
         <div className="w-full">
@@ -52,9 +53,9 @@ export default function DropdownWorkspaceSelector() {
                             <button aria-expanded={open} className="w-full flex items-center gap-2 bg-gradient-to-b hover:from-white hover:to-zinc-50 border border-transparent hover:border-zinc-200/70 p-2 rounded-lg transition-colors duration-200">
                                 <div>
                                     <Avatar className="size-8">
-                                        <AvatarImage src={selectedWorkspace?.avatar || undefined} alt={`@${selectedWorkspace?.name}`} />
-                                        <AvatarFallback className="text-white text-sm font-medium" style={{ backgroundColor: selectedWorkspace?.avatar_fallback }}>
-                                            {selectedWorkspace?.name.charAt(0)}
+                                        <AvatarImage src={selectedWorkspace?.avatar ?? undefined} alt={`@${selectedWorkspace?.name}`} />
+                                        <AvatarFallback className="text-white text-sm font-medium" style={{ backgroundColor: selectedWorkspace?.avatar_fallback ?? undefined }}>
+                                            {selectedWorkspace?.name?.charAt(0)}
                                         </AvatarFallback>
                                     </Avatar>
                                 </div>
@@ -65,7 +66,7 @@ export default function DropdownWorkspaceSelector() {
                                     </small>
 
                                     <small className="inline-flex items-center gap-1 text-xs text-body-muted leading-tight">
-                                        {selectedWorkspace?.country}
+                                        {selectedWorkspaceLabel}
                                     </small>
                                 </div>
                             </button>
@@ -93,17 +94,17 @@ export default function DropdownWorkspaceSelector() {
                                                 <div
                                                     className={cn(
                                                         "w-8 h-8 rounded-lg flex items-center justify-center text-white",
-                                                        workspace.avatar_fallback,
+                                                        workspace.avatar_fallback ?? undefined,
                                                     )}
                                                 >
 
                                                 </div>
                                                 <div className="flex-1">
                                                     <div className="font-medium">{workspace.name}</div>
-                                                    <div className="text-xs text-muted-foreground">{workspace.country} Plan</div>
+                                                    <div className="text-xs text-muted-foreground">{workspace.country ?? workspace.country_code ?? ""} Plan</div>
                                                 </div>
                                                 <Check
-                                                    className={cn("h-4 w-4", selectedWorkspace.id === workspace.id ? "opacity-100" : "opacity-0")}
+                                                    className={cn("h-4 w-4", selectedWorkspace?.id === workspace.id ? "opacity-100" : "opacity-0")}
                                                 />
                                             </CommandItem>
                                         ))}
@@ -122,12 +123,12 @@ export default function DropdownWorkspaceSelector() {
                             <div className="flex items-center gap-3">
                                 <Avatar>
                                     <AvatarImage
-                                        src={selectedWorkspace?.avatar}
+                                        src={selectedWorkspace?.avatar ?? undefined}
                                         alt={`@${selectedWorkspace?.name}`}
                                     />
                                     <AvatarFallback
                                         className="text-white"
-                                        style={{ backgroundColor: selectedWorkspace?.avatar_fallback }}
+                                        style={{ backgroundColor: selectedWorkspace?.avatar_fallback ?? undefined }}
                                     >
                                         {selectedWorkspace?.name?.charAt(0)}
                                     </AvatarFallback>
@@ -135,7 +136,7 @@ export default function DropdownWorkspaceSelector() {
 
                                 <div className="flex flex-col items-start">
                                     <span className="font-medium">{selectedWorkspace?.name}</span>
-                                    <span className="text-xs text-muted-foreground">{selectedWorkspace?.country} Plan</span>
+                                    <span className="text-xs text-muted-foreground">{selectedWorkspaceLabel} Plan</span>
                                 </div>
                             </div>
                         </button>

@@ -153,7 +153,7 @@ export function TitheFormUpdated({ formId, report }: TitheFormProps) {
                                 <field.Input
                                     type="number"
                                     placeholder={formatCurrency(0, {
-                                        language: assembly?.language || "en-US",
+                                        language: assembly?.locale ?? assembly?.language ?? "en-US",
                                         currency: assembly?.currency || "USD",
                                         notation: "compact",
                                         compactDisplay: "short",

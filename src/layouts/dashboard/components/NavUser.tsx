@@ -37,8 +37,8 @@ export function NavUser() {
                     <DropdownMenuTrigger asChild>
                         <ProfileButton
                             displayName={user?.first_name || ""}
-                            avatarColor={user?.avatar_fallback}
-                            avatarSrc={user?.avatar || undefined}
+                            avatarColor={user?.avatar_fallback ?? undefined}
+                            avatarSrc={user?.avatar ?? undefined}
                             isLoading={isLoading}
                         />
                     </DropdownMenuTrigger>
@@ -105,6 +105,5 @@ export function NavUser() {
         </SidebarMenu>
     )
 }
-
 
 
