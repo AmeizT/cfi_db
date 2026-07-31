@@ -39,9 +39,9 @@ export function ReportNavigatorItem({ report, index, isActive, ...rest }: Props)
 
     return (
         <Link href={`${pathname}?${createQueryString(searchParams, {
-            reportId: String(report?.id), 
-            tab: tab,
-        })}`}>
+        reportId: String(report?.id), 
+        tab: tab,
+        page: 1 })}`}>
             <div
                 ref={ref}
                 tabIndex={0}
@@ -53,15 +53,15 @@ export function ReportNavigatorItem({ report, index, isActive, ...rest }: Props)
                 {...rest}
                 className={cn(
                     "group relative cursor-pointer bg-surface-foreground/70 hover:bg-surface-foreground snap-center",
-                    "border-[1.5px] border-transparent",
-                    "px-4 py-1.5 h-fit flex flex-col gap-4 rounded-full relative",
+                    "border-0 border-transparent",
+                    "px-4 py-2 h-fit flex flex-col gap-4 rounded-full relative",
                     "transition-all duration-200 ease-out z-0 hover:z-10",
                     isActive && "bg-primary text-theme-50 border-primary hover:bg-theme-600 scale-100 transition-transform duration-200 ease-out",
                     rest.className
                 )}
                 suppressHydrationWarning
                 style={{
-                    animationName: "fadeUp",
+                    animationName: "fadeRight",
                     animationDuration: "0.35s",
                     animationTimingFunction: "ease",
                     animationFillMode: "both",
@@ -75,7 +75,7 @@ export function ReportNavigatorItem({ report, index, isActive, ...rest }: Props)
 
                 <span
                     className={cn(
-                        "hidden pointer-events-none select-none absolute right-0 bottom-0 text-xl font-bold leading-none text-mist-100 group-hover:text-border/60 transition-colors duration-200"
+                        "hidden pointer-events-none select-none absolute right-0 bottom-0 text-lg font-bold leading-none group-hover:text-border/60 transition-colors duration-200"
                     )}
                     aria-hidden="true"
                     suppressHydrationWarning

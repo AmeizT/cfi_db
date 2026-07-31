@@ -39,6 +39,7 @@ import {
 } from "@/features/report-wizard/config/report-types"
 import { cn } from "@/lib/utils"
 import type { NavGroup, NavItem } from "../navigation/types"
+import { NavIcon } from "./AppNavIcon";
 
 type NavReportWizardProps = {
     menu: NavGroup[]
@@ -112,12 +113,14 @@ function TemplateFormatItems({ section }: { section: ReportWizardSection }) {
     )
 }
 
+import { MagicWand3Icon } from '@solar-icons/react/bold-duotone/magic-wand-3'
+
 function TemplateDownloadMenu({ activeSection }: { activeSection: ReportWizardSection | null }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <SidebarMenuButton type="button" aria-label="Download Template">
-                    <DownloadIcon className="size-5.5" />
+                    <MagicWand3Icon className="size-5.5" />
                     <span>Download Template</span>
                 </SidebarMenuButton>
             </DropdownMenuTrigger>
@@ -186,7 +189,12 @@ function ReportWizardItem({
                 )}
             >
                 <Link href={item.href ?? "#"}>
-                    <HugeiconsIcon icon={item.icon} strokeWidth={2} />
+                    <NavIcon
+                        icon={item.icon}
+                        className="size-6.5"
+                        strokeWidth={1.75}
+                    />
+
                     <span>{item.label}</span>
                 </Link>
             </SidebarMenuButton>

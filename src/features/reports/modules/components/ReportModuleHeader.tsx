@@ -26,7 +26,7 @@ export function ReportModuleHeader({
     return (
         <View.Header
             pagename={title ?? config.title}
-            actions={<PeriodSelector />}
+            actions={config.showPeriodSelector === false ? undefined : <PeriodSelector />}
             pathname={pathname}
             activeTab={activeModule}
         />

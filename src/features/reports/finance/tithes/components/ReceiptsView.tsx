@@ -4,7 +4,7 @@ import type { TableSchema } from "@/features/data-table/types/tableSchema.types"
 import { DataTable } from "@/features/reports/core/components/DataTable"
 import type { DataTablePaginationProps } from "@/features/reports/core/components/DataTable.types"
 import type { TitheRecord } from "../types"
-import { EmptyState } from "./EmptyState"
+import { EmptyState } from "@/components/ui/empty-state"
 
 export function ReceiptsView({
     rows,
@@ -20,15 +20,16 @@ export function ReceiptsView({
     pagination?: DataTablePaginationProps
 }) {
     if (isLoading) {
-        return <EmptyState>Loading tithe receipts...</EmptyState>
+        return <div className="min-h-56 animate-pulse rounded-lg bg-muted/40" aria-label="Loading tithe receipts" />
     }
 
     if (rows.length === 0) {
-        return <EmptyState>No tithe receipts were found for this period.</EmptyState>
+        return <EmptyState type="reports" title="No tithe receipts" description="No tithe receipts were found for this period." className="min-h-56" />
     }
 
     return (
         <DataTable
+            variant="advanced"
             data={rows}
             config={config}
             enableDelete={false}

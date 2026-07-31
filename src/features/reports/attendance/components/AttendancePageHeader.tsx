@@ -1,41 +1,22 @@
 interface AttendancePageHeaderProps {
-  recordCount: number
-  totalHeadcount: number
   selectedCount: number
   onDeleteSelected: () => void
   onAddRow: () => void
 }
 
 export function AttendancePageHeader({
-  recordCount,
-  totalHeadcount,
   selectedCount,
   onDeleteSelected,
   onAddRow,
 }: AttendancePageHeaderProps) {
   return (
-    <div className="flex justify-between items-end">
-      {/* Left: title */}
-      <div>
-        <div className="flex items-center gap-2 mb-2.5">
-          <span
-            className="w-2 h-2 rounded-full bg-primary"
-            style={{ boxShadow: "0 0 8px var(--color-primary)" }}
-          />
-          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
-            Live Records
-          </span>
-        </div>
-        <h1 className="text-4xl font-bold text-foreground tracking-tight leading-none">
-          Attendance
-        </h1>
-        <p className="text-muted-foreground text-[13px] mt-2 font-mono">
-          {recordCount} records · {totalHeadcount?.toLocaleString()} total headcount
-        </p>
-      </div>
+    <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <h1 className="text-4xl font-bold text-foreground tracking-tight leading-none">
+        Attendance
+      </h1>
 
       {/* Right: actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
         {selectedCount > 0 && (
           <button
             onClick={onDeleteSelected}

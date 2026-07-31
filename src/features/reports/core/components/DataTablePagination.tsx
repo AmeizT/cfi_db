@@ -74,11 +74,11 @@ export const DataTablePagination = React.forwardRef<HTMLDivElement, DataTablePag
             style={style}
             className={cn(
                 "flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between",
-                className ?? "rounded-lg border bg-card px-3 py-3"
+                className ?? "rounded-lg border border-red-500 bg-card py-3"
             )}
         >
             <div className="tabular-nums">
-                Showing {startRow}-{endRow} of {totalRows} results
+                Showing {startRow}-{endRow} of {totalRows} items
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

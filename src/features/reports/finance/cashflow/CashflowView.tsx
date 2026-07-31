@@ -7,6 +7,8 @@ import { DownloadCircle01Icon } from "@hugeicons/core-free-icons"
 import { apiRoutes } from "@/config/urls"
 import { DataTable } from "../../core/components/DataTable"
 import type { DataTablePaginationProps } from "../../core/components/DataTable.types"
+import { useUser } from "@/hooks/query/use-user"
+import { formatCurrency } from "@/utils"
 
 interface ViewProps {
     cashflow: (CashflowResponse & {
@@ -15,9 +17,11 @@ interface ViewProps {
     }) | undefined
     isLoading: boolean
     pagination?: DataTablePaginationProps
+    showSummary?: boolean
 }
 
-export default function CashFlowView({ cashflow, isLoading, pagination }: ViewProps) {
+export default function CashFlowView({ cashflow, isLoading, pagination, showSummary = false }: ViewProps) {
+    const { data: user } = useUser()
     const handleCellEdit = (rowIndex: number, columnId: string, value: unknown) => {
         console.log("Edited cell:", { rowIndex, columnId, value })
     }
@@ -33,10 +37,31 @@ export default function CashFlowView({ cashflow, isLoading, pagination }: ViewPr
     const tableOptions = {
         selectable: true,
     }
+    const totals = cashflow?.data?.totals
+    const currencyOptions = {
+        language: user?.assembly?.locale,
+        currency: user?.assembly?.currency,
+    }
 
     return (
         <div className="flex-1 flex">
             <div className="w-full h-full flex flex-col gap-4">
+                {showSummary && totals ? (
+                    <div className="grid gap-3 pt-4 md:grid-cols-3">
+                        {[
+                            ["Total revenue", totals.revenue],
+                            ["Total expenses", totals.expenses],
+                            [totals.balance >= 0 ? "Net income" : "Deficit", totals.balance],
+                        ].map(([label, value]) => (
+                            <div key={String(label)} className="rounded-lg border border-border bg-card p-4">
+                                <p className="text-sm text-muted-foreground">{label}</p>
+                                <p className="mt-2 text-xl font-semibold tabular-nums text-foreground">
+                                    {formatCurrency(Number(value), currencyOptions)}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                ) : null}
                 <div className="w-full hidden _flex justify-between items-center">
                     <div></div>
                     <div className="h-fit flex items-center gap-x-2">
@@ -52,6 +77,7 @@ export default function CashFlowView({ cashflow, isLoading, pagination }: ViewPr
                 </div>
 
                 <DataTable
+                    variant="advanced"
                     data={rows}
                     config={cashflow?.config as TableSchema}
                     options={tableOptions}
@@ -78,7 +104,6 @@ export default function CashFlowView({ cashflow, isLoading, pagination }: ViewPr
 import { Skeleton } from "@/components/ui/skeleton"
 import { CashflowResponse, CashflowRow } from "./types/cashflow"
 import { TableSchema } from "@/features/data-table/types/tableSchema.types"
-import { Empty } from "@/components/ui/empty"
 import { EmptyState } from "@/components/ui/empty-state"
 
 type TableSkeletonProps = {

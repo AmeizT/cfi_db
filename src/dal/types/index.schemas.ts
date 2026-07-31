@@ -964,6 +964,10 @@ export interface Member {
   /** @nullable */
   membersince?: string | null;
   membership_status?: typeof MemberMembershipStatus[keyof typeof MemberMembershipStatus];
+  /** @nullable */
+  membership_stage?: 'new' | 'established' | 'associate' | null;
+  /** @nullable */
+  date_of_death?: string | null;
   /** @maxLength 255 */
   previous_church?: string;
   baptized?: boolean;
@@ -2111,4 +2115,3 @@ export const ReportsAuditLogsListAction = {
   RESTORE: 'RESTORE',
   UPDATE: 'UPDATE',
 } as const;
-

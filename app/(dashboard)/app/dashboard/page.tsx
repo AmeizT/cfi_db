@@ -1,5 +1,7 @@
-import { DashboardView } from "@/features/dashboard/views/DashboardView"
+import { AppDashboardView } from "@/features/dashboard/views/AppDashboardView"
 
 export default async function DashboardPage() {
-    return <DashboardView />
+    return (
+        <AppDashboardView />
+    )
 }  

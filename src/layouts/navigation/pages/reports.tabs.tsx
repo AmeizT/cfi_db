@@ -16,25 +16,25 @@ export const getReportTabs = (searchParams: ReadonlyURLSearchParams) => {
 
     const tabs = [
         {
-            label: "Review Queue",
+            label: "All Reports",
             key: "overview",
             description: "Monitor report completion, submission status, and deadlines",
-            href: `/reports/review/queue?${params}`
+            href: `/reports/activity?${params}`
         },
         {
             label: "Compliance",
             key: "compliance",
             description: "Monitor report completion, submission status, and deadlines",
             get href() {
-                return `/reports/review/compliance`
+                return `/reports/activity/compliance`
             },
         },
         {
-            label: "Exceptions",
-            key: "exceptions",
+            label: "Flagged",
+            key: "flagged",
             description: "Exceptions related to report submissions, including errors and issues that require attention",
             get href() {
-                return `/reports/review/exceptions`
+                return `/reports/activity/flagged`
             },
         },
     ]

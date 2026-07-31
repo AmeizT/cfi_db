@@ -6,10 +6,12 @@ import { useSearchParams } from "next/navigation"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
     CheckIcon,
+    ChevronRight,
     CircleIcon,
     FileSpreadsheetIcon,
     ImageIcon,
     Loader2Icon,
+    SkipForward,
     SkipForwardIcon,
 } from "lucide-react"
 import { toast } from "sonner"
@@ -32,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { apiRoutes } from "@/config/urls"
 import { UploadEngine } from "@/features/uploads/components/UploadEngine"
 import AttendanceFormView from "@/features/reports/core/forms/attendance/views/AttendanceFormView"
+import { FinancialEntriesForm } from "@/features/manual-entry/components/FinancialEntriesForm"
 import { useReports } from "@/features/reports/core/hooks/use-reports"
 import {
     REPORT_WIZARD_SECTIONS as WIZARD_SECTIONS,
@@ -50,6 +53,14 @@ import {
     type ReportWizardUploadType as UploadType,
 } from "@/features/report-wizard/config/report-types"
 import { cn } from "@/lib/utils"
+import ReportWizardStepper from "./ReportCreateStepper"
+import View from "@/components/ui/view"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 const SKIP_REASONS = [
     { value: "no_data", label: "No data available" },
@@ -82,7 +93,7 @@ function statusIcon(status: SectionStatus) {
         return <SkipForwardIcon className="size-3 text-amber-700" />
     }
 
-    return <CircleIcon className="size-3 text-muted-foreground" />
+    return <CircleIcon className="size-3 text-border fill-background" />
 }
 
 function statusText(status: SectionStatus) {
@@ -98,11 +109,16 @@ function StepRail({
     current: WizardSection
     report: WizardReport | null
 }) {
-    const sections = report ? getReportSections(report) : []
-
     return (
         <div className="flex min-w-0 items-center gap-2 overflow-x-auto pb-1">
-            {WIZARD_SECTIONS.map((section, index) => {
+            <ReportWizardStepper
+                steps={WIZARD_SECTIONS}
+                current={current}
+                sections={report ? getReportSections(report) : []}
+                report={report}
+            />
+
+            {/* {WIZARD_SECTIONS.map((section, index) => {
                 const snapshot = sections.find((item) => item.name === section.backendId)
                 const active = section.id === current.id
                 const completed = snapshot?.status === "submitted"
@@ -143,9 +159,30 @@ function StepRail({
                         ) : null}
                     </React.Fragment>
                 )
-            })}
+            })} */}
         </div>
     )
+}
+
+
+
+import { useCallback, useEffect, useRef, useState } from "react"
+
+// Adjust these to your actual status values / design tokens if they differ.
+// Assumed values, based on this conversation: "pending" | "in_progress" | "completed" | "skipped"
+const SECTION_BAR_COLOR: Record<string, string> = {
+    completed: "bg-emerald-500",
+    in_progress: "bg-primary",
+    skipped: "bg-amber-600",
+    pending: "bg-zinc-200",
+}
+
+function getSectionSummary(sections: { status: string }[]) {
+    const total = sections.length
+    const completed = sections.filter((s) => s.status === "completed").length
+    const skipped = sections.filter((s) => s.status === "skipped").length
+    const base = `${completed} of ${total} complete`
+    return skipped > 0 ? `${base} · ${skipped} skipped` : base
 }
 
 function PartialReportsSidebar({
@@ -154,72 +191,293 @@ function PartialReportsSidebar({
 }: {
     reports: WizardReport[]
     activeReportId: string | null
+    current: WizardSection
+    report: WizardReport | null
 }) {
-    const partialReports = reports.filter(isPartialReport).slice(0, 6)
+    const partialReports = reports.filter(isPartialReport)
+
+    // --- scroll-fade / "scroll for more" hint for the capped list ---
+    const scrollRef = useRef<HTMLDivElement>(null)
+    const [showFade, setShowFade] = useState(false)
+
+    const updateFade = useCallback(() => {
+        const el = scrollRef.current
+        if (!el) return
+        const remaining = el.scrollHeight - el.scrollTop - el.clientHeight
+        setShowFade(remaining > 4)
+    }, [])
+
+    useEffect(() => {
+        updateFade()
+        window.addEventListener("resize", updateFade)
+        return () => window.removeEventListener("resize", updateFade)
+        // re-check whenever the list itself changes length
+    }, [updateFade, partialReports.length])
 
     return (
-        <aside className="w-full shrink-0 p-4 lg:w-72 h-auto flex flex-col order-2 lg:border-b-0 lg:border-l overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
-            <p className="text-xs font-semibold uppercase text-muted-foreground">
-                In progress
-            </p>
+        <aside
+            className="
+                order-2 flex w-full shrink-0 flex-col py-0 pr-4
+                h-130
+                lg:sticky lg:top-4 lg:h-[72dvh] lg:w-92
+                lg:self-start
+            "
+        >
+            <div className={cn(
+                "mt-0 flex min-h-0 w-full flex-1 flex-col",
+                "overflow-hidden rounded-2xl border border-black/6 hover:border-border-subtle",
+                "bg-background shadow-elevation-01",
+                "dark:border-white/15",
+                "dark:ring-1 dark:ring-white/10",
+                "dark:shadow-[inset_0_1px_0_rgb(255_255_255/0.12),0_0_16px_var(--glass-glow),0_8px_24px_rgb(0_0_0/0.35)]"
+            )}>
+                <div className="shrink-0 px-5">
+                    <div className="py-4 border-b border-border-subtle">
+                        <p className="text-sm font-semibold text-muted-foreground">
+                            Progress
+                        </p>
+                    </div>
+                </div>
 
-            <div className="mt-3 grid gap-2">
-                {partialReports.length === 0 ? (
-                    <p className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
-                        No partial reports.
-                    </p>
-                ) : partialReports.map((report) => {
-                    const active = String(report.id) === activeReportId
-                    const resumeSection = getResumeSection(report)
-
-                    return (
-                        <Link
-                            key={report.id}
-                            href={createWizardHref(resumeSection, {
-                                method: "manual-entry",
-                                report_id: report.id,
-                            })}
-                            className={cn(
-                                "rounded-lg border bg-background p-3 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring",
-                                active && "border-primary"
-                            )}
-                        >
-                            <p className="truncate text-sm font-semibold text-foreground">
-                                {getReportTitle(report)}
+                {/* wrapper is the flex-1 box that actually gets the fixed height;
+                   the scroll div fills it and the fade sits on top, absolutely positioned */}
+                <div className="relative min-h-0 flex-1">
+                    <div
+                        ref={scrollRef}
+                        onScroll={updateFade}
+                        className="
+                            h-full overflow-y-auto px-5 py-4
+                            scrollbar-thin scrollbar-track-transparent
+                            scrollbar-thumb-zinc-200/80
+                        "
+                    >
+                        {partialReports.length === 0 ? (
+                            <p className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
+                                No partial reports.
                             </p>
-
-                            <div className="mt-2 grid gap-1.5">
-                                {getReportSections(report).slice(0, 5).map((section) => {
-                                    const sectionMeta = getSectionByBackend(section.name)
+                        ) : (
+                            <Accordion
+                                type="single"
+                                collapsible
+                                defaultValue={
+                                    activeReportId
+                                        ? `report-${activeReportId}`
+                                        : undefined
+                                }
+                                onValueChange={() => {
+                                    // expanding/collapsing a card changes scrollHeight
+                                    updateFade()
+                                    setTimeout(updateFade, 250) // after the open/close animation
+                                }}
+                                className="grid gap-3"
+                            >
+                                {partialReports.map((report) => {
+                                    const reportId = String(report.id)
+                                    const active = reportId === activeReportId
+                                    const resumeSection =
+                                        getResumeSection(report)
+                                    const sections = getReportSections(
+                                        report
+                                    ).slice(0, 5)
 
                                     return (
-                                        <div
-                                            key={`${report.id}-${section.name}`}
-                                            className="flex items-center gap-2 text-xs"
+                                        <AccordionItem
+                                            key={report.id}
+                                            value={`report-${reportId}`}
+                                            className={cn(
+                                                "rounded-2xl border border-border-subtle bg-background px-3",
+                                                active && "border-[1.5px] border-primary"
+                                            )}
                                         >
-                                            {statusIcon(section.status)}
-                                            <span
-                                                className={cn(
-                                                    "truncate",
-                                                    section.status === "pending"
-                                                        ? "text-muted-foreground"
-                                                        : "text-foreground"
-                                                )}
-                                            >
-                                                {sectionMeta.label}
-                                                {section.status !== "pending" ? ` - ${statusText(section.status)}` : ""}
-                                            </span>
-                                        </div>
+                                            <AccordionTrigger className="items-start py-3 text-left hover:no-underline">
+                                                <div className="flex w-full flex-col gap-2">
+                                                    <span className="block text-sm font-semibold">
+                                                        {getReportTitle(
+                                                            report
+                                                        )}
+                                                    </span>
+
+                                                    <div className="flex items-center gap-1">
+                                                        {sections.map(
+                                                            (section, i) => (
+                                                                <span
+                                                                    key={`${report.id}-bar-${i}`}
+                                                                    className={cn(
+                                                                        "h-1.5 flex-1 rounded-full",
+                                                                        SECTION_BAR_COLOR[
+                                                                            section
+                                                                                .status
+                                                                        ] ??
+                                                                            "bg-zinc-200"
+                                                                    )}
+                                                                />
+                                                            )
+                                                        )}
+                                                    </div>
+
+                                                    <span className="block text-xs font-normal text-muted-foreground">
+                                                        {getSectionSummary(
+                                                            sections
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            </AccordionTrigger>
+
+                                            <AccordionContent className="pb-3">
+                                                <Link
+                                                    href={createWizardHref(
+                                                        resumeSection,
+                                                        {
+                                                            method: "manual-entry",
+                                                            report_id:
+                                                                report.id,
+                                                        }
+                                                    )}
+                                                    className="
+                                                        block rounded-xl p-2 outline-none
+                                                        transition-colors hover:bg-surface
+                                                        focus-visible:ring-2 focus-visible:ring-ring
+                                                    "
+                                                >
+                                                    <div className="grid gap-1.5">
+                                                        {sections.map(
+                                                            (section) => {
+                                                                const sectionMeta =
+                                                                    getSectionByBackend(
+                                                                        section.name
+                                                                    )
+
+                                                                return (
+                                                                    <div
+                                                                        key={`${report.id}-${section.name}`}
+                                                                        className="flex items-center gap-2 text-xs"
+                                                                    >
+                                                                        {statusIcon(
+                                                                            section.status
+                                                                        )}
+
+                                                                        <span
+                                                                            className={cn(
+                                                                                "truncate",
+                                                                                section.status ===
+                                                                                    "pending"
+                                                                                    ? "text-muted-foreground"
+                                                                                    : "text-foreground"
+                                                                            )}
+                                                                        >
+                                                                            {
+                                                                                sectionMeta.label
+                                                                            }
+                                                                            {section.status !==
+                                                                            "pending"
+                                                                                ? ` - ${statusText(
+                                                                                      section.status
+                                                                                  )}`
+                                                                                : ""}
+                                                                        </span>
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        )}
+                                                    </div>
+
+                                                    <span className="mt-3 inline-block text-xs font-semibold text-primary">
+                                                        {active
+                                                            ? "Continue report"
+                                                            : "Switch to this report"}
+                                                    </span>
+                                                </Link>
+                                            </AccordionContent>
+                                        </AccordionItem>
                                     )
                                 })}
-                            </div>
-                        </Link>
-                    )
-                })}
+                            </Accordion>
+                        )}
+                    </div>
+
+                    {showFade && (
+                        <div className="w-full flex justify-center">
+                            <div
+                                aria-hidden="true"
+                                className="
+                                    pointer-events-none absolute inset-x-0 bottom-0 h-14
+                                    bg-linear-to-t from-white dark:from-neutral-950 to-transparent
+                                "
+                            />
+                            <span
+                            aria-hidden="true"
+                            className={cn(
+                                "pointer-events-none absolute inset-x-0 bottom-2 mx-auto w-fit",
+                                "rounded-full px-2 py-0.5",
+                                "text-center text-[11px] font-medium text-foreground/70",
+
+                                // Glass surface
+                                "bg-background/45",
+                                "backdrop-blur-xl backdrop-saturate-150",
+
+                                // Reflective edge
+                                "border border-white/30",
+                                "dark:border-white/10",
+
+                                // Depth
+                                "shadow-[0_4px_16px_rgb(0_0_0/0.08)]",
+                                "ring-1 ring-black/5"
+                            )}
+                        >
+                            ↓ Scroll for more
+                        </span>
+                        </div>
+                    )}
+                </div>
             </div>
         </aside>
     )
 }
+
+
+function getReportWizardTabs(
+    {
+        section,
+        method,
+        uploadType,
+        reportId,
+    }: {
+        section: WizardSection
+        method: WizardMethod
+        uploadType: UploadType
+        reportId: string | null
+    }
+){
+    const isQuickEntry = method === "quick-entry"
+
+    const tabs = [
+        {
+            label: isQuickEntry ? "Quick Entry" : "Manual Entry",
+            key: "manual",
+            description: isQuickEntry
+                ? "Complete the report using a simplified entry workflow."
+                : "Enter the report details manually, section by section.",
+            href: createWizardHref(section.id, {
+                method: isQuickEntry ? "quick-entry" : "manual-entry",
+                report_id: reportId,
+            }),
+        },
+        {
+            label: "Upload File",
+            key: "upload",
+            description:
+                "Upload a completed file to populate this report section.",
+            href: createWizardHref(section.id, {
+                method: "upload",
+                upload_type: uploadType,
+                report_id: reportId,
+            }),
+        },
+    ]
+
+    return tabs
+}
+
 
 function MethodTabs({
     section,
@@ -234,6 +492,8 @@ function MethodTabs({
 }) {
     const manualActive = method === "manual-entry" || method === "web-form" || method === "quick-entry"
     const uploadActive = method === "upload"
+
+    
 
     return (
         <div className="flex flex-col gap-3 border-b border-border">
@@ -308,8 +568,8 @@ function MethodTabs({
                 <div className="flex flex-wrap gap-1 pb-2">
                     {([
                         ["excel", "Excel", FileSpreadsheetIcon],
-                        ["csv", "CSV", FileSpreadsheetIcon],
-                        ["ocr", "OCR", ImageIcon],
+                        // ["csv", "CSV", FileSpreadsheetIcon],
+                        // ["ocr", "OCR", ImageIcon],
                         ["photo", "Photo", ImageIcon],
                     ] as const).map(([value, label, Icon]) => (
                         <Link
@@ -338,32 +598,27 @@ function MethodTabs({
 
 function ManualEntryPanel({
     section,
+    report,
 }: {
     section: WizardSection
+    report: WizardReport | null
 }) {
+    const period = report?.period_start?.slice(0, 7)
+        ?? new Date().toISOString().slice(0, 7)
+
     if (section.id === "attendance") {
-        return <AttendanceFormView />
+        return <AttendanceFormView period={period} reportId={report?.id} />
     }
 
-    return (
-        <div className="rounded-lg border border-border bg-muted/30 p-4">
-            <div className="grid gap-4 md:grid-cols-2">
-                <label className="grid gap-2 text-sm font-medium text-foreground">
-                    Amount
-                    <input
-                        className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        placeholder="0.00"
-                    />
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-foreground">
-                    Notes
-                    <input
-                        className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    />
-                </label>
-            </div>
-        </div>
-    )
+    const kind = section.id === "tithes"
+        ? "tithes"
+        : section.id === "revenue"
+            ? "revenue"
+            : section.id === "overhead"
+                ? "overhead"
+                : "expenses"
+
+    return <FinancialEntriesForm kind={kind} period={period} reportId={report?.id} />
 }
 
 function UploadPanel({
@@ -538,73 +793,58 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
     const activeSectionStatus = activeReport
         ? getReportSections(activeReport).find((item) => item.name === section.backendId)
         : undefined
-    const activeReportLabel = activeReport
-        ? getReportTitle(activeReport)
-        : "New report"
     const sectionIndex = WIZARD_SECTIONS.findIndex((item) => item.id === section.id)
     const nextSection = WIZARD_SECTIONS[Math.min(sectionIndex + 1, WIZARD_SECTIONS.length - 1)]
     const backSection = WIZARD_SECTIONS[Math.max(sectionIndex - 1, 0)]
+    const tabs = getReportWizardTabs({
+        section,
+        method,
+        uploadType,
+        reportId
+    })
 
     return (
-        <div className="flex flex-col h-full min-h-0 overflow-hidden">
-            <header className="shrink-0 border-b border-border px-5 py-4">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-xl font-semibold text-foreground">
-                        Report Wizard
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                        {activeReportLabel}
-                    </p>
-                </div>
+        <View className="flex flex-col h-full min-h-0">
+            <View.Header pagename="Report Wizard" />
+            <View.Tabs items={tabs} activeKey={method} />
 
-                <div className="mt-5">
-                    <StepRail current={section} report={activeReport} />
-                </div>
-            </header>
+            <div className="px-5 pt-4 h-fit">
+                <StepRail current={section} report={activeReport} />
+            </div>
 
-            <div className="flex min-w-0 flex-1 flex-col lg:flex-row">
+            <div className="flex min-w-0 flex-1 flex-col lg:flex-row gap-3">
                 <PartialReportsSidebar
                     reports={reports}
                     activeReportId={reportId}
+                    current={section} 
+                    report={activeReport}
                 />
 
-                <main className="flex min-w-0 flex-1 flex-col order-1">
-                    
-
-                    <div className="min-h-0 flex-1 overflow-y-auto p-5">
+                <main className="flex min-w-0 flex-1 flex-col order-1 pl-5">
+                    <div className="min-h-0 flex-1 overflow-y-auto">
                         <div className="mx-auto flex max-w-5xl flex-col gap-5">
-                            <MethodTabs
+                            {/* <MethodTabs
                                 section={section}
                                 method={method}
                                 uploadType={uploadType}
                                 reportId={reportId}
-                            />
+                            /> */}
 
                             {method === "upload" ? (
                                 <UploadPanel section={section} uploadType={uploadType} />
                             ) : (
                                 <ManualEntryPanel
                                     section={section}
+                                    report={activeReport}
                                 />
                             )}
                         </div>
                     </div>
 
-                    <footer className="shrink-0 border-t border-border px-5 py-4">
+                    <footer className="shrink-0 border-t border-border-subtle px-0 py-4">
                         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                disabled={!activeSectionStatus?.id}
-                                onClick={() => setSkipOpen(true)}
-                                className="text-amber-700"
-                            >
-                                <SkipForwardIcon className="size-4" />
-                                Skip this section
-                            </Button>
-
                             <div className="flex items-center gap-2">
-                                <Button variant="outline" asChild>
+                                <Button variant="outline" asChild className="border-0 border-border-subtle shadow-elevation-sm">
                                     <Link
                                         href={createWizardHref(backSection.id, {
                                             method,
@@ -615,6 +855,21 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
                                         Back
                                     </Link>
                                 </Button>
+
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={!activeSectionStatus?.id}
+                                    onClick={() => setSkipOpen(true)}
+                                    className="text-amber-700 shadow-elevation-sm"
+                                >
+                                    <SkipForwardIcon className="size-4" />
+                                    Skip this section
+                                </Button>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                
                                 <Button asChild>
                                     <Link
                                         href={createWizardHref(nextSection.id, {
@@ -623,7 +878,7 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
                                             report_id: reportId,
                                         })}
                                     >
-                                        Next: {nextSection.label}
+                                        <SkipForward /> Continue to {nextSection.label}
                                     </Link>
                                 </Button>
                             </div>
@@ -639,6 +894,6 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
                 sectionStatusId={activeSectionStatus?.id}
                 onOpenChange={setSkipOpen}
             />
-        </div>
+        </View>
     )
 }

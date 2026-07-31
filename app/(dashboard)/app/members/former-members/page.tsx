@@ -1,9 +1,5 @@
-import { getMetaData } from "@/config/metadata";
-import { FormerMembersView } from "@/features/people/former-members/views/FormerMembersView"
-
-const meta = getMetaData({ title: "Former Members" })
-export const metadata = { ...meta }
+import { redirect } from "next/navigation"
 
 export default function FormerMembersPage() {
-    return <FormerMembersView />
+    redirect("/app/members/directory/former")
 }

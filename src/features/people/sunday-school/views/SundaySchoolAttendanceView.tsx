@@ -508,7 +508,7 @@ function ExpandedRecord({
     )
 }
 
-export function SundaySchoolAttendanceView() {
+export function SundaySchoolAttendanceView({ embedded = false }: { embedded?: boolean }) {
     const router = useRouter()
     const queryClient = useQueryClient()
     const [dialogOpen, setDialogOpen] = React.useState(false)
@@ -558,10 +558,9 @@ export function SundaySchoolAttendanceView() {
 
     return (
         <View className="gap-0">
-            <View.Header
-                pagename="Sunday School Attendance"
-                description="Weekly class attendance, visitors, first timers, lessons, and offering."
-            />
+            {!embedded ? (
+                <View.Header pagename="Sunday School Attendance" />
+            ) : null}
 
             <View.Body className="gap-4 py-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -614,6 +613,7 @@ export function SundaySchoolAttendanceView() {
                     </Card>
                 ) : (
                     <DataTable<SundaySchoolTableRow>
+                        variant="simple"
                         data={rows}
                         config={sundaySchoolAttendanceTableSchema}
                         isLoading={isLoading}

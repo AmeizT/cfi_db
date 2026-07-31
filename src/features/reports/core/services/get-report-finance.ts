@@ -8,7 +8,10 @@ import { CashflowResponse, CashflowRow } from "../../finance/cashflow/types/cash
 
 type Expenses = {
     overheads: Overhead[]
-    variables: Expenditure
+    variables: Expenditure[]
+    total_overhead?: string | number
+    total_variable?: string | number
+    grand_total?: string | number
 }
 
 export type PaginatedTableResponse<T> = {

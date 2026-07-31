@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Loader2Icon } from "lucide-react"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
@@ -22,11 +23,13 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import View from "@/components/ui/view"
 import { DataTable } from "@/features/reports/core/components/DataTable"
 import type { DataTableAction } from "@/features/reports/core/components/DataTable.types"
+import { useDataTablePagination } from "@/features/reports/core/components/hooks/useDataTablePagination"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
 import {
     transferHistoryTableSchema,
     transferRequestsTableSchema,
@@ -41,8 +44,11 @@ import {
     useRejectMemberTransfer,
 } from "../hooks/use-member-transfers"
 import type { MemberTransfer, MemberTransferStatus } from "../schemas/member-transfer"
-
-type TransferTab = "incoming" | "outgoing" | "history"
+import {
+    buildTransferViewQuery,
+    getTransferView,
+    TRANSFER_VIEWS,
+} from "../utils/transfer-view-params"
 
 type TransferTableRow = Record<string, unknown> & {
     id: number
@@ -60,10 +66,15 @@ type TransferTableRow = Record<string, unknown> & {
 }
 
 type ActionState =
-    | { type: "accept"; transfer: MemberTransfer }
-    | { type: "reject"; transfer: MemberTransfer }
-    | { type: "cancel"; transfer: MemberTransfer }
+    | { type: "accept"; assemblyId: string | undefined; transfer: MemberTransfer }
+    | { type: "reject"; assemblyId: string | undefined; transfer: MemberTransfer }
+    | { type: "cancel"; assemblyId: string | undefined; transfer: MemberTransfer }
     | null
+
+type DetailState = {
+    assemblyId: string | undefined
+    transfer: MemberTransfer
+} | null
 
 const tableOptions = {
     enablePinning: true,
@@ -310,53 +321,97 @@ function TransferActionDialog({
 
 export function MemberTransfersView() {
     const queryClient = useQueryClient()
-    const [tab, setTab] = React.useState<TransferTab>("incoming")
-    const [detailTransfer, setDetailTransfer] = React.useState<MemberTransfer | null>(null)
-    const [actionState, setActionState] = React.useState<ActionState>(null)
+    const assemblyId = useActiveAssemblyId()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+    const tab = getTransferView(searchParams)
+    const pagination = useDataTablePagination()
+    const [storedDetailState, setDetailState] = React.useState<DetailState>(null)
+    const [storedActionState, setActionState] = React.useState<ActionState>(null)
+    const detailTransfer = storedDetailState && storedDetailState.assemblyId === assemblyId
+        ? storedDetailState.transfer
+        : null
+    const actionState = storedActionState && storedActionState.assemblyId === assemblyId
+        ? storedActionState
+        : null
+    const searchParamsKey = searchParams.toString()
+    const search = searchParams.get("search")?.trim() || undefined
+    const requestedStatus = searchParams.get("status") || undefined
+    const filters = React.useMemo(() => {
+        const values: Record<string, string> = {}
+        const reserved = new Set(["view", "status", "page", "page_size", "search"])
 
-    const incomingQuery = useIncomingMemberTransfers()
-    const outgoingQuery = useOutgoingMemberTransfers()
-    const historyQuery = useMemberTransferHistory()
+        new URLSearchParams(searchParamsKey).forEach((value, key) => {
+            if (!reserved.has(key)) values[key] = value
+        })
+
+        return values
+    }, [searchParamsKey])
+
+    const paginationParams = React.useMemo(
+        () => ({
+            page: pagination.currentPage,
+            page_size: pagination.pageSize,
+            search,
+            filters,
+            status: requestedStatus,
+        }),
+        [filters, pagination.currentPage, pagination.pageSize, requestedStatus, search]
+    )
+    const openTransferParams = React.useMemo(
+        () => ({
+            ...paginationParams,
+            status: requestedStatus ?? "pending_acceptance,accepted",
+        }),
+        [paginationParams, requestedStatus]
+    )
+    const transferTabs = React.useMemo(
+        () => TRANSFER_VIEWS.map((view) => ({
+            key: view,
+            label: view === "incoming"
+                ? "Incoming"
+                : view === "outgoing"
+                    ? "Outgoing"
+                    : "History",
+            href: `${pathname}?${buildTransferViewQuery(searchParams, view)}`,
+        })),
+        [pathname, searchParams]
+    )
+
+    const incomingQuery = useIncomingMemberTransfers(openTransferParams)
+    const outgoingQuery = useOutgoingMemberTransfers(openTransferParams)
+    const historyQuery = useMemberTransferHistory(paginationParams)
     const acceptMutation = useAcceptMemberTransfer()
     const rejectMutation = useRejectMemberTransfer()
     const cancelMutation = useCancelMemberTransfer()
 
+    const activeQuery =
+        tab === "incoming"
+            ? incomingQuery
+            : tab === "outgoing"
+                ? outgoingQuery
+                : historyQuery
+    const activeRows = React.useMemo(
+        () => activeQuery.data?.rows ?? [],
+        [activeQuery.data?.rows]
+    )
+    const totalRows = activeQuery.data?.count ?? activeRows.length
+
     const rows = React.useMemo(() => {
-        const data =
-            tab === "incoming"
-                ? incomingQuery.data
-                : tab === "outgoing"
-                    ? outgoingQuery.data
-                    : historyQuery.data
+        return activeRows.map(mapTransferRow)
+    }, [activeRows])
 
-        return (data ?? []).map(mapTransferRow)
-    }, [historyQuery.data, incomingQuery.data, outgoingQuery.data, tab])
-
-    const isLoading =
-        tab === "incoming"
-            ? incomingQuery.isLoading || incomingQuery.isFetching
-            : tab === "outgoing"
-                ? outgoingQuery.isLoading || outgoingQuery.isFetching
-                : historyQuery.isLoading || historyQuery.isFetching
-
-    const activeError =
-        tab === "incoming"
-            ? incomingQuery.error
-            : tab === "outgoing"
-                ? outgoingQuery.error
-                : historyQuery.error
-
-    const activeIsError =
-        tab === "incoming"
-            ? incomingQuery.isError
-            : tab === "outgoing"
-                ? outgoingQuery.isError
-                : historyQuery.isError
+    const isLoading = activeQuery.isLoading || activeQuery.isFetching
+    const activeError = activeQuery.error
+    const activeIsError = activeQuery.isError
 
     async function invalidateTransfers() {
         await Promise.all([
-            queryClient.invalidateQueries({ queryKey: memberTransferQueryKeys.all }),
-            queryClient.invalidateQueries({ queryKey: ["people", "members"] }),
+            queryClient.invalidateQueries({ queryKey: memberTransferQueryKeys.scope(assemblyId) }),
+            queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "members") }),
+            queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "assembly-memberships") }),
+            queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "former-members") }),
+            queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "households") }),
         ])
     }
 
@@ -416,7 +471,7 @@ export function MemberTransfersView() {
                 label: "View",
                 icon: ViewIcon,
                 variant: "default",
-                onClick: () => setDetailTransfer(row.transfer),
+                onClick: () => setDetailState({ assemblyId, transfer: row.transfer }),
             },
         ]
 
@@ -426,13 +481,13 @@ export function MemberTransfersView() {
                     label: "Accept",
                     icon: CheckmarkCircle02Icon,
                     variant: "default",
-                    onClick: () => setActionState({ type: "accept", transfer: row.transfer }),
+                    onClick: () => setActionState({ type: "accept", assemblyId, transfer: row.transfer }),
                 },
                 {
                     label: "Reject",
                     icon: CancelCircleIcon,
                     variant: "destructive",
-                    onClick: () => setActionState({ type: "reject", transfer: row.transfer }),
+                    onClick: () => setActionState({ type: "reject", assemblyId, transfer: row.transfer }),
                 }
             )
         }
@@ -442,7 +497,7 @@ export function MemberTransfersView() {
                 label: "Cancel",
                 icon: Cancel01Icon,
                 variant: "destructive",
-                onClick: () => setActionState({ type: "cancel", transfer: row.transfer }),
+                onClick: () => setActionState({ type: "cancel", assemblyId, transfer: row.transfer }),
             })
         }
 
@@ -465,46 +520,42 @@ export function MemberTransfersView() {
         <View className="gap-0">
             <View.Header
                 pagename="Member Transfers"
-                description="Review incoming requests, track outgoing requests, and audit completed transfer history."
             />
 
             <View.Body className="gap-4 py-4">
-                <Tabs value={tab} onValueChange={(value) => setTab(value as TransferTab)}>
-                    <TabsList>
-                        <TabsTrigger value="incoming">Incoming</TabsTrigger>
-                        <TabsTrigger value="outgoing">Outgoing</TabsTrigger>
-                        <TabsTrigger value="history">History</TabsTrigger>
-                    </TabsList>
+                <View.Tabs items={transferTabs} activeKey={tab} />
 
-                    {(["incoming", "outgoing", "history"] as const).map((value) => (
-                        <TabsContent key={value} value={value} className="mt-4">
-                            {activeIsError ? (
-                                <EmptyTransfers>{getErrorMessage(activeError)}</EmptyTransfers>
-                            ) : !isLoading && rows.length === 0 ? (
-                                <EmptyTransfers>{emptyMessage}</EmptyTransfers>
-                            ) : (
-                                <DataTable<TransferTableRow>
-                                    data={rows}
-                                    config={tab === "history" ? transferHistoryTableSchema : transferRequestsTableSchema}
-                                    isLoading={isLoading}
-                                    loadingMode="overlay"
-                                    options={tableOptions}
-                                    showToolbar={false}
-                                    showDefaultRowActions={false}
-                                    rowActions={getRowActions}
-                                    enableDelete={false}
-                                    exportFilename={`member-transfers-${tab}`}
-                                />
-                            )}
-                        </TabsContent>
-                    ))}
-                </Tabs>
+                {activeIsError ? (
+                    <EmptyTransfers>{getErrorMessage(activeError)}</EmptyTransfers>
+                ) : !isLoading && rows.length === 0 ? (
+                    <EmptyTransfers>{emptyMessage}</EmptyTransfers>
+                ) : (
+                    <DataTable<TransferTableRow>
+                        variant="simple"
+                        data={rows}
+                        config={tab === "history" ? transferHistoryTableSchema : transferRequestsTableSchema}
+                        isLoading={isLoading}
+                        loadingMode="overlay"
+                        options={tableOptions}
+                        showToolbar={false}
+                        showDefaultRowActions={false}
+                        rowActions={getRowActions}
+                        enableDelete={false}
+                        exportFilename={`member-transfers-${tab}`}
+                        totalRows={totalRows}
+                        currentPage={pagination.currentPage}
+                        pageSize={pagination.pageSize}
+                        pageSizeOptions={pagination.pageSizeOptions}
+                        onPageChange={pagination.onPageChange}
+                        onPageSizeChange={pagination.onPageSizeChange}
+                    />
+                )}
             </View.Body>
 
             <TransferDetailDialog
                 transfer={detailTransfer}
                 onOpenChange={(open) => {
-                    if (!open) setDetailTransfer(null)
+                    if (!open) setDetailState(null)
                 }}
             />
             <TransferActionDialog

@@ -10,7 +10,7 @@ import { useCumulativeAnalytics } from "../hooks/useCumulativeAnalytics"
 import type { CumulativeTableRow } from "../types"
 import { BASE_PATH, getSelectedYear, getVisibleMonthCount, MONTHS } from "../utils/helpers"
 import { toNumber } from "../utils/formatters"
-import { EmptyState } from "./EmptyState"
+import { EmptyState } from "@/components/ui/empty-state"
 import { MonthlySummaryTable } from "./MonthlySummaryTable"
 
 export function CumulativeView({
@@ -42,11 +42,11 @@ export function CumulativeView({
     const config = analytics.data?.meta?.config ?? analytics.data?.table_schema
 
     if (analytics.isLoading) {
-        return <EmptyState>Loading cumulative tithe analytics...</EmptyState>
+        return <div className="min-h-56 animate-pulse rounded-lg bg-muted/40" aria-label="Loading cumulative tithe data" />
     }
 
     if (visibleMonthCount === 0) {
-        return <EmptyState>Cumulative tithe data is not available for a future reporting year.</EmptyState>
+        return <EmptyState type="reports" title="No cumulative data" description="Cumulative tithe data is not available for a future reporting year." className="min-h-56" />
     }
 
     const cumulativeData = visibleStatements.reduce<{
@@ -78,7 +78,7 @@ export function CumulativeView({
     const runningTotal = cumulativeData.runningTotal
 
     if (tableRows.every((row) => toNumber(row.total) === 0)) {
-        return <EmptyState>No cumulative tithe data is available for this year.</EmptyState>
+        return <EmptyState type="reports" title="No cumulative data" description="No cumulative tithe data is available for this year." className="min-h-56" />
     }
 
     const now = new Date()

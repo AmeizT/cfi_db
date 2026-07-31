@@ -46,9 +46,9 @@ export const url = {
     financeSummary: api("finance/monthly-summary"),
     yearlySummary: api("finance/yearly"),
     homecells: api("people/homecells"),
-    income: api("income"),
+    income: api("bookkeeper/income"),
     juniorMembers: api("people/junior_members"),
-    expenditures: api("expenditure"),
+    expenditures: api("bookkeeper/expenditure"),
     members: api("people/members"),
     sundaySchoolAttendance: api("people/sunday-school-attendance"),
     passwordReset: api("auth/users/reset_password"),
@@ -58,12 +58,12 @@ export const url = {
     refreshSession: api("auth/jwt/refresh"),
     reports: api("reports"),
     resources: api("resources"),
-    regularExpenditures: api("regular_expenditure"),
+    regularExpenditures: api("bookkeeper/regular_expenditure"),
     sessionHistory: api("auth/user_auth_history"),
     setPassword: api("auth/users/set_password"),
     terms: api("terms"),
-    tithes: api("tithes"),
-    trashedTithes: api("tithes/trashed"),
+    tithes: api("bookkeeper/tithes"),
+    trashedTithes: api("bookkeeper/tithes/trashed"),
     verifySession: api("auth/jwt/verify"),
     users: api("auth/users"),
     user: api("auth/user"),
@@ -110,6 +110,7 @@ export const apiRoutes = {
         list: () => api("people/attendance"),
         detail: (id: string | number) => api(`people/attendance/${id}`),
         bulkCreate: () => api("people/attendance/bulk-create"),
+        batch: () => api("people/attendance/batch"),
         bulkDelete: () => api("people/attendance/bulk_delete"),
     },
 
@@ -150,42 +151,87 @@ export const apiRoutes = {
         detail: (id: string | number) => api(`people/assembly-memberships/${id}`),
     },
 
+    formerMembers: {
+        list: () => api("people/former-members"),
+        detail: (id: string | number) => api(`people/former-members/${id}`),
+        readmit: (id: string | number) => api(`people/former-members/${id}/readmit`),
+    },
+
+    examinations: {
+        list: () => api("examinations"),
+        detail: (id: string | number) => api(`examinations/${id}`),
+        imports: (id: string | number) => api(`examinations/${id}/imports`),
+        results: (id: string | number) => api(`examinations/${id}/results`),
+    },
+
+    examinationImports: {
+        detail: (id: string | number) => api(`examination-imports/${id}`),
+        rows: (id: string | number) => api(`examination-imports/${id}/rows`),
+        confirm: (id: string | number) => api(`examination-imports/${id}/confirm`),
+    },
+
+    examinationImportRows: {
+        detail: (id: string | number) => api(`examination-import-rows/${id}`),
+    },
+
+    examinationStudents: {
+        list: () => api("examination-students"),
+        transcript: (id: string | number) => api(`examination-students/${id}/transcript`),
+        transcriptPdf: (id: string | number) => api(`examination-students/${id}/transcript/pdf`),
+    },
+
+    cbaStudents: {
+        list: () => api("cba-students"),
+        detail: (id: string | number) => api(`cba-students/${id}`),
+    },
+
+    households: {
+        list: () => api("people/households"),
+        detail: (id: string | number) => api(`people/households/${id}`),
+    },
+
     finance: {
         assets: {
             list: () => api("bookkeeper/assets"),
             detail: (id: string | number) => api(`bookkeeper/assets/${id}`),
         },
         income: {
-            list: () => api("income"),
-            detail: (id: string | number) => api(`income/${id}`),
+            list: () => api("bookkeeper/income"),
+            detail: (id: string | number) => api(`bookkeeper/income/${id}`),
         },
         expenditures: {
-            list: () => api("expenditure"),
-            detail: (id: string | number) => api(`expenditure/${id}`),
+            list: () => api("bookkeeper/expenditure"),
+            detail: (id: string | number) => api(`bookkeeper/expenditure/${id}`),
+            batch: () => api("bookkeeper/expenditure/batch"),
         },
 
         overhead: {
-            list: () => api("overhead"),
+            list: () => api("bookkeeper/overhead"),
             detail: (id: string | number) =>
-                api(`overhead/${id}`),
+                api(`bookkeeper/overhead/${id}`),
+            batch: () => api("bookkeeper/overhead/batch"),
+            types: () => api("bookkeeper/overhead/types"),
         },
         revenue: {
-            list: () => api("revenue"),
+            list: () => api("bookkeeper/revenue"),
             detail: (id: string | number) =>
-                api(`revenue/${id}`),
+                api(`bookkeeper/revenue/${id}`),
+            batch: () => api("bookkeeper/revenue/batch"),
+            categories: () => api("bookkeeper/revenue/categories"),
         },
         summary: {
             monthly: () => api("finance/monthly-summary"),
             yearly: () => api("finance/yearly"),
         },
         tithes: {
-            list: () => api("tithes"),
-            detail: (id: string | number) => api(`tithes/${id}`),
-            trashed: () => api("tithes/trashed"),
-            contributors: () => api("tithes/contributors"),
-            receipts: () => api("tithes/receipts"),
-            performance: () => api("tithes/performance"),
-            auditLog: () => api("tithes/audit-log"),
+            list: () => api("bookkeeper/tithes"),
+            detail: (id: string | number) => api(`bookkeeper/tithes/${id}`),
+            trashed: () => api("bookkeeper/tithes/trashed"),
+            contributors: () => api("bookkeeper/tithes/contributors"),
+            receipts: () => api("bookkeeper/tithes/receipts"),
+            performance: () => api("bookkeeper/tithes/performance"),
+            auditLog: () => api("bookkeeper/tithes/audit-log"),
+            batch: () => api("bookkeeper/tithes/batch"),
         },
     },
 
@@ -194,6 +240,10 @@ export const apiRoutes = {
             list: () => api("people/homecells"),
             detail: (id: string | number) => api(`people/homecells/${id}`),
         },
+    },
+
+    scripture: {
+        list: () => api("scripture/votd"),
     },
 
     reports: {
@@ -280,6 +330,17 @@ export const apiRoutes = {
         verify: () => api("auth/verify/"),
         logout: () => api("auth/logout/"),
         currentUser: () => api("auth/users/me"),
+    },
+
+    jethro: {
+        status: () => api("jethro/status"),
+        messages: () => api("jethro/messages"),
+        conversations: () => api("jethro/conversations"),
+        conversation: (publicId: string) => api(`jethro/conversations/${publicId}`),
+        titheMembers: (publicId: string) => api(`jethro/tithe-drafts/${publicId}/members`),
+        selectTitheMember: (publicId: string) => api(`jethro/tithe-drafts/${publicId}/select-member`),
+        confirmTithe: (publicId: string) => api(`jethro/tithe-drafts/${publicId}/confirm`),
+        cancelTithe: (publicId: string) => api(`jethro/tithe-drafts/${publicId}/cancel`),
     },
 
     downloadTemplate: {

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { cn } from "@/lib/utils"
 import { Table } from "@/components/ui/table"
 import { DataTableBulkActionToolbar } from "@/components/ui/data-table/DataTableActionToolbar"
 import { Spinner } from "@/components/ui/spinner"
@@ -8,7 +9,6 @@ import { useTableVirtualization } from "@/features/data-table/hooks/use-table-vi
 import { useTableEngine } from "@/features/data-table/hooks/use-table-engine"
 import { useUser } from "@/hooks/query/use-user"
 import { apiRoutes, type ApiBulkDeleteRouteKey } from "@/config/urls"
-import { cn } from "@/lib/utils"
 import { DataTableBody } from "./DataTableBody"
 import { CHECKBOX_COLUMN_WIDTH, EXPAND_COLUMN_WIDTH } from "./DataTable.constants"
 import { DataTableHeader } from "./DataTableHeader"
@@ -28,6 +28,7 @@ function hasBulkDeleteRoute(resource: DataTableResource): resource is ApiBulkDel
 }
 
 export function DataTable<T extends { id: number }>({
+    variant = "advanced",
     data,
     rows: controlledRows,
     config,
@@ -63,16 +64,17 @@ export function DataTable<T extends { id: number }>({
     const paginationRef = React.useRef<HTMLDivElement | null>(null)
     const [localPage, setLocalPage] = React.useState(1)
     const [localPageSize, setLocalPageSize] = React.useState(pageSize)
+    const isAdvanced = variant === "advanced"
     const tableOptions = React.useMemo<Required<DataTableOptions>>(
         () => ({
             enablePinning:
-                options?.enablePinning ?? DEFAULT_DATA_TABLE_OPTIONS.enablePinning,
+                isAdvanced && (options?.enablePinning ?? DEFAULT_DATA_TABLE_OPTIONS.enablePinning),
             pagination:
                 options?.pagination ?? DEFAULT_DATA_TABLE_OPTIONS.pagination,
             selectable:
                 options?.selectable ?? DEFAULT_DATA_TABLE_OPTIONS.selectable,
         }),
-        [options]
+        [isAdvanced, options]
     )
     const isSelectable = tableOptions.selectable
     const isPinningEnabled = tableOptions.enablePinning
@@ -88,6 +90,7 @@ export function DataTable<T extends { id: number }>({
         user: user ?? undefined,
         expandable: !!expandedRow,
         enablePinning: isPinningEnabled,
+        enableResizing: isAdvanced,
     })
 
     const { table, styles, ui, interaction } = engine
@@ -185,7 +188,8 @@ export function DataTable<T extends { id: number }>({
                 (isSelectable ? CHECKBOX_COLUMN_WIDTH : 0)
             : 0
     const pinUtilityColumns = hasPinnedDataColumns && utilityPinnedOffset > 0
-    const resolvedShowExport = enableExport ?? showExport
+    const resolvedShowExport = isAdvanced && (enableExport ?? showExport)
+    const resolvedShowColumnVisibility = isAdvanced && showColumnVisibility
     const resolvedExportFormat =
         exportFormat ?? (enableExport === undefined ? "csv" : "pdf")
     const resolvedExportMetadata = React.useMemo(
@@ -260,10 +264,10 @@ export function DataTable<T extends { id: number }>({
 
     return (
         <div ref={tableRootRef} className="flex w-full h-fit flex-col items-center justify-center gap-4">
-            {showToolbar && (
+            {showToolbar && (showFilters || resolvedShowColumnVisibility || resolvedShowExport) && (
                 <DataTableToolbar
                     table={table}
-                    showColumnVisibility={showColumnVisibility}
+                    showColumnVisibility={resolvedShowColumnVisibility}
                     showExport={resolvedShowExport}
                     showFilters={showFilters}
                     enableDelete={enableDelete}
@@ -274,7 +278,7 @@ export function DataTable<T extends { id: number }>({
                 />
             )}
 
-            <div className="w-full relative bg-card/80 backdrop-blur-md overflow-hidden border-y-2 border-border-subtle">
+            <div className="w-full relative bg-card/80 backdrop-blur-md overflow-hidden border-t border-border-subtle">
                 {canScrollLeft && (
                     <div className="pointer-events-none absolute left-0 top-0 h-full w-10 bg-linear-to-r from-background to-transparent z-10" />
                 )}
@@ -354,8 +358,8 @@ export function DataTable<T extends { id: number }>({
                     className={cn(
                         "w-full transition-all duration-200 ease-out",
                         smartPagination.isSticky
-                            ? "fixed bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/80"
-                            : "relative rounded-lg border bg-card px-3 py-3",
+                            ? "fixed bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-sm backdrop-blur supports-backdrop-filter:bg-background/80"
+                            : "relative rounded-0 border-t border-border-subtle bg-card px-0 py-3",
                         !smartPagination.isVisible && "translate-y-full opacity-0 pointer-events-none"
                     )}
                     style={

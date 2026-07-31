@@ -1,10 +1,6 @@
 import type { ReadonlyURLSearchParams } from "next/navigation"
-import { createQueryString } from "@/features/reports/core/lib/create-query-string"
 
 export function getMembersTabs(searchParams?: ReadonlyURLSearchParams) {
-    const hrefFor = (tab: string) =>
-        `/reports/review/members?${createQueryString(searchParams, { tab })}`
-
     const tabs = [
         {
             label: "All",
@@ -20,6 +16,11 @@ export function getMembersTabs(searchParams?: ReadonlyURLSearchParams) {
             label: "Children",
             key: "children",
             href: "/app/members/directory/children",
+        },
+        {
+            label: "Former",
+            key: "former",
+            href: "/app/members/directory/former",
         },
     ]
 

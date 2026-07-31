@@ -6,15 +6,19 @@ import {
     getQuarterStatement,
 } from "../services/get-quarter-statement";
 import { QuarterResponse } from "../../statements/types/summary.types"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
 
 export function useQuarterSummary<T extends ReportTab>(
     tab: T,
     q: string,
     period: string
 ) {
+    const assemblyId = useActiveAssemblyId()
     const query = useQuery({
-        queryKey: ["quarterStatement", tab, q, period],
+        queryKey: assemblyQueryKeys.key(assemblyId, "quarterStatement", tab, q, period),
         queryFn: () => getQuarterStatement(tab, q, period),
+        enabled: Boolean(assemblyId),
     });
 
     const summary = useMemo(() => {

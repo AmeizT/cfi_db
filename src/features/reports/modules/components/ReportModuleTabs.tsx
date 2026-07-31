@@ -22,7 +22,7 @@ export function ReportModuleTabs({
     }
 
     return (
-        <View.TabBar
+        <View.Tabs
             variant="report"
             items={tabs}
             activeKey={activeView}

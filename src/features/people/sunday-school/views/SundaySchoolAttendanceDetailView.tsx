@@ -46,7 +46,6 @@ export function SundaySchoolAttendanceDetailView({
         <View className="gap-0">
             <View.Header
                 pagename="Sunday School Attendance Detail"
-                description="Review a single Sunday School attendance record."
             />
 
             <View.Body className="gap-4 py-4">

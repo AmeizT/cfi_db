@@ -4,7 +4,7 @@ interface Props {
 }
 
 export function StatementsLabel({ tab, label }: Props) {
-  const viewLabel = tab === "monthly" ? "Monthly" : "Analytics"
+  const viewLabel = tab === "monthly" ? "Monthly" : "Cumulative"
 
     return (
         <h2>

@@ -12,12 +12,11 @@ import {
 import { useUser } from "@/hooks/query/use-user"
 import { useReports } from "@/features/reports/core/hooks/use-reports"
 
-import { NavRail } from "./NavRail"
+import { AppNavRail } from "./AppNavRail"
 import { NavForms } from "./NavForms"
 import { NavReportWizard } from "./NavReportWizard"
 import { NavSettings } from "./NavSettings"
 import { SidebarNavigation } from "./SidebarNavigation"
-import { Teamspaces } from "./Teamspaces"
 
 import { getNavigation } from "../navigation/config/get-navigation"
 import { parsePeriod } from "../navigation/helpers/parse-period"
@@ -25,7 +24,7 @@ import { getCurrentYear } from "../utils/get-current-year"
 
 const ACTIVE_SIDEBAR_GROUPS = [
     "app",
-    "assemblies",
+    // "assemblies",
     "administration",
     "forms",
     "reports",
@@ -37,7 +36,7 @@ type ActiveSidebarGroup = (typeof ACTIVE_SIDEBAR_GROUPS)[number]
 
 const SIDEBAR_LABELS: Record<ActiveSidebarGroup, string> = {
     app: "Home",
-    assemblies: "Teamspaces",
+    // assemblies: "Teamspaces",
     administration: "Administration",
     forms: "Forms",
     reports: "Reporting",
@@ -73,8 +72,6 @@ function RenderNavigation({
         app: () => (
             <SidebarNavigation menu={navigation.dashboard} />
         ),
-
-        assemblies: () => <Teamspaces />,
 
         administration: () => (
             <SidebarNavigation
@@ -136,10 +133,12 @@ export function AppSidebar({
     })
 
     const activeRegionId = user?.active_region?.id
-    const reportId = reports?.data
+    const reportId = reports
         ?.at(-1)
         ?.id
         ?.toString() ?? ""
+
+    console.log("reportid", reportId)
 
     const navigation = getNavigation({
         searchParams,
@@ -163,36 +162,29 @@ export function AppSidebar({
                 ? rootSegment
                 : "app"
 
-    const [assemblyPanelOpen, setAssemblyPanelOpen] =
-        React.useState(false)
-
-    const activeSidebarGroup: ActiveSidebarGroup =
-        assemblyPanelOpen
-            ? "assemblies"
-            : derivedGroup
-
-    function handleAssembliesClick() {
-        setAssemblyPanelOpen(current => !current)
-    }
+    const activeSidebarGroup: ActiveSidebarGroup = derivedGroup
 
     return (
-        <Sidebar
-            variant="inset"
-            {...props}
-            className="p-0 py-1.5 pr-1.5"
-        >
-            <div className="flex h-full w-full">
-                <NavRail
+    <Sidebar
+        variant="inset"
+        {...props}
+        className="p-0 pl-1.5"
+    >
+            <div className="flex h-full min-h-0 w-full gap-0">
+                <AppNavRail
                     menu={navigation.rail}
-                    handleAssembliesClick={
-                        handleAssembliesClick
-                    }
                 />
 
-                <div className="grow rounded-2xl border-[0.5px] border-white bg-olive-100 shadow-xl">
-                    <SidebarHeader className="flex h-fit flex-row items-center justify-between gap-0 px-2">
+                <div
+                    className="
+                        flex min-h-0 grow flex-col overflow-hidden
+                        rounded-l-lg border border-[var(--shell-sidebar-border)]
+                        bg-[var(--shell-sidebar-background)] text-[var(--shell-sidebar-foreground)] shadow-sm
+                    "
+                >
+                    <SidebarHeader className="h-fit shrink-0 flex-row items-center justify-between gap-0 px-3">
                         <div className="grow p-1">
-                            <h4 className="pl-2 text-xl font-bold tracking-tighter">
+                            <h4 className="text-xl text-[var(--shell-sidebar-foreground)] font-bold tracking-tighter">
                                 {
                                     SIDEBAR_LABELS[
                                         activeSidebarGroup
@@ -202,7 +194,7 @@ export function AppSidebar({
                         </div>
                     </SidebarHeader>
 
-                    <SidebarContent className="flex-col items-center gap-1 px-2">
+                    <SidebarContent className="min-h-0 flex-1 flex-col items-center gap-1 overflow-y-auto px-2">
                         <motion.div
                             key={activeSidebarGroup}
                             initial={{

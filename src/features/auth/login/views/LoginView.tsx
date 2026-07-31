@@ -7,7 +7,7 @@ export function LoginView(){
         <div className="w-full h-dvh flex flex-col lg:flex-row items-center">
             <AuthSidebar />
 
-            <Separator orientation="vertical" className="hidden lg:block data-[orientation=vertical]:w-px data-[orientation=vertical]:h-[80%] bg-mist-200" />
+            <Separator orientation="vertical" className="hidden lg:block data-[orientation=vertical]:w-px data-[orientation=vertical]:h-[80%] bg-border-subtle/60" />
 
             <div className="relative w-full lg:w-1/2 h-full bg-inherit">
                 <div className="absolute z-0 h-full w-full bg-[radial-gradient(#d0d6d8_1px,transparent_1px)] bg-size-[16px_16px] mask-[radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]">

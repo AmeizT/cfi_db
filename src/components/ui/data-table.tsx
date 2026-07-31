@@ -109,19 +109,29 @@ export function renderDataTableHead<T>(
                     )
                 )}
 
-                {/* Resize handle */}
                 {column.getCanResize() && !isLastColumn && (
                     <div
                         data-resize-handle=""
                         className="
-                            absolute top-0 right-0 h-full w-4 translate-x-1/2 
-                            cursor-col-resize user-select-none touch-none 
-                            z-20 flex justify-center 
-                            opacity-0 transition-[opacity,colors]
+                            absolute right-0 top-1/2 z-20
+                            h-1/2 w-4
+                            translate-x-1/2 -translate-y-1/2
+                            cursor-col-resize select-none touch-none
+                            opacity-0 transition-opacity
                             group-hover/resizer:opacity-100
-                            before:absolute before:left-1/2 before:w-px before:inset-y-0 
-                            before:bg-border before:-translate-x-1/2
-                            hover:before:bg-theme-300
+
+                            before:absolute
+                            before:inset-y-0
+                            before:left-1/2
+                            before:w-0.75
+                            before:-translate-x-1/2
+                            before:rounded-0
+                            before:bg-border/80
+                            before:transition-[width,background-color]
+
+                            hover:before:w-1
+                            hover:before:bg-theme-500
+
                         "
                         onDoubleClick={() => column.resetSize()}
                         onMouseDown={header.getResizeHandler()}

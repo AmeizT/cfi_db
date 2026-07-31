@@ -18,8 +18,8 @@ function getStatementRedirect(searchParams: ReportRouteSearchParams) {
         case "finance":
         case "income-expenditure":
             return {
-                pathname: "/reports/finance/income-expenditure",
-                tab: "statement",
+                pathname: "/reports/financial-activity/statement",
+                tab: null,
             }
 
         case "tithes":
@@ -39,8 +39,10 @@ function getStatementRedirect(searchParams: ReportRouteSearchParams) {
         case "overview":
         default:
             return {
-                pathname: "/reports/ministry/attendance",
-                tab: main === "analytics" ? "analytics" : "monthly",
+                pathname: main === "analytics"
+                    ? "/reports/ministry/attendance/cumulative"
+                    : "/reports/ministry/attendance",
+                tab: null,
             }
     }
 }

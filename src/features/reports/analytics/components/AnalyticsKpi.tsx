@@ -9,7 +9,7 @@ export function AnalyticsKPI({ item }: AnalyticsKPIProps) {
     return (
         <KPI className="border-none bg-none">
             <KPI.Content className="mt-0">
-                <KPI.Value className="text-4xl">{item.value}</KPI.Value>
+                <KPI.Value className="text-4xl font-normal">{item.value}</KPI.Value>
 
                 {/* <KPI.Trend>
                     <TrendChip
@@ -19,7 +19,7 @@ export function AnalyticsKPI({ item }: AnalyticsKPIProps) {
             </KPI.Content>
 
             <KPI.Header>
-                <KPI.Title className="text-base">{item.label}</KPI.Title>
+                <KPI.Title className="text-base font-normal">{item.label}</KPI.Title>
             </KPI.Header>
         </KPI>
     )

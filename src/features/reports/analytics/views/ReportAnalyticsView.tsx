@@ -19,7 +19,7 @@ type ReportTabKey = "attendance" | "cashflow" | "tithes"
 function Placeholder() {
     return (
         <div className="p-10 border rounded-md text-center text-gray-500">
-            Analytics content coming soon!
+            Cumulative content coming soon!
         </div>
     )
 }
@@ -113,7 +113,7 @@ export function ReportAnalyticsView() {
     return (
         <View className="gap-0">
             <View.Header 
-                pagename={tab + " Analytics"} 
+                pagename={tab + " Cumulative"}
                 pathname={pathname} 
                 tabs={analyticsTabs} 
                 activeTab={tab}

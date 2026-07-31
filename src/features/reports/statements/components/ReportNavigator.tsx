@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { Flex } from "@/components/ui/box"
 import { AssemblyReport } from "@/dal/types";
 import { createReportWizardHref, REPORT_WIZARD_SECTIONS } from "@/features/report-wizard/config/report-types"
+import { EmptyState } from "@/components/ui/empty-state"
 
 type FilterKey = "all" | ReportStatus
 
@@ -124,22 +125,20 @@ function ReportNavigatorEmptyState({
     isFirstReport: boolean
 }) {
     return (
-        <div className="flex w-full flex-col gap-3 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-            <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">
-                    No reports found
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                    Create a report to start tracking this period.
-                </p>
-            </div>
-
-            <Button asChild size="sm" className="self-center sm:self-auto">
+        <EmptyState
+            type="reports"
+            title="No reports found"
+            description="Create a report to start tracking this period."
+            size="compact"
+            className="min-h-40 rounded-lg bg-muted/20 px-4 py-3"
+            action={
+                <Button asChild size="sm">
                 <Link href={href}>
                     {isFirstReport ? "Create your first report" : "Create report"}
                 </Link>
-            </Button>
-        </div>
+                </Button>
+            }
+        />
     )
 }
 

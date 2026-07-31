@@ -4,7 +4,7 @@ import type { TableSchema } from "@/features/data-table/types/tableSchema.types"
 import { DataTable } from "@/features/reports/core/components/DataTable"
 import type { DataTablePaginationProps } from "@/features/reports/core/components/DataTable.types"
 import type { AuditLogRecord } from "../types"
-import { EmptyState } from "./EmptyState"
+import { EmptyState } from "@/components/ui/empty-state"
 
 export function AuditView({
     rows,
@@ -20,15 +20,16 @@ export function AuditView({
     pagination?: DataTablePaginationProps
 }) {
     if (isLoading) {
-        return <EmptyState>Loading tithe audit activity...</EmptyState>
+        return <div className="min-h-56 animate-pulse rounded-lg bg-muted/40" aria-label="Loading tithe audit activity" />
     }
 
     if (rows.length === 0) {
-        return <EmptyState>No audit activity was found for the selected filters.</EmptyState>
+        return <EmptyState type="filteredReports" title="No audit activity" description="No audit activity was found for the selected filters." className="min-h-56" />
     }
 
     return (
         <DataTable
+            variant="advanced"
             data={rows}
             config={config}
             enableDelete={false}

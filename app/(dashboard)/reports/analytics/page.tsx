@@ -1,5 +1,6 @@
-import { Metadata } from "next"
-import { ReportAnalyticsView } from "@/features/reports/analytics/views/ReportAnalyticsView"
+import { redirect } from "next/navigation"
+import type { Metadata } from "next"
+import { reportHref, type ReportRouteSearchParams } from "@/features/reports/modules/lib/report-route-redirect"
 import { parseTab } from "@/utils/parse-tab"
 
 function capitalize(word: string) {
@@ -7,8 +8,7 @@ function capitalize(word: string) {
 }
 
 type Props = {
-    params: Promise<{ slug: string }>
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+    searchParams: Promise<ReportRouteSearchParams>
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
@@ -16,13 +16,19 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     const { main: tab } = parseTab(await activeTab)
 
     return {
-        title: `${capitalize(await tab)} Analytics`,
-        description: `Comprehensive ${capitalize(await tab)} statement for your church. Explore detailed ${await tab} data, trends, and performance insights to support informed decision-making and improve overall ${await tab} management.`,
+        title: `${capitalize(await tab)} Cumulative`,
+        description: `Cumulative ${capitalize(await tab)} reporting for your church.`,
     }
 }
 
-export default function ReportAnalyticsPage() {
-    return (
-        <ReportAnalyticsView />
-    )
+export default async function ReportAnalyticsPage({ searchParams }: Props) {
+    const resolved = await searchParams
+    const tab = typeof resolved.tab === "string" ? parseTab(resolved.tab).main : "attendance"
+    const pathname = tab === "tithes"
+        ? "/reports/finance/tithes/cumulative"
+        : tab === "cashflow"
+            ? "/reports/financial-activity/cumulative"
+            : "/reports/ministry/attendance/cumulative"
+
+    redirect(reportHref(pathname, resolved, { tab: null }))
 }

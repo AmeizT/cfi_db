@@ -538,6 +538,7 @@ export function ComplianceIssuesView() {
                 </div>
             ) : (
                 <DataTable<ComplianceIssueTableRow>
+                    variant="advanced"
                     data={pagedRows}
                     config={issueTableSchema}
                     options={tableOptions}
@@ -588,4 +589,3 @@ export function ComplianceIssuesView() {
         </div>
     )
 }
-

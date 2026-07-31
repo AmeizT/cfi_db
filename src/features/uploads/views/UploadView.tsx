@@ -97,9 +97,6 @@ export default function UploadView(){
         }
     ]
 
-    const description = isTemplates ? "Download a template to create your monthly report. Do not change the headers in the first row, as this may cause upload errors. After filling in your data, save the file before importing." : "Upload your completed spreadsheet to create your monthly report. Please check that all your data is correct before uploading."
-    
-
     return (
         <View as="article" className="flex flex-col">
             <View.Header 
@@ -112,7 +109,6 @@ export default function UploadView(){
                         </span>
                     </h3>
                 )}
-                description={description}
             >
                 <nav aria-label="Page Tabs" data-ui="page-tabs" className="pt-6 w-full h-fit flex justify-between items-center">
                     <ul className="flex gap-1.75">

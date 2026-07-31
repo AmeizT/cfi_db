@@ -26,6 +26,8 @@ type NormalizableListResponse<T, M extends { config?: TableSchema; table_schema?
     | T[]
     | {
         count?: number
+        next?: string | null
+        previous?: string | null
         results?: T[]
         data?: T[]
         config?: TableSchema

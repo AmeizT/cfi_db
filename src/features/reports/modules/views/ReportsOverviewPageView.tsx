@@ -4,6 +4,7 @@ import type { ReactNode } from "react"
 import { BarChart3Icon, LineChartIcon, TrendingUpIcon, WalletIcon } from "lucide-react"
 import View from "@/components/ui/view"
 import { PeriodSelector } from "@/features/reports/statements/components/PeriodSelector"
+import { FileSearchIcon } from "@/components/icons/FilesIcon";
 
 const kpis = [
     {
@@ -88,7 +89,6 @@ export function ReportsOverviewPageView() {
         <View className="gap-0">
             <View.Header
                 pagename="Overview"
-                description="Reporting KPIs, trends, and charts across finance and ministry."
                 actions={<PeriodSelector />}
             />
 

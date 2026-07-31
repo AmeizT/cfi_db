@@ -10,6 +10,7 @@ import {
     Rectangle,
     RectangleProps,
     ResponsiveContainer,
+    YAxis,
     XAxis,
 } from "recharts"
 
@@ -29,6 +30,7 @@ interface AnalyticsChartProps<T> {
     activeIndex?: number
     config?: ChartConfig
     height?: number
+    barSize?: number
 }
 
 export function AnalyticsChart<T extends Record<string, unknown>>({
@@ -37,7 +39,8 @@ export function AnalyticsChart<T extends Record<string, unknown>>({
     series,
     activeIndex,
     config = {},
-    height = 196,
+    height = 326,
+    barSize = 28
 }: AnalyticsChartProps<T>) {
     const chartSeries = series?.[0]
 
@@ -52,8 +55,18 @@ export function AnalyticsChart<T extends Record<string, unknown>>({
                     <ResponsiveContainer>
                         <BarChart accessibilityLayer data={data}>
                             <CartesianGrid
-                                vertical={false}
                                 strokeDasharray="3 3"
+                            />
+
+                            <YAxis
+                                tickLine={false}
+                                axisLine={false}
+                                tickMargin={8}
+                                width={44}
+                                allowDecimals={false}
+                                tickFormatter={(value: number) =>
+                                    value >= 1000 ? `${value / 1000}k` : String(value)
+                                }
                             />
 
                             <XAxis
@@ -75,6 +88,7 @@ export function AnalyticsChart<T extends Record<string, unknown>>({
                                 fill={chartSeries?.color}
                                 radius={24}
                                 strokeWidth={2}
+                                barSize={barSize}
                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 shape={(props: any) => {
                                     const {

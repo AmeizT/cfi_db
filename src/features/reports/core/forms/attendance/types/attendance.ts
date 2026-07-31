@@ -15,6 +15,7 @@ export type AttendanceRecord = {
     online_viewers: number
     volunteers_on_duty: number
     total_leaders_present: number
+    service_type?: string
 
     preacher?: string
     sermon?: string

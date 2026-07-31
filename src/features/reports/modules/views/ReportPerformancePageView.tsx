@@ -127,17 +127,55 @@ function PerformanceTable({
 
 export function ReportPerformancePageView({
     module = "overview",
+    embedded = false,
 }: {
     module?: PerformanceModule
+    embedded?: boolean
 }) {
     const pathname = usePathname()
     const searchParams = useSearchParams()
+
+    const content = (
+        <>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <MetricCard
+                    label="Achievement"
+                    value={module === "attendance" ? "92%" : "94%"}
+                    detail="Actual against target"
+                    icon={<TargetIcon className="size-4" />}
+                />
+                <MetricCard
+                    label="Variance"
+                    value={module === "attendance" ? "-58" : "-5.8%"}
+                    detail="Current period gap"
+                    icon={<ActivityIcon className="size-4" />}
+                />
+                <MetricCard
+                    label="Grade"
+                    value={module === "attendance" ? "B" : "A-"}
+                    detail="Placeholder grading model"
+                    icon={<GaugeIcon className="size-4" />}
+                />
+                <MetricCard
+                    label="Trend"
+                    value="+3.2%"
+                    detail="Compared with prior period"
+                    icon={<TrendingUpIcon className="size-4" />}
+                />
+            </div>
+
+            <PerformanceTable module={module} searchParams={searchParams} />
+        </>
+    )
+
+    if (embedded) {
+        return <div className="grid gap-4 py-4">{content}</div>
+    }
 
     return (
         <View className="gap-0">
             <View.Header
                 pagename="Performance"
-                description="Actuals versus targets for core reporting modules."
                 actions={<PeriodSelector />}
                 pathname={pathname}
                 tabs={getTabs(searchParams)}
@@ -145,37 +183,7 @@ export function ReportPerformancePageView({
             />
 
             <View.Body className="gap-4 py-4">
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                    <MetricCard
-                        label="Achievement"
-                        value={module === "attendance" ? "92%" : "94%"}
-                        detail="Actual against target"
-                        icon={<TargetIcon className="size-4" />}
-                    />
-                    <MetricCard
-                        label="Variance"
-                        value={module === "attendance" ? "-58" : "-5.8%"}
-                        detail="Current period gap"
-                        icon={<ActivityIcon className="size-4" />}
-                    />
-                    <MetricCard
-                        label="Grade"
-                        value={module === "attendance" ? "B" : "A-"}
-                        detail="Placeholder grading model"
-                        icon={<GaugeIcon className="size-4" />}
-                    />
-                    <MetricCard
-                        label="Trend"
-                        value="+3.2%"
-                        detail="Compared with prior period"
-                        icon={<TrendingUpIcon className="size-4" />}
-                    />
-                </div>
-
-                <PerformanceTable
-                    module={module}
-                    searchParams={searchParams}
-                />
+                {content}
             </View.Body>
         </View>
     )

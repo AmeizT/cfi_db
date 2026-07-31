@@ -24,12 +24,12 @@ function AnalyticsSectionHeading({
 }: AnalyticsSectionHeadingProps) {
     return (
         <div className="space-y-0">
-            <h2 className="text-left text-xl font-bold tracking-tight capitalize">
+            <h2 className="text-left text-2xl font-bold tracking-tight capitalize">
                 {title}
             </h2>
 
             {description ? (
-                <p className="text-lg text-muted">
+                <p className="max-w-sm text-[15px] text-muted">
                     {description}
                 </p>
             ) : null}
@@ -50,27 +50,27 @@ T extends { id: string | number } & Record<string, unknown>
     }))
 
     return (
-        <div className="w-full space-y-4">
+        <div className="mt-4 w-full space-y-4">
             <AnalyticsSectionHeading
                 title={"Performance Metrics"}
                 description={"Key measurements that provide insight into activity, growth, and overall performance."}
             />
 
-            <Flex align="start" gap={2} className="">
-                <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-2">
+            <Flex align="start" gap={2}>
+                <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-0">
                     {config.kpisWithChart?.map((kpi) => (
-                    <div key={kpi.key} className="space-y-0 rounded-2xl border border-border bg-white">
-                        <AnalyticsKPI
-                            item={kpi}
-                        />
+                        <div key={kpi.key} className="pr-4 py-0 space-y-0 rounded-0 border-border-subtle first:border-r nth-[3]:border-r first:border-b nth-[2]:border-b">
+                            <AnalyticsKPI
+                                item={kpi}
+                            />
 
-                        <AnalyticsChart
-                            data={data}
-                            xKey={kpi.chart.xKey}
-                            series={kpi.chart.series}
-                            activeIndex={activeIndex}
-                        />
-                    </div>
+                            <AnalyticsChart
+                                data={data}
+                                xKey={kpi.chart.xKey}
+                                series={kpi.chart.series}
+                                activeIndex={activeIndex}
+                            />
+                        </div>
                     ))}
                 </div>
 
@@ -84,14 +84,17 @@ T extends { id: string | number } & Record<string, unknown>
                 )} */}
             </Flex>
 
+            <hr className="w-full border border-wavy border-border-subtle" />
+
             <div className="space-y-1">
                 <AnalyticsSectionHeading
-                    title={"Annual Performance Summary"}
+                    title={"Cumulative Performance"}
                     description={"A detailed breakdown of performance and activity for the year."}
                 />
             </div>
 
             <DataTable
+                variant="advanced"
                 data={tableRows}
                 config={config.table}
                 rowHeight={36}

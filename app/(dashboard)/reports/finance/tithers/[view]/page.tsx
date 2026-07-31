@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation"
 import { getMetaData } from "@/config/metadata"
-import { TithesRouteContent } from "@/features/reports/finance/tithes/workspace/TithesWorkspace"
 import {
     reportHref,
     type ReportRouteSearchParams,
@@ -47,5 +46,5 @@ export default async function TithesViewPage({
         notFound()
     }
 
-    return <TithesRouteContent view={view as TithesView} />
+    redirect(reportHref(`/reports/finance/tithes/${view}`, query))
 }

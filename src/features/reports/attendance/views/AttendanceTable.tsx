@@ -74,7 +74,7 @@ export function AttendanceTableView({ attendance }: Props) {
   );
 
   const totalHeadcount = React.useMemo(
-    () => rows?.reduce((s, r) => s + getHeadcount(r), 0),
+    () => rows?.reduce((sum, row) => sum + getHeadcount(row), 0),
     [rows],
   )
 
@@ -82,8 +82,6 @@ export function AttendanceTableView({ attendance }: Props) {
     <>
       <div className="flex flex-col gap-6">
         <AttendancePageHeader
-          recordCount={rows?.length}
-          totalHeadcount={totalHeadcount}
           selectedCount={selected.size}
           onDeleteSelected={deleteSelected}
           onAddRow={addRow}

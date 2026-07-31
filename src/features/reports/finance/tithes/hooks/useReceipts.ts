@@ -6,14 +6,17 @@ import { apiRoutes } from "@/config/urls"
 import type { TitheListResponse, TithesListResult } from "../types"
 import { normalizeListResponse } from "../utils/helpers"
 import { buildTithesActionQuery } from "../utils/queryBuilders"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
 
 export function useReceipts(reportId: string | null, enabled: boolean) {
+    const assemblyId = useActiveAssemblyId()
     const searchParams = useSearchParams()
     const searchKey = searchParams.toString()
 
     return useQuery<TithesListResult>({
-        queryKey: ["report-tithe-receipts", reportId, searchKey],
-        enabled: enabled && Boolean(reportId),
+        queryKey: assemblyQueryKeys.key(assemblyId, "report-tithe-receipts", reportId, searchKey),
+        enabled: Boolean(assemblyId) && enabled && Boolean(reportId),
         queryFn: async () => {
             const params = new URLSearchParams(searchKey)
             const response = await fetch(

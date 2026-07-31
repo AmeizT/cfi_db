@@ -15,6 +15,7 @@ export type DataTableStyles = {
 } | null
 
 export type DataTableExportFormat = "csv" | "pdf"
+export type DataTableComplexityVariant = "simple" | "advanced"
 
 export type DataTableExportMetadata = {
     title?: string
@@ -55,11 +56,18 @@ export const DEFAULT_DATA_TABLE_OPTIONS: Required<DataTableOptions> = {
 }
 
 export type DataGridProps<T> = {
+    /**
+     * Controls the table feature set. Operational lists should use `simple`;
+     * analytical/reporting tables should use `advanced`.
+     *
+     * Defaults to `advanced` to preserve existing consumers.
+     */
+    variant?: DataTableComplexityVariant
     data?: T[]
     rows?: T[]
     config?: TableSchema
     rowHeight?: number
-    onCellEdit?: (rowIndex: number, columnId: keyof T, value: T[keyof T]) => void
+    // onCellEdit?: (rowIndex: number, columnId: keyof T, value: T[keyof T]) => void
     onDeleteRows?: (ids: string[] | number[]) => void
     footerData?: Record<string, number>
     onRowClick?: (row: T) => void

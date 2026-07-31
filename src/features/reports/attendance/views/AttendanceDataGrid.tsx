@@ -38,20 +38,34 @@ interface ViewProps {
     }) | undefined
     isLoading: boolean
     pagination?: DataTablePaginationProps
+    service?: "main-service" | "homecell" | "midweek" | "special-services"
 }
 
-export default function AttendanceView({ attendance, isLoading, pagination }: ViewProps) {
+const slugify = (value: string) =>
+    value.toLowerCase().trim().replace(/\s+/g, "-")
+
+export default function AttendanceView({ attendance, isLoading, pagination, service = "main-service" }: ViewProps) {
     const pathname = usePathname()
     const searchParams = useSearchParams()
-    const activeSheet = searchParams.get("sheet") || "sunday"
     const queryParams = Object.fromEntries(searchParams.entries())
-    const attendanceRows = React.useMemo(
-        () => attendance?.results ?? attendance?.data ?? [],
-        [attendance]
-    )
+    const attendanceRows = React.useMemo(() => {
+        const rows = attendance?.results ?? attendance?.data ?? []
 
-    const slugify = (value: string) =>
-      value.toLowerCase().trim().replace(/\s+/g, "-")
+        if (service === "special-services") {
+            return rows.filter((row) => row.is_special_event)
+        }
+
+        const aliases = {
+            "main-service": ["sunday", "main-service", "main-service/sunday"],
+            homecell: ["homecell", "home-cell"],
+            midweek: ["midweek", "mid-week"],
+        }[service]
+
+        return rows.filter((row) => {
+            if (row.is_special_event) return false
+            return aliases.includes(slugify(row.service_type?.trim() || ""))
+        })
+    }, [attendance, service])
 
     const groupedAttendance = React.useMemo(() => {
       if (!attendanceRows.length) return {}
@@ -68,6 +82,7 @@ export default function AttendanceView({ attendance, isLoading, pagination }: Vi
     }, [attendanceRows])
 
     const firstKey = Object.keys(groupedAttendance)[0]
+    const activeSheet = searchParams.get("sheet") || firstKey || "sunday"
     const currentData = React.useMemo(
         () => groupedAttendance[activeSheet] ?? groupedAttendance[firstKey] ?? [],
         [activeSheet, firstKey, groupedAttendance]
@@ -187,6 +202,7 @@ export default function AttendanceView({ attendance, isLoading, pagination }: Vi
     return (
         <Flex className="w-full" direction="column" gap={4}>
             <DataTable
+                variant="advanced"
                 data={filteredAttendance}
                 config={attendance?.config}
                 options={tableOptions}

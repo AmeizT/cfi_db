@@ -171,8 +171,8 @@ export function CarouselOrientation() {
 
     return (
         <div className="relative w-full max-w-md">
-            <div className="absolute top-0 left-0 w-full h-16 bg-linear-to-b from-gray-50/90 to-transparent z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-full h-16 bg-linear-to-t from-gray-50/90 to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-16 bg-linear-to-b from-white/90 to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-full h-16 bg-linear-to-t from-white/90 to-transparent z-10 pointer-events-none" />
 
             <Carousel
                 orientation="vertical"
@@ -207,7 +207,7 @@ export function CarouselOrientation() {
                                         <SplitText
                                             text={item.message}
                                             className={cn(
-                                                "font-semibold text-gray-800 dark:text-white text-center",
+                                                "font-semibold text-zinc-800 dark:text-white text-center",
                                                 item.language.toLowerCase().includes("amharic")
                                                     ? "text-3xl"
                                                     : "text-3xl"
@@ -216,7 +216,7 @@ export function CarouselOrientation() {
                                     ) : (
                                         <h1
                                             className={cn(
-                                                "font-semibold text-gray-400 text-center",
+                                                "font-semibold text-zinc-400 text-center",
                                                 item.language.toLowerCase().includes("amharic")
                                                     ? "text-3xl"
                                                     : "text-3xl"

@@ -17,6 +17,8 @@ export type AnalyticsScopeFilters = {
     region_id?: string | null
     zone_id?: string | null
     assembly_id?: string | null
+    service_type?: string | null
+    is_special_event?: string | null
 }
 
 export type ReportMap = {
@@ -62,15 +64,14 @@ export async function getAnalytics<T extends ReportTab>(
     return response.json();
 }
 
-export async function getAttendanceAnalytics(period: string) {
-    return await getAnalytics("attendance", period);
+export async function getAttendanceAnalytics(period: string, scopeFilters: AnalyticsScopeFilters = {}) {
+    return await getAnalytics("attendance", period, scopeFilters);
 }
 
 export async function getTithesAnalytics(period: string, scopeFilters: AnalyticsScopeFilters = {}) {
     return await getAnalytics("tithes", period, scopeFilters);
 }
 
-export async function getCashflowAnalytics(period: string) {
-    return await getAnalytics("cashflow", period);
+export async function getCashflowAnalytics(period: string, scopeFilters: AnalyticsScopeFilters = {}) {
+    return await getAnalytics("cashflow", period, scopeFilters);
 }
-

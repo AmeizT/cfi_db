@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
   experimental: {
     typedEnv: true,
     globalNotFound: true,
+    preloadEntriesOnStart: false,
+    serverSourceMaps: false,
+    webpackMemoryOptimizations: true,
+    webpackBuildWorker: true
   },
   images: {
     remotePatterns: [
@@ -30,6 +34,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
+  productionBrowserSourceMaps: false,
+
+  // 3. Force webpack to save cache on disk instead of physical memory
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      config.cache = {
+        type: 'filesystem',
+      };
+    }
+    return config;
+  },
+
 }
 
 const withNextIntl = createNextIntlPlugin()

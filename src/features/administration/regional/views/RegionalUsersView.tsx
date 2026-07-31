@@ -46,7 +46,6 @@ export function RegionalUsersView() {
         <View className="gap-0">
             <View.Header
                 pagename="Users"
-                description="Users registered through assemblies in your assigned region."
             />
 
             <View.Body className="gap-4 py-4">
@@ -71,6 +70,7 @@ export function RegionalUsersView() {
                     </div>
                 ) : (
                     <DataTable<RegionalUser>
+                        variant="simple"
                         data={rows}
                         config={tableSchema}
                         isLoading={isLoading}

@@ -37,6 +37,7 @@ export const RegionRoleSchema = z.object({
 
 export const AssemblySummarySchema = z.object({
     id: z.number(),
+    public_id: z.string(),
     name: z.string(),
     uuid: z.string().uuid().optional(),
     zone: z.number().nullable().optional(),
@@ -98,6 +99,7 @@ export const UserSchema = z.object({
 
     is_active: z.boolean(),
     is_admin: z.boolean(),
+    can_manage_church_appearance: z.boolean().optional(),
     is_onboarded: z.boolean(),
     is_student: flexibleBoolean,
     is_db_staff: flexibleBoolean,

@@ -11,5 +11,5 @@ type ExceptionsRedirectPageProps = {
 export default async function ExceptionsRedirectPage({
     searchParams,
 }: ExceptionsRedirectPageProps) {
-    redirect(reportHref("/reports/review/exceptions", await searchParams))
+    redirect(reportHref("/reports/activity/flagged", await searchParams))
 }

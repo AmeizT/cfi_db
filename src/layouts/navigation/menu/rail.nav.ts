@@ -1,9 +1,14 @@
 import { getCurrentYear } from "@/layouts/utils/get-current-year";
 import { RailNavigation } from "../types"
-import { Add01Icon, Briefcase08Icon, ChartRoseIcon, FileEditIcon, Home02Icon, Home13Icon, Settings01Icon, UserMultiple02Icon } from "@hugeicons/core-free-icons"
+import { Add01Icon, Briefcase08Icon, ChartRoseIcon, DashboardCircleIcon, FileEditIcon, Home02Icon, Home13Icon, Notification01Icon, Settings01Icon, UserMultiple02Icon } from "@hugeicons/core-free-icons"
 import { createQueryString } from "@/features/reports/core/lib/create-query-string";
 import { ReadonlyURLSearchParams } from "next/navigation";
 import { buildPeriod } from "../helpers/build-period";
+import { BellRingIcon } from '@solar-icons/react/bold-duotone/bell-ring'
+import { NotesMinimalisticIcon } from '@solar-icons/react/bold-duotone/notes-minimalistic'
+import { Widget6Icon as DashboardIcon } from '@solar-icons/react/bold-duotone/widget-6'
+import { AddCircleIcon } from '@solar-icons/react/bold-duotone/add-circle'
+import { NotesIcon } from "@solar-icons/react/bold-duotone";
 
 interface Props {
     searchParams: ReadonlyURLSearchParams
@@ -25,15 +30,15 @@ export function navRail({ user, searchParams, regionId }: Props): RailNavigation
 
     })
 
-    const reportUrl = user?.is_region_staff ? `http://localhost:3000/regional-staff/region/${regionId}` : `/reports/review-queue?${params}`
+    const reportUrl = user?.is_region_staff ? `/regional-staff/region/${regionId}` : `/reports/activity?${params}`
     
     const topItems: RailNavigation["top"] = []
 
     if (!user?.is_region_staff) {
         topItems.push({
             label: "Dashboard",
-            icon: Home02Icon,
-            activeIcon: Home02Icon,
+            icon: DashboardIcon,
+            activeIcon: DashboardIcon,
             mobile: true,
             href: `/app/dashboard`,
         })
@@ -41,26 +46,34 @@ export function navRail({ user, searchParams, regionId }: Props): RailNavigation
 
     topItems.push({
         label: "Reporting",
-        icon: ChartRoseIcon,
-        activeIcon: ChartRoseIcon,
+        icon: NotesMinimalisticIcon,
+        activeIcon: NotesMinimalisticIcon,
         mobile: true,
         href: reportUrl
     })
 
+    // topItems.push({
+    //     label: "Report Wizard",
+    //     icon: FileEditIcon,
+    //     activeIcon: FileEditIcon,
+    //     mobile: true,
+    //     href: "/report-wizard",
+    // })
+
     topItems.push({
-        label: "Report Wizard",
-        icon: FileEditIcon,
-        activeIcon: FileEditIcon,
+        label: "Notifications",
+        icon: BellRingIcon,
+        activeIcon: BellRingIcon,
         mobile: true,
-        href: "/report-wizard",
+        href: `#`,
     })
 
     topItems.push({
-        label: "Forms",
-        icon: Add01Icon,
-        activeIcon: Add01Icon,
+        label: "Report Wizard",
+        icon: AddCircleIcon,
+        activeIcon: AddCircleIcon,
         mobile: true,
-        href: `#`,
+        href: "/report-wizard",
     })
 
     const formsIndex = topItems.findIndex(item => item.label === "Forms")

@@ -16,7 +16,7 @@ import { useSearchParams } from "next/navigation"
 import type { ContributorMeta, ContributorRecord } from "../types"
 import { toNumber } from "../utils/formatters"
 import { buildTithesActionQuery } from "../utils/queryBuilders"
-import { EmptyState } from "./EmptyState"
+import { EmptyState } from "@/components/ui/empty-state"
 
 type ContributorTableRow = ContributorRecord & { id: number }
 type ContributorHistoryTableRow = ContributorRecord["history"][number] & { id: number }
@@ -164,11 +164,11 @@ export function ContributorsView({
     }, [meta, reportId, searchParams])
 
     if (isLoading) {
-        return <EmptyState>Loading tithe contributors...</EmptyState>
+        return <div className="min-h-56 animate-pulse rounded-lg bg-muted/40" aria-label="Loading tithe contributors" />
     }
 
     if (rows.length === 0) {
-        return <EmptyState>No contributors have recorded tithes for this period.</EmptyState>
+        return <EmptyState type="tithes" title="No tithe contributors" description="No contributors have recorded tithes for this period." className="min-h-56" />
     }
 
     return (
@@ -203,6 +203,7 @@ export function ContributorsView({
             </div>
 
             <DataTable
+                variant="advanced"
                 data={tableRows}
                 config={config}
                 enableDelete={false}
@@ -235,6 +236,7 @@ export function ContributorsView({
 
                     return (
                         <DataTable
+                            variant="advanced"
                             data={historyRows}
                             config={historyConfig}
                             enableDelete={false}

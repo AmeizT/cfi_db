@@ -17,6 +17,14 @@ interface TabItem {
     key: string
 }
 
+type ViewTabsProps = {
+    items: TabItem[]
+    activeKey?: string
+    className?: string
+    variant?: "default" | "report"
+    showReportNavigator?: boolean
+}
+
 type PropsToOmit<T extends React.ElementType, P> = keyof (AsProp<T> & P)
 
 type PolymorphicComponentProps<
@@ -32,7 +40,6 @@ type ViewBaseProps = {
 type ViewHeaderProps = React.ComponentPropsWithoutRef<"header"> & {
     tabs?: TabItem[]
     pagename?: React.ReactNode
-    description?: React.ReactNode
     actions?: React.ReactNode
     pathname?: string
     activeTab?: string
@@ -44,13 +51,8 @@ type ViewComponent = <T extends React.ElementType = "div">(
 
 type ViewCompound = {
     Header: ((props: ViewHeaderProps) => React.JSX.Element) & { displayName?: string }
-    TabBar: ((props: {
-        items: TabItem[]
-        activeKey?: string
-        className?: string
-        variant?: "default" | "report"
-        showReportNavigator?: boolean
-    }) => React.JSX.Element | null) & { displayName?: string }
+    TabBar: ((props: ViewTabsProps) => React.JSX.Element | null) & { displayName?: string }
+    Tabs: ((props: ViewTabsProps) => React.JSX.Element | null) & { displayName?: string }
     Body: ((props: React.ComponentPropsWithoutRef<"div">) => React.JSX.Element) & { displayName?: string }
     Footer: ((props: React.ComponentPropsWithoutRef<"footer">) => React.JSX.Element) & { displayName?: string }
 }
@@ -76,27 +78,19 @@ const View = (<T extends React.ElementType = "div">({
 }) as ViewType
 
 
-View.Header = ({ tabs, pathname, pagename, description, actions, activeTab, ...props }) => {
+View.Header = ({ tabs, pathname, pagename, actions, activeTab, ...props }) => {
     return (
         <header {...props} className={cn("py-4 h-fit flex flex-col shrink-0 relative bg-inherit overflow-hidden", props.className)}>
-            <div className="lg:px-6 w-full h-fit flex items-center gap-4">
-                <div className="flex flex-col">
-                    <div className="text-2xl lg:text-[28px] font-bold tracking-tight text-foreground capitalize">
-                        {pagename}
-                    </div>
-
-                    {description ? (
-                        <div className="w-full">
-                            <p className="text-lg text-balance text-muted-foreground mt-1.5">
-                                {description}
-                            </p>
-                        </div>
-                    ) : null}
+            <div className="lg:px-6 flex h-fit w-full flex-col items-start gap-4 sm:flex-row sm:items-center">
+                <div className="min-w-0 text-2xl font-bold tracking-tight text-foreground capitalize lg:text-[24px]">
+                    {pagename}
                 </div>
                 
-                <div className="ml-auto flex items-center gap-2">
-                    {actions}
-                </div>
+                {actions ? (
+                    <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
+                        {actions}
+                    </div>
+                ) : null}
             </div>
 
             {tabs ? (
@@ -149,12 +143,12 @@ View.Header = ({ tabs, pathname, pagename, description, actions, activeTab, ...p
                 </div>
             ) : null}
 
-            <div className="lg:px-6">{props.children}</div>
+            {props.children ? <div className="lg:px-6">{props.children}</div> : null}
         </header>
     )
 }
 
-View.TabBar = ({ items, activeKey, className, variant, showReportNavigator = true }) => {
+function ViewTabs({ items, activeKey, className, variant, showReportNavigator = true }: ViewTabsProps) {
     if (!items?.length) return null
 
     return (
@@ -204,6 +198,9 @@ View.TabBar = ({ items, activeKey, className, variant, showReportNavigator = tru
     )
 }
 
+View.TabBar = ViewTabs
+View.Tabs = ViewTabs
+
 View.Body = ({ children, ...props }) => {
     return (
         <div {...props} className={cn("px-6 min-h-0 flex-1 flex flex-col", props.className)}>
@@ -218,6 +215,7 @@ View.Footer = ({ children, ...props }) => {
 
 View.Header.displayName = "View.Header"
 View.TabBar.displayName = "View.TabBar"
+View.Tabs.displayName = "View.Tabs"
 View.Body.displayName = "View.Body"
 View.Footer.displayName = "View.Footer"
 

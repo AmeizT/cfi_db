@@ -6,13 +6,13 @@ import { cn } from "@/lib/utils"
 function NativeSelect({ className, ...props }: React.ComponentProps<"select">) {
   return (
     <div
-      className="group/native-select relative w-fit has-[select:disabled]:opacity-50"
+      className="group/native-select relative w-full has-[select:disabled]:opacity-50"
       data-slot="native-select-wrapper"
     >
       <select
         data-slot="native-select"
         className={cn(
-          "h-9 w-full min-w-0 appearance-none rounded-md border border-input bg-background px-3 py-2 pr-9 text-sm text-foreground shadow-xs outline-none transition-[color,box-shadow,background-color] selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground hover:bg-accent/50 disabled:pointer-events-none disabled:cursor-not-allowed",
+          "h-10 w-full min-w-0 appearance-none rounded-lg border border-input bg-background px-3 py-2 pr-9 text-sm text-foreground shadow-xs outline-none transition-[color,box-shadow,background-color] selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground hover:bg-accent/50 disabled:pointer-events-none disabled:cursor-not-allowed",
           "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
           "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
           className

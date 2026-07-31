@@ -4,21 +4,25 @@ import { cookies } from "next/headers"
 import { apiRoutes } from "@/config/urls"
 import { withJwt } from "@/config/headers"
 import {
-    MembersListResponseSchema,
+    getMembersFromResponse,
+    MembersApiResponseSchema,
     type MembersListResponse,
 } from "../schemas/member"
 
 export type MembersDirectoryParams = {
     search?: string
+    group?: "all" | "adults"
 }
 
-function buildMembersQuery({ search }: MembersDirectoryParams) {
+function buildMembersQuery({ search, group }: MembersDirectoryParams) {
     const params = new URLSearchParams()
+    params.set("page_size", "100")
     const trimmedSearch = search?.trim()
 
     if (trimmedSearch) {
         params.set("fullname", trimmedSearch)
     }
+    if (group === "adults") params.set("group", "adults")
 
     const query = params.toString()
     return query ? `?${query}` : ""
@@ -40,5 +44,5 @@ export async function getMembersDirectory(
         throw new Error("Failed to fetch members.")
     }
 
-    return MembersListResponseSchema.parse(await response.json())
+    return getMembersFromResponse(MembersApiResponseSchema.parse(await response.json()))
 }

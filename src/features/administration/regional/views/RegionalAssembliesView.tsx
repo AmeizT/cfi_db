@@ -46,7 +46,6 @@ export function RegionalAssembliesView() {
         <View className="gap-0">
             <View.Header
                 pagename="Assemblies"
-                description="Regional assemblies scoped to your assigned region."
             />
 
             <View.Body className="gap-4 py-4">
@@ -71,6 +70,7 @@ export function RegionalAssembliesView() {
                     </div>
                 ) : (
                     <DataTable<RegionalAssembly>
+                        variant="simple"
                         data={rows}
                         config={tableSchema}
                         isLoading={isLoading}

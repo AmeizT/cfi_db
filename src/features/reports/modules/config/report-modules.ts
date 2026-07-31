@@ -7,21 +7,27 @@ import type {
 } from "../types/report-modules"
 
 export const REPORT_MODULES = {
-    review: {
+    activity: {
+        all: {
+            title: "All Reports",
+            description: "View submitted reports and their current status.",
+            href: "/reports/activity",
+        },
         queue: {
             title: "Queue",
-            description: "Review submitted reports, completion status, and pending actions.",
-            href: "/reports/review/queue",
+            description: "activity submitted reports, completion status, and pending actions.",
+            href: "/reports/activity/queue",
         },
         compliance: {
             title: "Compliance",
             description: "Monitor report completion, skipped sections, and follow-up status.",
-            href: "/reports/review/compliance",
+            href: "/reports/activity/compliance",
         },
-        exceptions: {
-            title: "Exceptions",
-            description: "Review missing values, mismatches, and report anomalies.",
-            href: "/reports/review/exceptions",
+        flagged: {
+            title: "Need Attention",
+            tabLabel: "Flagged",
+            description: "activity missing values, mismatches, and report anomalies.",
+            href: "/reports/activity/flagged",
         },
     },
     finance: {
@@ -36,27 +42,10 @@ export const REPORT_MODULES = {
             href: "/reports/finance/remittance",
             state: "placeholder",
         },
-        "income-expenditure": {
-            title: "Income & Expenditure",
-            description: "Combined income and expenditure statement.",
-            href: "/reports/finance/income-expenditure",
-            defaultView: "statement",
-            viewTabs: [
-                { label: "Statement", key: "statement" },
-                { label: "Summary", key: "summary" },
-            ],
-        },
-        revenue: {
-            title: "Revenue",
-            description: "Standalone revenue reporting module.",
-            href: "/reports/finance/revenue",
-            state: "placeholder",
-        },
-        expenditures: {
-            title: "Expenditures",
-            description: "Standalone expenditure reporting module.",
-            href: "/reports/finance/expenditures",
-            state: "placeholder",
+        "financial-activity": {
+            title: "Financial Activity",
+            description: "Income statements, cumulative trends, revenue, and expenses.",
+            href: "/reports/financial-activity/statement",
         },
     },
     ministry: {
@@ -64,11 +53,6 @@ export const REPORT_MODULES = {
             title: "Attendance",
             description: "Track service attendance reports.",
             href: "/reports/ministry/attendance",
-            defaultView: "monthly",
-            viewTabs: [
-                { label: "Monthly", key: "monthly" },
-                { label: "Analytics", key: "analytics" },
-            ],
         },
         "sunday-school-attendance": {
             title: "Sunday School Attendance",
@@ -81,8 +65,21 @@ export const REPORT_MODULES = {
             href: "/reports/ministry/check-ins",
             state: "disabled",
         },
+        outreach: {
+            title: "Evangelism & Outreach",
+            tabLabel: "Outreach",
+            description: "Evangelism, campaigns, crusades, community outreach, and follow-up.",
+            href: "/reports/ministry/outreach",
+            showPeriodSelector: false,
+        },
     },
     performance: {
+        overview: {
+            title: "Performance",
+            tabLabel: "Overview",
+            description: "Compare actuals against targets across reporting modules.",
+            href: "/reports/performance",
+        },
         tithes: {
             title: "Tithes Performance",
             description: "Compare tithe actuals against targets and grade performance.",
@@ -146,7 +143,7 @@ export function getReportModuleTabs(
     return Object.entries(REPORT_MODULE_REGISTRY[section])
         .filter(([, config]) => config.state !== "disabled")
         .map(([module, config]) => ({
-            label: config.title,
+            label: config.tabLabel ?? config.title,
             key: module,
             href: getReportModuleHref(
                 section,

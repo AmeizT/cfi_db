@@ -7,6 +7,8 @@ import { format } from "date-fns"
 import { oklchLinearGradient } from "@/layouts/utils/get-oklch-gradient"
 import { getTextColor } from "@/layouts/utils/get-text-color"
 import { Badge } from "@/components/ui/badge"
+import { MasksBoldDuotoneIcon } from "@solar-icons/react";
+import { cn } from "@/utils/cn";
 
 type RowFlags = {
     is_section?: boolean
@@ -311,65 +313,86 @@ export function buildColumns<T extends Record<string, unknown>>(
             }
 
             if (col.formatter === "avatar") {
-                const avatarField = col.meta?.avatarField as keyof T | undefined
-                const fallbackField = col.meta?.avatarFallback as keyof T | undefined
-                
+                const avatarField = col.meta?.avatarField
+                const fallbackField = col.meta?.avatarFallback
 
-                const avatar = avatarField ? row.original[avatarField] : undefined
-                const fallbackColor = fallbackField ? row.original[fallbackField] : "red"
-                const name = value
+                const avatar = getStringValue(
+                    avatarField ? row.original[avatarField] : undefined
+                )
+
+                const fallbackColor = getStringValue(
+                    fallbackField ? row.original[fallbackField] : undefined
+                )
+
+                const name = getStringValue(value)
                 const isAnonymous = !name
-                const displayName = isAnonymous ? "Anonymous Giver" : name
-                const placeholderColor = "oklch(0.65 0.2 174.88864402807843)"
+
+                const displayName = isAnonymous
+                    ? "Private / Unidentified"
+                    : name
+
+                const placeholderColor =
+                    "oklch(0.65 0.2 174.88864402807843)"
+
+                const resolvedFallbackColor =
+                    fallbackColor ?? placeholderColor
 
                 return (
-                    <div className="flex items-center gap-3 w-full group min-w-0">
-                        {!isAnonymous ? (
-                            <div className="flex items-center gap-3">
-                                <Avatar className="size-7 shrink-0 rounded-[33%] text-sm">
-                                    {avatar ? (
-                                        <AvatarImage src={String(avatar)} />
-                                    ) : null}
+                    <div className="group flex w-full min-w-0 items-center gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                            <Avatar className="size-7 shrink-0 rounded-[33%] text-sm">
+                                {avatar ? (
+                                    <AvatarImage
+                                        src={avatar}
+                                        alt={displayName}
+                                    />
+                                ) : null}
 
-                                    <AvatarFallback
-                                        className="rounded-[0%] text-sm"
-                                        style={
-                                            fallbackColor
-                                                ? {
-                                                    background: oklchLinearGradient(String(fallbackColor) || "var(--color-indigo-500)"),
-                                                    color: getTextColor(String(fallbackColor) || "var(--color-indigo-500)")}
-                                                : { background: oklchLinearGradient(placeholderColor), color: getTextColor(placeholderColor) }
-                                        }
-                                    >
-                                        {(name as string)?.charAt(0) || "A"}
-                                    </AvatarFallback>
-                                </Avatar>
+                                <AvatarFallback
+                                    className="rounded-none text-sm"
+                                    style={
+                                        isAnonymous
+                                            ? {
+                                                background:
+                                                    "var(--color-indigo-100)",
+                                                color:
+                                                    "var(--color-indigo-600)",
+                                            }
+                                            : {
+                                                background:
+                                                    oklchLinearGradient(
+                                                        resolvedFallbackColor
+                                                    ),
+                                                color: getTextColor(
+                                                    resolvedFallbackColor
+                                                ),
+                                            }
+                                    }
+                                >
+                                    {isAnonymous ? (
+                                        <MasksBoldDuotoneIcon size={20} />
+                                    ) : (
+                                        name.charAt(0).toUpperCase()
+                                    )}
+                                </AvatarFallback>
+                            </Avatar>
 
-                                <span className={`truncate ${isAnonymous ? "px-2 w-fit" : ""}`}>
-                                    {String(displayName)}
-                                </span>
-                            </div>
-                        ) : (
-                            <div className="h-8 flex items-center min-w-0 p-0.75 rounded-full bg-amber-100 text-amber-800">
-                                <span className="size-6.5 flex items-center justify-center text-center text-sm rounded-full bg-amber-300 text-amber-800">
-                                    A
-                                </span>
-
-                                <span className={`truncate ${isAnonymous ? "px-2 w-fit" : ""}`}>
-                                    {String(displayName)}
-                                </span>
-                            </div>
-                        )}
-
-                        
+                            <span className={cn(
+                                "truncate",
+                                isAnonymous ? "text-indigo-600" : ""
+                            )}>
+                                {displayName}
+                            </span>
+                        </div>
 
                         {col.meta?.rowAction && onRowClick ? (
                             <button
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    onRowClick(row.original as T)
+                                type="button"
+                                onClick={(event) => {
+                                    event.stopPropagation()
+                                    onRowClick(row.original)
                                 }}
-                                className="text-muted-foreground opacity-0 transition hover:text-foreground group-hover:opacity-100"
+                                className="text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
                             >
                                 ...
                             </button>

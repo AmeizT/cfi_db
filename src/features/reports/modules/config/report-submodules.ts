@@ -3,7 +3,15 @@ import { createQueryString } from "@/features/reports/core/lib/create-query-stri
 import type { ReportModuleKey, ReportRouteKey, ReportSection } from "../types/report-modules"
 
 export type ReportSubmoduleKey =
-    | "records"
+    | "main-service"
+    | "sunday-school"
+    | "homecell"
+    | "midweek"
+    | "special-services"
+    | "statement"
+    | "revenue"
+    | "expenses"
+    | "transactions"
     | "contributors"
     | "cumulative"
     | "performance"
@@ -26,6 +34,7 @@ export type ReportSubmoduleMenuItem = {
 }
 
 export type ReportSubmoduleGroup = {
+    basePath?: string
     defaultSubmodule: ReportSubmoduleKey
     tabs: readonly ReportSubmoduleTab[]
     moreItems?: readonly ReportSubmoduleMenuItem[]
@@ -38,13 +47,24 @@ export type ReportSubmoduleLink = {
 }
 
 const REPORT_SUBMODULE_GROUP_DEFINITIONS = {
-    "finance/tithes": {
-        defaultSubmodule: "records",
+    "ministry/attendance": {
+        defaultSubmodule: "main-service",
         tabs: [
-            { label: "Records", key: "records", submodule: null, pageTitle: "Tithes" },
-            { label: "Contributors", key: "contributors", submodule: "contributors", pageTitle: "Tithe Contributors" },
+            { label: "Main Service", key: "main-service", submodule: null, pageTitle: "Main Service" },
+            { label: "Sunday School", key: "sunday-school", submodule: "sunday-school", pageTitle: "Sunday School" },
+            { label: "Homecell", key: "homecell", submodule: "homecell", pageTitle: "Homecell" },
+            { label: "Midweek", key: "midweek", submodule: "midweek", pageTitle: "Midweek" },
+            { label: "Special Services", key: "special-services", submodule: "special-services", pageTitle: "Special Services" },
+            { label: "Cumulative", key: "cumulative", submodule: "cumulative", pageTitle: "Attendance Cumulative" },
+        ],
+    },
+    "finance/tithes": {
+        defaultSubmodule: "transactions",
+        tabs: [
+            { label: "Transactions", key: "transactions", submodule: null, pageTitle: "Tithes" },
+            { label: "Contributors", key: "contributors", submodule: "contributors", pageTitle: "Contributors" },
             { label: "Cumulative", key: "cumulative", submodule: "cumulative" },
-            { label: "Performance", key: "performance", submodule: "performance" },
+            // { label: "Performance", key: "performance", submodule: "performance" },
             { label: "Receipts", key: "receipts", submodule: "receipts" },
             { label: "More", key: "more", submodule: "audit-log" },
         ],
@@ -70,6 +90,23 @@ const REPORT_SUBMODULE_GROUP_DEFINITIONS = {
             },
         ],
     },
+    "finance/income-expenditure": {
+        defaultSubmodule: "statement",
+        tabs: [
+            { label: "Statement", key: "statement", submodule: null, pageTitle: "Income & Expenditure" },
+            { label: "Cumulative", key: "cumulative", submodule: "cumulative", pageTitle: "Income & Expenditure Cumulative" },
+        ],
+    },
+    "finance/financial-activity": {
+        basePath: "/reports/financial-activity",
+        defaultSubmodule: "statement",
+        tabs: [
+            { label: "Statement", key: "statement", submodule: "statement", pageTitle: "Income Statement" },
+            { label: "Cumulative", key: "cumulative", submodule: "cumulative", pageTitle: "Cumulative" },
+            { label: "Revenue", key: "revenue", submodule: "revenue", pageTitle: "Revenue" },
+            { label: "Expenses", key: "expenses", submodule: "expenses", pageTitle: "Expenses" },
+        ],
+    },
 } as const satisfies Partial<Record<ReportRouteKey, ReportSubmoduleGroup>>
 
 export const REPORT_SUBMODULE_GROUPS: Partial<Record<ReportRouteKey, ReportSubmoduleGroup>> =
@@ -80,7 +117,7 @@ function getRouteKey(section: ReportSection, module: ReportModuleKey) {
 }
 
 function getSubmoduleBasePath(section: ReportSection, module: ReportModuleKey) {
-    return `/reports/${section}/${module}`
+    return getReportSubmoduleGroup(section, module)?.basePath ?? `/reports/${section}/${module}`
 }
 
 export function getReportSubmoduleGroup(
@@ -172,6 +209,7 @@ export function getReportSubmoduleHref({
     const query = createQueryString(searchParams, {
         tab: null,
         view: null,
+        page: 1,
         ...updates,
     })
 
@@ -197,7 +235,7 @@ export function getReportSubmoduleTabs(
             module,
             searchParams,
             submodule: tab.submodule,
-            updates: tab.key === "records" ? { status: null } : {},
+            updates: tab.key === "transactions" ? { status: null } : {},
         }),
     }))
 }

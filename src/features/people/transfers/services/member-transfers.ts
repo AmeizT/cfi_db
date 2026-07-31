@@ -23,6 +23,10 @@ import {
 export type MemberTransferParams = {
     status?: string
     member?: string | number
+    page?: string | number
+    page_size?: string | number
+    search?: string
+    filters?: Readonly<Record<string, string | number | boolean | null | undefined>>
 }
 
 function buildQuery(params: MemberTransferParams = {}) {
@@ -30,6 +34,16 @@ function buildQuery(params: MemberTransferParams = {}) {
 
     if (params.status) query.set("status", params.status)
     if (params.member) query.set("member", String(params.member))
+    if (params.page) query.set("page", String(params.page))
+    if (params.page_size) query.set("page_size", String(params.page_size))
+    if (params.search?.trim()) query.set("search", params.search.trim())
+    Object.entries(params.filters ?? {})
+        .sort(([left], [right]) => left.localeCompare(right))
+        .forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== "") {
+                query.set(key, String(value))
+            }
+        })
 
     const queryString = query.toString()
     return queryString ? `?${queryString}` : ""
@@ -124,10 +138,10 @@ export async function getOutgoingMemberTransfers(
 }
 
 export async function getMemberTransferHistory(
-    memberId?: string | number
+    params: MemberTransferParams = {}
 ): Promise<MemberTransferList> {
     return requestJson(
-        `${apiRoutes.memberTransfers.history()}${buildQuery({ member: memberId })}`,
+        `${apiRoutes.memberTransfers.history()}${buildQuery(params)}`,
         MemberTransferListSchema,
         {},
         "Failed to load transfer history."

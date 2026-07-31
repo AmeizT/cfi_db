@@ -247,7 +247,6 @@ export function RegionalModulePageView({ regionId, module }: RegionalModulePageV
         <View className="gap-0">
             <View.Header
                 pagename={`Regional ${label}`}
-                description={`${label} module data loaded from the dedicated regional endpoint.`}
                 actions={
                     <div className="flex w-[min(760px,100vw-2rem)] flex-col gap-2 sm:flex-row sm:items-center">
                         <div className="grid flex-1 grid-cols-1 gap-2 sm:grid-cols-2">
@@ -368,6 +367,7 @@ export function RegionalModulePageView({ regionId, module }: RegionalModulePageV
                             </div>
                         ) : (
                             <DataTable
+                                variant="advanced"
                                 data={rows}
                                 config={data.table_schema}
                                 isLoading={query.isLoading}

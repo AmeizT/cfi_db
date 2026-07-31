@@ -72,7 +72,7 @@ export const FloatLabelInput = React.forwardRef<
                     aria-invalid={isInvalid}
                     aria-describedby={describedBy}
                     className={cn(
-                        "peer block h-14 w-full rounded-[14px] border-[1.25px] border-gray-300 bg-white px-4 pb-2 pt-6 text-gray-800 placeholder:text-gray-500 transition-all duration-250 focus:border-[1.5px] focus:border-primary focus:outline-hidden focus:ring-3 focus:ring-gray-800/10 dark:bg-neutral-800 dark:text-white dark:border-neutral-600 dark:focus:border-gray-800 dark:focus:ring-primary/20",
+                        "peer block h-14 w-full rounded-[14px] border-[1.25px] border-border-subtle bg-white px-4 pb-2 pt-6 text-zinc-800 placeholder:text-zinc-500 transition-all duration-250 focus:border-[1.5px] focus:border-primary focus:outline-hidden focus:ring-3 focus:ring-zinc-800/10 dark:bg-neutral-800 dark:text-white dark:border-neutral-600 dark:focus:border-zinc-800 dark:focus:ring-primary/20",
                         error &&
                         "border-red-500 ring-3 ring-red-500/10 focus:border-red-500 focus:ring-red-500/20",
                         className
@@ -96,7 +96,7 @@ export const FloatLabelInput = React.forwardRef<
                                     onClick={() =>
                                         setPasswordVisible((v) => !v)
                                     }
-                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 border-0 bg-transparent px-2 text-gray-700 shadow-none hover:bg-inherit hover:text-gray-800 dark:text-white dark:hover:text-white"
+                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 border-0 bg-transparent px-2 text-zinc-700 shadow-none hover:bg-inherit hover:text-zinc-800 dark:text-white dark:hover:text-white"
                                 >
                                     {isPasswordVisible ? (
                                         <HugeiconsIcon icon={ViewIcon} strokeWidth={2.25} className="size-5" />
@@ -116,7 +116,7 @@ export const FloatLabelInput = React.forwardRef<
 
                 <label
                     htmlFor={inputId}
-                    className="absolute text-[15px] text-gray-500 font-medium dark:text-body-muted duration-250 transform -translate-y-2.5 scale-80 top-4 z-10 origin-left start-4 peer-focus:font-normal peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-80 peer-focus:-translate-y-2.5 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto cursor-text"
+                    className="absolute text-[15px] text-zinc-500 font-medium dark:text-body-muted duration-250 transform -translate-y-2.5 scale-80 top-4 z-10 origin-left start-4 peer-focus:font-normal peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-80 peer-focus:-translate-y-2.5 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto cursor-text"
                 >
                     {label}
                     {error && (

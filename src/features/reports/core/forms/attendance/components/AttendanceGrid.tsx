@@ -1,226 +1,135 @@
-"use client";
+"use client"
 
-import React, { useState, useRef, useEffect } from "react";
-import { AttendanceRecord } from "../types/attendance";
+import * as React from "react"
+import type { AttendanceRecord } from "../types/attendance"
 
 export function getSundays(year: number, month: number) {
-    const sundays: string[] = [];
-    const date = new Date(year, month - 1, 1);
-
-    // Move to the first Sunday in the month
-    while (date.getDay() !== 0) {
-        date.setDate(date.getDate() + 1);
+    const sundays: string[] = []
+    const date = new Date(Date.UTC(year, month - 1, 1))
+    while (date.getUTCDay() !== 0) date.setUTCDate(date.getUTCDate() + 1)
+    while (date.getUTCMonth() === month - 1) {
+        sundays.push(date.toISOString().slice(0, 10))
+        date.setUTCDate(date.getUTCDate() + 7)
     }
-
-    // Add all Sundays in the month
-    while (date.getMonth() === month - 1) {
-        sundays.push(date.toISOString().split("T")[0]);
-        date.setDate(date.getDate() + 7);
-    }
-
-    return sundays;
+    return sundays
 }
 
-// Metrics
 export const attendanceMetrics = [
-    "men",
-    "women",
-    "visitor_men",
-    "visitor_women",
-    "new_convert_men",
-    "new_convert_women",
-    "baptism_men",
-    "baptism_women",
-    "altar_call_men",
-    "altar_call_women",
-    "online_viewers",
-    "volunteers_on_duty",
-    "total_leaders_present",
-] as const;
+    "men", "women", "visitor_men", "visitor_women", "new_convert_men",
+    "new_convert_women", "baptism_men", "baptism_women", "altar_call_men",
+    "altar_call_women", "online_viewers", "volunteers_on_duty", "total_leaders_present",
+] as const
 
-// Props
 type Props = {
-    year: number;
-    month: number;
-    records: AttendanceRecord[];
-    updateRecord: (record: AttendanceRecord) => Promise<void>;
-    openDetails: (record: AttendanceRecord) => void;
-};
+    year: number
+    month: number
+    records: AttendanceRecord[]
+    dirtyDates: Set<string>
+    errors: Record<string, string>
+    disabled?: boolean
+    updateRecord: (record: AttendanceRecord) => void
+    openDetails: (record: AttendanceRecord) => void
+}
 
-export function AttendanceGrid({
-    year,
-    month,
-    records,
-    updateRecord,
-    openDetails,
-}: Props) {
-    const sundays = getSundays(year, month);
+export function AttendanceGrid({ year, month, records, dirtyDates, errors, disabled, updateRecord, openDetails }: Props) {
+    const sundays = React.useMemo(() => getSundays(year, month), [year, month])
+    const recordMap = React.useMemo(() => Object.fromEntries(records.map((record) => [record.timestamp, record])), [records])
+    const inputRefs = React.useRef<(HTMLInputElement | null)[][]>([])
 
-    // Map for quick lookup
-    const recordMap = Object.fromEntries(records.map((r) => [r.timestamp, r]));
-
-    // Focus & refs
-    const [, setActiveCell] = useState<{ row: number; col: number }>({ row: 0, col: 1 });
-    const inputRefs = useRef<(HTMLInputElement | null)[][]>([]);
-
-    useEffect(() => {
-        inputRefs.current = sundays.map(() => attendanceMetrics.map(() => null));
-    }, [sundays]);
-
-    // Autosave states
-    const [savingMap, setSavingMap] = useState<Record<string, boolean>>({});
-
-    const handleChange = async (rowIndex: number, colIndex: number, value: number) => {
-        const metric = attendanceMetrics[rowIndex];
-        const timestamp = sundays[colIndex];
-        const record = recordMap[timestamp] ?? { timestamp };
-
-        // Mark cell as saving
-        const key = `${timestamp}-${metric}`;
-        setSavingMap((prev) => ({ ...prev, [key]: true }));
-
-        // Update backend (debounce if needed)
-        await updateRecord({ ...record, [metric]: value, id: record.id });
-
-        // Mark cell saved
-        setSavingMap((prev) => ({ ...prev, [key]: false }));
-    };
-
-    // Handle keyboard navigation
-    const handleKey = (e: React.KeyboardEvent<HTMLInputElement>, row: number, col: number) => {
-        let nextRow = row;
-        let nextCol = col;
-
-        switch (e.key) {
-            case "ArrowDown":
-                nextRow = Math.min(attendanceMetrics.length - 1, row + 1);
-                break;
-            case "ArrowUp":
-                nextRow = Math.max(0, row - 1);
-                break;
-            case "ArrowRight":
-                nextCol = Math.min(sundays.length - 1, col + 1);
-                break;
-            case "ArrowLeft":
-                nextCol = Math.max(0, col - 1);
-                break;
-            case "Enter":
-                nextRow = Math.min(attendanceMetrics.length - 1, row + 1);
-                break;
-            default:
-                return;
-        }
-
-        e.preventDefault();
-        setActiveCell({ row: nextRow, col: nextCol });
-        inputRefs.current[nextCol]?.[nextRow]?.focus();
-    };
-
-    // Manual save per column (Sunday)
-    const handleRowSave = async (colIndex: number) => {
-        for (let rowIndex = 0; rowIndex < attendanceMetrics.length; rowIndex++) {
-            const metric = attendanceMetrics[rowIndex];
-            const timestamp = sundays[colIndex];
-            const record = recordMap[timestamp] ?? { timestamp };
-
-            const key = `${timestamp}-${metric}`;
-            setSavingMap((prev) => ({ ...prev, [key]: true }));
-
-            await updateRecord(record);
-
-            setSavingMap((prev) => ({ ...prev, [key]: false }));
-        }
-    };
+    function move(event: React.KeyboardEvent<HTMLInputElement>, row: number, col: number) {
+        const movement: Record<string, [number, number]> = { ArrowDown: [1, 0], Enter: [1, 0], ArrowUp: [-1, 0], ArrowRight: [0, 1], ArrowLeft: [0, -1] }
+        const delta = movement[event.key]
+        if (!delta) return
+        event.preventDefault()
+        const nextRow = Math.max(0, Math.min(attendanceMetrics.length - 1, row + delta[0]))
+        const nextCol = Math.max(0, Math.min(sundays.length - 1, col + delta[1]))
+        inputRefs.current[nextCol]?.[nextRow]?.focus()
+    }
 
     return (
-        <div className="overflow-x-auto border rounded-xl">
+        <div className="overflow-x-auto rounded-none border-0 border-black/7">
             <table className="min-w-full border-collapse">
                 <thead>
-                    <tr>
-                        <th
-                            className="p-2 font-semibold border-b border-r bg-muted sticky top-0 left-0 z-30 min-w-[200px]"
-                        >
+                    <tr className="border-t-0 border-border-subtle">
+                        <th className="sticky left-0 top-0 z-30 min-w-48 border-b border-0 border-border-subtle py-4 text-left">
                             Metric
                         </th>
-                        {sundays.map((d, colIndex) => (
-                            <th
-                                key={d}
-                                className="p-2 font-semibold border-b bg-muted sticky top-0 z-20 min-w-[80px] text-center"
+                        
+                        {sundays.map((day) => <th key={day} className="sticky top-0 z-20 min-w-28 border-b border-border-subtle p-2 text-center">
+                            <button 
+                                type="button" 
+                                className="font-semibold cursor-pointer hover:bg-surface transition-colors" 
+                                onClick={() => openDetails(recordMap[day] ?? { timestamp: day } as AttendanceRecord)}
                             >
-                                <div>
-                                    <span
-                                        className="cursor-pointer"
-                                        onClick={() =>
-                                            openDetails(
-                                                recordMap[d] ??
-                                                Object.fromEntries(attendanceMetrics.map((m) => [m, 0]))
-                                            )
-                                        }
-                                    >
-                                        {new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
-                                    </span>
-                                </div>
-                                <button
-                                    className="text-xs text-theme-600 mt-1"
-                                    onClick={() => handleRowSave(colIndex)}
-                                >
-                                    Save
-                                </button>
-                            </th>
-                        ))}
+                                {new Date(`${day}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+                            </button>
+                            
+                            <span className="mt-0 block text-[11px] font-normal text-muted-foreground">
+                                {recordMap[day]?.id ? dirtyDates.has(day) ? "Unsaved changes" : "Saved" : "Not saved"}
+                            </span>
+                            
+                            {errors[day] ? <span className="mt-1 block text-xs font-normal text-destructive" role="alert">{errors[day]}</span> : null}
+                        </th>)}
                     </tr>
                 </thead>
+
                 <tbody>
                     {attendanceMetrics.map((metric, rowIndex) => (
-                        <tr key={metric} className="border-b border-gray-200">
-                            <th
-                                className="p-2 font-medium border-r bg-gray-50 sticky left-0 z-20 min-w-[200px] text-left"
-                            >
-                                {metric.replace(/_/g, " ")}
+                        <tr
+                            key={metric}
+                            className="border-b border-border-subtle"
+                        >
+                            <th className="sticky left-0 z-10 min-w-48 border-r border-border-subtle px-0 py-2 text-left text-sm font-medium capitalize">
+                                {metric.replaceAll("_", " ")}
                             </th>
-                            {sundays.map((timestamp, colIndex) => {
-                                const record = recordMap[timestamp] ?? { timestamp };
-                                const key = `${timestamp}-${metric}`;
+
+                            {sundays.map((day, colIndex) => {
+                                const record =
+                                    recordMap[day] ??
+                                    ({
+                                        timestamp: day,
+                                    } as AttendanceRecord)
+
                                 return (
                                     <td
-                                        key={key}
-                                        className="relative p-0 border-gray-200 min-w-[80px] text-center align-middle"
+                                        key={`${day}-${metric}`}
+                                        className="min-w-28"
                                     >
                                         <input
-                                            type="number"
-                                            className="p-2 text-center w-full bg-transparent outline-none"
-                                            value={record[metric] ?? 0}
-                                            ref={(el) => {
+                                            ref={(node) => {
                                                 if (!inputRefs.current[colIndex]) {
-                                                    inputRefs.current[colIndex] = [];
+                                                    inputRefs.current[colIndex] = []
                                                 }
-                                                inputRefs.current[colIndex][rowIndex] = el;
+
+                                                inputRefs.current[colIndex][rowIndex] = node
                                             }}
-                                            onFocus={() =>
-                                                setActiveCell({ row: rowIndex, col: colIndex })
+                                            aria-label={`${metric.replaceAll("_", " ")} for ${day}`}
+                                            type="number"
+                                            min="0"
+                                            step="1"
+                                            disabled={disabled}
+                                            className="w-full bg-transparent p-2 text-center outline-none focus:ring-2 focus:ring-inset focus:ring-ring"
+                                            value={record[metric] ?? 0}
+                                            onChange={(event) =>
+                                                updateRecord({
+                                                    ...record,
+                                                    [metric]: Math.max(
+                                                        0,
+                                                        Number(event.target.value) || 0
+                                                    ),
+                                                })
                                             }
-                                            onChange={(e) =>
-                                                handleChange(rowIndex, colIndex, Number(e.target.value))
+                                            onKeyDown={(event) =>
+                                                move(event, rowIndex, colIndex)
                                             }
-                                            onKeyDown={(e) => handleKey(e, rowIndex, colIndex)}
                                         />
-                                        {savingMap[key] && (
-                                            <span className="absolute top-0 right-1 text-xs text-gray-400 select-none pointer-events-none">
-                                                Saving…
-                                            </span>
-                                        )}
-                                        {!savingMap[key] && record.id && (
-                                            <span className="absolute top-0 right-1 text-xs text-green-500 select-none pointer-events-none">
-                                                ✓
-                                            </span>
-                                        )}
                                     </td>
-                                );
+                                )
                             })}
                         </tr>
                     ))}
                 </tbody>
             </table>
         </div>
-    );
+    )
 }

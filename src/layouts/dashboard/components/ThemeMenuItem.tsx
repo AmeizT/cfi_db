@@ -20,7 +20,7 @@ export function ThemeMenuItem() {
                     strokeWidth={2} 
                     className="size-5.5" 
                 />
-                Theme
+                Appearance
             </DropdownMenuItem>
 
             <PremiumThemeSelector open={open} onOpenChange={setOpen} />

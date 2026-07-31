@@ -7,11 +7,15 @@ import type { TableSchema } from "@/features/data-table/types/tableSchema.types"
 import type { AuditLogRecord } from "../types"
 import { normalizeListResponse } from "../utils/helpers"
 import { buildTithesActionQuery } from "../utils/queryBuilders"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
 
 type AuditResponse =
     | AuditLogRecord[]
     | {
         count?: number
+        next?: string | null
+        previous?: string | null
         results?: AuditLogRecord[]
         data?: AuditLogRecord[]
         table_schema?: TableSchema
@@ -21,12 +25,13 @@ type AuditResponse =
     }
 
 export function useAudit(reportId: string | null, enabled: boolean) {
+    const assemblyId = useActiveAssemblyId()
     const searchParams = useSearchParams()
     const searchKey = searchParams.toString()
 
     return useQuery({
-        queryKey: ["report-tithe-audit-log", reportId, searchKey],
-        enabled: enabled && Boolean(reportId),
+        queryKey: assemblyQueryKeys.key(assemblyId, "report-tithe-audit-log", reportId, searchKey),
+        enabled: Boolean(assemblyId) && enabled && Boolean(reportId),
         queryFn: async () => {
             const params = new URLSearchParams(searchKey)
             const response = await fetch(

@@ -1,19 +1,28 @@
 import { NavItem } from "../types"
 import {
     Analytics03Icon,
-    ArchiveIcon,
     BookOpen02Icon,
-    ChartBreakoutCircleIcon,
     Note05Icon,
-    Queue01Icon,
-    Queue02Icon,
+    PurseIcon,
     Target02Icon,
-    Wallet03Icon,
 } from "@hugeicons/core-free-icons"
 import { getCurrentYear } from "@/layouts/utils/get-current-year"
 import { buildPeriod } from "../helpers/build-period"
 import { ReadonlyURLSearchParams } from "next/navigation"
 import { createQueryString } from "@/features/reports/core/lib/create-query-string"
+import { AbacusIcon, BullseyeIcon, PeaPodIcon, PersonBowingIcon } from "@/assets/icons";
+import { InboxArchiveIcon } from '@solar-icons/react/bold-duotone/inbox-archive'
+import { RocketIcon } from '@solar-icons/react/bold-duotone/rocket'
+import { NotebookMinimalisticIcon } from '@solar-icons/react/bold-duotone/notebook-minimalistic'
+import { WalletIcon } from '@solar-icons/react/bold-duotone/wallet'
+import { RoundGraphIcon } from '@solar-icons/react/bold-duotone/round-graph'
+import { PieChart2Icon } from '@solar-icons/react/bold-duotone/pie-chart-2'
+import { BackpackIcon } from '@solar-icons/react/bold-duotone/backpack'
+import { DocumentsIcon } from '@solar-icons/react/bold-duotone/documents'
+import { Notebook2Icon } from "@solar-icons/react/bold-duotone/notebook-2";
+import { Book2Icon, BookBookmarkIcon } from "@solar-icons/react/bold-duotone";
+import { NotesIcon } from "@solar-icons/react/bold-duotone";
+import { ClipboardTextIcon } from '@solar-icons/react/bold-duotone/clipboard-text'
 
 function getReportId(searchParams: ReadonlyURLSearchParams, reportId: string) {
     return (
@@ -54,56 +63,36 @@ export function reports(
         {
             label: "Overview",
             description: "Reporting dashboard for KPIs, trends, and charts",
-            icon: Analytics03Icon,
-            activeIcon: Analytics03Icon,
+            icon: PieChart2Icon,
+            activeIcon: PieChart2Icon,
             href: hrefFor("/reports/overview", { tab: null, view: null }),
             exact: true,
         },
         {
-            label: "Review",
+            label: "Report Activity",
             description: "Review queue, compliance status, and exceptions",
-            icon: Note05Icon,
-            activeIcon: Note05Icon,
-            href: hrefFor("/reports/review/queue", { tab: null, view: null }),
-            children: [
-                {
-                    label: "Queue",
-                    href: hrefFor("/reports/review/queue", { tab: null, view: null }),
-                },
-                {
-                    label: "Compliance",
-                    href: hrefFor("/reports/review/compliance", {
-                        tab: null,
-                        view: null,
-                    }),
-                },
-                {
-                    label: "Exceptions",
-                    href: hrefFor("/reports/review/exceptions", {
-                        tab: null,
-                        view: null,
-                    }),
-                },
-            ],
+            icon: NotesIcon,
+            activeIcon: NotesIcon,
+            href: hrefFor("/reports/activity", { tab: null, view: null }),
         },
         {
             label: "Performance",
             description: "Actuals versus targets for core reporting modules",
-            icon: Target02Icon,
-            activeIcon: Target02Icon,
+            icon: RocketIcon,
+            activeIcon: RocketIcon,
             href: hrefFor("/reports/performance", { tab: null, view: null }),
         },
         {
             label: "Finance",
-            description: "Tithes, remittance, income, revenue, and expenditure reports",
-            icon: Wallet03Icon,
-            activeIcon: Wallet03Icon,
+            description: "Tithes, remittance, and financial activity reports",
+            icon: BackpackIcon,
+            activeIcon: BackpackIcon,
             href: hrefFor("/reports/finance/tithes", { tab: null, view: null }),
             children: [
                 {
                     label: "Tithes",
                     href: hrefFor("/reports/finance/tithes", {
-                        tab: "data",
+                        tab: null,
                         view: null,
                     }),
                 },
@@ -116,21 +105,7 @@ export function reports(
                 },
                 {
                     label: "Financial Activity",
-                    href: hrefFor("/reports/finance/income-expenditure", {
-                        tab: "statement",
-                        view: null,
-                    }),
-                },
-                {
-                    label: "Expenses",
-                    href: hrefFor("/reports/finance/expenditures", {
-                        tab: null,
-                        view: null,
-                    }),
-                },
-                {
-                    label: "Revenue",
-                    href: hrefFor("/reports/finance/revenue", {
+                    href: hrefFor("/reports/financial-activity/statement", {
                         tab: null,
                         view: null,
                     }),
@@ -139,21 +114,21 @@ export function reports(
         },
         {
             label: "Ministry",
-            description: "Attendance, Sunday School attendance, and check-ins",
-            icon: BookOpen02Icon,
-            activeIcon: BookOpen02Icon,
+            description: "Attendance, outreach, and ministry reporting",
+            icon: NotebookMinimalisticIcon,
+            activeIcon: NotebookMinimalisticIcon,
             href: hrefFor("/reports/ministry/attendance", { tab: null, view: null }),
             children: [
                 {
                     label: "Attendance",
                     href: hrefFor("/reports/ministry/attendance", {
-                        tab: "monthly",
+                        tab: null,
                         view: null,
                     }),
                 },
                 {
-                    label: "Sunday School",
-                    href: hrefFor("/reports/ministry/sunday-school-attendance", {
+                    label: "Outreach",
+                    href: hrefFor("/reports/ministry/outreach", {
                         tab: null,
                         view: null,
                     }),

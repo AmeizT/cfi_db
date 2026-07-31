@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { parseTab } from "@/utils/parse-tab";
 import { createQueryString } from "../../core/lib/create-query-string";
 
-export function useTithesConfig(): AnalyticsConfig {
+export function useTithesConfig(pathname = "/reports/finance/tithes/cumulative"): AnalyticsConfig {
     const { data: user } = useUser()
     const searchParams = useSearchParams()
     const currentYear = new Date().getFullYear().toString()
@@ -70,7 +70,7 @@ export function useTithesConfig(): AnalyticsConfig {
             {
                 label: "Total",
                 value: formatCurrency(tithesAnalytics?.meta?.kpis?.total ?? 0, { notation: "compact", language: LANGUAGE, currency: CURRENCY }),
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "total",
                     chart: "bar"
                 })}`
@@ -78,7 +78,7 @@ export function useTithesConfig(): AnalyticsConfig {
             {
                 label: "Top Contribution",
                 value: formatCurrency(tithesAnalytics?.meta?.kpis?.highest_amount ?? 0, { notation: "compact", language: LANGUAGE, currency: CURRENCY }),
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "highest_amount",
                     chart: "bar"
                 })}`
@@ -86,7 +86,7 @@ export function useTithesConfig(): AnalyticsConfig {
             {
                 label: "Median Contribution",
                 value: formatCurrency(tithesAnalytics?.meta?.kpis?.median ?? 0, { notation: "compact", language: LANGUAGE, currency: CURRENCY }),
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "median",
                     chart: "bar"
                 })}`
@@ -94,7 +94,7 @@ export function useTithesConfig(): AnalyticsConfig {
             {
                 label: "Active Givers",
                 value: tithesAnalytics?.meta?.kpis?.givers ?? 0,
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "givers",
                     chart: "bar"
                 })}`
@@ -132,7 +132,7 @@ export function useTithesConfig(): AnalyticsConfig {
                 key: "total",
                 label: "Total Giving",
                 value: formatCurrency(tithesAnalytics?.meta?.kpis?.total ?? 0, { notation: "compact", language: LANGUAGE, currency: CURRENCY }),
-                pathname: "/reports/analytics?kpi=total",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "total" })}`,
                 chart: {
                     xKey: "label",
                     series: [
@@ -149,7 +149,7 @@ export function useTithesConfig(): AnalyticsConfig {
                 key: "highest_amount",
                 label: "Peak",
                 value: formatCurrency(tithesAnalytics?.meta?.kpis?.highest_amount ?? 0, { notation: "compact", language: LANGUAGE, currency: CURRENCY }),
-                pathname: "/reports/analytics?kpi=highest_amount",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "highest_amount" })}`,
                 chart: {
                     xKey: "label",
                     series: [
@@ -166,7 +166,7 @@ export function useTithesConfig(): AnalyticsConfig {
                 key: "median",
                 label: "Median",
                 value: formatCurrency(tithesAnalytics?.meta?.kpis?.median ?? 0, { notation: "compact", language: LANGUAGE, currency: CURRENCY }),
-                pathname: "/reports/analytics?kpi=median",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "median" })}`,
                 chart: {
                     xKey: "label",
                     series: [
@@ -183,7 +183,7 @@ export function useTithesConfig(): AnalyticsConfig {
                 key: "givers",
                 label: "Givers",
                 value: tithesAnalytics?.meta?.kpis?.givers ?? 0,
-                pathname: "/reports/analytics?kpi=givers",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "givers" })}`,
                 chart: {
                     xKey: "label",
                     series: [

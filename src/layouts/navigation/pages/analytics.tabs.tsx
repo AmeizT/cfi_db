@@ -2,7 +2,7 @@ import { buildTab } from "@/utils/build-tab"
 import { createQueryString } from "@/features/reports/core/lib/create-query-string"
 import { ReadonlyURLSearchParams } from "next/navigation"
 
-export const getAnalyticsTabs = (searchParams: ReadonlyURLSearchParams) => {
+export const getCumulativeTabs = (searchParams: ReadonlyURLSearchParams) => {
     const tabs = [
         {
             label: "Attendance",
@@ -13,7 +13,7 @@ export const getAnalyticsTabs = (searchParams: ReadonlyURLSearchParams) => {
                     kpi: "total",
                     chart: "bar"
                 })
-                return `/reports/analytics?${params}`
+                return `/reports/ministry/attendance/cumulative?${params}`
             },
         },
         {
@@ -25,7 +25,7 @@ export const getAnalyticsTabs = (searchParams: ReadonlyURLSearchParams) => {
                     kpi: "total",
                     chart: "bar"
                 })
-                return `/reports/analytics?${params}`
+                return `/reports/finance/tithes/cumulative?${params}`
             },
         },
         {
@@ -37,10 +37,13 @@ export const getAnalyticsTabs = (searchParams: ReadonlyURLSearchParams) => {
                     kpi: "revenue_total",
                     chart: "bar"
                 })
-                return `/reports/analytics?${params}`
+                return `/reports/financial-activity/cumulative?${params}`
             },
         }
     ]
 
     return tabs
 }
+
+/** @deprecated Use module-specific Cumulative tabs. */
+export const getAnalyticsTabs = getCumulativeTabs

@@ -6,7 +6,7 @@ import {useCashflowAnalytics } from "../../core/hooks/use-analytics"
 import { formatCurrency } from "@/utils/currency"
 import { createQueryString } from "../../core/lib/create-query-string"
 
-export function useCashflowConfig(): AnalyticsConfig {
+export function useCashflowConfig(pathname = "/reports/financial-activity/cumulative"): AnalyticsConfig {
     const { data: user } = useUser()
     const searchParams = useSearchParams()
     const currentYear = new Date().getFullYear().toString()
@@ -70,7 +70,7 @@ export function useCashflowConfig(): AnalyticsConfig {
                 value: formatCurrency(cashflowAnalytics?.meta?.kpis?.total_revenue ?? 0, { 
                     notation: "compact", language: LANGUAGE, currency: CURRENCY 
                 }),
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "revenue_total",
                     chart: "bar"
                 })}`
@@ -80,7 +80,7 @@ export function useCashflowConfig(): AnalyticsConfig {
                 value: formatCurrency(cashflowAnalytics?.meta?.kpis?.total_expense ?? 0, { 
                     notation: "compact", language: LANGUAGE, currency: CURRENCY 
                 }),
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "expense_total",
                     chart: "bar"
                 })}`
@@ -90,7 +90,7 @@ export function useCashflowConfig(): AnalyticsConfig {
                 value: formatCurrency(cashflowAnalytics?.meta?.kpis?.net_cashflow ?? 0, {
                     notation: "compact", language: LANGUAGE, currency: CURRENCY
                 }),
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "balance",
                     chart: "bar"
                 })}`
@@ -104,7 +104,7 @@ export function useCashflowConfig(): AnalyticsConfig {
                 value: formatCurrency(cashflowAnalytics?.meta?.kpis?.total_revenue ?? 0, { 
                     notation: "compact", language: LANGUAGE, currency: CURRENCY 
                 }),
-                pathname: "/reports/analytics?kpi=total",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "total" })}`,
                 chart: {
                     xKey: "label",
                     series: [
@@ -123,7 +123,7 @@ export function useCashflowConfig(): AnalyticsConfig {
                 value: formatCurrency(cashflowAnalytics?.meta?.kpis?.total_expense ?? 0, { 
                     notation: "compact", language: LANGUAGE, currency: CURRENCY 
                 }),
-                pathname: "/reports/analytics?kpi=highest_amount",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "highest_amount" })}`,
                 chart: {
                     xKey: "label",
                     series: [
@@ -142,7 +142,7 @@ export function useCashflowConfig(): AnalyticsConfig {
                 value: formatCurrency(cashflowAnalytics?.meta?.kpis?.net_cashflow ?? 0, {
                     notation: "compact", language: LANGUAGE, currency: CURRENCY
                 }),
-                pathname: "/reports/analytics?kpi=median",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "median" })}`,
                 chart: {
                     xKey: "label",
                     series: [
@@ -159,7 +159,6 @@ export function useCashflowConfig(): AnalyticsConfig {
             //     key: "givers",
             //     label: "Givers",
             //     value: tithesAnalytics?.meta?.kpis?.givers ?? 0,
-            //     pathname: "/reports/analytics?kpi=givers",
             //     chart: {
             //         xKey: "label",
             //         series: [
@@ -219,8 +218,4 @@ export function useCashflowConfig(): AnalyticsConfig {
 
     return config
 }
-
-
-
-
 

@@ -10,9 +10,11 @@ import { buildTab } from "@/utils/build-tab"
 import { parseTab } from "@/utils/parse-tab"
 import Link from "next/link"
 import { HiCalendarDays } from "react-icons/hi2"
+import { ChevronDown } from "lucide-react";
 
 import { usePathname, useSearchParams } from "next/navigation"
 import { createQueryString } from "../../core/lib/create-query-string"
+import { CalendarIcon } from "@solar-icons/react/bold-duotone/calendar";
 
 const START_YEAR = 2023
 
@@ -29,9 +31,9 @@ export const yearOptions = (() => {
             let label: string
 
             if (yearsAgo === 0) {
-                label = `Year to Date (${year})`
+                label = `${year}`
             } else {
-                label = `Jan - Dec ${year}`
+                label = `${year}`
             }
 
             return {
@@ -60,6 +62,7 @@ export function PeriodSelector() {
         const newQuery = createQueryString(searchParams, { 
             id: null,
             period: buildTab("year", optionValue),
+            page: 1,
         })
 
         return `${pathname}?${newQuery}`
@@ -68,8 +71,14 @@ export function PeriodSelector() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 rounded-xl border border-gray-300 [&_svg:not([class*='size-'])]:size-5">
-                    <HiCalendarDays /> {selectedOption?.label || `Select Year`}
+                <Button className="border-0 border-border [&_svg:not([class*='size-'])]:size-5 justify-between px-1.5 gap-3 has-[>svg]:px-1.5">
+                    <div className="flex gap-1.5 items-center">
+                        <CalendarIcon /> {selectedOption?.label || `Select Year`}
+                    </div> 
+
+                    <span className="pr-0 size-6 flex justify-center items-center">
+                        <ChevronDown strokeWidth={2.5} className="size-4.5 text-user-theme-100" />
+                    </span>
                 </Button>
             </DropdownMenuTrigger>
             

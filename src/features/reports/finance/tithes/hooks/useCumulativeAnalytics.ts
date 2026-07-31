@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query"
 import { apiRoutes } from "@/config/urls"
 import type { TithesAnalyticsResponse } from "../types"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
 
 export function useCumulativeAnalytics({
     reportId,
@@ -13,9 +15,10 @@ export function useCumulativeAnalytics({
     period: string
     scopeFilters: Record<string, string | null>
 }) {
+    const assemblyId = useActiveAssemblyId()
     return useQuery<TithesAnalyticsResponse>({
-        queryKey: ["report-cumulative-tithes-analytics", reportId, period, scopeFilters],
-        enabled: Boolean(reportId),
+        queryKey: assemblyQueryKeys.key(assemblyId, "report-cumulative-tithes-analytics", reportId, period, scopeFilters),
+        enabled: Boolean(assemblyId && reportId),
         queryFn: async () => {
             const params = new URLSearchParams({ period })
 

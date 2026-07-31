@@ -5,6 +5,7 @@ const NullableStringSchema = z.string().nullable().optional()
 const NullableNumberSchema = z.number().nullable().optional()
 
 export const MemberGenderSchema = z.enum(["Male", "Female"])
+export const MembershipStageSchema = z.enum(["new", "established", "associate"])
 
 export const MemberSchema = z.object({
     id: z.number(),
@@ -34,6 +35,8 @@ export const MemberSchema = z.object({
     country: z.string(),
     membersince: NullableStringSchema,
     membership_status: OptionalStringSchema,
+    membership_stage: MembershipStageSchema.nullable().optional(),
+    date_of_death: z.iso.date().nullable().optional(),
     previous_church: OptionalStringSchema,
     baptized: z.boolean().optional(),
     baptized_at: NullableStringSchema,
@@ -65,5 +68,24 @@ export const MemberSchema = z.object({
 
 export const MembersListResponseSchema = z.array(MemberSchema)
 
+export const PaginatedMembersResponseSchema = z.object({
+    count: z.number().int().nonnegative(),
+    next: z.string().nullable(),
+    previous: z.string().nullable(),
+    results: MembersListResponseSchema,
+    table_schema: z.unknown().optional(),
+}).strict()
+
+export const MembersApiResponseSchema = z.union([
+    MembersListResponseSchema,
+    PaginatedMembersResponseSchema,
+])
+
+export function getMembersFromResponse(response: MembersApiResponse) {
+    return Array.isArray(response) ? response : response.results
+}
+
 export type Member = z.infer<typeof MemberSchema>
 export type MembersListResponse = z.infer<typeof MembersListResponseSchema>
+export type PaginatedMembersResponse = z.infer<typeof PaginatedMembersResponseSchema>
+export type MembersApiResponse = z.infer<typeof MembersApiResponseSchema>
