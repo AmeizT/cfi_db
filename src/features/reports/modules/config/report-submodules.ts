@@ -1,6 +1,7 @@
 import type { ReadonlyURLSearchParams } from "next/navigation"
+import { APP_ROUTES } from "@/config/app-routes"
 import { createQueryString } from "@/features/reports/core/lib/create-query-string"
-import type { ReportModuleKey, ReportRouteKey, ReportSection } from "../types/report-modules"
+import type { ModulePageContext, ReportModuleKey, ReportRouteKey, ReportSection } from "../types/report-modules"
 
 export type ReportSubmoduleKey =
     | "main-service"
@@ -50,7 +51,7 @@ const REPORT_SUBMODULE_GROUP_DEFINITIONS = {
     "ministry/attendance": {
         defaultSubmodule: "main-service",
         tabs: [
-            { label: "Main Service", key: "main-service", submodule: null, pageTitle: "Main Service" },
+            { label: "General", key: "main-service", submodule: null, pageTitle: "Attendance" },
             { label: "Sunday School", key: "sunday-school", submodule: "sunday-school", pageTitle: "Sunday School" },
             { label: "Homecell", key: "homecell", submodule: "homecell", pageTitle: "Homecell" },
             { label: "Midweek", key: "midweek", submodule: "midweek", pageTitle: "Midweek" },
@@ -116,8 +117,36 @@ function getRouteKey(section: ReportSection, module: ReportModuleKey) {
     return `${section}/${module}` as ReportRouteKey
 }
 
-function getSubmoduleBasePath(section: ReportSection, module: ReportModuleKey) {
+function getSubmoduleBasePath(
+    section: ReportSection,
+    module: ReportModuleKey,
+    pageContext: ModulePageContext,
+) {
+    if (pageContext === "workspace") {
+        const publicSection = section === "ministry" ? "engagement" : section
+        return `/${publicSection}/${module}`
+    }
+
     return getReportSubmoduleGroup(section, module)?.basePath ?? `/reports/${section}/${module}`
+}
+
+function getWorkspaceSubmodulePath(
+    section: ReportSection,
+    module: ReportModuleKey,
+    submodule: ReportSubmoduleKey | null,
+) {
+    if (section === "finance" && module === "financial-activity") {
+        if (submodule === "statement" || submodule === null) return APP_ROUTES.finance.statements
+        if (submodule === "revenue") return APP_ROUTES.finance.revenue
+        if (submodule === "expenses") return APP_ROUTES.finance.expenses
+    }
+    if (section === "ministry" && module === "attendance") {
+        if (submodule === null) return APP_ROUTES.engagement.attendance
+        if (submodule === "sunday-school") return APP_ROUTES.engagement.sundaySchool
+    }
+
+    const basePath = getSubmoduleBasePath(section, module, "workspace")
+    return submodule ? `${basePath}/${submodule}` : basePath
 }
 
 export function getReportSubmoduleGroup(
@@ -197,15 +226,19 @@ export function getReportSubmoduleHref({
     searchParams,
     submodule,
     updates = {},
+    pageContext = "reports",
 }: {
     section: ReportSection
     module: ReportModuleKey
     searchParams: ReadonlyURLSearchParams
     submodule: ReportSubmoduleKey | null
     updates?: Record<string, string | number | boolean | null | undefined>
+    pageContext?: ModulePageContext
 }) {
-    const basePath = getSubmoduleBasePath(section, module)
-    const pathname = submodule ? `${basePath}/${submodule}` : basePath
+    const basePath = getSubmoduleBasePath(section, module, pageContext)
+    const pathname = pageContext === "workspace"
+        ? getWorkspaceSubmodulePath(section, module, submodule)
+        : submodule ? `${basePath}/${submodule}` : basePath
     const query = createQueryString(searchParams, {
         tab: null,
         view: null,
@@ -219,7 +252,8 @@ export function getReportSubmoduleHref({
 export function getReportSubmoduleTabs(
     section: ReportSection,
     module: ReportModuleKey,
-    searchParams: ReadonlyURLSearchParams
+    searchParams: ReadonlyURLSearchParams,
+    pageContext: ModulePageContext = "reports",
 ): ReportSubmoduleLink[] {
     const group = getReportSubmoduleGroup(section, module)
 
@@ -236,6 +270,7 @@ export function getReportSubmoduleTabs(
             searchParams,
             submodule: tab.submodule,
             updates: tab.key === "transactions" ? { status: null } : {},
+            pageContext,
         }),
     }))
 }
@@ -243,7 +278,8 @@ export function getReportSubmoduleTabs(
 export function getReportSubmoduleMoreItems(
     section: ReportSection,
     module: ReportModuleKey,
-    searchParams: ReadonlyURLSearchParams
+    searchParams: ReadonlyURLSearchParams,
+    pageContext: ModulePageContext = "reports",
 ): ReportSubmoduleLink[] {
     const group = getReportSubmoduleGroup(section, module)
 
@@ -260,6 +296,7 @@ export function getReportSubmoduleMoreItems(
             searchParams,
             submodule: item.submodule,
             updates: item.query ?? {},
+            pageContext,
         }),
     }))
 }

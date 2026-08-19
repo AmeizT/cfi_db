@@ -1,8 +1,3 @@
-import { getMetaData } from "@/config/metadata"
-import { BabyDedicationsView } from "@/features/people/baby-dedications/views/BabyDedicationsView"
-
-export const metadata = getMetaData({ title: "Baby Dedications" })
-
-export default function BabyDedicationsPage() {
-    return <BabyDedicationsView />
-}
+import { APP_ROUTES } from "@/config/app-routes"
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+export default createLegacyRedirectPage(APP_ROUTES.members.dedications)

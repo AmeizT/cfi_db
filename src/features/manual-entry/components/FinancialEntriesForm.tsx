@@ -1,63 +1,58 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
-import { toast } from "sonner"
+import * as React from "react";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
     NativeSelect,
     NativeSelectOption,
-} from "@/components/ui/native-select"
-import { Textarea } from "@/components/ui/textarea"
-import { useUser } from "@/hooks/query/use-user"
-import { formatCurrency } from "@/utils/currency"
+} from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
+import { useUser } from "@/hooks/query/use-user";
+import { formatCurrency } from "@/utils/currency";
 
-import { MultiEntryForm } from "./MultiEntryForm"
+import { MultiEntryForm } from "./MultiEntryForm";
 import {
     BatchRequestError,
     type BatchKind,
     useBatchEntry,
-    useCreateFinancialOption,
     useFinancialEntryOptions,
-} from "../hooks/use-batch-entry"
+} from "../hooks/use-batch-entry";
 import {
     calculateEntryTotal,
     findDuplicateEntryIndices,
-} from "../lib/manual-entry-utils"
-import { FileText, Plus, UploadCloud, X } from "lucide-react";
-import { AddCircleIcon } from '@solar-icons/react/bold-duotone/add-circle'
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
-import { InfoSquareIcon } from '@solar-icons/react/bold-duotone/info-square'
+} from "../lib/manual-entry-utils";
+import { FileText, Paperclip, PlusIcon, StickyNote, UploadCloud, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { LightbulbMinimalisticIcon } from '@solar-icons/react/bold-duotone/lightbulb-minimalistic'
-import { CloudsIllustration } from "@/assets/icons/illustrations";
+import { CreateFinancialCategoryDialog } from "./CreateFinancialCategoryDialog";
 
 type EntryRow = {
-    member: string
-    category: string
-    overhead_type: string
-    name: string
-    expense_category: string
-    amount: string
-    price: string
-    quantity: string
-    payment_method: string
-    reference_code: string
-    notes: string
-    timestamp: string
-    supplier: string
-    invoice_number: string
-    file: File | null
-}
+  member: string;
+  category: string;
+  overhead_type: string;
+  name: string;
+  expense_category: string;
+  amount: string;
+  price: string;
+  quantity: string;
+  payment_method: string;
+  reference_code: string;
+  notes: string;
+  timestamp: string;
+  supplier: string;
+  invoice_number: string;
+  file: File | null;
+};
 
 type FormValues = {
-    entries: EntryRow[]
-}
+  entries: EntryRow[];
+};
 
-const PAYMENT_METHODS = ["Bank", "Cash", "Cheque", "Mobile Money", "Other"]
+const PAYMENT_METHODS = ["Bank", "Cash", "Cheque", "Mobile Money", "Other"];
 
 const EXPENSE_CATEGORIES = [
     "amenities",
@@ -72,7 +67,7 @@ const EXPENSE_CATEGORIES = [
     "repair",
     "travel",
     "wages",
-]
+];
 
 function emptyRow(date: string): EntryRow {
     return {
@@ -91,7 +86,7 @@ function emptyRow(date: string): EntryRow {
         supplier: "",
         invoice_number: "",
         file: null,
-    }
+  };
 }
 
 function FieldError({ message }: { message?: string }) {
@@ -99,13 +94,13 @@ function FieldError({ message }: { message?: string }) {
         <p className="text-xs text-destructive" role="alert">
             {message}
         </p>
-    ) : null
+  ) : null;
 }
 
 interface FinancialEntriesFormProps {
-    kind: BatchKind
-    period: string
-    reportId?: string | number | null
+  kind: BatchKind;
+  period: string;
+  reportId?: string | number | null;
 }
 
 export function FinancialEntriesForm({
@@ -113,37 +108,35 @@ export function FinancialEntriesForm({
     period,
     reportId,
 }: FinancialEntriesFormProps) {
-    const user = useUser()
-    const options = useFinancialEntryOptions(kind)
-    const mutation = useBatchEntry(kind)
-    const createOption = useCreateFinancialOption(
-        kind === "overhead" ? "overhead" : "revenue"
-    )
+  const user = useUser();
+  const options = useFinancialEntryOptions(kind);
+  const mutation = useBatchEntry(kind);
+  const [categoryDialogOpen, setCategoryDialogOpen] = React.useState(false);
+  const [categoryTargetIndex, setCategoryTargetIndex] = React.useState(0);
+  const [expandedOptional, setExpandedOptional] = React.useState<Record<string, boolean>>({});
 
-    const [newOptionName, setNewOptionName] = React.useState("")
-
-    const defaultDate = `${period}-01`
+  const defaultDate = `${period}-01`;
 
     const form = useForm<FormValues>({
         defaultValues: {
             entries: [emptyRow(defaultDate)],
         },
-    })
+  });
 
     const { fields, append, remove, replace } = useFieldArray({
         control: form.control,
         name: "entries",
-    })
+  });
 
     const rows = useWatch({
         control: form.control,
         name: "entries",
-    })
+  });
 
-    const currency = user.data?.assembly?.currency || "USD"
-    const language = user.data?.assembly?.language || undefined
-    const total = calculateEntryTotal(kind, rows)
-    const totalLabel = formatCurrency(total, { currency, language })
+  const currency = user.data?.assembly?.currency || "USD";
+  const language = user.data?.assembly?.language || undefined;
+  const total = calculateEntryTotal(kind, rows);
+  const totalLabel = formatCurrency(total, { currency, language });
 
     const validateDuplicates = React.useCallback(
         (values: FormValues) => {
@@ -154,30 +147,30 @@ export function FinancialEntriesForm({
                       ? "category"
                       : kind === "overhead"
                         ? "overhead_type"
-                        : null
+              : null;
 
             if (!field) {
-                return true
+        return true;
             }
 
-            const duplicates = findDuplicateEntryIndices(kind, values.entries)
+      const duplicates = findDuplicateEntryIndices(kind, values.entries);
 
             duplicates.forEach((index) => {
                 form.setError(`entries.${index}.${field}`, {
                     message: "This selection is already used in another row.",
-                })
-            })
+        });
+      });
 
-            return duplicates.length === 0
+      return duplicates.length === 0;
         },
-        [form, kind]
-    )
+    [form, kind],
+  );
 
     const submit = form.handleSubmit(async (values) => {
-        form.clearErrors()
+    form.clearErrors();
 
         if (!validateDuplicates(values)) {
-            return
+      return;
         }
 
         const entries = values.entries.map((row) => {
@@ -192,7 +185,7 @@ export function FinancialEntriesForm({
                     reference_code: row.reference_code,
                     notes: row.notes,
                     timestamp: row.timestamp,
-                }
+        };
             }
 
             if (kind === "revenue") {
@@ -201,7 +194,7 @@ export function FinancialEntriesForm({
                     amount: row.amount,
                     notes: row.notes,
                     timestamp: row.timestamp,
-                }
+        };
             }
 
             if (kind === "overhead") {
@@ -210,7 +203,7 @@ export function FinancialEntriesForm({
                     amount: row.amount,
                     notes: row.notes,
                     timestamp: row.timestamp,
-                }
+        };
             }
 
             return {
@@ -222,49 +215,46 @@ export function FinancialEntriesForm({
                 invoice_number: row.invoice_number,
                 supplier: row.supplier,
                 description: row.notes,
-            }
-        })
+      };
+    });
 
-        const body = new FormData()
+    const body = new FormData();
 
-        body.set("period", period)
+    body.set("period", period);
 
         if (reportId) {
-            body.set("report", String(reportId))
+      body.set("report", String(reportId));
         }
 
-        body.set("entries", JSON.stringify(entries))
+    body.set("entries", JSON.stringify(entries));
 
         values.entries.forEach((row, index) => {
             if (!row.file) {
-                return
+        return;
             }
 
-            const fileField = kind === "revenue" ? "statement" : "receipt"
-            body.set(`entries.${index}.${fileField}`, row.file)
-        })
+      const fileField = kind === "revenue" ? "statement" : "receipt";
+      body.set(`entries.${index}.${fileField}`, row.file);
+    });
 
         try {
-            const result = await mutation.mutateAsync(body)
+      const result = await mutation.mutateAsync(body);
 
             toast.success(
-                `${result.count ?? values.entries.length} entries saved successfully.`
-            )
+        `${result.count ?? values.entries.length} entries saved successfully.`,
+      );
 
-            replace([emptyRow(defaultDate)])
+      replace([emptyRow(defaultDate)]);
             form.reset({
                 entries: [emptyRow(defaultDate)],
-            })
+      });
         } catch (error) {
             if (error instanceof BatchRequestError) {
-                let firstErrorPath:
-                    | `entries.${number}.${keyof EntryRow}`
-                    | null = null
+        let firstErrorPath: `entries.${number}.${keyof EntryRow}` | null = null;
 
                 Object.entries(error.body.errors?.entries ?? {}).forEach(
                     ([index, fieldErrors]) => {
-                        Object.entries(fieldErrors).forEach(
-                            ([field, messages]) => {
+            Object.entries(fieldErrors).forEach(([field, messages]) => {
                                 const key =
                                     field === "non_field_errors"
                                         ? kind === "expenses"
@@ -274,81 +264,53 @@ export function FinancialEntriesForm({
                                           ? "timestamp"
                                           : field === "description"
                                             ? "notes"
-                                            : field === "receipt" ||
-                                                field === "statement"
+                      : field === "receipt" || field === "statement"
                                               ? "file"
-                                              : kind === "expenses" &&
-                                                  field === "category"
+                        : kind === "expenses" && field === "category"
                                                 ? "expense_category"
-                                                : field
+                          : field;
 
                                 const path =
-                                    `entries.${Number(index)}.${key as keyof EntryRow}` as const
+                `entries.${Number(index)}.${key as keyof EntryRow}` as const;
 
                                 form.setError(path, {
                                     message: Array.isArray(messages)
                                         ? messages.join(" ")
                                         : messages,
-                                })
+              });
 
-                                firstErrorPath ??= path
-                            }
-                        )
-                    }
-                )
+              firstErrorPath ??= path;
+            });
+          },
+        );
 
                 if (firstErrorPath) {
-                    form.setFocus(firstErrorPath)
+          form.setFocus(firstErrorPath);
                 }
 
-                toast.error(error.message)
+        toast.error(error.message);
             } else {
-                toast.error(
-                    "Could not save entries. Your values have been preserved."
-                )
+        toast.error("Could not save entries. Your values have been preserved.");
             }
         }
-    })
+  });
 
     const cancel = () => {
         if (
             form.formState.isDirty &&
             !window.confirm("Discard the entries you have not saved?")
         ) {
-            return
+      return;
         }
 
-        replace([emptyRow(defaultDate)])
+    replace([emptyRow(defaultDate)]);
         form.reset({
             entries: [emptyRow(defaultDate)],
-        })
-    }
+    });
+  };
 
     const optionLabel = (option: Record<string, unknown>) =>
-        String(option.full_name ?? option.name ?? option.id)
-
-    const addOption = async () => {
-        const name = newOptionName.trim()
-
-        if (!name) {
-            return
-        }
-
-        try {
-            await createOption.mutateAsync(name)
-            setNewOptionName("")
-
-            toast.success(
-                `${kind === "revenue" ? "Category" : "Overhead type"} created.`
-            )
-        } catch (error) {
-            toast.error(
-                error instanceof Error
-                    ? error.message
-                    : "Could not create the option."
-            )
-        }
-    }
+    String(option.full_name ?? option.name ?? option.id);
 
     return (
         <form onSubmit={submit} className="space-y-4">
@@ -358,83 +320,6 @@ export function FinancialEntriesForm({
                 </p>
             ) : null}
 
-            {kind === "revenue" || kind === "overhead" ? (
-                <div className={cn(
-                    "flex h-fit w-full items-center justify-between px-1.5",
-                    "rounded-xl bg-background shadow-elevation-01",
-                    "border border-black/8",
-                    "focus-within:border-primary",
-                    "focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary/20"
-                )}>
-                    <div className="flex items-center">
-                        <HoverCard>
-                            <HoverCardTrigger asChild>
-                                <InfoSquareIcon className="size-8 text-primary" />
-                            </HoverCardTrigger>
-
-                            <HoverCardContent
-                                sideOffset={0}
-                                align="start"
-                                alignOffset={-16}
-                                className={cn(
-                                    "flex items-start gap-3",
-                                    "bg-background/45 p-1.5",
-                                    "backdrop-blur-xl backdrop-saturate-150",
-                                    // "supports-[corner-shape:squircle]:squircle-24",
-
-                                    // Reflective edge
-                                    "border border-white/30",
-                                    "dark:border-white/10",
-
-                                    // Depth
-                                    "shadow-[0_4px_16px_rgb(0_0_0/0.08)]",
-                                    "ring-1 ring-black/5"
-                                )}
-                            >
-                                <span
-                                    className={cn(
-                                        "grid size-9 shrink-0 place-content-center",
-                                        "rounded-lg border border-yellow-50 bg-linear-to-b from-yellow-300 to-yellow-400 text-white",
-                                        
-                                    )}
-                                >
-                                    <LightbulbMinimalisticIcon className="size-7" />
-                                </span>
-
-                                <div className="min-w-0 flex-1 text-sm text-foreground">
-                                    Creates a new <strong>{kind === "revenue" ? "revenue category" : "overhead type"}</strong>&nbsp;you can reuse in this assembly&apos;s future reports.
-                                </div>
-                            </HoverCardContent>
-                        </HoverCard>
-
-                        <Input
-                            value={newOptionName}
-                            onChange={(event) =>
-                                setNewOptionName(event.target.value)
-                            }
-                            placeholder={
-                                kind === "revenue"
-                                    ? "New revenue category"
-                                    : "New overhead type"
-                            }
-                            className="border-none shadow-none focus-visible:ring-0 bg-transparent"
-                        />
-                    </div>
-
-                    <Button
-                        type="button"
-                        variant="outline"
-                        disabled={
-                            !newOptionName.trim() || createOption.isPending
-                        }
-                        onClick={addOption}
-                        className="shadow-elevation-sm"
-                    >
-                        <Plus className="size-4" /> {kind === "revenue" ? "Add category" : "Add type"}
-                    </Button>
-                </div>
-            ) : null}
-
             <MultiEntryForm
                 rows={fields}
                 onAddRow={() => append(emptyRow(defaultDate))}
@@ -442,22 +327,67 @@ export function FinancialEntriesForm({
                 onCancel={cancel}
                 totalLabel={totalLabel}
                 isPending={mutation.isPending}
+                renderSummary={(_, index) => {
+                  const row = rows?.[index];
+                  const optionId = kind === "tithes"
+                    ? row?.member
+                    : kind === "revenue"
+                      ? row?.category
+                      : row?.overhead_type;
+                  const selectedOption = options.data?.find(
+                    (option) => String(option.id) === String(optionId),
+                  );
+                  const subject = kind === "expenses"
+                    ? row?.name || "Untitled item"
+                    : selectedOption
+                      ? optionLabel(selectedOption)
+                      : kind === "tithes" && (!optionId || optionId === "anonymous")
+                        ? "Anonymous"
+                        : "Selection pending";
+                  const amount = kind === "expenses"
+                    ? Number(row?.price || 0) * Number(row?.quantity || 1)
+                    : Number(row?.amount || 0);
+
+                  return (
+                    <div className="grid gap-2 pb-1 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center sm:gap-5">
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-foreground">{subject}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {row?.timestamp || "Date pending"}
+                          {kind === "tithes" ? ` · ${row?.payment_method || "Payment method pending"}` : ""}
+                        </p>
+                      </div>
+                      {row?.file ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                          <Paperclip className="size-3.5" /> Attachment
+                        </span>
+                      ) : null}
+                      <span className="font-semibold tabular-nums">
+                        {formatCurrency(amount, { currency, language })}
+                      </span>
+                    </div>
+                  );
+                }}
                 renderRow={(_, index) => {
-                    const errors = form.formState.errors.entries?.[index]
-                    const selectedFile = rows?.[index]?.file
-                    const fileInputId = `financial-entry-file-${index}`
+          const errors = form.formState.errors.entries?.[index];
+          const selectedFile = rows?.[index]?.file;
+          const notesValue = rows?.[index]?.notes;
+          const fileInputId = `financial-entry-file-${index}`;
+          const fileDisclosureKey = `${index}-file`;
+          const notesDisclosureKey = `${index}-notes`;
 
                     return (
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div
+              className={cn(
+                "grid grid-cols-1 gap-3 sm:grid-cols-2",
+                kind !== "expenses" && "lg:grid-cols-3",
+              )}
+            >
                             {kind === "tithes" ? (
                                 <div className="grid gap-1.5">
                                     <Label>Member</Label>
 
-                                    <NativeSelect
-                                        {...form.register(
-                                            `entries.${index}.member`
-                                        )}
-                                    >
+                  <NativeSelect {...form.register(`entries.${index}.member`)}>
                                         <NativeSelectOption value="anonymous">
                                             Anonymous
                                         </NativeSelectOption>
@@ -472,9 +402,7 @@ export function FinancialEntriesForm({
                                         ))}
                                     </NativeSelect>
 
-                                    <FieldError
-                                        message={errors?.member?.message}
-                                    />
+                  <FieldError message={errors?.member?.message} />
                                 </div>
                             ) : null}
 
@@ -483,12 +411,9 @@ export function FinancialEntriesForm({
                                     <Label>Revenue category</Label>
 
                                     <NativeSelect
-                                        {...form.register(
-                                            `entries.${index}.category`,
-                                            {
+                    {...form.register(`entries.${index}.category`, {
                                                 required: "Choose a category.",
-                                            }
-                                        )}
+                    })}
                                     >
                                         <NativeSelectOption value="">
                                             Select category
@@ -504,9 +429,19 @@ export function FinancialEntriesForm({
                                         ))}
                                     </NativeSelect>
 
-                                    <FieldError
-                                        message={errors?.category?.message}
-                                    />
+                  <FieldError message={errors?.category?.message} />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="w-fit px-1 text-primary"
+                    onClick={() => {
+                      setCategoryTargetIndex(index);
+                      setCategoryDialogOpen(true);
+                    }}
+                  >
+                    <PlusIcon className="size-4" /> Add custom category
+                  </Button>
                                 </div>
                             ) : null}
 
@@ -515,13 +450,9 @@ export function FinancialEntriesForm({
                                     <Label>Overhead type</Label>
 
                                     <NativeSelect
-                                        {...form.register(
-                                            `entries.${index}.overhead_type`,
-                                            {
-                                                required:
-                                                    "Choose an overhead type.",
-                                            }
-                                        )}
+                    {...form.register(`entries.${index}.overhead_type`, {
+                      required: "Choose an overhead type.",
+                    })}
                                     >
                                         <NativeSelectOption value="">
                                             Select type
@@ -537,73 +468,62 @@ export function FinancialEntriesForm({
                                         ))}
                                     </NativeSelect>
 
-                                    <FieldError
-                                        message={errors?.overhead_type?.message}
-                                    />
+                  <FieldError message={errors?.overhead_type?.message} />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="w-fit px-1 text-primary"
+                    onClick={() => {
+                      setCategoryTargetIndex(index);
+                      setCategoryDialogOpen(true);
+                    }}
+                  >
+                    <PlusIcon className="size-4" /> Add custom overhead type
+                  </Button>
                                 </div>
                             ) : null}
 
                             {kind === "expenses" ? (
                                 <>
-                                    <div className="grid gap-1.5">
+                  <div className="grid gap-1.5 sm:col-span-2">
                                         <Label>Item</Label>
 
                                         <Input
-                                            {...form.register(
-                                                `entries.${index}.name`,
-                                                {
-                                                    required:
-                                                        "Enter an item name.",
-                                                }
-                                            )}
+                      {...form.register(`entries.${index}.name`, {
+                        required: "Enter an item name.",
+                      })}
                                         />
 
-                                        <FieldError
-                                            message={errors?.name?.message}
-                                        />
+                    <FieldError message={errors?.name?.message} />
                                     </div>
 
                                     <div className="grid gap-1.5">
                                         <Label>Category</Label>
 
                                         <NativeSelect
-                                            {...form.register(
-                                                `entries.${index}.expense_category`,
-                                                {
-                                                    required:
-                                                        "Choose a category.",
-                                                }
-                                            )}
+                      {...form.register(`entries.${index}.expense_category`, {
+                        required: "Choose a category.",
+                      })}
                                         >
                                             <NativeSelectOption value="">
                                                 Select category
                                             </NativeSelectOption>
 
                                             {EXPENSE_CATEGORIES.map((value) => (
-                                                <NativeSelectOption
-                                                    key={value}
-                                                    value={value}
-                                                >
+                        <NativeSelectOption key={value} value={value}>
                                                     {value.replaceAll("_", " ")}
                                                 </NativeSelectOption>
                                             ))}
                                         </NativeSelect>
 
-                                        <FieldError
-                                            message={
-                                                errors?.expense_category?.message
-                                            }
-                                        />
+                    <FieldError message={errors?.expense_category?.message} />
                                     </div>
                                 </>
                             ) : null}
 
                             <div className="grid gap-1.5">
-                                <Label>
-                                    {kind === "expenses"
-                                        ? "Unit price"
-                                        : "Amount"}
-                                </Label>
+                <Label>{kind === "expenses" ? "Unit price" : "Amount"}</Label>
 
                                 <Input
                                     type="number"
@@ -612,17 +532,14 @@ export function FinancialEntriesForm({
                                     inputMode="decimal"
                                     {...form.register(
                                         `entries.${index}.${
-                                            kind === "expenses"
-                                                ? "price"
-                                                : "amount"
+                      kind === "expenses" ? "price" : "amount"
                                         }`,
                                         {
-                                            required:
-                                                "Enter an amount greater than zero.",
+                      required: "Enter an amount greater than zero.",
                                             validate: (value) =>
                                                 Number(value) > 0 ||
                                                 "Enter an amount greater than zero.",
-                                        }
+                    },
                                     )}
                                 />
 
@@ -643,22 +560,16 @@ export function FinancialEntriesForm({
                                         type="number"
                                         min="1"
                                         step="1"
-                                        {...form.register(
-                                            `entries.${index}.quantity`,
-                                            {
+                    {...form.register(`entries.${index}.quantity`, {
                                                 required: true,
                                                 min: {
                                                     value: 1,
-                                                    message:
-                                                        "Quantity must be at least one.",
+                        message: "Quantity must be at least one.",
                                                 },
-                                            }
-                                        )}
+                    })}
                                     />
 
-                                    <FieldError
-                                        message={errors?.quantity?.message}
-                                    />
+                  <FieldError message={errors?.quantity?.message} />
                                 </div>
                             ) : null}
 
@@ -668,15 +579,10 @@ export function FinancialEntriesForm({
                                         <Label>Payment method</Label>
 
                                         <NativeSelect
-                                            {...form.register(
-                                                `entries.${index}.payment_method`
-                                            )}
+                      {...form.register(`entries.${index}.payment_method`)}
                                         >
                                             {PAYMENT_METHODS.map((value) => (
-                                                <NativeSelectOption
-                                                    key={value}
-                                                    value={value}
-                                                >
+                        <NativeSelectOption key={value} value={value}>
                                                     {value}
                                                 </NativeSelectOption>
                                             ))}
@@ -687,9 +593,7 @@ export function FinancialEntriesForm({
                                         <Label>Reference</Label>
 
                                         <Input
-                                            {...form.register(
-                                                `entries.${index}.reference_code`
-                                            )}
+                      {...form.register(`entries.${index}.reference_code`)}
                                         />
                                     </div>
                                 </>
@@ -702,17 +606,12 @@ export function FinancialEntriesForm({
                                     type="date"
                                     min={`${period}-01`}
                                     max={`${period}-31`}
-                                    {...form.register(
-                                        `entries.${index}.timestamp`,
-                                        {
+                  {...form.register(`entries.${index}.timestamp`, {
                                             required: "Choose a date.",
-                                        }
-                                    )}
+                  })}
                                 />
 
-                                <FieldError
-                                    message={errors?.timestamp?.message}
-                                />
+                <FieldError message={errors?.timestamp?.message} />
                             </div>
 
                             {kind === "expenses" ? (
@@ -720,26 +619,20 @@ export function FinancialEntriesForm({
                                     <div className="grid gap-1.5">
                                         <Label>Supplier</Label>
 
-                                        <Input
-                                            {...form.register(
-                                                `entries.${index}.supplier`
-                                            )}
-                                        />
+                    <Input {...form.register(`entries.${index}.supplier`)} />
                                     </div>
 
                                     <div className="grid gap-1.5">
                                         <Label>Invoice number</Label>
 
                                         <Input
-                                            {...form.register(
-                                                `entries.${index}.invoice_number`
-                                            )}
+                      {...form.register(`entries.${index}.invoice_number`)}
                                         />
                                     </div>
                                 </>
                             ) : null}
 
-                            {kind !== "overhead" ? (
+                            {kind !== "overhead" && (selectedFile || expandedOptional[fileDisclosureKey]) ? (
     <div className="col-span-full grid gap-1.5">
         <Label htmlFor={fileInputId}>
             {kind === "revenue"
@@ -755,7 +648,7 @@ export function FinancialEntriesForm({
                 "transition-colors duration-200",
                 selectedFile
                     ? "border-primary/40 bg-primary/5"
-                    : "border-border bg-surface-foreground/60 hover:border-primary/70 hover:bg-surface/80"
+                        : "border-border bg-surface-foreground/60 hover:border-primary/70 hover:bg-surface/80",
             )}
         >
             <input
@@ -765,22 +658,20 @@ export function FinancialEntriesForm({
                 accept=".pdf,image/png,image/jpeg,image/webp"
                 className="sr-only"
                 onChange={(event) => {
-                    const file = event.target.files?.[0] ?? null
+                        const file = event.target.files?.[0] ?? null;
 
                     if (file && file.size > 10 * 1024 * 1024) {
-                        toast.error("The selected file must be smaller than 10 MB.")
-                        event.currentTarget.value = ""
-                        return
+                          toast.error(
+                            "The selected file must be smaller than 10 MB.",
+                          );
+                          event.currentTarget.value = "";
+                          return;
                     }
 
-                    form.setValue(
-                        `entries.${index}.file`,
-                        file,
-                        {
+                        form.setValue(`entries.${index}.file`, file, {
                             shouldDirty: true,
                             shouldValidate: true,
-                        }
-                    )
+                        });
                 }}
             />
 
@@ -807,14 +698,10 @@ export function FinancialEntriesForm({
                         className="size-8 shrink-0 rounded-full"
                         aria-label="Remove selected file"
                         onClick={() =>
-                            form.setValue(
-                                `entries.${index}.file`,
-                                null,
-                                {
+                            form.setValue(`entries.${index}.file`, null, {
                                     shouldDirty: true,
                                     shouldValidate: true,
-                                }
-                            )
+                            })
                         }
                     >
                         <X className="size-4" />
@@ -844,25 +731,57 @@ export function FinancialEntriesForm({
 
         <FieldError message={errors?.file?.message} />
     </div>
+) : kind !== "overhead" ? (
+  <Button
+    type="button"
+    variant="outline"
+    className="col-span-full w-fit"
+    aria-expanded={false}
+    onClick={() => setExpandedOptional((current) => ({ ...current, [fileDisclosureKey]: true }))}
+  >
+    <Paperclip className="size-4" />
+    {kind === "revenue" ? "Add bank statement" : kind === "expenses" ? "Add receipt" : "Add attachment"}
+  </Button>
 ) : null}
 
+                            {notesValue || expandedOptional[notesDisclosureKey] ? (
                             <div className="col-span-full grid gap-1.5">
                                 <Label>Notes</Label>
 
-                                <Textarea
-                                    {...form.register(
-                                        `entries.${index}.notes`
-                                    )}
-                                />
+                <Textarea {...form.register(`entries.${index}.notes`)} />
 
-                                <FieldError
-                                    message={errors?.notes?.message}
-                                />
+                <FieldError message={errors?.notes?.message} />
                             </div>
+                            ) : (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="col-span-full w-fit"
+                                aria-expanded={false}
+                                onClick={() => setExpandedOptional((current) => ({ ...current, [notesDisclosureKey]: true }))}
+                              >
+                                <StickyNote className="size-4" /> Add notes
+                              </Button>
+                            )}
                         </div>
-                    )
+          );
                 }}
             />
+            {(kind === "revenue" || kind === "overhead") && user.data?.church ? (
+              <CreateFinancialCategoryDialog
+                open={categoryDialogOpen}
+                onOpenChange={setCategoryDialogOpen}
+                kind={kind}
+                assemblyId={String(user.data.church)}
+                onSelect={(category) => {
+                  const field = kind === "revenue" ? "category" : "overhead_type";
+                  form.setValue(`entries.${categoryTargetIndex}.${field}`, String(category.id), {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }}
+              />
+            ) : null}
         </form>
-    )
+  );
 }

@@ -211,6 +211,7 @@ export const apiRoutes = {
                 api(`bookkeeper/overhead/${id}`),
             batch: () => api("bookkeeper/overhead/batch"),
             types: () => api("bookkeeper/overhead/types"),
+            suggestions: () => api("bookkeeper/overhead/types/suggestions"),
         },
         revenue: {
             list: () => api("bookkeeper/revenue"),
@@ -218,6 +219,7 @@ export const apiRoutes = {
                 api(`bookkeeper/revenue/${id}`),
             batch: () => api("bookkeeper/revenue/batch"),
             categories: () => api("bookkeeper/revenue/categories"),
+            suggestions: () => api("bookkeeper/revenue/categories/suggestions"),
         },
         summary: {
             monthly: () => api("finance/monthly-summary"),
@@ -250,6 +252,16 @@ export const apiRoutes = {
         analyzer: (id: string | number) => api(`analyzer/${id}`),
         list: () => api("reports"),
         detail: (id: string | number) => api(`reports/${id}`),
+        overview: () => api("reports/overview"),
+        activity: () => api("reports/activity"),
+        current: () => api("reports/current"),
+        section: (id: string | number, section: string) => api(`reports/${id}/sections/${section}`),
+        submit: (id: string | number) => api(`reports/${id}/submit`),
+        submitted: (id: string | number) => api(`reports/${id}/submitted`),
+        submittedSection: (id: string | number, section: string) =>
+            api(`reports/${id}/submitted/sections/${section}`),
+        amend: (id: string | number) => api(`reports/${id}/amend`),
+        requestReopening: (id: string | number) => api(`reports/${id}/request-reopening`),
 
         zoneReport: (zoneId: number) =>
             api(`zone-reports/${zoneId}`),

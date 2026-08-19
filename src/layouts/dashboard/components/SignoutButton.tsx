@@ -4,11 +4,10 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { Logout02Icon } from "@hugeicons/core-free-icons"
 import { Loader2 } from "lucide-react"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { logout } from "@/features/auth/utils/logout"
+import { ExitIcon } from '@solar-icons/react/line-duotone/exit'
 
 export function SignoutButton() {
     const router = useRouter()
@@ -36,15 +35,15 @@ export function SignoutButton() {
                 onClick={handleLogout}
                 disabled={isPending}
                 variant="ghost"
-                className="h-9 w-full justify-start gap-2 hover:scale-[1] focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-950 dark:focus:text-red-400 font-normal"
+                className="w-full justify-start gap-2 hover:scale-[1] focus-visible:ring-0 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-950 dark:focus:text-red-400 font-normal"
             >
                 {isPending ? (
                     <Loader2 className="size-4 animate-spin" />
                 ) : (
-                    <HugeiconsIcon icon={Logout02Icon} strokeWidth={2} className="size-6 has-focus:text-red-600" />
+                    <ExitIcon strokeWidth={2} className="size-5.5 has-focus:text-red-600" />
                 )}
 
-                {isPending ? "Signing out..." : "Sign out"}
+                {isPending ? "Logging out..." : "Logout"}
             </Button>
         </DropdownMenuItem>
     )

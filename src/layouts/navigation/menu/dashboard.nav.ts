@@ -41,8 +41,8 @@ export function dashboard(): NavItem[] {
         },
         {
             label: "Members",
-            href: "/app/members",
-            defaultHref: "/app/members/directory",
+            href: "/members",
+            defaultHref: "/members/directory",
             icon: UsersGroupRoundedIcon,
             activeIcon: UsersGroupRoundedIcon,
             mobile: true,
@@ -82,7 +82,7 @@ export function dashboard(): NavItem[] {
                         basePath: this.href
                     },
                     {
-                        label: "Baby Dedications",
+                        label: "Dedications",
                         description: "Baby dedication records",
                         get href() {
                             return getPath(this.label, this.basePath);
@@ -102,7 +102,7 @@ export function dashboard(): NavItem[] {
         },
         {
             label: "Spaces",
-            href: "/app/spaces",
+            href: "/spaces",
             icon: ThreeSquaresIcon,
             activeIcon: ThreeSquaresIcon,
             mobile: true,
@@ -111,7 +111,7 @@ export function dashboard(): NavItem[] {
                     {
                         label: "Homecells",
                         description: "Homecells",
-                        href: "/app/spaces/home-cells",
+                        href: "/spaces/home-cells",
                     },
                     {
                         label: "Ministry Teams",
@@ -134,7 +134,7 @@ export function dashboard(): NavItem[] {
         },
         {
             label: "Library",
-            href: "/app/library",
+            href: "/library",
             icon: LibraryIcon,
             activeIcon: LibraryIcon,
             mobile: true,

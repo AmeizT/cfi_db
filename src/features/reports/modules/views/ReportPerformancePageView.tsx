@@ -3,7 +3,6 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
 import {
-    usePathname,
     useSearchParams,
     type ReadonlyURLSearchParams,
 } from "next/navigation"
@@ -132,7 +131,6 @@ export function ReportPerformancePageView({
     module?: PerformanceModule
     embedded?: boolean
 }) {
-    const pathname = usePathname()
     const searchParams = useSearchParams()
 
     const content = (
@@ -177,10 +175,9 @@ export function ReportPerformancePageView({
             <View.Header
                 pagename="Performance"
                 actions={<PeriodSelector />}
-                pathname={pathname}
-                tabs={getTabs(searchParams)}
-                activeTab={module}
             />
+
+            <View.Tabs items={getTabs(searchParams)} activeKey={module} />
 
             <View.Body className="gap-4 py-4">
                 {content}

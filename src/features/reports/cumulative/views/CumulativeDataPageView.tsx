@@ -14,6 +14,7 @@ import type { AnalyticsScopeFilters } from "@/features/reports/core/services/get
 import { AnalyticsDashboard } from "@/features/reports/analytics/components/AnalyticsDashboard"
 import { useAttendanceConfig } from "@/features/reports/analytics/config/attendance"
 import { useCashflowConfig } from "@/features/reports/analytics/config/cashflow"
+import type { ModulePageContext } from "@/features/reports/modules/types/report-modules"
 import { useTithesConfig } from "@/features/reports/analytics/config/tithes"
 
 export type CumulativeModule = "attendance" | "tithes" | "income-expenditure"
@@ -190,8 +191,24 @@ function CashflowCumulative({ config }: { config: CumulativePageConfig }) {
     return <AnalyticsDashboard data={rows} config={dashboardConfig} />
 }
 
-export function CumulativeDataPageView({ module }: { module: CumulativeModule }) {
-    const config = CUMULATIVE_PAGE_CONFIGS[module]
+function contextualPathname(module: CumulativeModule, pageContext: ModulePageContext) {
+    if (pageContext === "reports") return CUMULATIVE_PAGE_CONFIGS[module].pathname
+    if (module === "attendance") return "/engagement/attendance/cumulative"
+    if (module === "tithes") return "/finance/tithes/cumulative"
+    return "/finance/financial-activity/cumulative"
+}
+
+export function CumulativeDataPageView({
+    module,
+    pageContext = "reports",
+}: {
+    module: CumulativeModule
+    pageContext?: ModulePageContext
+}) {
+    const config = {
+        ...CUMULATIVE_PAGE_CONFIGS[module],
+        pathname: contextualPathname(module, pageContext),
+    }
 
     if (module === "attendance") return <AttendanceCumulative config={config} />
     if (module === "tithes") return <TithesCumulative config={config} />

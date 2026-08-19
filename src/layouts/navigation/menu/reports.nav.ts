@@ -65,7 +65,7 @@ export function reports(
             description: "Reporting dashboard for KPIs, trends, and charts",
             icon: PieChart2Icon,
             activeIcon: PieChart2Icon,
-            href: hrefFor("/reports/overview", { tab: null, view: null }),
+            href: hrefFor("/reports", { tab: null, view: null }),
             exact: true,
         },
         {

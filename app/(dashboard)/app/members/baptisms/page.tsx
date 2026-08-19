@@ -1,9 +1,3 @@
-import { getMetaData } from "@/config/metadata";
-import { BaptismsView } from "@/features/people/baptisms/views/BaptismsView"
-
-const meta = getMetaData({ title: "Baptisms" })
-export const metadata = { ...meta }
-
-export default function BaptismPage() {
-    return <BaptismsView />
-}
+import { APP_ROUTES } from "@/config/app-routes"
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+export default createLegacyRedirectPage(APP_ROUTES.members.baptisms)

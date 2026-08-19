@@ -30,7 +30,7 @@ export const getReportsActivityTabs = (searchParams: ReadonlyURLSearchParams) =>
                 const params = createQueryString(searchParams, { 
                     tab: null,
                 })
-                return `/reports/activity/compliance?${params}`
+                return `/reports/compliance?${params}`
             },
         },
         {

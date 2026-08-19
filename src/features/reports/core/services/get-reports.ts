@@ -3,7 +3,7 @@
 import { url } from "@/config/urls"
 import { cookies } from "next/headers"
 import type { TableSchema } from "@/features/data-table/types/tableSchema.types"
-import type { AssemblyReport } from "../schemas/report/assembly.schema"
+import type { MonthlyReport } from "@/dal/types"
 
 type ReportSectionData = {
     attendances: unknown[]
@@ -12,7 +12,20 @@ type ReportSectionData = {
     expenditures: unknown[]
 }
 
-export type ReportsQueryItem = AssemblyReport & {
+type ReportsQueryStatus =
+    | MonthlyReport["status"]
+    | "not_started"
+    | "ready_to_submit"
+    | "overdue"
+    | "locked"
+    | "reopened"
+    | "finalized"
+    | "reviewed"
+    | "archived"
+
+export type ReportsQueryItem = Omit<MonthlyReport, "status"> & {
+    status: ReportsQueryStatus
+    finalized_at?: string | null
     data?: ReportSectionData
 }
 

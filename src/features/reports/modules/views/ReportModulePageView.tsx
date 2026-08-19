@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react"
 import {
-    usePathname,
     useSearchParams,
     type ReadonlyURLSearchParams,
 } from "next/navigation"
@@ -25,6 +24,7 @@ import {
 } from "@/features/reports/finance/tithes/workspace/TithesWorkspace"
 import { ReportsOverview as ReportsQueueView } from "@/features/reports/activity/views/ReportOverview"
 import { SundaySchoolAttendanceView } from "@/features/people/sunday-school/views/SundaySchoolAttendanceView"
+import { ReportSourceBanner } from "@/features/reports/workflow/components/ReportSourceBanner"
 import {
     getReportModuleConfig,
     getReportModuleTabs,
@@ -41,6 +41,7 @@ import { ReportModuleTabs } from "../components/ReportModuleTabs"
 import type {
     ReportModuleConfig,
     ReportModuleKey,
+    ModulePageContext,
     ReportRouteKey,
     ReportSection,
 } from "../types/report-modules"
@@ -56,6 +57,7 @@ type RendererContext = {
     reportId: string | undefined
     submodule: string | undefined
     view: string
+    pageContext: ModulePageContext
 }
 
 type ModuleRenderer = (context: RendererContext) => ReactNode
@@ -107,11 +109,12 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
 
     "finance/tithes": ({
         config,
+        pageContext,
         reportId,
         view,
     }) => {
         if (view === "cumulative") {
-            return <CumulativeDataPageView module="tithes" />
+            return <CumulativeDataPageView module="tithes" pageContext={pageContext} />
         }
 
         if (!reportId) {
@@ -140,9 +143,10 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         pagination,
         reportId,
         view,
+        pageContext,
     }) => {
         if (view === "cumulative") {
-            return <CumulativeDataPageView module="income-expenditure" />
+            return <CumulativeDataPageView module="income-expenditure" pageContext={pageContext} />
         }
 
         if (!reportId) {
@@ -164,9 +168,10 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         pagination,
         reportId,
         view,
+        pageContext,
     }) => {
         if (view === "cumulative") {
-            return <CumulativeDataPageView module="income-expenditure" />
+            return <CumulativeDataPageView module="income-expenditure" pageContext={pageContext} />
         }
 
         if (!reportId) {
@@ -199,9 +204,10 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         pagination,
         reportId,
         view,
+        pageContext,
     }) => {
         if (view === "cumulative") {
-            return <CumulativeDataPageView module="attendance" />
+            return <CumulativeDataPageView module="attendance" pageContext={pageContext} />
         }
 
         if (view === "sunday-school") {
@@ -285,12 +291,13 @@ export function ReportModulePageView({
     section,
     module,
     submodule,
+    pageContext = "reports",
 }: {
     section: ReportSection
     module: ReportModuleKey
     submodule?: string
+    pageContext?: ModulePageContext
 }) {
-    const pathname = usePathname()
     const searchParams = useSearchParams()
     const pagination = useDataTablePagination()
     const reportId = getReportId(searchParams)
@@ -312,13 +319,13 @@ export function ReportModulePageView({
         return null
     }
 
-    const submoduleTabs = getReportSubmoduleTabs(section, module, searchParams)
-    const moduleTabs = getReportModuleTabs(section, searchParams)
+    const submoduleTabs = getReportSubmoduleTabs(section, module, searchParams, pageContext)
+    const moduleTabs = getReportModuleTabs(section, searchParams, pageContext)
     const viewTabs = submoduleTabs.length
         ? submoduleTabs
         : section === "activity" || section === "performance"
             ? moduleTabs
-            : getReportModuleViewTabs(section, module, searchParams)
+            : getReportModuleViewTabs(section, module, searchParams, pageContext)
     const activeSubmodule = getActiveReportSubmodule(section, module, submodule)
     const activeView =
         activeSubmodule ??
@@ -341,20 +348,18 @@ export function ReportModulePageView({
     return (
         <View className="gap-0" >
             <ReportModuleHeader
-                activeModule={module}
                 config={config}
-                pathname={pathname}
+                showReportNavigator={showReportNavigator}
                 title={pageTitle}
-                tabs={moduleTabs}
             />
 
             <ReportModuleTabs
                 activeView={activeView}
-                showReportNavigator={showReportNavigator}
                 tabs={viewTabs} 
             />
 
             <View.Body className="gap-0">
+                {pageContext === "workspace" ? <ReportSourceBanner /> : null}
                 <ReportModuleDataTable>
                     {renderer ? (
                         renderer({
@@ -364,6 +369,7 @@ export function ReportModulePageView({
                             isAttendanceLoading,
                             isFinanceLoading,
                             pagination,
+                            pageContext,
                             reportId,
                             submodule,
                             view: renderView,

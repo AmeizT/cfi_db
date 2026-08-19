@@ -3,7 +3,7 @@ import { createQueryString } from "@/features/reports/core/lib/create-query-stri
 
 export function getComplianceTabs(searchParams?: ReadonlyURLSearchParams) {
     const hrefFor = (tab: string) =>
-        `/reports/activity/compliance?${createQueryString(searchParams, { tab })}`
+        `/reports/compliance?${createQueryString(searchParams, { tab })}`
 
     const tabs = [
         {

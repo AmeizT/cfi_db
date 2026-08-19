@@ -1,5 +1,11 @@
-import { SundaySchoolAttendanceView } from "@/features/people/sunday-school/views/SundaySchoolAttendanceView"
+import { redirect } from "next/navigation"
 
-export default function SundaySchoolAttendancePage() {
-    return <SundaySchoolAttendanceView />
+import { reportHref, type ReportRouteSearchParams } from "@/features/reports/modules/lib/report-route-redirect"
+
+export default async function LegacySundaySchoolPage({
+    searchParams,
+}: {
+    searchParams: Promise<ReportRouteSearchParams>
+}) {
+    redirect(reportHref("/engagement/attendance/sunday-school", await searchParams))
 }

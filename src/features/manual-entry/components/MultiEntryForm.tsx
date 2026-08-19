@@ -1,13 +1,14 @@
 "use client"
 
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import { Button } from "@/components/ui/button"
-import { Loader2Icon, PlusIcon, Trash2Icon } from "lucide-react"
+import { Loader2Icon, PencilIcon, PlusIcon } from "lucide-react"
 import { TrashBinMinimalisticIcon } from '@solar-icons/react/linear/trash-bin-minimalistic'
 
 type MultiEntryFormProps = {
     rows: Array<{ id: string }>
     renderRow: (row: { id: string }, index: number) => ReactNode
+    renderSummary?: (row: { id: string }, index: number) => ReactNode
     onAddRow: () => void
     onRemoveRow: (index: number) => void
     onCancel: () => void
@@ -15,22 +16,47 @@ type MultiEntryFormProps = {
     isPending: boolean
 }
 
-export function MultiEntryForm({ rows, renderRow, onAddRow, onRemoveRow, onCancel, totalLabel, isPending }: MultiEntryFormProps) {
+export function MultiEntryForm({ rows, renderRow, renderSummary, onAddRow, onRemoveRow, onCancel, totalLabel, isPending }: MultiEntryFormProps) {
+    const [activeIndex, setActiveIndex] = useState(0)
+
+    function addRow() {
+        setActiveIndex(rows.length)
+        onAddRow()
+    }
+
+    function removeRow(index: number) {
+        if (index <= activeIndex) {
+            setActiveIndex(Math.max(0, activeIndex - 1))
+        }
+        onRemoveRow(index)
+    }
+
     return (
         <div className="space-y-4">
             <div className="space-y-3">
-                {rows.map((row, index) => (
-                    <fieldset key={row.id} disabled={isPending} className="relative rounded-2xl border border-border-subtle bg-card px-3 pb-3">
+                {rows.map((row, index) => {
+                    const expanded = index === activeIndex || !renderSummary
+
+                    return (
+                    <fieldset key={row.id} disabled={isPending} className="relative rounded-xl border border-border bg-card px-3 pb-3">
                         <legend className="sr-only">Entry {index + 1}</legend>
                         <div className="py-2 mb-3 flex items-center justify-between">
-                            <span className="px-2 py-1 text-sm font-semibold rounded-lg bg-surface-foreground">Entry {index + 1}</span>
-                            <Button type="button" size="icon" variant="ghost" disabled={rows.length === 1 || isPending} onClick={() => onRemoveRow(index)} aria-label={`Remove entry ${index + 1}`}>
-                                <TrashBinMinimalisticIcon className="size-5" />
-                            </Button>
+                            <span className="px-2 py-1 text-sm font-semibold rounded-lg bg-muted">Entry {index + 1}</span>
+                            <div className="flex items-center gap-1">
+                                {!expanded ? (
+                                    <Button type="button" size="sm" variant="ghost" onClick={() => setActiveIndex(index)}>
+                                        <PencilIcon className="size-4" /> Edit
+                                    </Button>
+                                ) : null}
+                                <Button type="button" size="icon" variant="ghost" disabled={rows.length === 1 || isPending} onClick={() => removeRow(index)} aria-label={`Remove entry ${index + 1}`}>
+                                    <TrashBinMinimalisticIcon className="size-5" />
+                                </Button>
+                            </div>
                         </div>
-                        {renderRow(row, index)}
+                        {expanded ? renderRow(row, index) : renderSummary?.(row, index)}
                     </fieldset>
-                ))}
+                    )
+                })}
             </div>
 
             <div className="flex flex-col gap-3 pt-0 sm:flex-row sm:items-center sm:justify-between">
@@ -39,7 +65,7 @@ export function MultiEntryForm({ rows, renderRow, onAddRow, onRemoveRow, onCance
                         <Button 
                             type="button" 
                             variant="outline" 
-                            onClick={onAddRow} 
+                            onClick={addRow}
                             disabled={isPending}
                             className="h-10 w-full border border-border border-dashed"
                         >

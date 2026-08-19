@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { usePathname, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import AttendanceView from "../../attendance/views/AttendanceDataGrid"
 import View from "@/components/ui/view"
 import { AttendanceResponse } from "@/dal/types"
@@ -16,7 +16,6 @@ import { ChevronDown, Plus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { EmptyState } from "@/components/ui/empty-state"
 import { PeriodSelector } from "../components/PeriodSelector"
-import { ReportNavigator } from "../components/ReportNavigator"
 import { useReportFinance } from "../../core/hooks/use-report-finance"
 import { getStatementTabs } from "@/layouts/navigation/pages/statement.tabs"
 
@@ -76,7 +75,6 @@ function PageAction({ tab }: {tab: ReportTabKey, year: string | undefined}) {
 }
 
 export default function ReportStatementView() {
-    const pathname = usePathname()
     const searchParams = useSearchParams()
     const reportId = searchParams.get("id") ?? undefined
     const activeTab = (searchParams.get("tab") as ReportTabKey) ?? "attendance"
@@ -144,14 +142,12 @@ export default function ReportStatementView() {
                         year={year}
                     />
                 }
-                pathname={pathname} 
-                tabs={statementTabs} 
-                activeTab={tab}
+                showReportNavigator
             />
 
-            <View.Body className="gap-4 ">
-                <ReportNavigator />
+            <View.Tabs items={statementTabs} activeKey={tab} />
 
+            <View.Body className="gap-4 ">
                 {isEmpty ? (
                     <EmptyState
                         type={"reports"}

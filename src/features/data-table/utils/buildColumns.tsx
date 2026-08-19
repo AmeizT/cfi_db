@@ -340,7 +340,7 @@ export function buildColumns<T extends Record<string, unknown>>(
                 return (
                     <div className="group flex w-full min-w-0 items-center gap-3">
                         <div className="flex min-w-0 items-center gap-3">
-                            <Avatar className="size-7 shrink-0 rounded-[33%] text-sm">
+                            <Avatar className="size-7 shrink-0 text-sm">
                                 {avatar ? (
                                     <AvatarImage
                                         src={avatar}
@@ -349,7 +349,7 @@ export function buildColumns<T extends Record<string, unknown>>(
                                 ) : null}
 
                                 <AvatarFallback
-                                    className="rounded-none text-sm"
+                                    className="text-sm"
                                     style={
                                         isAnonymous
                                             ? {

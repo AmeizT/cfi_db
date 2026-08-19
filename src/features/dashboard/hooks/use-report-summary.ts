@@ -1,9 +1,9 @@
 "use client"
 
-import { MonthlyReport } from "@/dal/types"
+import type { ReportsQueryItem } from "@/features/reports/core/services/get-reports"
 import { format } from "date-fns"
 
-export function useReportSummary(report?: MonthlyReport) {
+export function useReportSummary(report?: ReportsQueryItem) {
   if (!report) return null
 
   const month = report.period_start

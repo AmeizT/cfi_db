@@ -68,7 +68,7 @@ function CommandInput({
   return (
     <div
       data-slot="command-input-wrapper"
-      className="flex h-fit items-center gap-2 border-b border-border-subtle px-3"
+      className="flex h-fit items-center gap-2 border-b-0 border-border-subtle px-3"
     >
       <MinimalisticMagnifierIcon className="size-4.5 shrink-0 text-muted" />
       <CommandPrimitive.Input
@@ -91,7 +91,7 @@ function CommandList({
     <CommandPrimitive.List
       data-slot="command-list"
       className={cn(
-        "max-h-75 scroll-py-1 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-200",
+        "max-h-75 scroll-py-1 overflow-x-hidden overflow-y-auto no-scrollbar",
         className
       )}
       {...props}

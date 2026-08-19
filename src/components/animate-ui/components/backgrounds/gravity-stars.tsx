@@ -284,14 +284,14 @@ function GravityStarsBackground({
     [dpr, glowIntensity, readColor],
   );
 
-  const animate = React.useCallback(() => {
+  const animate = React.useCallback(function animateFrame() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     updateStars();
     drawStars(ctx);
-    animRef.current = requestAnimationFrame(animate);
+    animRef.current = requestAnimationFrame(animateFrame);
   }, [updateStars, drawStars]);
 
   React.useEffect(() => {

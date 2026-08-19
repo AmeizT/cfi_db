@@ -26,7 +26,7 @@ export const getReportTabs = (searchParams: ReadonlyURLSearchParams) => {
             key: "compliance",
             description: "Monitor report completion, submission status, and deadlines",
             get href() {
-                return `/reports/activity/compliance`
+                return `/reports/compliance`
             },
         },
         {

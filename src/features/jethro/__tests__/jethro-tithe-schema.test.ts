@@ -1,6 +1,5 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-// @ts-expect-error Node's built-in TypeScript test runner requires the file extension.
 import { JethroStructuredContentSchema } from "../schemas/jethro.ts"
 
 const member = {

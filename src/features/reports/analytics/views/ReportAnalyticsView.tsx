@@ -2,7 +2,7 @@
 
 import View from "@/components/ui/view"
 import { parseTab } from "@/utils/parse-tab"
-import { usePathname, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { getAnalyticsTabs } from "@/layouts/navigation/pages/analytics.tabs"
 import { AnalyticsDashboard } from "../components/AnalyticsDashboard"
 import { useAttendanceConfig } from "../config/attendance"
@@ -104,7 +104,6 @@ function AnalyticsContext({ tab }: { tab: ReportTabKey }) {
 }
 
 export function ReportAnalyticsView() {
-    const pathname = usePathname()
     const searchParams = useSearchParams()
     const activeTab = (searchParams.get("tab") as ReportTabKey) ?? "attendance"
     const { main: tab } = parseTab(activeTab) as { main: ReportTabKey }
@@ -114,10 +113,9 @@ export function ReportAnalyticsView() {
         <View className="gap-0">
             <View.Header 
                 pagename={tab + " Cumulative"}
-                pathname={pathname} 
-                tabs={analyticsTabs} 
-                activeTab={tab}
             />
+
+            <View.Tabs items={analyticsTabs} activeKey={tab} />
 
             <View.Body>
                 <AnalyticsContext tab={tab} />

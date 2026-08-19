@@ -1,5 +1,2 @@
-import { TeamsView } from "@/features/spaces/teams/views/TeamsView";
-
-export default function MinistryTeamsPage() {
-    return <TeamsView />
-}
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+export default createLegacyRedirectPage("/spaces/ministry-teams")

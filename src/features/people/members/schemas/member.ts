@@ -85,7 +85,20 @@ export function getMembersFromResponse(response: MembersApiResponse) {
     return Array.isArray(response) ? response : response.results
 }
 
+export function getMembersPageFromResponse(response: MembersApiResponse) {
+    if (Array.isArray(response)) {
+        return { count: response.length, next: null, previous: null, results: response }
+    }
+    return {
+        count: response.count,
+        next: response.next,
+        previous: response.previous,
+        results: response.results,
+    }
+}
+
 export type Member = z.infer<typeof MemberSchema>
 export type MembersListResponse = z.infer<typeof MembersListResponseSchema>
 export type PaginatedMembersResponse = z.infer<typeof PaginatedMembersResponseSchema>
 export type MembersApiResponse = z.infer<typeof MembersApiResponseSchema>
+export type MembersPage = ReturnType<typeof getMembersPageFromResponse>

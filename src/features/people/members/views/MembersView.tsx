@@ -272,7 +272,7 @@ export function MembersView({ embedded = false, group = "all" }: { embedded?: bo
 
             {!embedded ? <View.TabBar items={tabs} /> : null}
 
-            <View.Body className="gap-4 py-4">
+            <View.Body className="gap-4 p-0">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex w-full flex-col gap-2 sm:max-w-sm sm:flex-row">
                         <div className="relative flex-1">

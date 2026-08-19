@@ -63,7 +63,7 @@ export function getNavigation(period?: string, rid?: string){
                             name: "Overview",
                             description: "Summary of key data across attendance, income, expenses, and tithes",
                             get pathname() {
-                                return `/reports/overview?period=${period}`
+                                return `/reports?period=${period}`
                             },
                         },
                         {
@@ -134,8 +134,8 @@ export function getNavigation(period?: string, rid?: string){
                 }
             },
             {
-                name: "People",
-                description: "People",
+                name: "Members",
+                description: "Members",
                 pathname: "/people",
                 icon: UserMultiple02Icon,
                 activeIcon: IconUsers,

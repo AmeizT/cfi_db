@@ -1,7 +1,2 @@
-import { AppDashboardView } from "@/features/dashboard/views/AppDashboardView"
-
-export default async function DashboardPage() {
-    return (
-        <AppDashboardView />
-    )
-}  
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+export default createLegacyRedirectPage("/")

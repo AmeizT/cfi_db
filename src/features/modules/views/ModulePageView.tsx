@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation"
 import View from "@/components/ui/view"
 import { PeriodSelector } from "@/features/reports/statements/components/PeriodSelector"
-import { ReportNavigator } from "@/features/reports/statements/components/ReportNavigator"
 import { EmptyState } from "@/components/ui/empty-state"
 import { useUser } from "@/hooks/query/use-user"
 import { getModulePageConfig } from "../config/module-registry"
@@ -44,13 +43,12 @@ export function ModulePageView(route: ModuleRoute) {
             <View.Header
                 pagename={config.title}
                 actions={config.showPeriodSelector ? <PeriodSelector /> : config.actions}
+                showReportNavigator={config.showReportNavigator}
             />
 
             {config.tabs?.length ? (
                 <View.TabBar items={[...config.tabs]} activeKey={activeTab} />
             ) : null}
-
-            {config.showReportNavigator ? <ReportNavigator /> : null}
 
             <View.Body className="gap-4 py-4">
                 <Content />

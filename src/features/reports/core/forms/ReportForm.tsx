@@ -72,7 +72,7 @@ export function CreateReportForm() {
         toast(formState.message || "Report created", {
             action: (
                 <Link
-                    href="/reports/overview"
+                    href="/reports"
                     className="px-2 py-1.5 rounded-md hover:bg-primary/10 text-primary font-semibold text-sm"
                 >
                     View reports

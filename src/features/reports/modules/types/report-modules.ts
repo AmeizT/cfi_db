@@ -1,5 +1,7 @@
 export type ReportSection = "activity" | "finance" | "ministry" | "performance"
 
+export type ModulePageContext = "reports" | "workspace"
+
 export type ReportModuleKey =
     | "all"
     | "overview"

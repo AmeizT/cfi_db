@@ -32,4 +32,26 @@ export const HouseholdsResponseSchema = z.object({
     table_schema: z.unknown().optional(),
 })
 
+export const HouseholdMemberSummarySchema = z.object({
+    id: z.number(),
+    member: z.number(),
+    member_key: z.string(),
+    member_full_name: z.string(),
+    avatar: z.string().nullable(),
+    avatar_fallback: z.string(),
+    age: z.number(),
+    role: z.string(),
+    is_primary_contact: z.boolean(),
+    joined_on: z.iso.date(),
+})
+
+export const HouseholdDetailSchema = HouseholdSchema.extend({
+    assembly_name: z.string(),
+    adult_count: z.number(),
+    minor_count: z.number(),
+    members: z.array(HouseholdMemberSummarySchema),
+})
+
 export type Household = z.infer<typeof HouseholdSchema>
+export type HouseholdDetail = z.infer<typeof HouseholdDetailSchema>
+export type HouseholdMemberSummary = z.infer<typeof HouseholdMemberSummarySchema>

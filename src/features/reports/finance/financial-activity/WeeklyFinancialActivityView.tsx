@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { EmptyState } from "@/components/ui/empty-state"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { useUser } from "@/hooks/query/use-user"
@@ -18,6 +18,7 @@ type FinancialTransaction = {
     category: string
     description: string
     amount: number
+    sourceType: "revenue" | "operating" | "activity-other" | "tithes"
 }
 
 function toNumber(value: unknown) {
@@ -54,6 +55,7 @@ function revenueTransactions(finance: FinanceResponse): FinancialTransaction[] {
         category: item.category_name || String(item.category || "Other revenue"),
         description: item.notes || item.category_name || String(item.category || "Revenue"),
         amount: toNumber(item.amount),
+        sourceType: "revenue" as const,
     }))
 
     const tithes = (finance.tithes?.results ?? finance.tithes?.data ?? []).map((item, index) => ({
@@ -62,6 +64,7 @@ function revenueTransactions(finance: FinanceResponse): FinancialTransaction[] {
         category: "Tithes",
         description: item.notes || item.reference_code || "Tithe",
         amount: toNumber(item.amount),
+        sourceType: "tithes" as const,
     }))
 
     return [...revenue, ...tithes]
@@ -71,9 +74,10 @@ function expenseTransactions(finance: FinanceResponse): FinancialTransaction[] {
     const overheads = (finance.expenses?.overheads ?? []).map((item, index) => ({
         id: `overhead-${item.id ?? index}`,
         date: item.timestamp,
-        category: item.overhead_type_name || item.overhead_type || "Overhead",
-        description: item.notes || item.overhead_type_name || "Overhead",
+        category: item.overhead_type_name || item.overhead_type || "Operating Expenses",
+        description: item.notes || item.overhead_type_name || "Operating Expenses",
         amount: toNumber(item.amount),
+        sourceType: "operating" as const,
     }))
 
     const variables = (finance.expenses?.variables ?? []).map((item, index) => {
@@ -83,9 +87,10 @@ function expenseTransactions(finance: FinanceResponse): FinancialTransaction[] {
         return {
             id: `expense-${String(record.id ?? index)}`,
             date: String(record.timestamp || record.invoice_date || record.created_at || ""),
-            category: String(record.category_name || record.category || "Other expense"),
-            description: String(record.name || record.description || "Expense"),
+            category: String(record.category_name || record.category || "Activity & Other Expenses"),
+            description: String(record.name || record.description || "Activity & Other Expenses"),
             amount,
+            sourceType: "activity-other" as const,
         }
     })
 
@@ -125,14 +130,18 @@ export function WeeklyFinancialActivityView({
     isLoading: boolean
 }) {
     const router = useRouter()
+    const pathname = usePathname()
     const searchParams = useSearchParams()
     const { data: user } = useUser()
-    const pathname = `/reports/financial-activity/${kind}`
+    const requestedExpenseType = searchParams.get("type")
     const transactions = React.useMemo(() => {
         if (!finance) return []
         const rows = kind === "revenue" ? revenueTransactions(finance) : expenseTransactions(finance)
         return rows.filter((item) => item.date && Number.isFinite(item.amount))
-    }, [finance, kind])
+            .filter((item) => kind !== "expenses"
+                || requestedExpenseType !== "operating" && requestedExpenseType !== "activity-other"
+                || item.sourceType === requestedExpenseType)
+    }, [finance, kind, requestedExpenseType])
     const weekStarts = React.useMemo(
         () => [...new Set(transactions.map((item) => mondayFor(item.date)))].sort().reverse(),
         [transactions],

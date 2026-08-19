@@ -1,7 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-// @ts-expect-error Node's built-in TypeScript test runner requires the file extension.
 import { buildTransferQueryKey } from "../utils/transfer-query-key.ts"
 
 test("transfer query keys include assembly, view, status, pagination, search, and filters", () => {

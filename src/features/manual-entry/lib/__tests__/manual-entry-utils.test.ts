@@ -1,6 +1,5 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-// @ts-expect-error Node's strip-types test runner requires an explicit TypeScript extension.
 import { calculateEntryTotal, findDuplicateEntryIndices, flattenRowErrors } from "../manual-entry-utils.ts"
 
 test("calculates financial totals including expense quantities", () => {

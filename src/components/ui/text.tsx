@@ -34,42 +34,45 @@ const variants = [
     ),
   },
   {
-  variant: "generate-effect",
-  component: ({ children, className, ...props }) => {
-    if (typeof children !== "string") return null;
+    variant: "generate-effect",
+      component: ({ children, className, ...props }) => {
+          if (typeof children !== "string") return null
 
-    return (
-      <div className="inline-block whitespace-pre">
-        {children.split("").map((char, index) => (
-          <motion.span
-            {...props}
-            key={char + String(index)}
-            className={cn(
-              "inline-block whitespace-pre text-primary-foreground",
-              className,
-            )}
-            initial={{ opacity: 0, filter: "blur(4px)", rotateX: 90, y: 5 }}
-            animate={{
-              opacity: 1,
-              filter: "blur(0px)",
-              rotateX: 0,
-              y: 0,
-            }}
-            transition={{
-              ease: "easeOut",
-              duration: 0.3,
-              delay: index * 0.015,
-            }}
-          >
-            {char}
-          </motion.span>
-        ))}
-      </div>
-    );
+          return (
+              <div className="inline">
+                  {children.split("").map((char, index) => (
+                      <motion.span
+                          {...props}
+                          key={char + String(index)}
+                          className={cn(
+                              "inline-block whitespace-pre text-primary-foreground",
+                              className
+                          )}
+                          initial={{
+                              opacity: 0,
+                              filter: "blur(4px)",
+                              rotateX: 90,
+                              y: 5,
+                          }}
+                          animate={{
+                              opacity: 1,
+                              filter: "blur(0px)",
+                              rotateX: 0,
+                              y: 0,
+                          }}
+                          transition={{
+                              ease: "easeOut",
+                              duration: 0.3,
+                              delay: index * 0.015,
+                          }}
+                      >
+                          {char}
+                      </motion.span>
+                  ))}
+              </div>
+          )
+      },
   },
-},
-
-
   {
     variant: "glitch",
     component: ({ children, className, ...props }) => (

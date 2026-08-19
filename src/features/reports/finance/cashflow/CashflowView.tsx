@@ -22,9 +22,6 @@ interface ViewProps {
 
 export default function CashFlowView({ cashflow, isLoading, pagination, showSummary = false }: ViewProps) {
     const { data: user } = useUser()
-    const handleCellEdit = (rowIndex: number, columnId: string, value: unknown) => {
-        console.log("Edited cell:", { rowIndex, columnId, value })
-    }
     const sourceRows: Array<CashflowRow & { id?: number }> = (
         cashflow?.results ??
         cashflow?.data?.rows ??
@@ -82,7 +79,6 @@ export default function CashFlowView({ cashflow, isLoading, pagination, showSumm
                     config={cashflow?.config as TableSchema}
                     options={tableOptions}
                     rowHeight={36}
-                    onCellEdit={handleCellEdit}
                     footerData={undefined}
                     isLoading={isLoading}
                     totalRows={cashflow?.count ?? rows.length}

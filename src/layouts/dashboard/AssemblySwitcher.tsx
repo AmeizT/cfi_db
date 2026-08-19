@@ -19,7 +19,7 @@ import { useUser } from "@/hooks/query/use-user"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/utils/cn";
 import { getTextColor } from "../utils/get-text-color"
-import { oklchLinearGradient, themeVariant } from "../utils/get-oklch-gradient"
+import { oklchLinearGradient } from "../utils/get-oklch-gradient"
 
 import { toast } from "sonner"
 import { FormState } from "@/types/form-state"
@@ -28,9 +28,10 @@ import { useRouter } from "next/navigation"
 import { refreshAfterAssemblySwitch } from "@/lib/query-keys"
 import { setActiveTeamspace } from "@/layouts/actions/change-workspace"
 import type { AssemblySummary } from "@/features/auth/schemas/user"
-import { ArrowDown, ArrowUp, ChevronDown, CornerDownLeft, LucideIcon } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, ChevronDown, CornerDownLeft, LucideIcon } from "lucide-react";
 import { FileSearchIcon } from "@/components/icons/FilesIcon";
 import { Flex } from "@/components/ui/box";
+import { AvatarGroup, AvatarGroupTooltip } from "@/components/animate-ui/components/animate/avatar-group";
 
 export function AssemblySwitcher(){
     const [open, setOpen] = React.useState(false)
@@ -39,8 +40,6 @@ export function AssemblySwitcher(){
 
     const [selectedAssemblyId, setSelectedAssemblyId] = React.useState<string>("")
     const currentAssemblyId = selectedAssemblyId || String(user?.church ?? "")
-
-    const primaryVariant = themeVariant(user?.assembly?.avatar_fallback || "oklch(87.2% 0.007 219.6)", { lightness: 0.95})
 
     type KbdNavigationItem = {
         label: string
@@ -77,119 +76,257 @@ export function AssemblySwitcher(){
         },
     ]
 
-    return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-                {isLoading ? (
-                    <Skeleton className="size-8 rounded-full bg-[var(--shell-chrome-hover)]" />
-                ) : (
-                    <Button 
-                    onClick={() => setOpen(true)} 
-                    variant={"outline"} 
-                    className={cn("px-1 has-[>svg]:px-1 flex items-center gap-1.5 justify-between rounded-[10px] border border-[var(--shell-sidebar-border)] bg-[var(--shell-chrome-hover)] text-[var(--shell-chrome-foreground)] shadow-sm hover:bg-[var(--shell-chrome-active)]")} 
-                    >
-                        <div className="w-full flex items-center gap-1.5">
-                            <Avatar className="rounded-md size-6">
-                                <AvatarImage src={user?.assembly?.avatar || undefined} />
+    const assemblyCount = assemblies.length
+const hasMultipleAssemblies = assemblyCount > 1
+
+const activeAssembly = user?.assembly
+
+const otherAssemblies = assemblies.filter(
+    (assembly) => assembly.id !== activeAssembly?.id
+)
+
+const visibleAssemblies = activeAssembly
+    ? [activeAssembly, ...otherAssemblies.slice(0, 2)]
+    : assemblies.slice(0, 3)
+
+const remainingAssemblies = Math.max(
+    assemblyCount - visibleAssemblies.length,
+    0
+)
+
+const triggerContent = isLoading ? (
+    <>
+        <Skeleton className="size-7.5 shrink-0 rounded-full" />
+        <Skeleton className="h-4 w-20 min-w-0 sm:w-24" />
+
+        {hasMultipleAssemblies && (
+            <Skeleton className="ml-auto size-4 shrink-0 rounded-full" />
+        )}
+    </>
+) : (
+    <>
+        <div className="p-1 flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+            {hasMultipleAssemblies ? (
+                <AvatarGroup className="h-fit shrink-0">
+                    {visibleAssemblies.map((assembly) => {
+                        const isActive =
+                            assembly.id === activeAssembly?.id
+
+                        return (
+                            <Avatar
+                                key={assembly.id}
+                                className={cn(
+                                    "size-7.5 rounded-full",
+                                    isActive &&
+                                        "z-20 ring-2 ring-primary ring-offset-[1.5px] ring-offset-(--shell-chrome-hover)"
+                                )}
+                            >
+                                <AvatarImage
+                                    src={assembly.avatar || undefined}
+                                />
+
                                 <AvatarFallback
-                                    className="font-semibold rounded-md"
+                                    className="font-semibold"
                                     style={{
-                                        background: oklchLinearGradient(user?.assembly?.avatar_fallback || "oklch(87.2% 0.007 219.6)"),
-                                        color: getTextColor(user?.assembly?.avatar_fallback || "oklch(45% 0.017 213.2)"),
+                                        background: oklchLinearGradient(
+                                            assembly.avatar_fallback ||
+                                                "oklch(87.2% 0.007 219.6)"
+                                        ),
+                                        color: getTextColor(
+                                            assembly.avatar_fallback ||
+                                                "oklch(45% 0.017 213.2)"
+                                        ),
                                     }}
                                 >
-                                    {user?.assembly?.name.charAt(0) || "A"}
+                                    {assembly.name?.charAt(0) || "A"}
                                 </AvatarFallback>
                             </Avatar>
+                        )
+                    })}
 
-                            <span className="text-[var(--shell-chrome-foreground)]">
-                                {user?.assembly?.name}
-                            </span>
-                        </div>
+                    {remainingAssemblies > 0 && (
+                        <Avatar className="size-7.5 rounded-full">
+                            <AvatarFallback className="font-semibold">
+                                +{remainingAssemblies}
+                            </AvatarFallback>
+                        </Avatar>
+                    )}
+                </AvatarGroup>
+            ) : (
+                <Avatar className="size-7.5 shrink-0 rounded-full">
+                    <AvatarImage
+                        src={activeAssembly?.avatar || undefined}
+                    />
 
-                        <span className="pr-1 size-6 flex justify-center items-center">
-                            <ChevronDown strokeWidth={2.5} className="text-[var(--shell-chrome-foreground)]" />
-                        </span>
-                    </Button>
-                )}
-            </PopoverTrigger>
+                    <AvatarFallback
+                        className="font-semibold"
+                        style={{
+                            background: oklchLinearGradient(
+                                activeAssembly?.avatar_fallback ||
+                                    "oklch(87.2% 0.007 219.6)"
+                            ),
+                            color: getTextColor(
+                                activeAssembly?.avatar_fallback ||
+                                    "oklch(45% 0.017 213.2)"
+                            ),
+                        }}
+                    >
+                        {activeAssembly?.name?.charAt(0) || "A"}
+                    </AvatarFallback>
+                </Avatar>
+            )}
 
-            <PopoverContent align="start" alignOffset={1.5} sideOffset={4} className="p-0 w-lg rounded-xl border-border-subtle shadow-xs">
-                <Command className="w-full rounded-xl">
-                    <CommandInput placeholder="Search for an assembly..." className="h-11 border-border-subtle" />
-                    <CommandList className="p-2">
-                        <CommandEmpty>
-                            <Flex direction="column" align="center" className="w-full h-full">
-                                <FileSearchIcon />
-                                No results found.
-                            </Flex>
-                        </CommandEmpty>
-                        {isLoading ? (
-                            <React.Fragment>
-                                {[...Array(assemblies.length)].map((_, index) => (
-                                    <CommandItem
-                                        key={index}
-                                        className="px-2 my-0.5 h-5 flex items-center"
-                                    >
-                                        <Skeleton className="w-full h-5 rounded-md" />
-                                    </CommandItem>
-                                ))}
-                            </React.Fragment>
-                        ) : (
-                            <React.Fragment>
-                                {assemblies?.map((assembly) => (
-                                    <CommandItem key={assembly.id} className="px-2 h-9 flex items-center rounded-lg hover:bg-mist-200">
-                                        <AssemblySwitcherItem
-                                            assembly={assembly}
-                                            selectedAssemblyId={currentAssemblyId}
-                                            setSelectedAssemblyId={setSelectedAssemblyId}
-                                        />
-                                    </CommandItem>
-                                ))}
-                            </React.Fragment>
-                        )}
-                    </CommandList>
+            <span className="min-w-0 max-w-28 truncate text-(--shell-chrome-foreground) sm:max-w-32">
+                {activeAssembly?.name}
+            </span>
+        </div>
 
-                    <footer className="flex min-h-11 w-full items-center gap-4 border-t border-border-subtle bg-zinc-50 p-1.5 dark:bg-neutral-900">
-                        {kbdNavigation.map((group) => (
-                            <div
-                                key={group.label}
-                                className="flex items-center gap-1.5"
-                            >
-                                <div className="flex items-center gap-1.5">
-                                    {group.items.map((item) => {
-                                        const Icon = item.icon
+        {hasMultipleAssemblies && (
+            <ChevronDown
+                strokeWidth={2.5}
+                className="size-4 shrink-0 text-(--shell-chrome-foreground)"
+            />
+        )}
+    </>
+)
 
-                                        return (
-                                            <kbd
-                                                key={item.label}
-                                                aria-label={item.label}
-                                                title={item.label}
-                                                className="flex size-6 items-center justify-center rounded-md bg-white text-foreground shadow-[0_4px_8px_rgba(41,41,41,0.06),0_2px_4px_rgba(41,41,41,0.04),0_1px_2px_rgba(41,41,41,0.04),0_0_0_1px_rgba(41,41,41,0.08),inset_0_-0.5px_0.5px_rgba(41,41,41,0.08)] dark:bg-neutral-800"
+const triggerClassName = cn(
+    "flex h-fit min-w-0 max-w-60 items-center justify-between gap-2 rounded-full has-[>svg]:px-0.5 has-[>svg]:pr-2 py-0.5",
+    "border border-(--shell-sidebar-border)",
+    "bg-(--shell-chrome-hover)",
+    "text-(--shell-chrome-foreground)",
+    "shadow-sm",
+    "hover:bg-(--shell-chrome-active)"
+)
+
+const trigger = (
+    <Button
+        type="button"
+        aria-label={
+            hasMultipleAssemblies
+                ? `Switch assembly. Current assembly: ${activeAssembly?.name ?? "None"}`
+                : `Current assembly: ${activeAssembly?.name ?? "None"}`
+        }
+        aria-busy={isLoading}
+        disabled={isLoading}
+        variant="outline"
+        className={cn(
+            triggerClassName,
+            !hasMultipleAssemblies && "cursor-default"
+        )}
+    >
+        {triggerContent}
+    </Button>
+)
+
+return (
+    <>
+        {hasMultipleAssemblies ? (
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                    {trigger}
+                </PopoverTrigger>
+
+                <PopoverContent
+                    align="start"
+                    alignOffset={1.5}
+                    sideOffset={4}
+                    className="w-[min(25rem,calc(100vw-1rem))] rounded-2xl border-0 border-border-subtle p-0 shadow-elevation-sm"
+                >
+                    <Command className="w-full rounded-xl">
+                        <CommandInput
+                            placeholder="Search for an assembly..."
+                            className="h-11 border-border-subtle"
+                        />
+
+                        <CommandList className="p-2">
+                            <CommandEmpty>
+                                <Flex
+                                    direction="column"
+                                    align="center"
+                                    className="h-full w-full"
+                                >
+                                    <FileSearchIcon />
+                                    No results found.
+                                </Flex>
+                            </CommandEmpty>
+
+                            {isLoading ? (
+                                <>
+                                    {[...Array(assemblies.length)].map(
+                                        (_, index) => (
+                                            <CommandItem
+                                                key={index}
+                                                className="my-0.5 flex h-5 items-center px-2"
                                             >
-                                                <Icon
-                                                    strokeWidth={2.2}
-                                                    className="size-4"
-                                                />
-                                            </kbd>
+                                                <Skeleton className="h-5 w-full rounded-md" />
+                                            </CommandItem>
                                         )
-                                    })}
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    {assemblies.map((assembly) => (
+                                        <CommandItem
+                                            key={assembly.id}
+                                            className="flex h-9 items-center rounded-lg px-2 hover:bg-mist-200"
+                                        >
+                                            <AssemblySwitcherItem
+                                                assembly={assembly}
+                                                selectedAssemblyId={
+                                                    currentAssemblyId
+                                                }
+                                                setSelectedAssemblyId={
+                                                    setSelectedAssemblyId
+                                                }
+                                            />
+                                        </CommandItem>
+                                    ))}
+                                </>
+                            )}
+                        </CommandList>
+
+                        <footer className="flex w-full items-center gap-4 border-t border-border-subtle p-2">
+                            {kbdNavigation.map((group) => (
+                                <div
+                                    key={group.label}
+                                    className="flex items-center gap-1.5"
+                                >
+                                    <div className="flex items-center gap-1.5">
+                                        {group.items.map((item) => {
+                                            const Icon = item.icon
+
+                                            return (
+                                                <kbd
+                                                    key={item.label}
+                                                    aria-label={item.label}
+                                                    title={item.label}
+                                                    className="flex size-6 items-center justify-center rounded-md bg-white text-foreground shadow-elevation-sm dark:bg-neutral-800"
+                                                >
+                                                    <Icon
+                                                        strokeWidth={2.2}
+                                                        className="size-4"
+                                                    />
+                                                </kbd>
+                                            )
+                                        })}
+                                    </div>
+
+                                    <span className="text-xs font-medium text-muted-foreground">
+                                        {group.label}
+                                    </span>
                                 </div>
-
-                                <span className="text-xs font-medium text-muted-foreground">
-                                    {group.label}
-                                </span>
-                            </div>
-                        ))}
-                    </footer>
-                </Command>
-            </PopoverContent>
-        </Popover>
-    )
+                            ))}
+                        </footer>
+                    </Command>
+                </PopoverContent>
+            </Popover>
+        ) : (
+            trigger
+        )}
+    </>
+)
 }
-
-
-
 
 interface AssemblySwitcherItemProps {
     assembly: AssemblySummary
@@ -294,6 +431,12 @@ export function AssemblySwitcherItem({
                 </Avatar>
 
                 {assembly.name}
+
+                {String(assembly.id) === selectedAssemblyId && (
+                    <span className="ml-auto size-5 flex items-center justify-center rounded-full bg-(--shell-chrome-hover) text-(--shell-chrome-foreground)">
+                        <Check strokeWidth={2.5} className="size-3" />
+                    </span>
+                )}
             </label>
         </form>
     )

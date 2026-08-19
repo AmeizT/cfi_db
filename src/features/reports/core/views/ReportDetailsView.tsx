@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { usePathname, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useReportAttendance } from "../hooks/use-attendance"
 import { useReportFinance } from "../hooks/use-report-finance"
 import AttendanceView from "../../attendance/views/AttendanceDataGrid"
@@ -101,7 +101,6 @@ function PageAction({ tab }: {tab: ReportTabKey}) {
 }
 
 export function ReportDetailsView() {
-    const pathname = usePathname()
     const searchParams = useSearchParams()
     const reportId = searchParams.get("report_id") ?? undefined
     const tab = (searchParams.get("tab") as ReportTabKey) ?? "attendance"
@@ -154,10 +153,9 @@ export function ReportDetailsView() {
             <View.Header 
                 pagename={<PageName tab={tab} meta={meta} user={user || undefined} />} 
                 actions={<PageAction tab={tab} />}
-                pathname={pathname} 
-                tabs={_reportTabs} 
-                activeTab={tab}
             />
+
+            <View.Tabs items={_reportTabs} activeKey={tab} />
 
             <View.Body>
                 <ReportContext

@@ -39,9 +39,11 @@ export function ComplianceStatusView() {
             {isStaff ? (
                 <View className="gap-0">
                     <View.Header
-                        pathname={pathname}
                         pagename="Compliance Status"
-                        tabs={getPageTabs("compliance", { searchParams })}
+                    />
+                    <View.Tabs
+                        items={getPageTabs("compliance", { searchParams })}
+                        pathname={pathname}
                     />
                     <View.Body>
                         

@@ -1,9 +1,5 @@
-import { getMetaData } from "@/config/metadata"
-import { ReportsOverviewPageView } from "@/features/reports/modules/views/ReportsOverviewPageView"
-
-const meta = getMetaData({ title: "Reporting Overview" })
-export const metadata = { ...meta }
-
-export default function ReportingOverviewPage() {
-    return <ReportsOverviewPageView />
+import { redirect } from "next/navigation"
+import { reportHref, type ReportRouteSearchParams } from "@/features/reports/modules/lib/report-route-redirect"
+export default async function ReportingOverviewPage({ searchParams }: { searchParams: Promise<ReportRouteSearchParams> }) {
+    redirect(reportHref("/reports", await searchParams))
 }

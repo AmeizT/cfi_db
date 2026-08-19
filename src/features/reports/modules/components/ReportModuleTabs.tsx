@@ -9,12 +9,10 @@ type ReportModuleTabsProps = {
         key: string
         href: string
     }[]
-    showReportNavigator?: boolean
 }
 
 export function ReportModuleTabs({
     activeView,
-    showReportNavigator,
     tabs,
 }: ReportModuleTabsProps) {
     if (!tabs.length) {
@@ -23,11 +21,8 @@ export function ReportModuleTabs({
 
     return (
         <View.Tabs
-            variant="report"
             items={tabs}
             activeKey={activeView}
-            showReportNavigator={showReportNavigator}
-            className=""
         />
     )
 }

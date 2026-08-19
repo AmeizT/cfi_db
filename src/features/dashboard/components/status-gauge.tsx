@@ -121,7 +121,7 @@ export function StatusGauge({
     return (
         <section
             className={cn(
-                "rounded-2xl border border-border-subtle shadow-elevation-01 bg-linear-to-b from-background via-purple-50/70 to-orange-50/80 p-5",
+                "rounded-2xl border border-border-subtle shadow-elevation-01 bg-linear-to-b from-background via-background to-background p-5",
                 className
             )}
         >

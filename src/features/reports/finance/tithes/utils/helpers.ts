@@ -83,7 +83,7 @@ export function getViewFromPathname(pathname: string): TithesRouteView {
         return segment
     }
 
-    return "records"
+    return "transactions"
 }
 
 export function getResponseConfig(

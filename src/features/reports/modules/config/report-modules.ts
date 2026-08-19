@@ -1,10 +1,27 @@
 import type { ReadonlyURLSearchParams } from "next/navigation"
 import { createQueryString } from "@/features/reports/core/lib/create-query-string"
 import type {
+    ModulePageContext,
     ReportModuleConfig,
     ReportModuleKey,
     ReportSection,
 } from "../types/report-modules"
+
+function publicSectionSlug(section: ReportSection, pageContext: ModulePageContext) {
+    return pageContext === "workspace" && section === "ministry" ? "engagement" : section
+}
+
+export function getModuleRoutePath(
+    section: ReportSection,
+    module: ReportModuleKey,
+    pageContext: ModulePageContext = "reports",
+) {
+    if (pageContext === "workspace") {
+        return `/${publicSectionSlug(section, pageContext)}/${module}`
+    }
+
+    return getReportModuleConfig(section, module)?.href ?? "#"
+}
 
 export const REPORT_MODULES = {
     activity: {
@@ -21,7 +38,7 @@ export const REPORT_MODULES = {
         compliance: {
             title: "Compliance",
             description: "Monitor report completion, skipped sections, and follow-up status.",
-            href: "/reports/activity/compliance",
+            href: "/reports/compliance",
         },
         flagged: {
             title: "Need Attention",
@@ -123,7 +140,8 @@ export function getReportModuleHref(
     section: ReportSection,
     module: ReportModuleKey,
     searchParams: ReadonlyURLSearchParams,
-    updates: Record<string, string | number | boolean | null | undefined> = {}
+    updates: Record<string, string | number | boolean | null | undefined> = {},
+    pageContext: ModulePageContext = "reports",
 ) {
     const config = getReportModuleConfig(section, module)
 
@@ -133,12 +151,15 @@ export function getReportModuleHref(
 
     const query = createQueryString(searchParams, updates)
 
-    return query ? `${config.href}?${query}` : config.href
+    const pathname = getModuleRoutePath(section, module, pageContext)
+
+    return query ? `${pathname}?${query}` : pathname
 }
 
 export function getReportModuleTabs(
     section: ReportSection,
-    searchParams: ReadonlyURLSearchParams
+    searchParams: ReadonlyURLSearchParams,
+    pageContext: ModulePageContext = "reports",
 ) {
     return Object.entries(REPORT_MODULE_REGISTRY[section])
         .filter(([, config]) => config.state !== "disabled")
@@ -149,7 +170,8 @@ export function getReportModuleTabs(
                 section,
                 module as ReportModuleKey,
                 searchParams,
-                { tab: null, view: null }
+                { tab: null, view: null },
+                pageContext,
             ),
         }))
 }
@@ -157,16 +179,21 @@ export function getReportModuleTabs(
 export function getReportModuleViewTabs(
     section: ReportSection,
     module: ReportModuleKey,
-    searchParams: ReadonlyURLSearchParams
+    searchParams: ReadonlyURLSearchParams,
+    pageContext: ModulePageContext = "reports",
 ) {
     const config = getReportModuleConfig(section, module)
 
     return (
         config?.viewTabs?.map((tab) => ({
             ...tab,
-            href: getReportModuleHref(section, module, searchParams, {
-                tab: tab.key,
-            }),
+            href: getReportModuleHref(
+                section,
+                module,
+                searchParams,
+                { tab: tab.key },
+                pageContext,
+            ),
         })) ?? []
     )
 }

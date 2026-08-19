@@ -30,6 +30,7 @@ type DataTableBodyProps<T extends { id: number }> = {
     hoveredRowId: number | null
     selectedRows: Set<number>
     expandedRow?: (row: T) => React.ReactNode
+    onRowClick?: (row: T) => void
     resource: DataTableResource
     showRowActions: boolean
     showDefaultRowActions: boolean
@@ -54,6 +55,7 @@ export function DataTableBody<T extends { id: number }>({
     hoveredRowId,
     selectedRows,
     expandedRow,
+    onRowClick,
     resource,
     showRowActions,
     showDefaultRowActions,
@@ -103,6 +105,9 @@ export function DataTableBody<T extends { id: number }>({
                 const isTotal = !!flags.is_total
                 const isExpanded = row.getIsExpanded()
                 const isDeleted = !!flags.is_deleted
+                const isClickable = Boolean(
+                    onRowClick && !isSection && !isTotal && !isDeleted
+                )
                 const toneClass =
                     flags.tone === "income"
                         ? "text-emerald-700 dark:text-emerald-400"
@@ -119,8 +124,28 @@ export function DataTableBody<T extends { id: number }>({
                                 isTotal && "font-bold bg-muted/10",
                                 (isSection || isTotal) && "text-sm",
                                 (isSection || isTotal) && toneClass,
-                                isDeleted && "bg-muted text-primary line-through opacity-60 pointer-events-none cursor-not-allowed"
+                                isDeleted && "bg-muted text-primary line-through opacity-60 pointer-events-none cursor-not-allowed",
+                                isClickable && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                             )}
+                            tabIndex={isClickable ? 0 : undefined}
+                            onClick={(event) => {
+                                if (!isClickable) return
+                                const target = event.target as HTMLElement
+                                if (
+                                    target.closest(
+                                        "a, button, input, select, textarea, [role=checkbox], [contenteditable=true], [data-row-click-ignore]"
+                                    )
+                                ) {
+                                    return
+                                }
+                                onRowClick?.(row.original)
+                            }}
+                            onKeyDown={(event) => {
+                                if (!isClickable || event.target !== event.currentTarget) return
+                                if (event.key !== "Enter" && event.key !== " ") return
+                                event.preventDefault()
+                                onRowClick?.(row.original)
+                            }}
                             onMouseEnter={() => onHoverRow(row.original.id)}
                             onMouseLeave={onClearHoveredRow}
                         >

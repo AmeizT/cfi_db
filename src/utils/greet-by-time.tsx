@@ -1,52 +1,58 @@
-"use client"
+import { getDate, getHours } from "date-fns"
 
-import { getHours } from "date-fns"
-
-interface GreetByTimeOptions {
+type GreetingOptions = {
     username?: string
+    now?: Date
 }
 
-const randomGreeting = (greetings: string[]) => {
-    return greetings[Math.floor(Math.random() * greetings.length)]
-}
+export function greetByTime(value?: Date | GreetingOptions) {
+    const now =
+        value instanceof Date
+            ? value
+            : value?.now ?? new Date()
 
-export function greetByTime({ username }: GreetByTimeOptions) {
-    const hour = getHours(new Date())
+    const hour = getHours(now)
+    const day = getDate(now)
 
-    if (hour >= 0 && hour < 5) {
-        return randomGreeting([
-            `${"Up late,"} ${username}?`,
-            "Hello, night owl",
-            "Still serving, night owl?",
-            "Burning the midnight oil?",
-        ])
+    let greetings: string[]
+
+    if (hour < 5) {
+        greetings = [
+            "Up late",
+            "Still serving",
+            "Night owl",
+        ]
+    } else if (hour < 12) {
+        greetings = [
+            "Good morning",
+            "Morning",
+            "Ready for the day",
+            "Moving forward",
+        ]
+    } else if (hour < 18) {
+        greetings = [
+            "Good afternoon",
+            "Making progress",
+            "Making an impact",
+            "Mission forward",
+        ]
+    } else {
+        greetings = [
+            "Good evening",
+            "Moving forward",
+            "Making an impact",
+            "Still serving",
+        ]
     }
 
-    if (hour >= 5 && hour < 12) {
-        return randomGreeting([
-            `${"Good morning"}, ${username}`,
-            "Good morning, kingdom builder",
-            `${"Rise and build"}, ${username}`,
-            "A new day to make an impact",
-            // "Ready to move the mission forward?",
-        ])
-    }
+    // Rotate predictably every 2 hours.
+    // Including the day keeps the rotation from repeating
+    // in exactly the same pattern every day.
+    const timeSlot = Math.floor(hour / 2)
+    const greetingIndex = (day + timeSlot) % greetings.length
+    const greeting = greetings[greetingIndex]
 
-    if (hour >= 12 && hour < 18) {
-        return randomGreeting([
-            `${"Good afternoon"}, ${username}`,
-            "Good afternoon, changemaker",
-            `${"Keep the mission moving"}, ${username}`,
-            `${"Making progress today?"}, ${username}`,
-            `${"Another step forward"}, ${username}`,
-        ])
-    }
-
-    return randomGreeting([
-        `${"Good evening"}, ${username}`,
-        "Good evening, faithful steward",
-        // `${"Wrapping up a meaningful day"}, ${username}?`,
-        "Evening, kingdom builder",
-        `${"Another day of impact"}, ${username}`,
-    ])
+    return !(value instanceof Date) && value?.username
+        ? `${greeting}, ${value.username}`
+        : greeting
 }

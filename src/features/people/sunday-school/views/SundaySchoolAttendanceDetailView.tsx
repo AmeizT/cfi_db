@@ -53,7 +53,7 @@ export function SundaySchoolAttendanceDetailView({
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={() => router.push("/app/people/sunday-school")}
+                        onClick={() => router.push("/engagement/attendance/sunday-school")}
                     >
                         <ArrowLeftIcon className="size-4" />
                         Back

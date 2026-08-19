@@ -40,7 +40,7 @@ export function navRail({ user, searchParams, regionId }: Props): RailNavigation
             icon: DashboardIcon,
             activeIcon: DashboardIcon,
             mobile: true,
-            href: `/app/dashboard`,
+            href: `/`,
         })
     }
 
@@ -104,7 +104,7 @@ export function navRail({ user, searchParams, regionId }: Props): RailNavigation
             icon: Settings01Icon,
             activeIcon: Settings01Icon,
             mobile: true,
-            href: `/settings/account`,
+            href: `/settings`,
         },
     ]
 

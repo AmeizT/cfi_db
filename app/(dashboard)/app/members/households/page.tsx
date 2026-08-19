@@ -1,9 +1,3 @@
-import { getMetaData } from "@/config/metadata";
-import { HouseholdsView } from "@/features/people/families/views/HouseholdsView"
-
-const meta = getMetaData({ title: "Households" })
-export const metadata = { ...meta }
-
-export default function HouseholdsPage() {
-    return <HouseholdsView />
-}
+import { APP_ROUTES } from "@/config/app-routes"
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+export default createLegacyRedirectPage(APP_ROUTES.members.households)

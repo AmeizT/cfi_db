@@ -11,11 +11,15 @@ export function ExceptionView({ embedded = false }: { embedded?: boolean }) {
 
     return (
         <View className="gap-0">
-            {!embedded ? <View.Header 
-                pathname={pathname}
-                pagename="Exceptions" 
-                tabs={getPageTabs("reports", { searchParams })}
-            /> : null}
+            {!embedded ? (
+                <>
+                    <View.Header pagename="Exceptions" />
+                    <View.Tabs
+                        items={getPageTabs("reports", { searchParams })}
+                        pathname={pathname}
+                    />
+                </>
+            ) : null}
             <View.Body className="h-full items-center justify-center">
                 <EmptyState type="exceptions" />
             </View.Body>

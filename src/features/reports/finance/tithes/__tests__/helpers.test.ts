@@ -1,6 +1,5 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-// @ts-expect-error Node's built-in TypeScript test runner requires the file extension.
 import { normalizeListResponse } from "../utils/helpers.ts"
 
 test("normalizeListResponse preserves paginated count and current page rows", () => {

@@ -1,9 +1,3 @@
-import { getMetaData } from "@/config/metadata";
-import { OnboardingView } from "@/features/people/onboarding/views/OnboardingView"
-
-const meta = getMetaData({ title: "Onboarding" })
-export const metadata = { ...meta }
-
-export default function OnboardingPage() {
-    return <OnboardingView />
-}
+import { APP_ROUTES } from "@/config/app-routes"
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+export default createLegacyRedirectPage(APP_ROUTES.members.onboarding)

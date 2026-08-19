@@ -20,10 +20,10 @@ function FormerMembersContent() {
 }
 
 const directoryTabs = [
-    { key: "all", label: "All", href: "/app/members/directory" },
-    { key: "adults", label: "Adults", href: "/app/members/directory/adults" },
-    { key: "children", label: "Children", href: "/app/members/directory/children" },
-    { key: "former", label: "Former", href: "/app/members/directory/former" },
+    { key: "all", label: "All", href: "/members/directory" },
+    { key: "adults", label: "Adults", href: "/members/directory/adults" },
+    { key: "children", label: "Children", href: "/members/directory/children" },
+    { key: "former", label: "Former", href: "/members/directory/former" },
 ] as const
 
 const memberDirectory = (title: string): ModulePageConfig => ({

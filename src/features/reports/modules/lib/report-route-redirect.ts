@@ -30,19 +30,6 @@ export function reportHref(
         appendParam(params, key, value)
     })
 
-    const reportId =
-        params.get("reportId") ??
-        params.get("reportid") ??
-        params.get("report_id") ??
-        params.get("id")
-
-    if (reportId) {
-        params.set("reportId", reportId)
-    }
-
-    params.delete("reportid")
-    params.delete("report_id")
-
     Object.entries(updates).forEach(([key, value]) => {
         if (value === null || value === undefined) {
             params.delete(key)

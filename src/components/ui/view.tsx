@@ -1,5 +1,4 @@
 import React from "react"
-import { Flex } from "./box"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { motion } from "motion/react"
@@ -21,8 +20,7 @@ type ViewTabsProps = {
     items: TabItem[]
     activeKey?: string
     className?: string
-    variant?: "default" | "report"
-    showReportNavigator?: boolean
+    pathname?: string
 }
 
 type PropsToOmit<T extends React.ElementType, P> = keyof (AsProp<T> & P)
@@ -38,11 +36,9 @@ type ViewBaseProps = {
 }
 
 type ViewHeaderProps = React.ComponentPropsWithoutRef<"header"> & {
-    tabs?: TabItem[]
     pagename?: React.ReactNode
     actions?: React.ReactNode
-    pathname?: string
-    activeTab?: string
+    showReportNavigator?: boolean
 }
 
 type ViewComponent = <T extends React.ElementType = "div">(
@@ -78,7 +74,7 @@ const View = (<T extends React.ElementType = "div">({
 }) as ViewType
 
 
-View.Header = ({ tabs, pathname, pagename, actions, activeTab, ...props }) => {
+View.Header = ({ pagename, actions, showReportNavigator = false, ...props }) => {
     return (
         <header {...props} className={cn("py-4 h-fit flex flex-col shrink-0 relative bg-inherit overflow-hidden", props.className)}>
             <div className="lg:px-6 flex h-fit w-full flex-col items-start gap-4 sm:flex-row sm:items-center">
@@ -86,69 +82,20 @@ View.Header = ({ tabs, pathname, pagename, actions, activeTab, ...props }) => {
                     {pagename}
                 </div>
                 
-                {actions ? (
-                    <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
+                {showReportNavigator || actions ? (
+                    <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto sm:flex-nowrap">
+                        {showReportNavigator ? <ReportNavigator /> : null}
                         {actions}
                     </div>
                 ) : null}
             </div>
-
-            {tabs ? (
-                <div className="mt-18 lg:mt-2 flex w-full h-fit items-center transition-[width,height] ease-linear">
-                    <div className="flex flex-col w-full gap-4 px-2 lg:px-0 lg:gap-0">
-                        <div className="lg:px-2">
-                            <div className={cn("h-8 lg:h-7 flex items-center space-x-2",
-                                "lg:space-x-1 overflow-y-hidden overflow-x-auto lg:overflow-y-visible lg:overflow-x-visible no-scrollbar",
-                                
-                            )}>
-                                {tabs.map((tab) => {
-                                    const isActiveTab = (() => {
-                                        if (!tab) return false
-
-                                        const isQueryMatch = activeTab && tab.key === activeTab
-
-                                        if (isQueryMatch) return true
-
-                                        if (!activeTab && tab.href && pathname) {
-                                            const tabPath = new URL(tab.href, "http://localhost").pathname
-                                            const currentPath = new URL(pathname, "http://localhost").pathname
-
-                                            return tabPath === currentPath
-                                        }
-
-                                        return false
-                                    })()
-
-                                    return (
-                                        <Link
-                                            key={tab.label}
-                                            href={tab?.href || "#"}
-                                            className={`px-4 lg:px-2 h-full inline-flex justify-center items-center relative z-0 text-sm font-semibold whitespace-nowrap rounded-full lg:rounded-lg ${isActiveTab ? "text-primary-foreground lg:text-primary lg:hover:bg-primary/5" : "text-foreground hover:bg-accent"}`}
-                                        >
-                                            {tab?.label}
-
-                                            {isActiveTab ? (
-                                                <motion.span
-                                                    id="active-pill"
-                                                    layoutId="active-pill"
-                                                    className={`w-full lg:w-[calc(100%-1rem)] h-full lg:h-0.5 absolute inset-x-0 lg:left-2 lg:bottom-[-5.5px] -z-10 rounded-full ${isActiveTab ? "block bg-primary" : "hidden"} transition-discrete`}
-                                                />
-                                            ) : null}
-                                        </Link>
-                                    )
-                                })}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ) : null}
 
             {props.children ? <div className="lg:px-6">{props.children}</div> : null}
         </header>
     )
 }
 
-function ViewTabs({ items, activeKey, className, variant, showReportNavigator = true }: ViewTabsProps) {
+function ViewTabs({ items, activeKey, className, pathname }: ViewTabsProps) {
     if (!items?.length) return null
 
     return (
@@ -161,7 +108,12 @@ function ViewTabs({ items, activeKey, className, variant, showReportNavigator = 
                     )}
                 >
                     {items.map((tab) => {
-                        const isActiveTab = tab.key === activeKey
+                        const isActiveTab = tab.key === activeKey || Boolean(
+                            !activeKey
+                            && pathname
+                            && new URL(tab.href, "http://localhost").pathname
+                                === new URL(pathname, "http://localhost").pathname,
+                        )
 
                         return (
                             <Link
@@ -186,13 +138,6 @@ function ViewTabs({ items, activeKey, className, variant, showReportNavigator = 
                 <div data-id="separator" className="px-6 mt-1 hidden lg:flex">
                     <Separator className="w-full bg-border-subtle" />
                 </div>
-
-                {variant === "report" && showReportNavigator ? (
-                    <Flex direction="column" align="center" className="px-6 py-2 w-full">
-                        <ReportNavigator />
-                        <Separator className="mt-2 w-full bg-border-subtle" />
-                    </Flex>
-                ) : null}
             </div>
         </div>
     )
@@ -203,7 +148,7 @@ View.Tabs = ViewTabs
 
 View.Body = ({ children, ...props }) => {
     return (
-        <div {...props} className={cn("px-6 min-h-0 flex-1 flex flex-col", props.className)}>
+        <div {...props} className={cn("px-6 flex flex-col", props.className)}>
             {children}
         </div>
     )

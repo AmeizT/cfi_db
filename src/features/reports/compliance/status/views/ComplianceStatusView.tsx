@@ -25,11 +25,12 @@ export function ComplianceStatusView({ embedded = false }: { embedded?: boolean 
 
     return (
         <View className="gap-0">
-            {!embedded ? <View.Header
-                pathname={pathname}
-                pagename="Compliance"
-                tabs={reportTabs}
-            /> : null}
+            {!embedded ? (
+                <>
+                    <View.Header pagename="Compliance" />
+                    <View.Tabs items={reportTabs} pathname={pathname} />
+                </>
+            ) : null}
             <View.Body>
                 <View.TabBar
                     items={complianceTabs}

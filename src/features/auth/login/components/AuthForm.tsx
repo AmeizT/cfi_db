@@ -69,7 +69,7 @@ export function AuthForm(){
                     success: true,
                 })
 
-                router.push("/app/dashboard")
+                router.push("/")
 
             } catch (err) {
                 console.error("Unexpected error:", err)
@@ -112,7 +112,7 @@ export function AuthForm(){
 
     //         if (isAuthenticated) {
     //             console.log("Session verified, redirecting to dashboard...")
-    //             // router.push("/app/dashboard")
+    //             // router.push("/")
     //         } else {
     //             console.error("Session verification failed after login")
     //             setFormState({

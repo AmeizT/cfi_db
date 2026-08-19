@@ -35,6 +35,7 @@ export function DataTable<T extends { id: number }>({
     isLoading = false,
     loadingMode = "skeleton",
     expandedRow,
+    onRowClick,
     options,
     showToolbar = true,
     showColumnVisibility = true,
@@ -315,6 +316,7 @@ export function DataTable<T extends { id: number }>({
                             hoveredRowId={hoveredRowId}
                             selectedRows={selectedRows}
                             expandedRow={expandedRow}
+                            onRowClick={onRowClick}
                             resource={resource}
                             showRowActions={showRowActions}
                             showDefaultRowActions={showDefaultRowActions}

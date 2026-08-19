@@ -42,6 +42,7 @@ export function DataTableCell<T extends { id: number }>({
     return (
         <BaseTableCell
             data-pinned={isPinned || undefined}
+            data-row-click-ignore={isCellEditable || undefined}
             className={cn(
                 styles?.cellPadding,
                 styles?.cellClass,

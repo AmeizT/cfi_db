@@ -1,9 +1,3 @@
-import { getMetaData } from "@/config/metadata";
-import { ModulePageView } from "@/features/modules/views/ModulePageView"
-
-const meta = getMetaData({ title: "Directory" })
-export const metadata = { ...meta }
-
-export default function MembersPage() {
-    return <ModulePageView section="members" page="directory" />
-}
+import { APP_ROUTES } from "@/config/app-routes"
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+export default createLegacyRedirectPage(APP_ROUTES.members.directory)

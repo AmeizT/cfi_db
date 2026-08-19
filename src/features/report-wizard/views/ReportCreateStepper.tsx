@@ -28,6 +28,8 @@ interface ReportWizardStepperProps {
     current: ReportWizardSection
     sections: ReportWizardSectionSnapshot[]
     report: ReportWizardReport | null
+    reportId?: string | number | null
+    amendmentContext?: string | null
 }
 
 type StepVisualState = "active" | "completed" | "skipped" | "pending"
@@ -95,6 +97,8 @@ export default function ReportWizardStepper({
     current,
     sections,
     report,
+    reportId,
+    amendmentContext,
 }: ReportWizardStepperProps) {
     const pathname = usePathname()
     const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -208,7 +212,8 @@ export default function ReportWizardStepper({
                                 <Link
                                     href={createWizardHref(section.id, {
                                         method: "manual-entry",
-                                        report_id: report?.id,
+                                        report_id: report?.id ?? reportId,
+                                        amendment_context: amendmentContext,
                                     })}
                                     scroll={false}
                                     onPointerDown={saveScrollPosition}

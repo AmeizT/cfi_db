@@ -100,7 +100,6 @@ export default function UploadView(){
     return (
         <View as="article" className="flex flex-col">
             <View.Header 
-                pathname={pathname} 
                 pagename={(
                     <h3 className="flex gap-3 items-center">
                         {/* <HugeiconsIcon icon={AddCircleIcon} className="size-7 text-mist-300" /> */}

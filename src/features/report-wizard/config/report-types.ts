@@ -1,9 +1,25 @@
 import { apiRoutes } from "@/config/urls"
 
-export type ReportWizardMethod = "manual-entry" | "web-form" | "quick-entry" | "upload"
-export type ReportWizardUploadType = "excel" | "csv" | "ocr" | "photo"
+export {
+    REPORT_SECTION_WIZARD_ROUTES,
+    createReportSectionWizardHref,
+    createReportWizardHref,
+    type ReportWizardHrefOptions,
+    type ReportWizardMethod,
+    type ReportWizardUploadType,
+    type WorkflowReportSectionKey,
+} from "./report-routing"
+
 export type ReportWizardTemplateFormat = "excel" | "csv" | "print"
-export type ReportWizardSectionStatus = "pending" | "submitted" | "skipped"
+export type ReportWizardSectionStatus =
+    | "pending"
+    | "not_started"
+    | "in_progress"
+    | "completed"
+    | "submitted"
+    | "no_activity"
+    | "skipped"
+    | "error"
 
 export type ReportWizardSection = {
     id: string
@@ -39,7 +55,7 @@ export type ReportWizardReport = {
 export const REPORT_WIZARD_SECTIONS: ReportWizardSection[] = [
     {
         id: "attendance",
-        backendId: "attendance",
+        backendId: "general_attendance",
         label: "Attendance",
         uploadType: "attendance",
         uploadUrl: apiRoutes.uploadExcel.attendance,
@@ -47,6 +63,12 @@ export const REPORT_WIZARD_SECTIONS: ReportWizardSection[] = [
         templateUrls: {
             excel: apiRoutes.downloadTemplate.attendance,
         },
+    },
+    {
+        id: "sunday-school",
+        backendId: "sunday_school_attendance",
+        label: "Sunday School Attendance",
+        templateUrls: {},
     },
     {
         id: "tithes",
@@ -61,7 +83,7 @@ export const REPORT_WIZARD_SECTIONS: ReportWizardSection[] = [
     },
     {
         id: "revenue",
-        backendId: "income",
+        backendId: "revenue",
         label: "Revenue",
         uploadType: "revenue",
         uploadUrl: apiRoutes.uploadExcel.revenue,
@@ -72,8 +94,8 @@ export const REPORT_WIZARD_SECTIONS: ReportWizardSection[] = [
     },
     {
         id: "expenses",
-        backendId: "expenditure",
-        label: "Expenses",
+        backendId: "activity_other_expenses",
+        label: "Activity & Other Expenses",
         uploadType: "expenditure",
         uploadUrl: apiRoutes.uploadExcel.expenses,
         imageUploadUrl: apiRoutes.uploadImage.expenses,
@@ -84,14 +106,20 @@ export const REPORT_WIZARD_SECTIONS: ReportWizardSection[] = [
     },
     {
         id: "overhead",
-        backendId: "overhead",
-        label: "Overhead",
+        backendId: "operating_expenses",
+        label: "Operating Expenses",
         uploadType: "overhead",
         uploadUrl: apiRoutes.uploadExcel.overhead,
         templateUrl: apiRoutes.downloadTemplate.overhead,
         templateUrls: {
             excel: apiRoutes.downloadTemplate.overhead,
         },
+    },
+    {
+        id: "review",
+        backendId: "review",
+        label: "Review & Submit",
+        templateUrls: {},
     },
 ]
 
@@ -113,29 +141,6 @@ export function getReportWizardSectionByPathname(pathname: string) {
     const section = createIndex >= 0 ? segments[createIndex + 1] : undefined
 
     return section ? getReportWizardSectionByRoute(section) : null
-}
-
-export function createReportWizardHref(
-    section: string,
-    updates: {
-        method?: ReportWizardMethod
-        upload_type?: ReportWizardUploadType | null
-        report_id?: string | number | null
-    } = {}
-) {
-    const params = new URLSearchParams()
-    const method = updates.method ?? "manual-entry"
-    params.set("method", method)
-
-    if (method === "upload" && updates.upload_type) {
-        params.set("upload_type", updates.upload_type)
-    }
-
-    if (updates.report_id) {
-        params.set("report_id", String(updates.report_id))
-    }
-
-    return `/report-wizard/create/${section}?${params.toString()}`
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

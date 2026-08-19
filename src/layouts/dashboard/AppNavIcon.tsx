@@ -38,7 +38,8 @@ export function NavIcon({
         <CustomIcon
             width={size}
             height={size}
-            className={cn("fill-current text-current", className)}
+            strokeWidth={strokeWidth}
+            className={cn("text-current", className)}
             aria-hidden="true"
         />
     )

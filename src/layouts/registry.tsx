@@ -1,6 +1,6 @@
 import RootLayout from "./root/RootLayout"
 import { HomeLayout } from "./home/HomeLayout"
-import DashboardAppLayout from "./dashboard/AppLayout"
+import { AppShell } from "./app-shell"
 import { MemberBookLayout } from "./memberbook/Layout"
 import { HeadlessLayout } from "./headless/HeadlessLayout"
 import HeadlessSidebarLayout from "./dashboard/SidebarLayout"
@@ -30,7 +30,7 @@ type LayoutRegistry = {
 
 const layoutRegistry: LayoutRegistry = {
     root: RootLayout,
-    dashboard: DashboardAppLayout,
+    dashboard: AppShell,
     home: HomeLayout,
     headless: HeadlessLayout,
     memberbook: MemberBookLayout,

@@ -14,9 +14,11 @@ export function AuditLogsView() {
     return (
         <View className="gap-0">
             <View.Header 
-                pathname={pathname}
                 pagename="History" 
-                tabs={getPageTabs("reports", { searchParams })}
+            />
+            <View.Tabs
+                items={getPageTabs("reports", { searchParams })}
+                pathname={pathname}
             />
             <View.Body>
                 <AuditLogPage

@@ -16,6 +16,16 @@ export const FormerMemberSchema = z.object({
     has_been_readmitted: z.boolean(),
 })
 
+export const FormerMemberDetailSchema = FormerMemberSchema.extend({
+    member_key: z.string(),
+    phone_number: z.string(),
+    email: z.string(),
+    avatar: z.string().nullable(),
+    avatar_fallback: z.string(),
+    member_since: z.iso.date().nullable(),
+    household_name: z.string().nullable(),
+})
+
 export const FormerMemberListSchema = z.object({
     count: z.number(),
     next: z.string().nullable(),
@@ -25,4 +35,5 @@ export const FormerMemberListSchema = z.object({
 })
 
 export type FormerMember = z.infer<typeof FormerMemberSchema>
+export type FormerMemberDetail = z.infer<typeof FormerMemberDetailSchema>
 export type FormerMemberList = z.infer<typeof FormerMemberListSchema>
