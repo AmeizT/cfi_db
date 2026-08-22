@@ -50,7 +50,7 @@ export default function MonthlyReports(){
 
     const selectedReport = reports?.find(report => format(report.period_start, "MMMM yyyy").toLowerCase() === (`${params.month} ${params.year}` || "").toLowerCase()) || null
 
-    const isFinalized = !!selectedReport?.finalized_at
+    const isFinalized = !!selectedReport?.submitted_at
 
     const selectedDate = parse(`${params?.month}${params?.year}`, "MMMMyyyy", new Date())
 
@@ -182,4 +182,3 @@ export default function MonthlyReports(){
         </React.Fragment>
     )
 }
-

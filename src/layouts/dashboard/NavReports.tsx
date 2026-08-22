@@ -12,13 +12,13 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { HugeiconsIcon } from '@hugeicons/react'
 import { UrlObject } from "url"
 import { NavGroup, NavItem } from "../navigation/types"
 import React from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils"
+import { NavIcon } from "./AppNavIcon"
 
 type NavReportsMenu = NavItem[] | NavGroup[]
 
@@ -68,7 +68,7 @@ export function NavReports({ menu }: { menu: NavReportsMenu }) {
                                             isActive && "bg-theme-50 text-theme-700 hover:bg-theme-100 dark:bg-primary/10 dark:text-primary"
                                         )}
                                     >
-                                        {item.icon && <HugeiconsIcon icon={item.icon} strokeWidth={2} />}
+                                        {item.icon && <NavIcon icon={item.icon} strokeWidth={2} />}
                                         <span>{item.label}</span>
                                         <ChevronRight className="group-hover/collapsible:visible invisible size-4! text-muted-foreground! ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                     </SidebarMenuButton>
@@ -122,12 +122,12 @@ export function NavReports({ menu }: { menu: NavReportsMenu }) {
                             >
                                 {item.disabled ? (
                                     <span>
-                                        <HugeiconsIcon icon={item.icon} strokeWidth={1.75} />
+                                        <NavIcon icon={item.icon} strokeWidth={1.75} />
                                         <span>{item.label}</span>
                                     </span>
                                 ) : (
                                     <Link href={item.href as unknown as UrlObject}>
-                                        <HugeiconsIcon  icon={item.icon} strokeWidth={1.75} />
+                                        <NavIcon icon={item.icon} strokeWidth={1.75} />
                                         <span>{item.label}</span>
                                     </Link>
                                 )}

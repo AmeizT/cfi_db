@@ -14,6 +14,7 @@ import {
 import { homecellsTableSchema } from "../config/table-schema"
 import { useHomecellsDirectory } from "../hooks/use-homecells-directory"
 import type { HomecellSummary } from "../schemas/homecell"
+import { EmptyState } from "@/components/ui/empty-state";
 
 type HomecellTableRow = Record<string, unknown> & {
     id: number
@@ -148,8 +149,7 @@ export function HomeCellsView() {
     return (
         <View className="gap-0">
             <View.Header
-                pagename="Home Cells"
-                description="Home cell summary records in the current assembly scope."
+                pagename="Homecells"
                 actions={(
                     <ResourceViewToggle
                         value={view}
@@ -162,7 +162,7 @@ export function HomeCellsView() {
                 {homecellsQuery.isError ? (
                     <HomeCellsError error={homecellsQuery.error} />
                 ) : !isLoading && homecells.length === 0 ? (
-                    <HomeCellsEmpty />
+                    <EmptyState type="homecell" />
                 ) : view === "cards" ? (
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                         {isInitialCardLoading
@@ -178,6 +178,7 @@ export function HomeCellsView() {
                     </div>
                 ) : (
                     <DataTable<HomecellTableRow>
+                        variant="simple"
                         data={tableRows}
                         config={homecellsTableSchema}
                         isLoading={isLoading}

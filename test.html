@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Attendance Details - Sanctuary OS</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script
+        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary-fixed-dim": "#b6c4ff", "on-primary-fixed": "#00164e", "on-secondary": "#ffffff", "inverse-surface": "#213145", "on-secondary-fixed-variant": "#005236", "on-primary-container": "#90a8ff", outline: "#757682", secondary: "#006c49", "on-background": "#0b1c30", "surface-container-lowest": "#ffffff", "on-tertiary-fixed": "#410004", "surface-container-highest": "#d3e4fe", "surface-dim": "#cbdbf5", "surface-container-high": "#dce9ff", "primary-container": "#1e3a8a", "on-surface-variant": "#444651", "inverse-on-surface": "#eaf1ff", "surface-variant": "#d3e4fe", "on-primary-fixed-variant": "#264191", "inverse-primary": "#b6c4ff", "surface-tint": "#4059aa", "surface-bright": "#f8f9ff", "on-error-container": "#93000a", primary: "#00236f", "on-surface": "#0b1c30", "primary-fixed": "#dce1ff", tertiary: "#5c0008", surface: "#f8f9ff", "surface-container-low": "#eff4ff", "secondary-fixed": "#6ffbbe", "on-tertiary-fixed-variant": "#930013", "on-secondary-fixed": "#002113", "on-tertiary": "#ffffff", "tertiary-container": "#860011", "secondary-fixed-dim": "#4edea3", "on-secondary-container": "#00714d", background: "#f8f9ff", "on-error": "#ffffff", "outline-variant": "#c5c5d3", "error-container": "#ffdad6", error: "#ba1a1a", "tertiary-fixed": "#ffdad7", "tertiary-fixed-dim": "#ffb3ad", "on-primary": "#ffffff", "secondary-container": "#6cf8bb", "on-tertiary-container": "#ff8a83", "surface-container": "#e5eeff" }, borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" }, spacing: { unit: "4px", "header-height": "5rem", "container-padding": "2.5rem", "sidebar-width": "18rem", gutter: "1.5rem", "margin-desktop": "40px", "gutter-mobile": "16px", "margin-mobile": "16px", "container-max": "1440px", "gutter-desktop": "24px" }, fontFamily: { "headline-md": ["Manrope"], "label-caps": ["Inter"], "body-lg": ["Manrope"], "display-lg": ["Manrope"], "headline-sm": ["Manrope"], "body-md": ["Manrope"], headline: ["Manrope"], display: ["Manrope"], body: ["Manrope"], label: ["Manrope"], "body-sm": ["Manrope"], "label-sm": ["Manrope"], "label-md": ["Manrope"], "headline-lg": ["Manrope"], "headline-lg-mobile": ["Manrope"] }, fontSize: { "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }], "label-caps": ["10px", { lineHeight: "1", letterSpacing: "0.15em", fontWeight: "700" }], "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }], "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "800" }], "headline-sm": ["18px", { lineHeight: "1.4", fontWeight: "700" }], "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }], "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }], "label-sm": ["12px", { lineHeight: "16px", fontWeight: "500" }], "label-md": ["14px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }], "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "700" }], "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "700" }] } } } };</script>
+    <style>
+        body {
+            background-color: #FAF9F7;
+        }
+
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c2c7cf;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #72777f;
+        }
+    </style>
+</head>
+
+<body class="h-full text-on-background font-body-md antialiased overflow-hidden flex">
+    <!-- SideNavBar Component (Sanctuary OS JSON) -->
+    <nav
+        class="hidden md:flex flex-col p-unit gap-2 h-screen border-r border-outline-variant bg-surface dark:bg-surface-dim text-primary dark:text-primary-fixed-dim font-body-md text-body-md fixed left-0 top-0 w-sidebar-width z-40 transition-transform">
+        <!-- Header area -->
+        <div class="px-4 py-6 flex items-center gap-3">
+            <div
+                class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-high border border-outline-variant">
+                <img alt="Church Logo" class="w-full h-full object-cover"
+                    data-alt="A clean, minimalist logo for a modern church or religious institution, featuring a subtle abstract cross or sanctuary shape. The design uses deep trustworthy blue against a crisp white background. The style is highly professional, vectorized, and suitable for a sophisticated institutional management software dashboard."
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFRV35VtDypNcc0VBkBUNj9Zn_NNWa_uiEoYs7qJnOjNVitYUSfSH9ajteHBm2wmMyh0UfDC-elqsR-_i6GO0ntRfnhJgzip_2SWEr4-htkNlktBB8p5ZRIE8RBJrk36SawAORdSoe4wdOvtJroo7guyFfOlvujs0crz5dXm9y0JQ4-OJ2j-2NE6sTJV38S0ZddXUhbFenZqNQXFoQNiDpMfCDFWBYzeYZHCVbSFziCwRifTnw3vE" />
+            </div>
+            <div class="flex flex-col">
+                <span class="font-headline-md text-headline-md text-primary truncate w-full max-w-[12rem]"
+                    title="Grace Community">Grace Community</span>
+                <span class="text-on-surface-variant font-body-md text-body-md truncate w-full max-w-[12rem]"
+                    title="Sanctuary OS Admin">Sanctuary OS Admin</span>
+            </div>
+        </div>
+        <!-- Navigation Links -->
+        <div class="flex-1 overflow-y-auto mt-4 px-2 space-y-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:bg-surface-container-high transition-all active:scale-95 duration-150"
+                href="#">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                <span>Dashboard</span>
+            </a>
+            <!-- Active State Navigation based on intent (Attendance Details) -->
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-secondary-container text-on-secondary-container font-bold hover:bg-surface-container-high transition-all active:scale-95 duration-150"
+                href="#">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                <span>Attendance</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:bg-surface-container-high transition-all active:scale-95 duration-150"
+                href="#">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">group</span>
+                <span>Members</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:bg-surface-container-high transition-all active:scale-95 duration-150"
+                href="#">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">payments</span>
+                <span>Finances</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:bg-surface-container-high transition-all active:scale-95 duration-150"
+                href="#">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+                <span>Settings</span>
+            </a>
+        </div>
+        <!-- CTA Button -->
+        <div class="p-4 mt-auto">
+            <button
+                class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3 px-4 rounded-full font-headline-sm text-headline-sm hover:bg-primary-container hover:text-on-primary-container transition-colors active:scale-95 duration-150 shadow-sm">
+                <span class="material-symbols-outlined text-sm">add</span>
+                <span>Quick Report</span>
+            </button>
+        </div>
+    </nav>
+    <!-- Main Content Canvas -->
+    <main class="flex-1 flex flex-col min-h-screen md:ml-sidebar-width w-full bg-background transition-all">
+        <!-- TopNavBar Component (Sanctuary OS JSON) -->
+        <header
+            class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md shadow-sm docked full-width top-0 sticky flex justify-between items-center h-header-height px-container-padding w-full z-50 transition-colors">
+            <!-- Mobile Menu Toggle (hidden on desktop) -->
+            <div class="md:hidden flex items-center">
+                <button
+                    class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors active:scale-95 duration-200">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+            </div>
+            <!-- Left Side / Search (Hidden on mobile, search_bar: on_left) -->
+            <div class="hidden md:flex items-center gap-4 flex-1">
+                <div class="relative w-64 group">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+                    <input
+                        class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-body-md font-body-md text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:bg-surface transition-all"
+                        placeholder="Search records..." type="text" />
+                </div>
+            </div>
+            <!-- Brand Logo (Centered on mobile, hidden on desktop if search is left) -->
+            <div class="md:hidden flex items-center justify-center flex-1">
+                <span class="font-display-lg text-display-lg text-primary dark:text-primary-fixed-dim">Sanctuary
+                    OS</span>
+            </div>
+            <!-- Right Side Actions -->
+            <div class="flex items-center gap-2 md:gap-4 justify-end flex-1 md:flex-none">
+                <button
+                    class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full active:scale-95 duration-200 relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+                </button>
+                <button
+                    class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full active:scale-95 duration-200 hidden md:flex">
+                    <span class="material-symbols-outlined">help_outline</span>
+                </button>
+                <div class="h-8 w-px bg-outline-variant mx-2 hidden md:block"></div>
+                <button
+                    class="w-9 h-9 rounded-full overflow-hidden border-2 border-surface-container-highest hover:border-primary transition-colors active:scale-95 duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                    <img alt="User profile" class="w-full h-full object-cover"
+                        data-alt="A professional headshot of a person, likely a church administrator or pastor, smiling warmly. The photo is well-lit, with a soft, neutral background, reflecting the professional yet welcoming aesthetic of Sanctuary OS."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoNchjTGVjWjYMuZierD3NVaIyOssGJg6QM1fxAvR6zEE2gv9BPlnQczlWGwMPQKdO_ywkiSJ3txVH1tFHC0oi0wARpgZwDvY5NT97LucQqNzaNXKnw0w5ibkLAx1YUfvMMn-FhqW6kbiOvnGzLjDahXo6V-0mhA9tjGa492qhNvwFoCU2WtdcRpqJFzMXyYSprzIgxxhGUc6dOiJVEXnL6mJbcxhcfWW8sz5VxCUZSvaWCxrRiZ8" />
+                </button>
+            </div>
+        </header>
+        <!-- Page Content: Integrated Wide View (Report Wizard Details) -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-container-padding pb-24">
+            <!-- Breadcrumbs & Header -->
+            <div class="max-w-7xl mx-auto mb-8">
+                <nav class="flex items-center text-on-surface-variant font-body-md text-body-md mb-4 space-x-2">
+                    <a class="hover:text-primary transition-colors flex items-center" href="#"><span
+                            class="material-symbols-outlined text-[18px] mr-1">arrow_back</span> Reports</a>
+                    <span>/</span>
+                    <a class="hover:text-primary transition-colors" href="#">Sunday Services</a>
+                    <span>/</span>
+                    <span class="text-on-surface">Oct 15, 2023</span>
+                </nav>
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h1 class="font-display-lg text-display-lg text-on-background mb-2">Sunday Morning Service</h1>
+                        <p class="font-body-lg text-body-lg text-on-surface-variant">Detailed attendance and service
+                            records for review.</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex items-center gap-2 bg-secondary-container text-on-secondary-container px-3 py-1.5 rounded-full">
+                            <span class="material-symbols-outlined text-[16px]">edit_document</span>
+                            <span class="font-body-md text-body-md font-medium">Draft - In Progress</span>
+                        </div>
+                        <span class="text-on-surface-variant text-sm whitespace-nowrap">Last saved: 10:42 AM</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Two-Column Grid Layout -->
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+                <!-- Left Column: Service Metadata (Span 4) -->
+                <div class="lg:col-span-4 space-y-gutter flex flex-col">
+                    <!-- Date Badge & Basic Info Card -->
+                    <div
+                        class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 p-6 flex flex-col gap-6 relative overflow-hidden group hover:bg-surface-container-low transition-colors duration-300">
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-primary-container/5 rounded-bl-full -mr-8 -mt-8 pointer-events-none">
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <!-- Date Badge -->
+                            <div
+                                class="flex flex-col items-center justify-center bg-surface-container w-16 h-20 rounded-lg shadow-inner overflow-hidden border border-outline-variant/20 flex-shrink-0">
+                                <span
+                                    class="bg-primary text-on-primary w-full text-center py-1 font-label-caps text-label-caps tracking-widest uppercase">OCT</span>
+                                <span
+                                    class="font-display-lg text-display-lg text-primary flex-1 flex items-center justify-center leading-none mt-1">15</span>
+                            </div>
+                            <div class="flex flex-col justify-center h-20">
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface">Main Sanctuary</h3>
+                                <div class="flex items-center text-on-surface-variant mt-1 gap-1">
+                                    <span class="material-symbols-outlined text-[16px]">schedule</span>
+                                    <span>9:00 AM - 11:30 AM</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-px w-full bg-outline-variant/50"></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-1">
+                                <span
+                                    class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Preacher</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-surface-container-high overflow-hidden">
+                                        <img alt="Pastor Avatar" class="w-full h-full object-cover"
+                                            data-alt="A small, professional headshot of a male pastor in his 40s wearing a light grey suit. Neutral background. Highly realistic and suitable for a software avatar."
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvFi-5pUXseuBAaRcdhWSfEjK5S2ub6xxeSvmFJ_aPCwh-Zr4M2EVZwSlDZ4qhf5QOG34leZsA2pM0NPmvKxvb55b3x4erSJ7KjeEBb95Hrh0Jxv686pK42_oqjCeub0KqgzBgcyn9PemDNMOILs6JvXxo4SKS7gqCDQocQYanz9f5vHIB0J_3t76C4EBG2nSp_bzLtDJPLd27AScK5n7upqB8B8lNt4DoM7OkTZhW3ahJTtdIqgI" />
+                                    </div>
+                                    <span class="font-body-md text-body-md text-on-surface font-medium">Dr. M.
+                                        Hayes</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span
+                                    class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Weather</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-secondary">partly_cloudy_day</span>
+                                    <span class="font-body-md text-body-md text-on-surface">68° Partly Cloudy</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Key Metrics Bento Layout -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Total Attendance Metric -->
+                        <div
+                            class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 p-5 flex flex-col gap-3 hover:bg-surface-container-low transition-colors duration-300">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined">groups</span>
+                                </div>
+                                <span
+                                    class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Total
+                                    Headcount</span>
+                            </div>
+                            <div class="flex items-baseline gap-2">
+                                <span class="font-display-lg text-display-lg text-on-surface">428</span>
+                                <span class="text-sm font-medium text-secondary flex items-center"><span
+                                        class="material-symbols-outlined text-[14px]">trending_up</span> +5%</span>
+                            </div>
+                        </div>
+                        <!-- First Time Visitors Metric -->
+                        <div
+                            class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 p-5 flex flex-col gap-3 hover:bg-surface-container-low transition-colors duration-300">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+                                    <span class="material-symbols-outlined">waving_hand</span>
+                                </div>
+                                <span
+                                    class="font-label-caps text-label-caps text-outline uppercase tracking-wider">First
+                                    Time</span>
+                            </div>
+                            <div class="flex items-baseline gap-2">
+                                <span class="font-display-lg text-display-lg text-on-surface">14</span>
+                                <span class="text-sm font-medium text-outline flex items-center"><span
+                                        class="material-symbols-outlined text-[14px]">horizontal_rule</span> 0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Demographic Breakdown -->
+                    <div
+                        class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 p-6 flex flex-col gap-4 flex-1">
+                        <h3
+                            class="font-headline-sm text-headline-sm text-on-surface border-b border-outline-variant/30 pb-3">
+                            Demographics</h3>
+                        <div class="space-y-4">
+                            <!-- Adults -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-body-md text-body-md text-on-surface-variant">Adults</span>
+                                    <span class="font-body-md text-body-md text-on-surface font-medium">312</span>
+                                </div>
+                                <div class="w-full bg-surface-container-high rounded-full h-2">
+                                    <div class="bg-primary h-2 rounded-full" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            <!-- Youth -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-body-md text-body-md text-on-surface-variant">Youth (13-18)</span>
+                                    <span class="font-body-md text-body-md text-on-surface font-medium">45</span>
+                                </div>
+                                <div class="w-full bg-surface-container-high rounded-full h-2">
+                                    <div class="bg-secondary h-2 rounded-full" style="width: 15%"></div>
+                                </div>
+                            </div>
+                            <!-- Kids -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-body-md text-body-md text-on-surface-variant">Children
+                                        (0-12)</span>
+                                    <span class="font-body-md text-body-md text-on-surface font-medium">71</span>
+                                </div>
+                                <div class="w-full bg-surface-container-high rounded-full h-2">
+                                    <div class="bg-tertiary-container h-2 rounded-full" style="width: 25%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Column: Content & Records (Span 8) -->
+                <div class="lg:col-span-8 space-y-gutter flex flex-col">
+                    <!-- Segmented Control for Right Column Views -->
+                    <div
+                        class="bg-surface-container-low p-1 rounded-full flex self-start mb-2 border border-outline-variant/20 shadow-sm">
+                        <button
+                            class="px-6 py-2 rounded-full bg-surface-container-lowest shadow-sm text-on-surface font-headline-sm text-[14px] font-bold transition-all">Sermon
+                            Details</button>
+                        <button
+                            class="px-6 py-2 rounded-full text-on-surface-variant font-headline-sm text-[14px] hover:text-on-surface transition-all">Volunteer
+                            Roster</button>
+                        <button
+                            class="px-6 py-2 rounded-full text-on-surface-variant font-headline-sm text-[14px] hover:text-on-surface transition-all">Offering</button>
+                    </div>
+                    <!-- Sermon Content Card -->
+                    <div
+                        class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 flex flex-col flex-1 overflow-hidden">
+                        <!-- Header Area -->
+                        <div
+                            class="p-6 border-b border-outline-variant/30 flex justify-between items-start bg-surface-bright">
+                            <div class="flex-1">
+                                <span
+                                    class="inline-flex items-center gap-1 text-primary font-label-caps text-label-caps uppercase tracking-wider mb-2 bg-primary/10 px-2 py-1 rounded">
+                                    <span class="material-symbols-outlined text-[14px]">menu_book</span> Series: The
+                                    Mount
+                                </span>
+                                <h2 class="font-display-lg text-[28px] text-on-background leading-tight mb-2">Blessed
+                                    Are The Peacemakers</h2>
+                                <p class="text-on-surface-variant font-body-lg text-body-lg max-w-2xl">An exploration of
+                                    reconciliation in a divided world, focusing on practical steps for building bridges
+                                    within our communities.</p>
+                            </div>
+                            <button
+                                class="text-primary hover:bg-primary-container/20 p-2 rounded-full transition-colors active:scale-95 duration-200">
+                                <span class="material-symbols-outlined">edit</span>
+                            </button>
+                        </div>
+                        <!-- Details Grid -->
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Scriptures -->
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-2 border-b border-outline-variant/30 pb-2">
+                                    <span class="material-symbols-outlined text-outline">auto_stories</span>
+                                    <h3 class="font-headline-sm text-headline-sm text-on-surface">Key Scriptures</h3>
+                                </div>
+                                <ul class="space-y-3">
+                                    <li
+                                        class="flex flex-col gap-1 p-3 bg-surface-container-low rounded-lg hover:bg-surface-container-high transition-colors">
+                                        <span class="font-headline-sm text-[16px] text-primary">Matthew 5:9</span>
+                                        <span class="font-body-md text-sm text-on-surface-variant italic">"Blessed are
+                                            the peacemakers, for they will be called children of God."</span>
+                                    </li>
+                                    <li
+                                        class="flex flex-col gap-1 p-3 bg-surface-container-low rounded-lg hover:bg-surface-container-high transition-colors">
+                                        <span class="font-headline-sm text-[16px] text-primary">Romans 12:18</span>
+                                        <span class="font-body-md text-sm text-on-surface-variant italic">"If it is
+                                            possible, as far as it depends on you, live at peace with everyone."</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- Worship Setlist -->
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-2 border-b border-outline-variant/30 pb-2">
+                                    <span class="material-symbols-outlined text-outline">queue_music</span>
+                                    <h3 class="font-headline-sm text-headline-sm text-on-surface">Worship Setlist</h3>
+                                </div>
+                                <ol class="list-decimal list-inside space-y-2 text-on-surface font-body-md">
+                                    <li class="py-1 border-b border-outline-variant/10">Great Are You Lord <span
+                                            class="text-outline text-sm float-right">Key of G</span></li>
+                                    <li class="py-1 border-b border-outline-variant/10">Build My Life <span
+                                            class="text-outline text-sm float-right">Key of D</span></li>
+                                    <li class="py-1 border-b border-outline-variant/10">King of Kings <span
+                                            class="text-outline text-sm float-right">Key of C</span></li>
+                                    <li class="py-1 border-b border-outline-variant/10">O Come To The Altar <span
+                                            class="text-outline text-sm float-right">Key of E</span></li>
+                                </ol>
+                            </div>
+                        </div>
+                        <!-- Service Notes -->
+                        <div class="p-6 pt-0 mt-auto">
+                            <div class="bg-surface-container rounded-lg p-5 border border-outline-variant/20 relative">
+                                <div
+                                    class="absolute -top-3 left-4 bg-surface-container px-2 flex items-center gap-1 text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider">
+                                    <span class="material-symbols-outlined text-[14px]">speaker_notes</span>
+                                    Administrator Notes
+                                </div>
+                                <p class="font-body-md text-body-md text-on-surface mt-2">
+                                    Service started 5 minutes late due to technical issue with the main projector.
+                                    Resolved quickly by A/V team. Altar call response was higher than average (approx 12
+                                    individuals came forward). Ensure follow-up cards are processed by Tuesday.
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Action Footer -->
+                        <div
+                            class="bg-surface-container-low p-4 border-t border-outline-variant/30 flex justify-end gap-3">
+                            <button
+                                class="px-5 py-2 rounded-full border border-outline-variant text-on-surface font-headline-sm text-[14px] hover:bg-surface-container-high transition-colors active:scale-95 duration-150">Save
+                                as Draft</button>
+                            <button
+                                class="px-5 py-2 rounded-full bg-primary text-on-primary font-headline-sm text-[14px] shadow-sm hover:bg-primary-container hover:text-on-primary-container transition-colors active:scale-95 duration-150 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]">check_circle</span> Finalize Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

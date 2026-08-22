@@ -248,7 +248,6 @@ export function AssetsView() {
         <View className="gap-0">
             <View.Header
                 pagename="Assets"
-                description="Assembly assets from the finance asset register."
                 actions={(
                     <ResourceViewToggle
                         value={view}
@@ -280,6 +279,7 @@ export function AssetsView() {
                     </div>
                 ) : (
                     <DataTable<AssetTableRow>
+                        variant="simple"
                         data={tableRows}
                         config={assetsTableSchema}
                         isLoading={isLoading}

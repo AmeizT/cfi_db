@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
     acceptMemberTransfer,
     cancelMemberTransfer,
@@ -12,90 +12,114 @@ import {
     rejectMemberTransfer,
     type MemberTransferParams,
 } from "../services/member-transfers"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
+import { buildTransferQueryKey } from "../utils/transfer-query-key"
 
 export const memberTransferQueryKeys = {
     all: ["people", "member-transfers"] as const,
-    list: (params: MemberTransferParams = {}) =>
-        [...memberTransferQueryKeys.all, "list", params] as const,
-    incoming: (params: MemberTransferParams = {}) =>
-        [...memberTransferQueryKeys.all, "incoming", params] as const,
-    outgoing: (params: MemberTransferParams = {}) =>
-        [...memberTransferQueryKeys.all, "outgoing", params] as const,
-    history: (memberId?: string | number) =>
-        [...memberTransferQueryKeys.all, "history", memberId ?? "all"] as const,
-    memberships: (memberId: string | number) =>
-        [...memberTransferQueryKeys.all, "memberships", String(memberId)] as const,
-    assemblies: ["people", "transfer-assemblies"] as const,
+    scope: (assemblyId: string | number | null | undefined) =>
+        assemblyQueryKeys.key(assemblyId, ...memberTransferQueryKeys.all),
+    view: buildTransferQueryKey,
+    memberships: (
+        assemblyId: string | number | null | undefined,
+        memberId: string | number,
+    ) => [...memberTransferQueryKeys.scope(assemblyId), "memberships", String(memberId)] as const,
+    assemblies: (assemblyId: string | number | null | undefined) =>
+        assemblyQueryKeys.key(assemblyId, "people", "transfer-assemblies"),
 }
 
 export function useMemberTransfers(params: MemberTransferParams = {}) {
+    const assemblyId = useActiveAssemblyId()
     return useQuery({
-        queryKey: memberTransferQueryKeys.list(params),
+        queryKey: memberTransferQueryKeys.view(assemblyId, "all", params),
         queryFn: () => getMemberTransfers(params),
-        placeholderData: keepPreviousData,
+        enabled: Boolean(assemblyId),
     })
 }
 
 export function useIncomingMemberTransfers(params: MemberTransferParams = {}) {
+    const assemblyId = useActiveAssemblyId()
     return useQuery({
-        queryKey: memberTransferQueryKeys.incoming(params),
+        queryKey: memberTransferQueryKeys.view(assemblyId, "incoming", params),
         queryFn: () => getIncomingMemberTransfers(params),
-        placeholderData: keepPreviousData,
+        enabled: Boolean(assemblyId),
     })
 }
 
 export function useOutgoingMemberTransfers(params: MemberTransferParams = {}) {
+    const assemblyId = useActiveAssemblyId()
     return useQuery({
-        queryKey: memberTransferQueryKeys.outgoing(params),
+        queryKey: memberTransferQueryKeys.view(assemblyId, "outgoing", params),
         queryFn: () => getOutgoingMemberTransfers(params),
-        placeholderData: keepPreviousData,
+        enabled: Boolean(assemblyId),
     })
 }
 
-export function useMemberTransferHistory(memberId?: string | number) {
+export function useMemberTransferHistory(params: MemberTransferParams = {}) {
+    const assemblyId = useActiveAssemblyId()
     return useQuery({
-        queryKey: memberTransferQueryKeys.history(memberId),
-        queryFn: () => getMemberTransferHistory(memberId),
-        placeholderData: keepPreviousData,
+        queryKey: memberTransferQueryKeys.view(assemblyId, "history", params),
+        queryFn: () => getMemberTransferHistory(params),
+        enabled: Boolean(assemblyId),
     })
 }
 
 export function useMemberAssemblyMemberships(memberId: string | number) {
+    const assemblyId = useActiveAssemblyId()
     return useQuery({
-        queryKey: memberTransferQueryKeys.memberships(memberId),
+        queryKey: memberTransferQueryKeys.memberships(assemblyId, memberId),
         queryFn: () => getMemberAssemblyMemberships(memberId),
-        enabled: Boolean(memberId),
+        enabled: Boolean(assemblyId && memberId),
     })
 }
 
 export function useTransferAssemblies() {
+    const assemblyId = useActiveAssemblyId()
     return useQuery({
-        queryKey: memberTransferQueryKeys.assemblies,
+        queryKey: memberTransferQueryKeys.assemblies(assemblyId),
         queryFn: getTransferAssemblies,
-        placeholderData: keepPreviousData,
+        enabled: Boolean(assemblyId),
+    })
+}
+
+function useInvalidateMemberTransfers() {
+    const assemblyId = useActiveAssemblyId()
+    const queryClient = useQueryClient()
+
+    return () => queryClient.invalidateQueries({
+        queryKey: memberTransferQueryKeys.scope(assemblyId),
     })
 }
 
 export function useCreateMemberTransfer() {
+    const invalidateTransfers = useInvalidateMemberTransfers()
     return useMutation({
         mutationFn: createMemberTransfer,
+        onSuccess: invalidateTransfers,
     })
 }
 
 export function useAcceptMemberTransfer() {
+    const invalidateTransfers = useInvalidateMemberTransfers()
     return useMutation({
         mutationFn: acceptMemberTransfer,
+        onSuccess: invalidateTransfers,
     })
 }
 
 export function useRejectMemberTransfer() {
+    const invalidateTransfers = useInvalidateMemberTransfers()
     return useMutation({
         mutationFn: rejectMemberTransfer,
+        onSuccess: invalidateTransfers,
     })
 }
 
 export function useCancelMemberTransfer() {
+    const invalidateTransfers = useInvalidateMemberTransfers()
     return useMutation({
         mutationFn: cancelMemberTransfer,
+        onSuccess: invalidateTransfers,
     })
 }

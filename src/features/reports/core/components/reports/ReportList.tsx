@@ -52,7 +52,7 @@ export function ReportList() {
 
     return (
         <View>
-            <View.Header pagename={`Reports: ${year}`} pathname="" className="gap-6">
+            <View.Header pagename={`Reports: ${year}`} className="gap-6">
                 <div
                     className="hidden _flex flex-wrap justify-between items-end gap-4"
                     style={{

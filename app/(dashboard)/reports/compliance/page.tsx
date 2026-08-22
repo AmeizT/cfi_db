@@ -1,15 +1,2 @@
-import { redirect } from "next/navigation"
-import {
-    reportHref,
-    type ReportRouteSearchParams,
-} from "@/features/reports/modules/lib/report-route-redirect"
-
-type ComplianceRedirectPageProps = {
-    searchParams: Promise<ReportRouteSearchParams>
-}
-
-export default async function ComplianceRedirectPage({
-    searchParams,
-}: ComplianceRedirectPageProps) {
-    redirect(reportHref("/reports/review/compliance", await searchParams))
-}
+import { ReportModulePageView } from "@/features/reports/modules/views/ReportModulePageView"
+export default function CompliancePage() { return <ReportModulePageView section="activity" module="compliance" /> }

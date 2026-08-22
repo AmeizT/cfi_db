@@ -27,10 +27,7 @@ export function RegionComplianceView() {
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto">
                 <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
-                    <div>
-                        <h1 className="text-xl font-medium text-gray-900">Compliance dashboard</h1>
-                        <p className="text-sm text-gray-400 mt-1">All assemblies · April 2026</p>
-                    </div>
+                    <h1 className="text-xl font-medium text-gray-900">Compliance dashboard</h1>
                     <div className="flex gap-2">
                         <button className="text-sm px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-white transition-colors">
                             Export report

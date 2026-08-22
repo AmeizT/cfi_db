@@ -3,18 +3,18 @@ import { createQueryString } from "@/features/reports/core/lib/create-query-stri
 
 export function getMembersTabs(searchParams?: ReadonlyURLSearchParams) {
     const hrefFor = (tab: string) =>
-        `/reports/review/members?${createQueryString(searchParams, { tab })}`
+        `/members/directory?${createQueryString(searchParams, { tab })}`
 
     const tabs = [
         {
             label: "Children",
             key: "children",
-            href: "/app/people/families-children",
+            href: "/members/directory/children",
         },
         {
             label: "Transfers",
             key: "transfers",
-            href: "/app/people/transfers",
+            href: "/members/transfers",
         },
         {
             label: "Audit Logs",

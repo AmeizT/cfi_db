@@ -10,14 +10,14 @@ import { optimisticUpdateRecord } from "@/helpers/optistimicUpdate"
 
 type EditableCellProps<T, K extends keyof T> = React.InputHTMLAttributes<HTMLInputElement> & {
     value: T[K] | undefined
-    rowIndex: number
+    // rowIndex: number
     columnId: K
     resource: ApiDetailRouteKey
     recordId: number
     autoFocus?: boolean
     formatter?: (value: T[K]) => React.ReactNode
     displayValue?: React.ReactNode
-    onNavigate?: (direction: "up" | "down" | "left" | "right", rowIndex: number, columnId: K) => void
+    // onNavigate?: (direction: "up" | "down" | "left" | "right", rowIndex: number, columnId: K) => void
 }
 
 export const queryKeys = {

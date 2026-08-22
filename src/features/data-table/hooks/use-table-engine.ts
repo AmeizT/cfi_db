@@ -32,6 +32,7 @@ type UseTableEngineProps<T> = {
     user?: User
     expandable?: boolean
     enablePinning?: boolean
+    enableResizing?: boolean
 }
 
 export function useTableEngine<T extends Record<string, unknown>>({
@@ -40,6 +41,7 @@ export function useTableEngine<T extends Record<string, unknown>>({
     user,
     expandable = false,
     enablePinning = false,
+    enableResizing = true,
 }: UseTableEngineProps<T>) {
     const safeConfig = React.useMemo(() => {
         return config ?? { columns: [] }
@@ -73,6 +75,7 @@ export function useTableEngine<T extends Record<string, unknown>>({
         getExpandedRowModel: expandable ? getExpandedRowModel() : undefined,
         getRowCanExpand: expandable ? () => true : undefined,   
         columnResizeMode: "onChange",
+        enableColumnResizing: enableResizing,
         enableColumnPinning: enablePinning,
         initialState: {
             columnPinning: {

@@ -43,6 +43,8 @@ export const MemberSchema = z.object({
     province: z.string().optional(),
     membersince: z.string().optional().nullable(),
     membership_status: z.string().optional(),
+    membership_stage: z.enum(["new", "established", "associate"]).nullable().optional(),
+    date_of_death: z.iso.date().nullable().optional(),
     previous_church: z.string().optional(),
     ministries: z.array(z.string()).optional(),
     positions: z.array(z.string()).optional(),

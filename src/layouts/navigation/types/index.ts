@@ -1,5 +1,10 @@
-import { IconSvgElement } from "@hugeicons/react"
-import { ReadonlyURLSearchParams } from "next/navigation"
+import type { IconSvgElement } from "@hugeicons/react"
+import type { ComponentType, SVGProps } from "react"
+import type { ReadonlyURLSearchParams } from "next/navigation"
+
+export type CustomSvgIcon = ComponentType<SVGProps<SVGSVGElement>>
+
+export type NavigationIcon = IconSvgElement | CustomSvgIcon
 
 interface NavItemBase {
     label: string
@@ -11,11 +16,12 @@ interface NavItemBase {
     mobile?: boolean
     permissions?: string[]
     exact?: boolean
+    icon?: NavigationIcon
 }
 
 export interface NavItem extends NavItemBase {
-    icon: IconSvgElement
-    activeIcon: IconSvgElement
+    icon: NavigationIcon
+    activeIcon: NavigationIcon
     children?: NavItemBase[]
 }
 

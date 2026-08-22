@@ -198,7 +198,7 @@ function MembersError({ error }: { error: unknown }) {
     )
 }
 
-export function MembersView() {
+export function MembersView({ embedded = false, group = "all" }: { embedded?: boolean; group?: "all" | "adults" }) {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -208,7 +208,7 @@ export function MembersView() {
     const view: ResourceViewMode = viewParam === "cards" ? "cards" : "table"
     const tabs = getMembersTabs(searchParams)
 
-    const membersQuery = useMembersDirectory({ search })
+    const membersQuery = useMembersDirectory({ search, group })
     const members = React.useMemo(
         () => membersQuery.data ?? [],
         [membersQuery.data]
@@ -268,13 +268,11 @@ export function MembersView() {
 
     return (
         <View className="gap-0">
-            <View.Header
-                pagename="Members"
-            />
+            {!embedded ? <View.Header pagename="Members" /> : null}
 
-            <View.TabBar items={tabs} />
+            {!embedded ? <View.TabBar items={tabs} /> : null}
 
-            <View.Body className="gap-4 py-4">
+            <View.Body className="gap-4 p-0">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex w-full flex-col gap-2 sm:max-w-sm sm:flex-row">
                         <div className="relative flex-1">
@@ -329,6 +327,7 @@ export function MembersView() {
                     </div>
                 ) : (
                     <DataTable<MemberTableRow>
+                        variant="simple"
                         data={tableRows}
                         config={membersTableSchema}
                         isLoading={isLoading}
@@ -354,5 +353,3 @@ export function MembersView() {
         </View>
     )
 }
-
-

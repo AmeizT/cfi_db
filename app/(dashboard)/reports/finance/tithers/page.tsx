@@ -1,9 +1,10 @@
 import { getMetaData } from "@/config/metadata"
-import { TithesRouteContent } from "@/features/reports/finance/tithes/workspace/TithesWorkspace"
+import { redirect } from "next/navigation"
+import { reportHref, type ReportRouteSearchParams } from "@/features/reports/modules/lib/report-route-redirect"
 
 const meta = getMetaData({ title: "Tithes Reports" })
 export const metadata = { ...meta }
 
-export default function TithesRootPage() {
-    return <TithesRouteContent view="records" />
+export default async function TithesRootPage({ searchParams }: { searchParams: Promise<ReportRouteSearchParams> }) {
+    redirect(reportHref("/reports/finance/tithes", await searchParams))
 }

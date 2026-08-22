@@ -18,9 +18,8 @@ export default async function AttendanceStatementRedirectPage({
             ? resolvedSearchParams.tab
             : "monthly"
 
-    redirect(
-        reportHref("/reports/ministry/attendance", resolvedSearchParams, {
-            tab,
-        })
-    )
+    const pathname = tab === "analytics"
+        ? "/reports/ministry/attendance/cumulative"
+        : "/reports/ministry/attendance"
+    redirect(reportHref(pathname, resolvedSearchParams, { tab: null }))
 }

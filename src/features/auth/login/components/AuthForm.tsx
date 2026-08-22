@@ -30,13 +30,6 @@ interface FormState {
 export function AuthForm(){
     const router = useRouter()
     const { t } = useAuthTranslations()
-    // const [formState, formAction, isPending] = React.useActionState(
-    //     createSession as (
-    //         prevState: AuthFormState,
-    //         formData: FormData
-    //     ) => Promise<AuthFormState>, 
-    //     initialFormState
-    // )
 
     const [formState, setFormState] = React.useState<FormState>({
         success: false,
@@ -76,7 +69,7 @@ export function AuthForm(){
                     success: true,
                 })
 
-                router.push("/app/dashboard")
+                router.push("/")
 
             } catch (err) {
                 console.error("Unexpected error:", err)
@@ -119,7 +112,7 @@ export function AuthForm(){
 
     //         if (isAuthenticated) {
     //             console.log("Session verified, redirecting to dashboard...")
-    //             // router.push("/app/dashboard")
+    //             // router.push("/")
     //         } else {
     //             console.error("Session verification failed after login")
     //             setFormState({
@@ -155,11 +148,11 @@ export function AuthForm(){
         <div className="py-16 w-full flex-col items-center justify-center flex">
             <motion.div className="px-6 lg:p-0 w-full lg:w-3/5 flex flex-col justify-center">
                 <div className="mb-6 flex flex-col gap-y-2">
-                    <h3 className="text-2xl text-center text-mist-800 dark:text-body-muted font-semibold">
+                    <h3 className="text-2xl text-center text-zinc-800 dark:text-body-muted font-semibold">
                         {t("heading")}
                     </h3>
 
-                    <p className="text-sm text-center text-mist-500">
+                    <p className="text-sm text-center text-zinc-500">
                         {t("tagline")}
                     </p>
                 </div>
@@ -218,7 +211,7 @@ export function AuthForm(){
                             )}
                         </authForm.AppField>
 
-                        <Link href="/en/auth/password/recover" aria-label="Reset your password" className="flex gap-2 items-center self-center font-medium text-sm text-mist-600 hover:text-mist-800 dark:text-white dark:hover:text-mist-300">
+                        <Link href="/en/auth/password/recover" aria-label="Reset your password" className="flex gap-2 items-center self-center font-medium text-sm text-zinc-600 hover:text-zinc-800 dark:text-white dark:hover:text-zinc-300">
                             {t("links.forgotPassword")}
                         </Link>
                     </motion.div>
@@ -238,7 +231,7 @@ export function AuthForm(){
                                 >
                                     {formState.pending ? (
                                         <span className="flex items-center gap-x-2">
-                                            <Spinner size="size-5.5" className="bg-white" /> <Text variant="shine" className="text-[0.9375rem] font-semibold bg-[linear-gradient(110deg,#6b7280,35%,#fff,50%,#6b7280,75%,#6b7280)] dark:bg-[linear-gradient(110deg,#6b7280,35%,#fff,50%,#6b7280,75%,#6b7280)]">
+                                            <Spinner size="size-5.5" className="bg-white" /> <Text variant="shine" className="text-[0.9375rem] font-semibold bg-[linear-gradient(110deg,#a5b4fc,35%,#fff,50%,#a5b4fc,75%,#a5b4fc)] dark:bg-[linear-gradient(110deg,#a5b4fc,35%,#fff,50%,#a5b4fc,75%,#a5b4fc)]">
                                                 {t("actions.loading")}
                                             </Text>
                                         </span>
@@ -251,11 +244,11 @@ export function AuthForm(){
                                 animate={{ opacity: 1, y: 8 }}
                                 exit={{ opacity: 0, y: 0 }}
                                 transition={{ type: "spring", bounce: 0.6, duration: 0.9, ease: "easeInOut" }}
-                                className="block text-[13px] text-center text-mist-500 text-balance font-normal"
+                                className="block text-[13px] text-center text-muted-foreground text-balance font-normal"
                             >
                                 {t.rich("legal.notice", {
                                     Link: (chunks) => (
-                                        <Link href="/tos" className="text-mist-800 font-semibold hover:text-neutral-700 dark:hover:text-white">
+                                        <Link href="/tos" className="font-semibold dark:hover:text-white">
                                             {chunks}
                                         </Link>
                                     ),
@@ -267,12 +260,12 @@ export function AuthForm(){
                                 animate={{ opacity: 1, y: 8 }}
                                 exit={{ opacity: 0, y: 0 }}
                                 transition={{ type: "spring", bounce: 0.6, duration: 0.9, ease: "easeInOut" }}
-                                className="mt-4 p-4 w-full bg-linear-to-b from-white to-white rounded-2xl backdrop-blur-lg shadow-card"
+                                className="hidden mt-4 p-4 w-full bg-linear-to-b from-white to-white rounded-2xl backdrop-blur-lg shadow-card"
                             >
-                                <small className="inline-block text-xs text-mist-500 font-normal leading-normal">
+                                <small className="inline-block text-xs text-zinc-500 font-normal leading-normal">
                                     {t.rich("sso.explanation", {
                                         strong: (chunks) => (
-                                            <strong className="font-semibold text-mist-700 dark:text-mist-300">
+                                            <strong className="font-semibold text-zinc-700 dark:text-zinc-300">
                                                 {chunks}
                                             </strong>
                                         ),

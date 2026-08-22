@@ -20,7 +20,7 @@ export function CompactReportView({ params }: CompactReportViewProps) {
 
     const selectedReport = reports?.find(report => format(report.period_start, "MMMM yyyy").toLowerCase() === (`${params.month} ${params.year}` || "").toLowerCase()) || null
     
-    const isFinalized = !!selectedReport?.finalized_at
+    const isFinalized = !!selectedReport?.submitted_at
 
     console.log(isFinalized)
 

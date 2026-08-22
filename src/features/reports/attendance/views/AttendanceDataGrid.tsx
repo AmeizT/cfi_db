@@ -2,34 +2,13 @@
 
 import React from "react"
 import { Button } from "@/components/ui/button"
-import { HugeiconsIcon } from "@hugeicons/react"
 import { Attendance, AttendanceResponse } from "@/dal/types"
-import { IconSunHighFilled } from "@tabler/icons-react"
-import { usePathname, useSearchParams } from "next/navigation"
-import { createQueryString } from "../../core/lib/create-query-string"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { DataTable } from "../../core/components/DataTable"
-import { TableTab } from "../../core/types/tabletabs.type"
 import { Flex } from "@/components/ui/box"
-import { SunCloud02Icon } from "@hugeicons/core-free-icons";
+import { ViewIcon } from "@hugeicons/core-free-icons"
 import type { DataTablePaginationProps } from "../../core/components/DataTable.types"
-
-const columnTypes = {
-    currency: (value: number) => `P ${value.toLocaleString()}`,
-
-    weather: (value: string) => {
-        const map: Record<string, React.ReactNode> = {
-            sunny: <IconSunHighFilled strokeWidth={1.75} className="size-5 text-mist-400" />,
-            cloudy: <HugeiconsIcon icon={SunCloud02Icon} size={20} />,
-        }
-
-        return (
-            <span className="flex items-center gap-1">
-                {map[value]}
-                <span className="capitalize">{value}</span>
-            </span>
-        )
-    },
-}
+import { attendanceRecordPath } from "@/config/app-routes"
 
 interface ViewProps {
     attendance: (AttendanceResponse & {
@@ -38,20 +17,34 @@ interface ViewProps {
     }) | undefined
     isLoading: boolean
     pagination?: DataTablePaginationProps
+    service?: "main-service" | "homecell" | "midweek" | "special-services"
 }
 
-export default function AttendanceView({ attendance, isLoading, pagination }: ViewProps) {
-    const pathname = usePathname()
-    const searchParams = useSearchParams()
-    const activeSheet = searchParams.get("sheet") || "sunday"
-    const queryParams = Object.fromEntries(searchParams.entries())
-    const attendanceRows = React.useMemo(
-        () => attendance?.results ?? attendance?.data ?? [],
-        [attendance]
-    )
+const slugify = (value: string) =>
+    value.toLowerCase().trim().replace(/\s+/g, "-")
 
-    const slugify = (value: string) =>
-      value.toLowerCase().trim().replace(/\s+/g, "-")
+export default function AttendanceView({ attendance, isLoading, pagination, service = "main-service" }: ViewProps) {
+    const pathname = usePathname()
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const attendanceRows = React.useMemo(() => {
+        const rows = attendance?.results ?? attendance?.data ?? []
+
+        if (service === "special-services") {
+            return rows.filter((row) => row.is_special_event)
+        }
+
+        const aliases = {
+            "main-service": ["sunday", "main-service", "main-service/sunday"],
+            homecell: ["homecell", "home-cell"],
+            midweek: ["midweek", "mid-week"],
+        }[service]
+
+        return rows.filter((row) => {
+            if (row.is_special_event) return false
+            return aliases.includes(slugify(row.service_type?.trim() || ""))
+        })
+    }, [attendance, service])
 
     const groupedAttendance = React.useMemo(() => {
       if (!attendanceRows.length) return {}
@@ -68,6 +61,7 @@ export default function AttendanceView({ attendance, isLoading, pagination }: Vi
     }, [attendanceRows])
 
     const firstKey = Object.keys(groupedAttendance)[0]
+    const activeSheet = searchParams.get("sheet") || firstKey || "sunday"
     const currentData = React.useMemo(
         () => groupedAttendance[activeSheet] ?? groupedAttendance[firstKey] ?? [],
         [activeSheet, firstKey, groupedAttendance]
@@ -87,16 +81,16 @@ export default function AttendanceView({ attendance, isLoading, pagination }: Vi
         }
     }, [currentData, status])
 
-    const monthlySummary = attendanceRows[0]?.monthly_summary
+    const openRecordDetails = React.useCallback((row: Attendance) => {
+        const query = searchParams.toString()
+        const returnTo = `${pathname}${query ? `?${query}` : ""}`
+        const detailBase = pathname.startsWith("/engagement/")
+            ? attendanceRecordPath(row.id)
+            : `/reports/ministry/attendance/records/${row.id}`
+        const detailParams = new URLSearchParams({ return_to: returnTo })
 
-    const handleCellEdit = (rowIndex: number, columnId: string, value: unknown) => {
-        console.log("Edited cell:", { rowIndex, columnId, value })
-    }
-
-    const footerDataRecord = monthlySummary ? Object.fromEntries(
-        Object.entries(monthlySummary).map(([key, value]) => [key, typeof value === 'number' ? value : 0])
-    ) : undefined
-
+        router.push(`${detailBase}?${detailParams.toString()}`)
+    }, [pathname, router, searchParams])
 
     // const COLUMNS: ColumnDef<Attendance>[] = [
     //     {
@@ -172,14 +166,6 @@ export default function AttendanceView({ attendance, isLoading, pagination }: Vi
     //     },
     // ]
 
-    const tableTabs = (grouped: Record<string, unknown>): TableTab[] => {
-        return Object.keys(grouped).map((slug) => ({
-            id: slug,
-            label: slug.replace(/-/g, " "),
-            pathname: `${pathname}?${createQueryString(searchParams, { sheet: slug })}`,
-        }))
-    }
-    
     const tableOptions = {
         selectable: true,
     }
@@ -187,13 +173,22 @@ export default function AttendanceView({ attendance, isLoading, pagination }: Vi
     return (
         <Flex className="w-full" direction="column" gap={4}>
             <DataTable
+                variant="advanced"
                 data={filteredAttendance}
                 config={attendance?.config}
                 options={tableOptions}
                 isLoading={isLoading}
                 loadingMode="overlay"
                 rowHeight={36}
-                onCellEdit={handleCellEdit}
+                onRowClick={openRecordDetails}
+                rowActions={(row) => [
+                    {
+                        label: "Open details",
+                        icon: ViewIcon,
+                        variant: "default",
+                        onClick: () => openRecordDetails(row),
+                    },
+                ]}
                 footerData={undefined}
                 resource="attendance"
                 totalRows={attendance?.count ?? filteredAttendance.length}

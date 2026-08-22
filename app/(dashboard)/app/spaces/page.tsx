@@ -1,5 +1,2 @@
-export default function GroupsPage() { 
-    return (
-        <h1>Spaces</h1>
-    )
-}
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+export default createLegacyRedirectPage("/spaces")

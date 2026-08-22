@@ -5,7 +5,7 @@ export function settings(): NavItem[] {
     return [
         {
             label: "Account",
-            href: `/settings/account`,
+            href: `/settings`,
             icon: UserCircle02Icon,
             activeIcon: UserCircle02Icon,
             children: []

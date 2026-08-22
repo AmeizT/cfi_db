@@ -6,6 +6,8 @@ import { apiRoutes } from "@/config/urls"
 import type { PerformanceResponse, PerformanceResult, PerformanceRow } from "../types"
 import { getResponseConfig } from "../utils/helpers"
 import { buildTithesActionQuery } from "../utils/queryBuilders"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
 
 function normalizePerformanceResponse(response: PerformanceResponse): PerformanceResult {
     const row = response.data ?? {
@@ -33,12 +35,13 @@ function normalizePerformanceResponse(response: PerformanceResponse): Performanc
 }
 
 export function usePerformance(reportId: string | null, enabled: boolean) {
+    const assemblyId = useActiveAssemblyId()
     const searchParams = useSearchParams()
     const searchKey = searchParams.toString()
 
     return useQuery<PerformanceResult>({
-        queryKey: ["report-tithe-performance", reportId, searchKey],
-        enabled: enabled && Boolean(reportId),
+        queryKey: assemblyQueryKeys.key(assemblyId, "report-tithe-performance", reportId, searchKey),
+        enabled: Boolean(assemblyId) && enabled && Boolean(reportId),
         queryFn: async () => {
             const params = new URLSearchParams(searchKey)
             const response = await fetch(

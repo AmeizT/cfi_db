@@ -1,5 +1,9 @@
 import { FileClockIcon, FileDownloadIcon, FileEditIcon } from "@hugeicons/core-free-icons"
 import type { NavGroup } from "../types"
+import { MagicWand3Icon } from '@solar-icons/react/bold-duotone/magic-wand-3'
+import { ListCheckMinimalisticIcon } from '@solar-icons/react/bold-duotone/list-check-minimalistic'
+import { PenNewSquareIcon } from '@solar-icons/react/bold-duotone/pen-new-square'
+import { ChecklistMinimalisticIcon } from '@solar-icons/react/bold-duotone/checklist-minimalistic'
 
 export function reportWizard(): NavGroup[] {
     return [
@@ -10,16 +14,16 @@ export function reportWizard(): NavGroup[] {
                 {
                     label: "New Report",
                     description: "Start or continue report entry",
-                    icon: FileEditIcon,
-                    activeIcon: FileEditIcon,
+                    icon: PenNewSquareIcon,
+                    activeIcon: PenNewSquareIcon,
                     href: "/report-wizard",
                     exact: true,
                 },
                 {
-                    label: "In Progress",
+                    label: "Tasks",
                     description: "Unfinished reports that still need sections",
-                    icon: FileClockIcon,
-                    activeIcon: FileClockIcon,
+                    icon: ChecklistMinimalisticIcon,
+                    activeIcon: ChecklistMinimalisticIcon,
                     href: "/report-wizard/in-progress",
                     exact: true,
                 },
@@ -32,8 +36,8 @@ export function reportWizard(): NavGroup[] {
                 {
                     label: "Download Template",
                     description: "Download report templates",
-                    icon: FileDownloadIcon,
-                    activeIcon: FileDownloadIcon,
+                    icon: MagicWand3Icon,
+                    activeIcon: MagicWand3Icon,
                     href: "#",
                     exact: true,
                 },

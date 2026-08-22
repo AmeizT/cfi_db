@@ -1,13 +1,14 @@
-import { SundaySchoolAttendanceDetailView } from "@/features/people/sunday-school/views/SundaySchoolAttendanceDetailView"
+import { redirect } from "next/navigation"
+import { reportHref, type ReportRouteSearchParams } from "@/features/reports/modules/lib/report-route-redirect"
 
 type SundaySchoolAttendanceDetailPageProps = {
     params: Promise<{ id: string }>
+    searchParams: Promise<ReportRouteSearchParams>
 }
 
 export default async function SundaySchoolAttendanceDetailPage({
-    params,
+    params, searchParams,
 }: SundaySchoolAttendanceDetailPageProps) {
     const { id } = await params
-
-    return <SundaySchoolAttendanceDetailView recordId={id} />
+    redirect(reportHref(`/engagement/attendance/sunday-school/${id}`, await searchParams))
 }

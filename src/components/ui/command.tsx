@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { MinimalisticMagnifierIcon } from '@solar-icons/react/linear/minimalistic-magnifier'
 
 function Command({
   className,
@@ -67,13 +68,13 @@ function CommandInput({
   return (
     <div
       data-slot="command-input-wrapper"
-      className="flex h-9 items-center gap-2 border-b border-border px-3"
+      className="flex h-fit items-center gap-2 border-b-0 border-border-subtle px-3"
     >
-      <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
+      <MinimalisticMagnifierIcon className="size-4.5 shrink-0 text-muted" />
       <CommandPrimitive.Input
         data-slot="command-input"
         className={cn(
-          "flex h-10 w-full rounded-md bg-transparent py-3 text-sm text-foreground outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-20 w-full rounded-md bg-transparent py-3 text-[15px] text-foreground outline-hidden placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         {...props}
@@ -90,7 +91,7 @@ function CommandList({
     <CommandPrimitive.List
       data-slot="command-list"
       className={cn(
-        "max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto",
+        "max-h-75 scroll-py-1 overflow-x-hidden overflow-y-auto no-scrollbar",
         className
       )}
       {...props}

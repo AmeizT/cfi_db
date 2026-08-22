@@ -4,8 +4,8 @@
 
 import React from "react"
 import { toast } from "sonner"
-import { FileIcons } from "./FileIcons"
 import { cn } from "@/lib/utils"
+import { FileImageIcon, FileSpreadsheetIcon, UploadCloudIcon } from "lucide-react"
 
 type UploadDropzoneProps = {
     onUpload: (file: File) => void
@@ -91,8 +91,11 @@ export function UploadDropzone({
         }
     }
 
+    const acceptsImages = accept.some((value) => value.startsWith("image/") || /\.(jpe?g|png|webp)/i.test(value))
+    const acceptsSpreadsheets = accept.some((value) => /\.(xlsx?|csv)/i.test(value))
+
     return (
-        <div className="p-1 h-full rounded-3xl bg-surface">
+        <div className="h-full rounded-2xl">
             <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -107,7 +110,7 @@ export function UploadDropzone({
                 aria-busy={disabled}
                 className={cn(
                     "relative h-full min-h-56 overflow-hidden flex flex-col items-center justify-center gap-3",
-                    "rounded-[20px] border-[1.5px] border-dashed px-6 py-10",
+                    "rounded-[16px] border-[1.5px] border-dashed px-6 py-10",
                     "select-none transition-all duration-200 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]",
                     disabled ? "cursor-wait" : "cursor-pointer",
                     isDragging && !disabled
@@ -123,8 +126,10 @@ export function UploadDropzone({
                     />
                 )}
 
-                <div className="relative transition-transform duration-200">
-                    <FileIcons />
+                <div className="relative flex items-center gap-2 text-primary transition-transform duration-200">
+                    {acceptsSpreadsheets ? <FileSpreadsheetIcon className="size-9" aria-hidden="true" /> : null}
+                    <UploadCloudIcon className="size-12" aria-hidden="true" />
+                    {acceptsImages ? <FileImageIcon className="size-9" aria-hidden="true" /> : null}
                 </div>
 
                 <div className="relative text-center">
@@ -133,8 +138,12 @@ export function UploadDropzone({
                             ? "Drop your file here"
                             : label}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                        {accept.join(", ")} files only
+                    <p className="mt-1 text-xs text-muted-foreground">
+                        {acceptsImages && acceptsSpreadsheets
+                            ? "Excel sheets, CSVs, or images"
+                            : acceptsSpreadsheets
+                              ? "Excel sheets or CSVs"
+                              : "Supported image files"}
                     </p>
                 </div>
 

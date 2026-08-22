@@ -1,21 +1,24 @@
 "use client"
 
-import React, { SVGProps } from "react"
+import React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { BsTrash } from "react-icons/bs"
-import { BarChart, Binoculars, Rocket } from "lucide-react"
+import { Binoculars, Users } from "lucide-react"
 import { GiTwoCoins as Coins } from "react-icons/gi"
 import { HiInboxStack as Tray } from "react-icons/hi2"
-import { RiBubbleChartFill as Bubble, RiDraftFill } from "react-icons/ri"
+import { RiDraftFill } from "react-icons/ri"
 import { HiMiniCalendarDays as Calendar, HiMiniWallet as Vault } from "react-icons/hi2"
 import { PieChartIcon } from "../icons/PieChart"
 import { ClipboardIcon } from "../icons/Clipboard"
 import { Button } from "./button"
 import { MissingFilesIcon } from "../icons/MissingFiles"
 import { FileSearchIcon } from "../icons/FileSearch"
-import { DropletIcon, Target02Icon, UserMultiple02Icon } from "@hugeicons/core-free-icons"
+import { DropletIcon, RocketIcon, Target02Icon, UserMultiple02Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import { OuterSpaceIllustration, QuietStreetIllustration } from "@/assets/icons/illustrations";
+import { RainingIllustration } from "@/assets/icons/illustrations/RainingIllustration";
+import { RemoteCabinIllustration } from "@/assets/icons/illustrations/RemoteCabinIllustration";
 
 const PerformanceIcon = (
   props: Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon">
@@ -30,8 +33,12 @@ const DemographicsIcon = (
 ) => <HugeiconsIcon icon={UserMultiple02Icon} {...props} />
 
 
+const RocketTakeoffIcon = (
+  props: Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon">
+) => <HugeiconsIcon icon={RocketIcon} {...props} />
 
 type EmptyStateVariant = "action" | "heading" | "both"
+type EmptyStateSize = "compact" | "full"
 
 interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
     type: EmptyStateType
@@ -43,20 +50,28 @@ interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
     actionLabel?: string
     href?: string
     action?: React.ReactNode
+    secondaryAction?: React.ReactNode
+    title?: string
+    description?: string
+    icon?: React.ReactNode
+    size?: EmptyStateSize
 }
 
 type EmptyStateType =
     | "analyticsChart"
     | "assets"
     | "baptisms"
+    | "babyDedications"
     | "demographics"
     | "drafts"
     | "events"
     | "exceptions"
     | "filteredReports"
+    | "financialTransactions"
     | "formerMembers"
     | "friday"
     | "homecell"
+    | "households"
     | "inbox"
     | "insights"
     | "messages"
@@ -66,6 +81,7 @@ type EmptyStateType =
     | "reports"
     | "sunday"
     | "tally"
+    | "teams"
     | "tithes"
     | "trash"
 
@@ -81,8 +97,6 @@ interface EmptyStateConfig {
     banner?: string
 }
 
-const ICON_SIZE = 36
-
 const EMPTY_STATES: Record<EmptyStateType, EmptyStateConfig> = {
     assets: {
         description: "You haven't recorded any assets yet.",
@@ -91,8 +105,18 @@ const EMPTY_STATES: Record<EmptyStateType, EmptyStateConfig> = {
         Icon: Vault
     },
     baptisms: {
-        description: "No baptisms have been recorded.",
-        Icon: BaptismIcon
+        heading: "No baptisms recorded or scheduled",
+        description: "Recorded and upcoming baptisms will appear here.",
+        actionLabel: "Schedule baptism",
+        href: "#",
+        Icon: RainingIllustration
+    },
+    babyDedications: {
+        heading: "No baby dedications recorded or scheduled",
+        description: "Recorded and upcoming baby dedications will appear here.",
+        actionLabel: "Schedule dedication",
+        href: "#",
+        Icon: RainingIllustration
     },
     drafts: {
         description: "No drafts have been saved.",
@@ -117,10 +141,18 @@ const EMPTY_STATES: Record<EmptyStateType, EmptyStateConfig> = {
         Icon: Calendar
     },
     homecell: {
-        description: "No homecell attendance data available.",
+        heading: "No homecell found",
+        description: "Create a homecell to organize members, meetings, and activities.",
         actionLabel: "Create homecell",
-        href: "/homecell/attendance/add/",
-        Icon: Calendar
+        href: "#",
+        Icon: QuietStreetIllustration
+    },
+    households: {
+        heading: "No households found",
+        description: "Create a household to group related members and manage their shared information.",
+        actionLabel: "Create household",
+        href: "#",
+        Icon: RemoteCabinIllustration
     },
     events: {
         description: "No scheduled events.",
@@ -129,6 +161,12 @@ const EMPTY_STATES: Record<EmptyStateType, EmptyStateConfig> = {
     tally: {
         description: "No tally records.",
         Icon: PieChartIcon
+    },
+    teams: {
+        description: "No teams have been created.",
+        actionLabel: "Create a team",
+        href: "/teams/add/",
+        Icon: Users
     },
     demographics: {
         description: "No members have been added yet.",
@@ -143,8 +181,9 @@ const EMPTY_STATES: Record<EmptyStateType, EmptyStateConfig> = {
         Icon: Tray
     },
     onboarding: {
-        description: "No members are currently being onboarded.",
-        Icon: Rocket
+        heading: "No members in onboarding",
+        description: "Members currently going through the onboarding process will appear here.",
+        Icon: OuterSpaceIllustration
     },
     formerMembers: {
         description: "No former members have been recorded.",
@@ -193,6 +232,11 @@ const EMPTY_STATES: Record<EmptyStateType, EmptyStateConfig> = {
         description: "Clear or adjust your filters to see more results.",
         Icon: PieChartIcon
     },
+    financialTransactions: {
+        heading: "No financial transactions",
+        description: "Financial transactions will appear here once they are recorded.",
+        Icon: Vault,
+    },
     exceptions: {
         heading: "No exceptions found",
         description: "Report exceptions are records that fall outside expected patterns, such as missing values, mismatched totals, or unusual entries.",
@@ -212,7 +256,12 @@ function EmptyStateCard({
     context,
     actionLabel: actionLabelOverride,
     href: hrefOverride,
-    action: actionOverride
+    action: actionOverride,
+    secondaryAction,
+    title,
+    description: descriptionOverride,
+    icon,
+    size = "full",
 }: {
     config: EmptyStateConfig
     variant?: EmptyStateVariant
@@ -220,18 +269,25 @@ function EmptyStateCard({
     actionLabel?: string
     href?: string
     action?: React.ReactNode
+    secondaryAction?: React.ReactNode
+    title?: string
+    description?: string
+    icon?: React.ReactNode
+    size?: EmptyStateSize
 }) {
     const { Icon } = config
 
-    const heading =
+    const heading = title ?? (
         typeof config.heading === "function"
             ? config.heading(context)
             : config.heading
+    )
 
-    const description =
+    const description = descriptionOverride ?? (
         typeof config.description === "function"
             ? config.description(context)
             : config.description
+    )
 
     const actionLabel =
         actionLabelOverride ?? config.actionLabel
@@ -243,17 +299,17 @@ function EmptyStateCard({
     const showAction = variant === "action" || variant === "both"
 
     return (
-        <div className="flex flex-col items-center gap-y-4 text-center">
-            <Icon className="size-20 text-muted-foreground" />
+        <div className={cn("flex flex-col items-center text-center", size === "compact" ? "gap-y-2" : "gap-y-4")}>
+            {icon ?? <Icon className={cn("text-olive-300", size === "compact" ? "size-12" : "size-64")} />}
 
             <div className="max-w-md">
                 {showHeading && heading && (
-                    <h5 className="text-[20px] text-center tracking-tight font-semibold text-neutral-700">
+                    <h5 className="text-lg text-center font-semibold">
                         {heading}
                     </h5>
                 )}
 
-                <p className="max-w-xs text-[14.5px] leading-5 text-center text-muted-foreground">
+                <p className="max-w-xs text-sm text-center text-muted">
                     {description}
                 </p>
             </div>
@@ -271,6 +327,7 @@ function EmptyStateCard({
                     )
                 )
             )}
+            {secondaryAction}
         </div>
     )
 }
@@ -283,6 +340,11 @@ export function EmptyState({
     actionLabel,
     href,
     action,
+    secondaryAction,
+    title,
+    description,
+    icon,
+    size = "full",
     ...props
 }: EmptyStateProps) {
     const config = EMPTY_STATES[type]
@@ -298,13 +360,13 @@ export function EmptyState({
                 className
             )}
         >
-            {config.banner && (
+            {/* {config.banner && (
                 <div className="absolute top-0 inset-x-0 px-4">
                     <small className="block w-full p-2.5 text-xs text-center rounded-lg text-amber-700 bg-amber-100 dark:text-amber-500 dark:bg-amber-500/15">
                         {config.banner}
                     </small>
                 </div>
-            )}
+            )} */}
 
             <EmptyStateCard
                 config={config}
@@ -313,6 +375,11 @@ export function EmptyState({
                 actionLabel={actionLabel}
                 href={href}
                 action={action}
+                secondaryAction={secondaryAction}
+                title={title}
+                description={description}
+                icon={icon}
+                size={size}
             />
         </div>
     )

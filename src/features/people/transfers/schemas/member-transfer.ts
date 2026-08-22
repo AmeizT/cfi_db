@@ -33,6 +33,8 @@ export const MemberTransferSchema = z.object({
     reviewed_at: NullableStringSchema,
     completed_at: NullableStringSchema,
     has_pending_transfer: z.boolean().optional(),
+    source_membership_id: NullableNumberSchema,
+    destination_membership_id: NullableNumberSchema,
     reason: z.string().optional(),
     notes: z.string().optional(),
     rejection_reason: z.string().optional(),
@@ -42,14 +44,47 @@ export const MemberTransferSchema = z.object({
             member_key: z.string(),
             full_name: z.string(),
             membership_status: z.string(),
-            assembly: z.number(),
+            membership_stage: z.string().optional(),
+            assembly: z.number().nullable(),
         })
         .optional(),
     created_at: z.string().optional(),
     updated_at: z.string().optional(),
 }).passthrough()
 
-export const MemberTransferListSchema = z.array(MemberTransferSchema)
+export const MemberTransferListSchema = z.union([
+    z.array(MemberTransferSchema),
+    z.object({
+        count: z.number().optional(),
+        next: NullableStringSchema,
+        previous: NullableStringSchema,
+        results: z.array(MemberTransferSchema).optional(),
+        data: z.array(MemberTransferSchema).optional(),
+    }).passthrough(),
+]).transform((response) => {
+    if (Array.isArray(response)) {
+        return {
+            rows: response,
+            results: response,
+            data: response,
+            count: response.length,
+            next: null,
+            previous: null,
+        }
+    }
+
+    const rows = response.results ?? response.data ?? []
+
+    return {
+        ...response,
+        rows,
+        results: rows,
+        data: rows,
+        count: response.count ?? rows.length,
+        next: response.next ?? null,
+        previous: response.previous ?? null,
+    }
+})
 
 export const AssemblyMembershipSchema = z.object({
     id: z.number(),
@@ -57,9 +92,14 @@ export const AssemblyMembershipSchema = z.object({
     member_full_name: z.string(),
     assembly: z.number(),
     assembly_name: z.string(),
+    joined_on: z.iso.date(),
+    ended_on: NullableStringSchema,
     start_date: z.iso.date(),
     end_date: NullableStringSchema,
-    status: z.enum(["active", "transferred", "inactive"]),
+    status: z.enum(["active", "inactive", "ended"]),
+    end_reason: z.string().optional(),
+    end_notes: z.string().optional(),
+    transfer: NullableNumberSchema,
     status_label: z.string(),
     created_by: NullableNumberSchema,
     created_by_name: NullableStringSchema,
@@ -67,7 +107,15 @@ export const AssemblyMembershipSchema = z.object({
     updated_at: z.string(),
 }).passthrough()
 
-export const AssemblyMembershipListSchema = z.array(AssemblyMembershipSchema)
+export const AssemblyMembershipListSchema = z.union([
+    z.array(AssemblyMembershipSchema),
+    z.object({
+        count: z.number().optional(),
+        next: NullableStringSchema,
+        previous: NullableStringSchema,
+        results: z.array(AssemblyMembershipSchema).optional(),
+    }),
+]).transform((response) => Array.isArray(response) ? response : (response.results ?? []))
 
 export const TransferAssemblySchema = z.object({
     id: z.number(),

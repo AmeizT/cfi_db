@@ -4,13 +4,12 @@
 
 import React from "react"
 import * as XLSX from "xlsx"
-import { Camera, FileSpreadsheet, ImageIcon } from "lucide-react"
+import { AlertCircleIcon, CheckCircle2Icon, FileIcon } from "lucide-react"
 import { UploadDropzone } from "./UploadDropzone"
 import { UploadPreviewTable } from "./UploadPreviewTable"
 import { UploadErrorsPanel } from "./UploadErrors"
 import { UploadActions } from "./UploadActions"
 import { toast } from "sonner"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Progress } from "@/components/ui/progress"
 import { Spinner } from "@/components/ui/spinner"
 
@@ -71,8 +70,6 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
     const [data, setData] = React.useState<RowData[]>([])
     const [errors, setErrors] = React.useState<UploadError[]>([])
     const [warnings, setWarnings] = React.useState<string[]>([])
-    const [rawText, setRawText] = React.useState("")
-    const [confidence, setConfidence] = React.useState<number | null>(null)
     const [file, setFile] = React.useState<File | null>(null)
     const [imagePreviewUrl, setImagePreviewUrl] = React.useState<string | null>(null)
     const [spreadsheetLoading, setSpreadsheetLoading] = React.useState(false)
@@ -82,8 +79,6 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
         setData([])
         setErrors([])
         setWarnings([])
-        setRawText("")
-        setConfidence(null)
         setProgress(0)
         setFile(null)
     }, [])
@@ -97,20 +92,17 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
     }, [imagePreviewUrl])
 
     const hasImageUpload = Boolean(config.imageUploadUrl)
-    const accept = mode === "image"
-        ? ["image/*", ".jpg", ".jpeg", ".png", ".webp"]
+    const accept = hasImageUpload
+        ? [".xlsx", ".xls", ".csv", ".jpg", ".jpeg", ".png", ".webp"]
         : [".xlsx", ".xls", ".csv"]
-    const confidencePercent = confidence === null
-        ? null
-        : Math.round(confidence > 1 ? confidence : confidence * 100)
     const isOcrMode = mode === "image"
     const isOcrParsing = ocrUploadState === "parsing"
     const isOcrSaving = ocrUploadState === "saving"
     const isOcrBusy = isOcrParsing || isOcrSaving
-    const showOcrUpload = isOcrMode && ["idle", "parsing", "error"].includes(ocrUploadState)
+    const showOcrUpload = isOcrMode && ["parsing", "error"].includes(ocrUploadState)
     const showOcrPreview = isOcrMode && ["preview", "saving"].includes(ocrUploadState)
     const showSpreadsheetPreview = mode === "spreadsheet" && data.length > 0
-    const showSpreadsheetUpload = mode === "spreadsheet"
+    const showUnifiedUpload = data.length === 0 && !showOcrPreview && !isOcrParsing
 
     React.useEffect(() => {
         queueMicrotask(() => {
@@ -127,22 +119,18 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
         setImagePreviewUrl(null)
     }
 
-    const handleModeChange = (value: string) => {
-        if (!value) return
-        if (isOcrBusy) return
-
-        resetPreview()
-        setOcrUploadState("idle")
-        setImagePreviewUrl(null)
-        setMode(value as UploadMode)
-    }
-
     const handleFileUpload = async (selectedFile: File) => {
-        if (mode === "image") {
+        const isImage = selectedFile.type.startsWith("image/")
+            || /\.(jpe?g|png|webp)$/i.test(selectedFile.name)
+
+        if (isImage) {
+            setMode("image")
             await handleImageUpload(selectedFile)
             return
         }
 
+        setMode("spreadsheet")
+        setOcrUploadState("idle")
         handleSpreadsheetUpload(selectedFile)
     }
 
@@ -150,8 +138,6 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
         setFile(selectedFile)
         setErrors([])
         setWarnings([])
-        setRawText("")
-        setConfidence(null)
 
         const reader = new FileReader()
 
@@ -189,8 +175,6 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
         setData([])
         setErrors([])
         setWarnings([])
-        setRawText("")
-        setConfidence(null)
         setProgress(0)
         setOcrUploadState("parsing")
 
@@ -212,8 +196,6 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
             setData(previewRows)
             setErrors(nextErrors)
             setWarnings(body.warnings ?? [])
-            setRawText(body.raw_text ?? "")
-            setConfidence(typeof body.confidence === "number" ? body.confidence : null)
 
             if (previewRows.length === 0) {
                 setFile(null)
@@ -226,9 +208,9 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
             setOcrUploadState("preview")
 
             if (nextErrors.length > 0) {
-                toast.error("Review the extracted values before saving")
+                toast.error("Some extracted fields need your review")
             } else {
-                toast.success("OCR preview ready")
+                toast.success("Image values are ready to review")
             }
         } catch (error) {
             resetPreview()
@@ -349,31 +331,12 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
 
     return (
         <div className="space-y-6 h-full" aria-busy={isOcrBusy}>
-            {hasImageUpload && (
-                <ToggleGroup
-                    type="single"
-                    value={mode}
-                    onValueChange={handleModeChange}
-                    variant="outline"
-                    className="rounded-lg border bg-background p-1"
-                    disabled={isOcrBusy}
-                >
-                    <ToggleGroupItem value="spreadsheet" aria-label="Spreadsheet upload" className="gap-2 rounded-md">
-                        <FileSpreadsheet className="size-4" />
-                        Spreadsheet
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="image" aria-label="Image upload" className="gap-2 rounded-md">
-                        <ImageIcon className="size-4" />
-                        Image
-                    </ToggleGroupItem>
-                </ToggleGroup>
-            )}
-
-            {showSpreadsheetUpload && (
+            {showUnifiedUpload && (
                 <UploadDropzone
                     onUpload={handleFileUpload}
                     accept={accept}
-                    disabled={spreadsheetLoading}
+                    label="Drop report files here or browse"
+                    disabled={spreadsheetLoading || isOcrParsing}
                 />
             )}
 
@@ -381,8 +344,7 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
                 <UploadDropzone
                     onUpload={handleFileUpload}
                     accept={accept}
-                    capture="environment"
-                    label="Drag an image, take a photo, or browse"
+                    label="Reading the selected image"
                     disabled={isOcrParsing}
                     previewUrl={imagePreviewUrl}
                 >
@@ -407,22 +369,26 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
                         className="h-56 w-full rounded-lg object-cover"
                     />
 
-                    <div className="flex min-w-0 flex-col gap-3">
-                        <div className="flex flex-wrap items-center gap-2 text-sm">
-                            <span className="inline-flex items-center gap-2 rounded-md bg-muted px-2.5 py-1 font-medium">
-                                <Camera className="size-4" />
-                                OCR confidence {confidencePercent === null ? "--" : `${confidencePercent}%`}
-                            </span>
-                        </div>
-
-                        {rawText && (
-                            <details className="text-sm text-muted-foreground">
-                                <summary className="cursor-pointer font-medium text-foreground">Raw OCR text</summary>
-                                <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap rounded-lg bg-muted p-3 text-xs">
-                                    {rawText}
-                                </pre>
-                            </details>
-                        )}
+                    <div className="flex min-w-0 flex-col justify-center gap-3">
+                        <p className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+                            {errors.length ? (
+                                <AlertCircleIcon className="size-4 text-amber-600" />
+                            ) : (
+                                <CheckCircle2Icon className="size-4 text-emerald-600" />
+                            )}
+                            We extracted {data.length} {data.length === 1 ? "entry" : "entries"} from this image.
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                            {errors.length
+                                ? `${errors.length} ${errors.length === 1 ? "field needs" : "fields need"} your review before saving.`
+                                : "Review the values below, then save them to this report section."}
+                        </p>
+                        {file ? (
+                            <p className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                                <FileIcon className="size-3.5" />
+                                {file.name}
+                            </p>
+                        ) : null}
                     </div>
                 </div>
             )}

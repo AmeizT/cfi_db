@@ -266,6 +266,7 @@ export function RegionalDashboardView({ regionId }: RegionalDashboardViewProps) 
 
                 {rows.length || isLoading ? (
                     <DataTable
+                        variant="advanced"
                         data={rows}
                         config={schema}
                         isLoading={isLoading}

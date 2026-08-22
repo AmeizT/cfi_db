@@ -13,6 +13,7 @@ export function MonthlySummaryTable({
 }) {
     return (
         <DataTable
+            variant="advanced"
             data={rows}
             config={config}
             enableDelete={false}

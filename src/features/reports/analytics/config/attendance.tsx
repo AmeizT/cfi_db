@@ -4,14 +4,18 @@ import { useSearchParams } from "next/navigation"
 import { AnalyticsConfig } from "../types/analytics.types"
 import { useAttendanceAnalytics } from "../../core/hooks/use-analytics"
 import { createQueryString } from "../../core/lib/create-query-string"
+import type { AnalyticsScopeFilters } from "../../core/services/get-ytd-report"
 
-export function useAttendanceConfig(): AnalyticsConfig {
+export function useAttendanceConfig(
+    scopeFilters: AnalyticsScopeFilters = {},
+    pathname = "/reports/ministry/attendance/cumulative"
+): AnalyticsConfig {
     const searchParams = useSearchParams()
     const currentYear = new Date().getFullYear().toString()
     const period = searchParams.get("period") ?? currentYear
     const { sub: year } = parseTab(period)
     
-    const { data: attendanceAnalytics } = useAttendanceAnalytics(year ?? currentYear)
+    const { data: attendanceAnalytics } = useAttendanceAnalytics(year ?? currentYear, scopeFilters)
     const kpi = searchParams.get("kpi") || "total"
 
     const KPI_META: Record<string, { title: string; description: string }> = {
@@ -64,7 +68,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
                 value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_attendance ?? 0, { 
                     notation: "compact" 
                 }),
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "total",
                     chart: "bar"
                 })}`
@@ -74,7 +78,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
                 value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_adults ?? 0, { 
                     notation: "compact" 
                 }),
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "adults",
                     chart: "bar"
                 })}`
@@ -84,7 +88,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
                 value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_children ?? 0, {
                     notation: "compact"
                 }),
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "children",
                     chart: "bar"
                 })}`
@@ -94,7 +98,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
                 value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_visitors ?? 0, {
                     notation: "compact"
                 }),
-                pathname: `/reports/analytics?${createQueryString(searchParams, { 
+                pathname: `${pathname}?${createQueryString(searchParams, {
                     kpi: "visitors",
                     chart: "bar"
                 })}`
@@ -108,7 +112,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
                 value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_attendance ?? 0, { 
                     notation: "compact" 
                 }),
-                pathname: "/reports/analytics?kpi=total",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "total" })}`,
                 chart: {
                     xKey: "label",
                     series: [
@@ -127,7 +131,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
                 value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_adults ?? 0, { 
                     notation: "compact" 
                 }),
-                pathname: "/reports/analytics?kpi=highest_amount",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "highest_amount" })}`,
                 chart: {
                     xKey: "label",
                     series: [
@@ -146,7 +150,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
                 value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_children ?? 0, {
                     notation: "compact"
                 }),
-                pathname: "/reports/analytics?kpi=givers",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "givers" })}`,
                 chart: {
                     xKey: "label",
                     series: [
@@ -165,7 +169,7 @@ export function useAttendanceConfig(): AnalyticsConfig {
                 value: formatNumber(attendanceAnalytics?.meta?.kpis?.total_visitors ?? 0, {
                     notation: "compact"
                 }),
-                pathname: "/reports/analytics?kpi=median",
+                pathname: `${pathname}?${createQueryString(searchParams, { kpi: "median" })}`,
                 chart: {
                     xKey: "label",
                     series: [
@@ -228,7 +232,5 @@ export function useAttendanceConfig(): AnalyticsConfig {
 
     return config
 }
-
-
 
 

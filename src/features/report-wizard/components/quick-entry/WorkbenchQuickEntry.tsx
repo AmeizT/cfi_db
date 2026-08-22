@@ -7,6 +7,7 @@ import {
     AlertTriangleIcon,
     ArrowUpIcon,
     CheckCircle2Icon,
+    ChevronsDown,
     FileSpreadsheetIcon,
     FileTextIcon,
     HelpCircleIcon,
@@ -71,6 +72,7 @@ import type {
 import { CalendarAdd01Icon, CreditCardAddIcon, UploadSquare01Icon, WalletAdd02Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Textarea } from "@/components/ui/textarea";
+import { EasyBloomIcon } from "@/components/icons/EasyBloomIcon";
 
 type WorkbenchQuickEntryProps = {
     initialReportType?: string
@@ -307,7 +309,7 @@ function getContextLine(
 }
 
 function getPlaceholder(schema: QuickEntryReportSchema | null) {
-    if (!schema) return "Type / for commands"
+    if (!schema) return "Create, / for commands"
     if (schema.type === "attendance") return `Try: ${getPreviewExample(schema)}`
     if (schema.type === "tithes") return "Try: cash=1200 bank=4500 mobile_money=820 date=20-6-26"
     if (schema.type === "member") return "Try: first_name=John last_name=Ndlovu gender=Male dob=20-6-96"
@@ -375,7 +377,7 @@ function WorkbenchUploadMenu({
 }
 
 const buttonStyles = cn(
-    "h-7 rounded-[7px] bg-surface px-2 text-sm font-normal text-foreground outline-none has-[>svg]:px-2", 
+    "h-7 rounded-full bg-background px-2 text-sm font-normal text-foreground outline-none has-[>svg]:px-2", 
     "transition-colors focus-visible:ring-2 focus-visible:ring-ring shadow-control",
     "hover:bg-neutral-50 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_1px_2px_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.12)] dark:bg-[#1A1A19]",
     "dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_1px_2px_rgba(0,0,0,0.28),0_0_0_1px_rgba(255,255,255,0.10)]"
@@ -390,13 +392,20 @@ function WorkbenchWelcome({
 }) {
     return (
         <div className="flex min-h-80 flex-1 flex-col items-center justify-center px-4 text-center">
-            <div className="max-w-lg">
-                <p className="text-2xl font-medium leading-tight tracking-tight text-primary md:text-[28px]">
+            <div className="max-w-full flex flex-col items-center justify-center gap-0">
+                <EasyBloomIcon
+                    alt="EasyBloom"
+                    aria-hidden
+                    size={44}
+                />
+
+                <h3 className="text-2xl font-semibold leading-tight tracking-tight text-primary md:text-[24px]">
                     Hello, {firstName}
-                </p>
-                <h2 className="mt-0 text-lg font-medium leading-tight tracking-tight text-foreground md:text-[28px]">
-                    Welcome to your Workbench
-                </h2>
+                </h3>
+
+                <h3 className="mt-0 text-lg font-semibold leading-tight tracking-tight text-foreground md:text-[24px]">
+                    What can Eazy create for you?
+                </h3>
 
                 <div className="mt-7 flex flex-wrap justify-center gap-2">
                     {REPORT_ACTIONS.slice(0, 4).map((action) => (
@@ -1471,10 +1480,10 @@ export function WorkbenchQuickEntry({
 
     return (
         <div className="flex h-full min-h-0 overflow-hidden">
-            <section className="flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-background">
-                <header className="flex shrink-0 items-center justify-between p-4">
+            <section className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg border border-border-subtle bg-background">
+                <header className="flex shrink-0 items-center justify-between py-2 px-2">
                     <h5 className="text-base font-medium text-foreground">
-                        New workbench
+                        New Task
                     </h5>
                     {onClose ? (
                         <Button
@@ -1485,7 +1494,7 @@ export function WorkbenchQuickEntry({
                             aria-label="Close Workbench"
                             onClick={onClose}
                         >
-                            <XIcon className="size-5" />
+                            <ChevronsDown className="size-5" />
                         </Button>
                     ) : (
                         <Button
@@ -1497,7 +1506,7 @@ export function WorkbenchQuickEntry({
                             asChild
                         >
                             <Link href={closeHref}>
-                                <XIcon className="size-5" />
+                                <ChevronsDown className="size-5" />
                             </Link>
                         </Button>
                     )}
@@ -1609,7 +1618,7 @@ export function WorkbenchQuickEntry({
                         <WorkbenchStatus messages={messages} warnings={warnings} errors={errors} />
 
                         <div className={cn(
-                            "flex flex-col items-end gap-3 rounded-2xl border bg-surface px-0.5 pb-2 transition-colors",
+                            "flex flex-col items-end gap-3 rounded-3xl border bg-surface px-2 pb-2 transition-colors focus-within:border-2 focus-within:border-primary focus-within:bg-background",
                             composer.trim()
                                 ? "border-2 border-primary"
                                 : "border-border-subtle"
@@ -1621,12 +1630,12 @@ export function WorkbenchQuickEntry({
                                 disabled={saving}
                                 placeholder={getPlaceholder(schema)}
                                 aria-label="Workbench command or quick entry"
-                                className="w-full max-h-60 min-h-16 flex-1 resize-none border-0 bg-transparent p-3 font-medium shadow-none focus-visible:ring-0 outline-none overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+                                className="w-full max-h-60 min-h-14 flex-1 resize-none border-0 bg-transparent px-2 py-3.5 shadow-none focus-visible:ring-0 outline-none overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
                                 onChange={(event) => setComposer(event.target.value)}
                                 onKeyDown={handleComposerKeyDown}
                             />
 
-                            <div className="px-1.5 flex h-fit w-full items-center justify-between">
+                            <div className="px-0 flex h-fit w-full items-center justify-between">
                                 <WorkbenchUploadMenu sectionId={currentSectionId} />
 
                                 <div className="flex items-center gap-2">

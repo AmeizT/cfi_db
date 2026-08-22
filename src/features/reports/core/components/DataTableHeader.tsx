@@ -57,7 +57,7 @@ export function DataTableHeader<T extends { id: number }>({
                                 maxWidth: EXPAND_COLUMN_WIDTH,
                             }}
                             className={cn(
-                                "text-right border-b p-1",
+                                "text-right p-1",
                                 styles?.cellPadding,
                                 styles?.cellClass,
                                 pinnedUtilityClass
@@ -74,7 +74,7 @@ export function DataTableHeader<T extends { id: number }>({
                                 maxWidth: CHECKBOX_COLUMN_WIDTH,
                             }}
                             className={cn(
-                                "text-right border-b p-1",
+                                "text-right p-1",
                                 styles?.cellPadding,
                                 styles?.cellClass,
                                 pinnedUtilityClass

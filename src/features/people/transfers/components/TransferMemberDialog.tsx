@@ -19,6 +19,8 @@ import { Label } from "@/components/ui/label"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Textarea } from "@/components/ui/textarea"
 import type { Member } from "@/features/people/members/schemas/member"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
 import {
     memberTransferQueryKeys,
     useCreateMemberTransfer,
@@ -43,6 +45,7 @@ export function TransferMemberDialog({
     onOpenChange: (open: boolean) => void
 }) {
     const queryClient = useQueryClient()
+    const assemblyId = useActiveAssemblyId()
     const assembliesQuery = useTransferAssemblies()
     const createTransferMutation = useCreateMemberTransfer()
     const [toAssembly, setToAssembly] = React.useState("")
@@ -58,8 +61,11 @@ export function TransferMemberDialog({
 
     async function invalidateTransferState() {
         await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ["people", "members"] }),
-            queryClient.invalidateQueries({ queryKey: memberTransferQueryKeys.all }),
+            queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "members") }),
+            queryClient.invalidateQueries({ queryKey: memberTransferQueryKeys.scope(assemblyId) }),
+            queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "assembly-memberships") }),
+            queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "former-members") }),
+            queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "households") }),
         ])
     }
 

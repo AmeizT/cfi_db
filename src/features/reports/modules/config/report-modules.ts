@@ -1,27 +1,50 @@
 import type { ReadonlyURLSearchParams } from "next/navigation"
 import { createQueryString } from "@/features/reports/core/lib/create-query-string"
 import type {
+    ModulePageContext,
     ReportModuleConfig,
     ReportModuleKey,
     ReportSection,
 } from "../types/report-modules"
 
+function publicSectionSlug(section: ReportSection, pageContext: ModulePageContext) {
+    return pageContext === "workspace" && section === "ministry" ? "engagement" : section
+}
+
+export function getModuleRoutePath(
+    section: ReportSection,
+    module: ReportModuleKey,
+    pageContext: ModulePageContext = "reports",
+) {
+    if (pageContext === "workspace") {
+        return `/${publicSectionSlug(section, pageContext)}/${module}`
+    }
+
+    return getReportModuleConfig(section, module)?.href ?? "#"
+}
+
 export const REPORT_MODULES = {
-    review: {
+    activity: {
+        all: {
+            title: "All Reports",
+            description: "View submitted reports and their current status.",
+            href: "/reports/activity",
+        },
         queue: {
             title: "Queue",
-            description: "Review submitted reports, completion status, and pending actions.",
-            href: "/reports/review/queue",
+            description: "activity submitted reports, completion status, and pending actions.",
+            href: "/reports/activity/queue",
         },
         compliance: {
             title: "Compliance",
             description: "Monitor report completion, skipped sections, and follow-up status.",
-            href: "/reports/review/compliance",
+            href: "/reports/compliance",
         },
-        exceptions: {
-            title: "Exceptions",
-            description: "Review missing values, mismatches, and report anomalies.",
-            href: "/reports/review/exceptions",
+        flagged: {
+            title: "Need Attention",
+            tabLabel: "Flagged",
+            description: "activity missing values, mismatches, and report anomalies.",
+            href: "/reports/activity/flagged",
         },
     },
     finance: {
@@ -36,27 +59,10 @@ export const REPORT_MODULES = {
             href: "/reports/finance/remittance",
             state: "placeholder",
         },
-        "income-expenditure": {
-            title: "Income & Expenditure",
-            description: "Combined income and expenditure statement.",
-            href: "/reports/finance/income-expenditure",
-            defaultView: "statement",
-            viewTabs: [
-                { label: "Statement", key: "statement" },
-                { label: "Summary", key: "summary" },
-            ],
-        },
-        revenue: {
-            title: "Revenue",
-            description: "Standalone revenue reporting module.",
-            href: "/reports/finance/revenue",
-            state: "placeholder",
-        },
-        expenditures: {
-            title: "Expenditures",
-            description: "Standalone expenditure reporting module.",
-            href: "/reports/finance/expenditures",
-            state: "placeholder",
+        "financial-activity": {
+            title: "Financial Activity",
+            description: "Income statements, cumulative trends, revenue, and expenses.",
+            href: "/reports/financial-activity/statement",
         },
     },
     ministry: {
@@ -64,11 +70,6 @@ export const REPORT_MODULES = {
             title: "Attendance",
             description: "Track service attendance reports.",
             href: "/reports/ministry/attendance",
-            defaultView: "monthly",
-            viewTabs: [
-                { label: "Monthly", key: "monthly" },
-                { label: "Analytics", key: "analytics" },
-            ],
         },
         "sunday-school-attendance": {
             title: "Sunday School Attendance",
@@ -81,8 +82,21 @@ export const REPORT_MODULES = {
             href: "/reports/ministry/check-ins",
             state: "disabled",
         },
+        outreach: {
+            title: "Evangelism & Outreach",
+            tabLabel: "Outreach",
+            description: "Evangelism, campaigns, crusades, community outreach, and follow-up.",
+            href: "/reports/ministry/outreach",
+            showPeriodSelector: false,
+        },
     },
     performance: {
+        overview: {
+            title: "Performance",
+            tabLabel: "Overview",
+            description: "Compare actuals against targets across reporting modules.",
+            href: "/reports/performance",
+        },
         tithes: {
             title: "Tithes Performance",
             description: "Compare tithe actuals against targets and grade performance.",
@@ -126,7 +140,8 @@ export function getReportModuleHref(
     section: ReportSection,
     module: ReportModuleKey,
     searchParams: ReadonlyURLSearchParams,
-    updates: Record<string, string | number | boolean | null | undefined> = {}
+    updates: Record<string, string | number | boolean | null | undefined> = {},
+    pageContext: ModulePageContext = "reports",
 ) {
     const config = getReportModuleConfig(section, module)
 
@@ -136,23 +151,27 @@ export function getReportModuleHref(
 
     const query = createQueryString(searchParams, updates)
 
-    return query ? `${config.href}?${query}` : config.href
+    const pathname = getModuleRoutePath(section, module, pageContext)
+
+    return query ? `${pathname}?${query}` : pathname
 }
 
 export function getReportModuleTabs(
     section: ReportSection,
-    searchParams: ReadonlyURLSearchParams
+    searchParams: ReadonlyURLSearchParams,
+    pageContext: ModulePageContext = "reports",
 ) {
     return Object.entries(REPORT_MODULE_REGISTRY[section])
         .filter(([, config]) => config.state !== "disabled")
         .map(([module, config]) => ({
-            label: config.title,
+            label: config.tabLabel ?? config.title,
             key: module,
             href: getReportModuleHref(
                 section,
                 module as ReportModuleKey,
                 searchParams,
-                { tab: null, view: null }
+                { tab: null, view: null },
+                pageContext,
             ),
         }))
 }
@@ -160,16 +179,21 @@ export function getReportModuleTabs(
 export function getReportModuleViewTabs(
     section: ReportSection,
     module: ReportModuleKey,
-    searchParams: ReadonlyURLSearchParams
+    searchParams: ReadonlyURLSearchParams,
+    pageContext: ModulePageContext = "reports",
 ) {
     const config = getReportModuleConfig(section, module)
 
     return (
         config?.viewTabs?.map((tab) => ({
             ...tab,
-            href: getReportModuleHref(section, module, searchParams, {
-                tab: tab.key,
-            }),
+            href: getReportModuleHref(
+                section,
+                module,
+                searchParams,
+                { tab: tab.key },
+                pageContext,
+            ),
         })) ?? []
     )
 }

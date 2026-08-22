@@ -63,7 +63,6 @@ export function ReportWizardInProgressView() {
         <View>
             <View.Header
                 pagename="In Progress"
-                description="Resume report sections that still need entry, upload, or review before submission."
                 actions={(
                     <Button asChild>
                         <Link href={createReportWizardHref(DEFAULT_REPORT_SECTION_ID)}>

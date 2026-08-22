@@ -3,8 +3,11 @@ import { useSearchParams } from "next/navigation"
 import { getFinanceSummary } from "../services/get-finance-summary"
 import { FinanceSummary } from "../../schemas/finance-summary"
 import { parse, getMonth } from "date-fns"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
 
 export function useFinanceSummary() {
+    const assemblyId = useActiveAssemblyId()
     const now = new Date()
     const searchParams = useSearchParams()
 
@@ -35,8 +38,8 @@ export function useFinanceSummary() {
     const queryParams = `?month=${month}&year=${year}`
 
     return useQuery<FinanceSummary>({
-        queryKey: ["finance", month, year],
+        queryKey: assemblyQueryKeys.key(assemblyId, "finance", month, year),
         queryFn: () => getFinanceSummary(queryParams),
-        enabled: !!month && !!year,
+        enabled: Boolean(assemblyId && month && year),
     })
 }

@@ -28,7 +28,6 @@ export function RegionalOverviewView({ regionId }: RegionalOverviewViewProps) {
         <View className="gap-0">
             <View.Header
                 pagename={data?.region?.name ?? "Regional Overview"}
-                description="Regional summary, performance indicators and high-level alerts."
             />
 
             <View.Body className="gap-4 py-4">

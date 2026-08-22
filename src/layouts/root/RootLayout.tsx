@@ -38,7 +38,8 @@ export default function RootLayout(props: LayoutProps) {
                         {props.children}
 
                         <Toaster
-                            position="bottom-center"
+                            position="top-right"
+                            richColors
                         />
                     </ThemeProvider>
                 </div>

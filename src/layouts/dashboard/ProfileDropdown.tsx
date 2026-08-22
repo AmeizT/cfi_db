@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -14,29 +15,41 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { useUser } from "@/hooks/query/use-user"
-import { cn } from "@/lib/utils"
-import { sidebarIconButton } from "./constants/sidebarIconButton"
 import { oklchLinearGradient } from "../utils/get-oklch-gradient"
 import { getTextColor } from "../utils/get-text-color"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { Settings01Icon } from "@hugeicons/core-free-icons"
 import { SignoutButton } from "./components/SignoutButton"
 import { ThemeMenuItem } from "./components/ThemeMenuItem"
+import { SettingsIcon } from '@solar-icons/react/line-duotone/settings'
+import { ChevronsUpDown } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-export function ProfileDropdown() {
+export function ProfileDropdown({
+    variant = "topbar",
+}: {
+    variant?: "topbar" | "sidebar"
+}) {
     const { data: user } = useUser()
+    const isSidebar = variant === "sidebar"
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
-                    variant="outline"
-                    className={cn(sidebarIconButton())}
+                    type="button"
+                    variant="ghost"
+                    size={isSidebar ? "default" : "icon"}
+                    aria-label="Open user account menu"
+                    className={cn(
+                        "shadow-none",
+                        isSidebar
+                            ? "h-auto w-full justify-start gap-3 rounded-xl bg-transparent p-2 text-(--shell-sidebar-foreground) hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            : "size-10 rounded-full bg-(--shell-chrome-hover) text-(--shell-chrome-foreground) hover:bg-(--shell-chrome-hover) hover:text-(--shell-chrome-foreground)"
+                    )}
                 >
-                    <Avatar className="rounded-xl">
+                    <Avatar className={cn("size-7", isSidebar && "size-9")}>
                         <AvatarImage src={user?.avatar || undefined} />
                         <AvatarFallback 
-                            className="font-semibold rounded-lg" 
+                            className="font-semibold"
                             style={{
                                 background: oklchLinearGradient(user?.avatar_fallback || "oklch(87.2% 0.007 219.6)"),
                                 color: getTextColor(user?.avatar_fallback || "oklch(45% 0.017 213.2)")
@@ -45,20 +58,33 @@ export function ProfileDropdown() {
                             {user?.first_name?.charAt(0) || "U"}
                         </AvatarFallback>
                     </Avatar>
+                    {isSidebar ? (
+                        <>
+                            <span className="min-w-0 flex-1 text-left">
+                                <span className="block truncate text-sm font-semibold leading-tight">
+                                    {user?.full_name || user?.first_name || "Account"}
+                                </span>
+                                <span className="block truncate text-xs font-normal text-(--shell-sidebar-muted-foreground)">
+                                    {user?.roles?.[0]?.name || user?.email}
+                                </span>
+                            </span>
+                            <ChevronsUpDown className="size-4 text-(--shell-sidebar-muted-foreground)" />
+                        </>
+                    ) : null}
                 </Button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
-                side="right"
-                align="end"
-                className="w-64 shadow-card bg-white/90 backdrop-blur-xl border-mist-300"
+                align={isSidebar ? "start" : "end"}
+                side={isSidebar ? "top" : "bottom"}
+                className="w-64 p-1.5 border-border rounded-2xl bg-popover/95 shadow-card backdrop-blur-xl"
             >
                 {/* User header */}
-                <DropdownMenuLabel className="flex items-center gap-3 py-3">
-                    <Avatar className="rounded-xl">
+                <DropdownMenuLabel className="flex items-center gap-3 py-2 rounded-[10px] shadow-elevation-sm">
+                    <Avatar className="">
                         <AvatarImage src={user?.avatar || undefined} />
                         <AvatarFallback
-                            className="font-semibold rounded-lg"
+                            className="text-sm font-bold"
                             style={{
                                 background: oklchLinearGradient(user?.avatar_fallback || "oklch(87.2% 0.007 219.6)"),
                                 color: getTextColor(user?.avatar_fallback || "oklch(45% 0.017 213.2)")
@@ -76,23 +102,25 @@ export function ProfileDropdown() {
                     </div>
                 </DropdownMenuLabel>
 
-                <div className="px-3">
-                    <DropdownMenuSeparator />
+                <div className="px-3 hidden">
+                    <DropdownMenuSeparator className="bg-border-subtle" />
                 </div>
 
-                <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        <HugeiconsIcon 
-                            icon={Settings01Icon} 
-                            strokeWidth={2} 
-                            className="size-6" 
-                        />
+                <DropdownMenuGroup className="mt-1">
+                    <DropdownMenuItem asChild disabled className="disabled:cursor-not-allowed">
+                        <Link href="/settings">
+                            <SettingsIcon strokeWidth={2} className="size-5.5" />
 
-                        Settings
+                            Settings
+                        </Link>
                     </DropdownMenuItem>
+
+                    <ThemeMenuItem />
                 </DropdownMenuGroup>
 
-                <ThemeMenuItem />
+                <div className="px-3">
+                    <DropdownMenuSeparator className="bg-border-subtle" />
+                </div>
 
                 <SignoutButton />
             </DropdownMenuContent>

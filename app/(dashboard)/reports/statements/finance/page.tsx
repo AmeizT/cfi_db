@@ -12,8 +12,6 @@ export default async function FinanceStatementRedirectPage({
     searchParams,
 }: FinanceStatementRedirectPageProps) {
     redirect(
-        reportHref("/reports/finance/income-expenditure", await searchParams, {
-            tab: "statement",
-        })
+        reportHref("/reports/financial-activity/statement", await searchParams, { tab: null })
     )
 }

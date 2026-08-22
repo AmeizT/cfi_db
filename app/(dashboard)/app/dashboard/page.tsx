@@ -1,5 +1,2 @@
-import { DashboardView } from "@/features/dashboard/views/DashboardView"
-
-export default async function DashboardPage() {
-    return <DashboardView />
-}  
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+export default createLegacyRedirectPage("/")

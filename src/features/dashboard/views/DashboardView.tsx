@@ -5,13 +5,17 @@ import Cookies from "js-cookie"
 import { useActionSounds } from "@/hooks/use-action-sounds"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { RecentTithes } from "../components/RecentTithes"
-import { Overheads } from "../components/Overheads"
-import { RevenueCategories } from "../components/RevenueCategories"
-import { AttendanceBreakdown } from "../components/AttendanceBreakdown"
-import { ChartPlaceholder } from "../components/ChartPlaceholder"
-import { SectionHeader } from "../components/SectionHeader"
-import { StatCard } from "../components/StatsCard"
+import { RecentTithes } from "../components-01/RecentTithes"
+import { Overheads } from "../components-01/Overheads"
+import { RevenueCategories } from "../components-01/RevenueCategories"
+import { AttendanceBreakdown } from "../components-01/AttendanceBreakdown"
+import { ChartPlaceholder } from "../components-01/ChartPlaceholder"
+import { SectionHeader } from "../components-01/SectionHeader"
+import { StatCard } from "../components-01/StatsCard"
+import { useUser } from "@/hooks/query/use-user";
+import { greetByTime } from "@/utils/greet-by-time";
+import { Flex } from "@/components/ui/box";
+import { JethroBar } from "../components-01/JethroBar";
 
 export function AppStartupSound() {
     const { playStartup } = useActionSounds()
@@ -29,29 +33,36 @@ export function AppStartupSound() {
 }
 
 function DashboardContent(){
-    return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold">
-                        Grace Community Church
-                    </h1>
-                    <p className="text-muted-foreground text-sm">
-                        Financial & Ministry Overview
-                    </p>
-                </div>
+    const { data: user, isLoading} = useUser()
+    const greeting = React.useMemo(
+        () =>
+            greetByTime({
+                username: user?.first_name,
+            }),
+        [user?.first_name]
+    )
 
-                <div className="flex items-center gap-3">
-                    <Button variant="outline">March 2026</Button>
-                    <div className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm">
-                        Live
-                    </div>
-                </div>
-            </div>
+    const [message, username] = greeting.split(",")
+
+    return (
+        <div className="p-4 space-y-6 w-4/5 mx-auto">
+            {/* Header */}
+            <Flex justify={"center"}>
+                <h1 className="text-3xl font-semibold">
+                    {message},
+                    {username && (
+                        <span className="text-muted-foreground">
+                            {username}
+                        </span>
+                    )}
+                </h1>
+            </Flex>
+
+            <JethroBar />
 
             {/* Top Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Flex direction={"column"} gap={2} className="w-full">
+                <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                 <StatCard
                     title="Total Revenue"
                     value="BWP 142,860"
@@ -79,7 +90,7 @@ function DashboardContent(){
             </div>
 
             {/* Secondary Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                 <StatCard 
                     title="Active Members" 
                     value="1,284" 
@@ -104,6 +115,7 @@ function DashboardContent(){
                     value="4 / 4" 
                 />
             </div>
+            </Flex>
 
             {/* Charts + Breakdown */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

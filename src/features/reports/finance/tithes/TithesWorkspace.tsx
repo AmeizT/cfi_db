@@ -10,7 +10,7 @@ import TithesView from "./TithesView"
 import { AuditView } from "./components/AuditView"
 import { ContributorsView } from "./components/ContributorsView"
 import { CumulativeView } from "./components/CumulativeView"
-import { EmptyState } from "./components/EmptyState"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Filters } from "./components/Filters"
 import { Navigation } from "./components/Navigation"
 import { PerformanceView } from "./components/PerformanceView"
@@ -27,17 +27,17 @@ export type { TithesRouteView } from "./types"
 
 export function TithesRouteContent({ view }: { view: TithesRouteView }) {
     const searchParams = useSearchParams()
-    const status = view === "records" ? getStatus(searchParams) : "active"
+    const status = view === "transactions" ? getStatus(searchParams) : "active"
     const reportId = getReportId(searchParams)
     const pagination = useDataTablePagination()
-    const rowsQuery = useReportTithes(reportId, status, view === "records")
+    const rowsQuery = useReportTithes(reportId, status, view === "transactions")
     const auditQuery = useAudit(reportId, view === "audit-log")
     const contributorsQuery = useContributors(reportId, view === "contributors")
     const receiptsQuery = useReceipts(reportId, view === "receipts")
     const performanceQuery = usePerformance(reportId, view === "performance")
 
     if (!reportId) {
-        return <EmptyState>Select a report before opening the Tithes workspace.</EmptyState>
+        return <EmptyState type="reports" title="Select a report" description="Select a report before opening the Tithes workspace." className="min-h-56" />
     }
 
     if (view === "audit-log") {
@@ -99,14 +99,13 @@ export function TithesModuleLayout({ children }: { children: React.ReactNode }) 
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const view = getViewFromPathname(pathname)
-    const status = view === "records" ? getStatus(searchParams) : "active"
+    const status = view === "transactions" ? getStatus(searchParams) : "active"
     const title = getReportSubmoduleTitle("finance", "tithes", view) ?? "Tithes"
 
     return (
         <View className="gap-0">
             <View.Header
                 pagename={title}
-                description="Monthly records, cumulative reporting, contributors, receipts, performance, and audit history."
                 actions={<PeriodSelector />}
             />
             <Navigation view={view} status={status} />

@@ -11,6 +11,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { SettingsIcon } from '@solar-icons/react/bold-duotone/settings'
 
 type DataTableColumnVisibilityProps<T> = {
     table: Table<T>
@@ -21,8 +22,8 @@ export function DataTableColumnVisibility<T>({ table }: DataTableColumnVisibilit
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="toolbar">
-                    <Settings2Icon size={14} className="opacity-60" aria-hidden="true" />
-                    Columns
+                    <SettingsIcon className="opacity-60" aria-hidden="true" />
+                    Edit columns
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">

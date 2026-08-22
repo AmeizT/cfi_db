@@ -9,7 +9,7 @@ import type {
 export type TitheStatusFilter = "active" | "voided" | "deleted"
 
 export type TithesRouteView =
-    | "records"
+    | "transactions"
     | "cumulative"
     | "contributors"
     | "receipts"
@@ -38,6 +38,8 @@ export type TitheListResponse =
     | TitheRecord[]
     | {
         count?: number
+        next?: string | null
+        previous?: string | null
         results?: TitheRecord[]
         data?: TitheRecord[]
         config?: TableSchema
@@ -123,6 +125,8 @@ export type ContributorResponse =
     | ContributorRecord[]
     | {
         count?: number
+        next?: string | null
+        previous?: string | null
         results?: ContributorRecord[]
         data?: ContributorRecord[]
         table_schema?: TableSchema

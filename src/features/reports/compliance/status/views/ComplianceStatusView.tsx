@@ -10,7 +10,7 @@ import { getPageTabs } from "@/layouts/navigation/config/get-page-tabs"
 import { ComplianceIssuesView } from "../../issues/views/ComplianceIssuesView"
 import { EmptyState } from "@/components/ui/empty-state"
 
-export function ComplianceStatusView() {
+export function ComplianceStatusView({ embedded = false }: { embedded?: boolean }) {
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const { data: user } = useUser()
@@ -20,12 +20,17 @@ export function ComplianceStatusView() {
     const complianceTabs = getPageTabs("compliance", { searchParams })
 
     return (
+        <AssemblyComplianceView />
+    )
+
+    return (
         <View className="gap-0">
-            <View.Header
-                pathname={pathname}
-                pagename="Compliance"
-                tabs={reportTabs}
-            />
+            {!embedded ? (
+                <>
+                    <View.Header pagename="Compliance" />
+                    <View.Tabs items={reportTabs} pathname={pathname} />
+                </>
+            ) : null}
             <View.Body>
                 <View.TabBar
                     items={complianceTabs}
@@ -33,7 +38,7 @@ export function ComplianceStatusView() {
                     className="mb-6"
                 />
 
-                {activeTab === "issues" ? (
+                {/* {activeTab === "issues" ? (
                     <ComplianceIssuesView />
                 ) : activeTab === "audit-logs" ? (
                     <div className="rounded-lg border border-border bg-card px-6 py-12">
@@ -46,8 +51,10 @@ export function ComplianceStatusView() {
                 ) : isStaff ? (
                     <RegionComplianceView />
                 ) : (
-                    <AssemblyComplianceView />
-                )}
+                    
+                )} */}
+
+                
             </View.Body>
         </View>
     )

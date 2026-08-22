@@ -51,7 +51,7 @@ const inititalState = {
     success: false,
 }
 
-export function TithesList() {
+export function TithesList({ readOnly = false }: { readOnly?: boolean }) {
     const itemsPerPage = 20
     const pathname = usePathname()
     const queryClient = useQueryClient()
@@ -62,23 +62,14 @@ export function TithesList() {
     const [formState, formAction] = React.useActionState(isTrashPage ? restoreTithe : deleteTithe, inititalState)
     const searchParams = useSearchParams()
 
-    const params = {
-        month: searchParams.get("month") || new Date().getMonth().toString().padStart(2, "0"),
-        year: searchParams.get("year") || new Date().getFullYear().toString(),
-    }
-
-    console.log(params)
-
-    const targetYear = Number(params.year)
-    const targetMonth = new Date(`${params.month} 1, ${params.year}`).getMonth() // 0-based
+    const requestedPeriod = searchParams.get("period")
+    const targetYear = Number(requestedPeriod?.slice(0, 4) || searchParams.get("year") || new Date().getFullYear())
+    const targetMonth = Number(requestedPeriod?.slice(5, 7) || searchParams.get("month") || new Date().getMonth() + 1) - 1
 
     const monthlyTithesData = (data?.results ?? []).filter((item: Tithe) => {
         const date = new Date(item.timestamp)
         return date.getFullYear() === targetYear && date.getMonth() === targetMonth
     })
-
-    console.log("Monthly Tithes:", monthlyTithesData)
-    
 
     const tithesData = isTrashPage ? (data ?? []) : (monthlyTithesData ?? [])
 
@@ -221,7 +212,7 @@ export function TithesList() {
                                                     
                                                 </TableCell>
 
-                                                <TableCell>
+                                                <TableCell className={readOnly ? "hidden" : undefined}>
                                                     {getPaymentMethodBadge(item.payment_method)}
                                                 </TableCell>
 

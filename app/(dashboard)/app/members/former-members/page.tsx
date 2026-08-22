@@ -1,9 +1,13 @@
-import { getMetaData } from "@/config/metadata";
-import { FormerMembersView } from "@/features/people/former-members/views/FormerMembersView"
+import { redirect } from "next/navigation"
 
-const meta = getMetaData({ title: "Former Members" })
-export const metadata = { ...meta }
+type SearchParams = Promise<Record<string, string | string[] | undefined>>
 
-export default function FormerMembersPage() {
-    return <FormerMembersView />
+export default async function FormerMembersPage({ searchParams }: { searchParams: SearchParams }) {
+    const params = new URLSearchParams()
+    Object.entries(await searchParams).forEach(([key, value]) => {
+        if (Array.isArray(value)) value.forEach((item) => params.append(key, item))
+        else if (value !== undefined) params.append(key, value)
+    })
+    params.set("segment", "former")
+    redirect(`/members/directory?${params.toString()}`)
 }

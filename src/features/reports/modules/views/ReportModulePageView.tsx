@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react"
 import {
-    usePathname,
     useSearchParams,
     type ReadonlyURLSearchParams,
 } from "next/navigation"
@@ -16,14 +15,16 @@ import { useReportAttendance } from "@/features/reports/core/hooks/use-attendanc
 import { useReportFinance } from "@/features/reports/core/hooks/use-report-finance"
 import type { FinanceResponse } from "@/features/reports/core/services/get-report-finance"
 import { ExceptionView } from "@/features/reports/exceptions/views/ExceptionView"
+import { CumulativeDataPageView } from "@/features/reports/cumulative/views/CumulativeDataPageView"
 import CashFlowView from "@/features/reports/finance/cashflow/CashflowView"
+import { WeeklyFinancialActivityView } from "@/features/reports/finance/financial-activity/WeeklyFinancialActivityView"
 import {
     TithesRouteContent,
     type TithesRouteView,
 } from "@/features/reports/finance/tithes/workspace/TithesWorkspace"
-import { ReportsOverview as ReviewQueueView } from "@/features/reports/overview/views/ReportOverview"
-import { AttendanceAnalytics } from "@/features/reports/statements/containers/AttendanceAnalytics"
+import { ReportsOverview as ReportsQueueView } from "@/features/reports/activity/views/ReportOverview"
 import { SundaySchoolAttendanceView } from "@/features/people/sunday-school/views/SundaySchoolAttendanceView"
+import { ReportSourceBanner } from "@/features/reports/workflow/components/ReportSourceBanner"
 import {
     getReportModuleConfig,
     getReportModuleTabs,
@@ -40,6 +41,7 @@ import { ReportModuleTabs } from "../components/ReportModuleTabs"
 import type {
     ReportModuleConfig,
     ReportModuleKey,
+    ModulePageContext,
     ReportRouteKey,
     ReportSection,
 } from "../types/report-modules"
@@ -55,6 +57,7 @@ type RendererContext = {
     reportId: string | undefined
     submodule: string | undefined
     view: string
+    pageContext: ModulePageContext
 }
 
 type ModuleRenderer = (context: RendererContext) => ReactNode
@@ -77,16 +80,12 @@ function ReportModulePlaceholder({
     description: string
 }) {
     return (
-        <div className="flex min-h-72 items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 px-6 py-12 text-center">
-            <div className="max-w-md">
-                <h2 className="text-lg font-semibold text-foreground">
-                    {title}
-                </h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                    {description}
-                </p>
-            </div>
-        </div>
+        <EmptyState
+            type="reports"
+            title={title}
+            description={description}
+            className="min-h-72"
+        />
     )
 }
 
@@ -103,11 +102,21 @@ function MissingReportState({ label }: { label: string }) {
 }
 
 const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> = {
+    "activity/all": () => <ReportsQueueView />,
+    "activity/queue": () => <ReportsQueueView />,
+    "activity/compliance": () => <ComplianceStatusView embedded />,
+    "activity/flagged": () => <ExceptionView embedded />,
+
     "finance/tithes": ({
         config,
+        pageContext,
         reportId,
         view,
     }) => {
+        if (view === "cumulative") {
+            return <CumulativeDataPageView module="tithes" pageContext={pageContext} />
+        }
+
         if (!reportId) {
             return <MissingReportState label={config.title} />
         }
@@ -134,14 +143,10 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         pagination,
         reportId,
         view,
+        pageContext,
     }) => {
-        if (view !== "statement") {
-            return (
-                <ReportModulePlaceholder
-                    title={`${config.title} summary`}
-                    description="Summary metrics will appear here once the finance summary endpoint is ready."
-                />
-            )
+        if (view === "cumulative") {
+            return <CumulativeDataPageView module="income-expenditure" pageContext={pageContext} />
         }
 
         if (!reportId) {
@@ -156,6 +161,42 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
             />
         )
     },
+    "finance/financial-activity": ({
+        config,
+        finance,
+        isFinanceLoading,
+        pagination,
+        reportId,
+        view,
+        pageContext,
+    }) => {
+        if (view === "cumulative") {
+            return <CumulativeDataPageView module="income-expenditure" pageContext={pageContext} />
+        }
+
+        if (!reportId) {
+            return <MissingReportState label={config.title} />
+        }
+
+        if (view === "revenue" || view === "expenses") {
+            return (
+                <WeeklyFinancialActivityView
+                    finance={finance}
+                    kind={view}
+                    isLoading={isFinanceLoading}
+                />
+            )
+        }
+
+        return (
+            <CashFlowView
+                cashflow={finance?.cashflow}
+                isLoading={isFinanceLoading}
+                pagination={pagination}
+                showSummary
+            />
+        )
+    },
     "ministry/attendance": ({
         attendance,
         config,
@@ -163,9 +204,14 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         pagination,
         reportId,
         view,
+        pageContext,
     }) => {
-        if (view === "analytics") {
-            return <AttendanceAnalytics />
+        if (view === "cumulative") {
+            return <CumulativeDataPageView module="attendance" pageContext={pageContext} />
+        }
+
+        if (view === "sunday-school") {
+            return <SundaySchoolAttendanceView embedded />
         }
 
         if (!reportId) {
@@ -177,6 +223,7 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
                 attendance={attendance}
                 isLoading={isAttendanceLoading}
                 pagination={pagination}
+                service={view === "homecell" || view === "midweek" || view === "special-services" ? view : "main-service"}
             />
         )
     },
@@ -204,33 +251,36 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
             description="Check-ins is a future reporting module and is disabled in the sidebar for now."
         />
     ),
-}
-
-const FULL_PAGE_RENDERERS: Partial<Record<ReportRouteKey, () => ReactNode>> = {
-    "review/queue": () => <ReviewQueueView />,
-    "review/compliance": () => <ComplianceStatusView />,
-    "review/exceptions": () => <ExceptionView />,
-    "ministry/sunday-school-attendance": () => <SundaySchoolAttendanceView />,
-    "performance/tithes": () => <ReportPerformancePageView module="tithes" />,
-    "performance/attendance": () => <ReportPerformancePageView module="attendance" />,
+    "ministry/outreach": () => (
+        <ReportModulePlaceholder
+            title="Evangelism & Outreach"
+            description="This is the starting point for evangelism activities, outreach campaigns, crusades, community outreach, and visitor or convert follow-up."
+        />
+    ),
+    "performance/overview": () => <ReportPerformancePageView module="overview" embedded />,
+    "performance/tithes": () => <ReportPerformancePageView module="tithes" embedded />,
+    "performance/attendance": () => <ReportPerformancePageView module="attendance" embedded />,
 }
 
 const TITHE_ROUTE_VIEWS = new Set<string>([
-    "records",
+    "transactions",
     "contributors",
     "cumulative",
-    "performance",
     "receipts",
     "audit-log",
 ])
 
 const REPORT_NAVIGATOR_HIDDEN_VIEWS = new Set<string>([
-    "analytics",
     "audit-log",
     "contributors",
     "cumulative",
     "performance",
     "summary",
+])
+
+const REPORT_NAVIGATOR_HIDDEN_ROUTES = new Set<ReportRouteKey>([
+    "activity/compliance",
+    "activity/flagged",
 ])
 
 function isTithesRouteView(view: string): view is TithesRouteView {
@@ -241,18 +291,19 @@ export function ReportModulePageView({
     section,
     module,
     submodule,
+    pageContext = "reports",
 }: {
     section: ReportSection
     module: ReportModuleKey
     submodule?: string
+    pageContext?: ModulePageContext
 }) {
-    const pathname = usePathname()
     const searchParams = useSearchParams()
     const pagination = useDataTablePagination()
     const reportId = getReportId(searchParams)
     const routeKey = `${section}/${module}` as ReportRouteKey
     const shouldLoadAttendance = routeKey === "ministry/attendance"
-    const shouldLoadFinance = routeKey === "finance/income-expenditure"
+    const shouldLoadFinance = routeKey === "finance/income-expenditure" || routeKey === "finance/financial-activity"
     const paginationParams = {
         page: pagination.currentPage,
         pageSize: pagination.pageSize,
@@ -262,26 +313,24 @@ export function ReportModulePageView({
     const { data: finance, isLoading: isFinanceLoading } =
         useReportFinance(shouldLoadFinance ? reportId : undefined, paginationParams)
 
-    const fullPageRenderer = FULL_PAGE_RENDERERS[routeKey]
-
-    if (fullPageRenderer) {
-        return <>{fullPageRenderer()}</>
-    }
-
     const config = getReportModuleConfig(section, module)
 
     if (!config) {
         return null
     }
 
-    const submoduleTabs = getReportSubmoduleTabs(section, module, searchParams)
+    const submoduleTabs = getReportSubmoduleTabs(section, module, searchParams, pageContext)
+    const moduleTabs = getReportModuleTabs(section, searchParams, pageContext)
     const viewTabs = submoduleTabs.length
         ? submoduleTabs
-        : getReportModuleViewTabs(section, module, searchParams)
+        : section === "activity" || section === "performance"
+            ? moduleTabs
+            : getReportModuleViewTabs(section, module, searchParams, pageContext)
     const activeSubmodule = getActiveReportSubmodule(section, module, submodule)
     const activeView =
         activeSubmodule ??
         searchParams.get("tab") ??
+        (section === "activity" || section === "performance" ? module : undefined) ??
         config.defaultView ??
         viewTabs.at(0)?.key ??
         "data"
@@ -292,25 +341,25 @@ export function ReportModulePageView({
     const pageTitle =
         getReportSubmoduleTitle(section, module, renderView)
         ?? getReportSubmoduleTitle(section, module, activeView)
-    const showReportNavigator = !REPORT_NAVIGATOR_HIDDEN_VIEWS.has(renderView)
+    const showReportNavigator =
+        !REPORT_NAVIGATOR_HIDDEN_VIEWS.has(renderView)
+        && !REPORT_NAVIGATOR_HIDDEN_ROUTES.has(routeKey)
 
     return (
         <View className="gap-0" >
             <ReportModuleHeader
-                activeModule={module}
                 config={config}
-                pathname={pathname}
+                showReportNavigator={showReportNavigator}
                 title={pageTitle}
-                tabs={getReportModuleTabs(section, searchParams)}
             />
 
             <ReportModuleTabs
                 activeView={activeView}
-                showReportNavigator={showReportNavigator}
                 tabs={viewTabs} 
             />
 
             <View.Body className="gap-0">
+                {pageContext === "workspace" ? <ReportSourceBanner /> : null}
                 <ReportModuleDataTable>
                     {renderer ? (
                         renderer({
@@ -320,6 +369,7 @@ export function ReportModulePageView({
                             isAttendanceLoading,
                             isFinanceLoading,
                             pagination,
+                            pageContext,
                             reportId,
                             submodule,
                             view: renderView,

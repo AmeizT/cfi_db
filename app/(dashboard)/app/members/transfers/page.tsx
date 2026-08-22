@@ -1,9 +1,3 @@
-import { getMetaData } from "@/config/metadata";
-import { MemberTransfersView } from "@/features/people/transfers/views/MemberTransfersView"
-
-const meta = getMetaData({ title: "Member Transfers" })
-export const metadata = { ...meta }
-
-export default function MemberTransfersPage() {
-    return <MemberTransfersView />
-}
+import { APP_ROUTES } from "@/config/app-routes"
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+export default createLegacyRedirectPage(APP_ROUTES.members.transfers)

@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { usePathname, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import AttendanceView from "../../attendance/views/AttendanceDataGrid"
 import View from "@/components/ui/view"
 import { AttendanceResponse } from "@/dal/types"
@@ -40,7 +40,6 @@ type Props = {
 }
 
 export default function StatementsLayout({ children, page }: Props) {
-    const pathname = usePathname()
     const searchParams = useSearchParams()
     const reportId = searchParams.get("id") ?? undefined
     const tab = (searchParams.get("tab") as "monthly" | "analytics") ?? "monthly"
@@ -69,13 +68,12 @@ export default function StatementsLayout({ children, page }: Props) {
             <View.Header 
                 pagename={<StatementsLabel tab={tab} label={page} />} 
                 actions={<StatementsAction />}
-                pathname={pathname} 
+                showReportNavigator={queryParams.tab === "monthly"}
             />
 
             <View.TabBar 
                 items={tabs} 
                 activeKey={tab} 
-                variant={queryParams.tab === "monthly" ? "report" : "default"}
             />
 
             <View.Body className="gap-4 pt-4">

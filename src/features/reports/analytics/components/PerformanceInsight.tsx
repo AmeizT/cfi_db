@@ -27,7 +27,7 @@ export function PerformanceInsight({
     
     function getTabHref(tabKey: string) {
         const params = createQueryString(searchParams, { performance: tabKey })
-        return `/reports/analytics?${params}`
+        return `/reports/finance/tithes/cumulative?${params}`
     }
 
     const tabs = [

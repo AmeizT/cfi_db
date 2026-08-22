@@ -39,6 +39,114 @@ export interface Activation {
   token: string;
 }
 
+
+export type Assembly = {
+  id: number
+  name: string
+  country: string
+  currency: string
+  zone: number
+}
+
+export type ReportStatus = "draft" | "submitted" | "approved"
+
+export type ComplianceStatus = 
+  | "COMPLIANT"
+  | "INCOMPLETE"
+  | "MISSING"
+
+export type Compliance = {
+  total_sections: number
+  submitted: number
+  skipped: number
+  pending: number
+  progress: number
+  coverage: number
+  status: ComplianceStatus
+  sections: unknown[] // refine later if backend defines it
+}
+
+
+export type FinanceStatus = "DEFICIT" | "SURPLUS" | "BALANCED"
+
+export type FinanceMetrics = {
+  tithes: number
+  offerings: number
+  income: number
+  total_income: number
+  expenditure: number
+  remittance: number
+  assets_valuation: number
+  balance: number
+  status: FinanceStatus
+}
+
+
+export type GrowthStatus = "GROWING" | "STABLE" | "DECLINING"
+
+export type GrowthMetrics = {
+  total_members: number
+  new_members: number
+  growth_rate: number
+  status: GrowthStatus
+}
+
+
+export type MinistryStatus = "LOW" | "MODERATE" | "HIGH"
+
+export type MinistryMetrics = {
+  outreaches: number
+  homecells_planted: number
+  homecell_attendance: number
+  status: MinistryStatus
+}
+
+export type LeadershipMetrics = {
+  leaders_count: number
+  assets_valuation: number
+  meetings_conducted: number
+}
+
+export type Metrics = {
+  finance: FinanceMetrics
+  growth: GrowthMetrics
+  ministry: MinistryMetrics
+  leadership: LeadershipMetrics
+}
+
+
+export type MonthlyReport = {
+  id: number
+  assembly: Assembly
+
+  period_start: string
+  period_end: string
+
+  status: ReportStatus
+  submitted_at: string | null
+
+  // Attendance
+  attendance_total: number
+  total_adults: number
+  total_children: number
+  total_visitors: number
+  total_new_converts: number
+  total_altar_call: number
+  total_baptisms: number
+  total_online_viewers: number
+
+  // Financial (⚠️ strings from API)
+  income_total: string
+  expense_total: string
+  tithe_total: string
+  balance: string
+
+  members_total: number
+
+  compliance: Compliance
+  metrics: Metrics
+}
+
 export type ReportMonth =
   | "January"
   | "February"
@@ -1432,6 +1540,10 @@ export interface Member {
   /** @nullable */
   membersince?: string | null;
   membership_status?: typeof MemberMembershipStatus[keyof typeof MemberMembershipStatus];
+  /** @nullable */
+  membership_stage?: 'new' | 'established' | 'associate' | null;
+  /** @nullable */
+  date_of_death?: string | null;
   /** @maxLength 255 */
   previous_church?: string;
   baptized?: boolean;

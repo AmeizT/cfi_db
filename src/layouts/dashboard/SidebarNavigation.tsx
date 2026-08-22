@@ -10,15 +10,15 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { HugeiconsIcon } from '@hugeicons/react'
 import { UrlObject } from "url"
 import { NavGroup, NavItem } from "../navigation/types"
-import React from "react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronRight } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { NavIcon } from "./AppNavIcon";
 
 type SidebarNavigationProps = NavItem[] | NavGroup[]
 
@@ -64,17 +64,41 @@ export function SidebarNavigation({ menu }: { menu: SidebarNavigationProps }) {
                                         tooltip={item.label}
                                         isActive={isActive}
                                         className={cn(
-                                            "group/collapsible font-[450] transition-colors duration-75",
-                                            isActive && "bg-theme-50 text-theme-700 hover:bg-theme-100 dark:bg-primary/10 dark:text-primary"
+                                            "group/menu-button font-[450] transition-colors duration-75 flex items-center",
                                         )}
                                     >
-                                        {item.icon && <HugeiconsIcon icon={item.icon} strokeWidth={2} />}
+                                        {item.icon && (
+                                            <span className="relative size-6 shrink-0">
+                                                <NavIcon
+                                                    icon={item.icon}
+                                                    className="absolute inset-0 transition-opacity duration-150 group-hover/menu-button:opacity-0"
+                                                />
+
+
+                                                <ChevronRight strokeWidth={2.5} className={cn(
+                                                    "size-4.5! text-current",
+                                                    "pointer-events-none absolute",
+                                                    "opacity-0",
+                                                    "origin-center transform-gpu",
+                                                    "transition-all duration-[3000] ease-out",
+                                                    "inset-0 m-auto",
+                                                    "group-hover/menu-button:opacity-100",
+                                                    "group-data-[state=open]/collapsible:rotate-90",
+                                                    "transition-transform group-data-[state=open]:rotate-90"
+                                                )}/>
+                                            </span>
+                                        )}
+
                                         <span>{item.label}</span>
-                                        <ChevronRight className="group-hover/collapsible:visible invisible size-4! text-muted-foreground! ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                        <span className="sr-only">Toggle</span>
                                     </SidebarMenuButton>
                                 </CollapsibleTrigger>
                                 
-                                <CollapsibleContent>
+                                <CollapsibleContent className="
+                                    overflow-hidden
+                                    transition-all
+                                    data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down
+                                ">
                                     <SidebarMenuSub>
                                         {children.map((subItem) => {
                                             const isSubActive = isHrefActive(
@@ -96,6 +120,9 @@ export function SidebarNavigation({ menu }: { menu: SidebarNavigationProps }) {
                                                             <span>{subItem.label}</span>
                                                         ) : (
                                                             <Link href={subItem.href}>
+                                                                {subItem.icon ? (
+                                                                    <NavIcon icon={subItem.icon} />
+                                                                ) : null}
                                                                 <span>{subItem.label}</span>
                                                             </Link>
                                                         )}
@@ -116,18 +143,17 @@ export function SidebarNavigation({ menu }: { menu: SidebarNavigationProps }) {
                                 aria-disabled={item.disabled}
                                 className={cn(
                                     "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:size-9! group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:p-0! [&>span]:group-data-[collapsible=icon]:hidden [&>span]:group-data-[collapsible=icon]:invisible font-[450] transition-colors duration-75",
-                                    isActive && "bg-theme-50 text-theme-700 hover:bg-theme-100 dark:bg-primary/10 dark:text-primary",
                                     item.disabled && "opacity-50"
                                 )}
                             >
                                 {item.disabled ? (
                                     <span>
-                                        <HugeiconsIcon icon={item.icon} strokeWidth={1.75} />
+                                        <NavIcon icon={item.icon} />
                                         <span>{item.label}</span>
                                     </span>
                                 ) : (
                                     <Link href={item.href as unknown as UrlObject}>
-                                        <HugeiconsIcon  icon={item.icon} strokeWidth={1.75} />
+                                        <NavIcon icon={item.icon} />
                                         <span>{item.label}</span>
                                     </Link>
                                 )}
@@ -148,7 +174,7 @@ export function SidebarNavigation({ menu }: { menu: SidebarNavigationProps }) {
                     <div key={group.id} className="flex flex-col items-center">
                         <SidebarGroup  className="p-0">
                             {group.label ? (
-                                <SidebarGroupLabel className="px-2 text-xs font-semibold text-muted-foreground">
+                                <SidebarGroupLabel className="px-2 text-xs font-semibold text-user-theme-500">
                                     {group.label}
                                 </SidebarGroupLabel>
                             ) : null}

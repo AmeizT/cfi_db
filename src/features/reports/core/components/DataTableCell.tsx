@@ -42,6 +42,7 @@ export function DataTableCell<T extends { id: number }>({
     return (
         <BaseTableCell
             data-pinned={isPinned || undefined}
+            data-row-click-ignore={isCellEditable || undefined}
             className={cn(
                 styles?.cellPadding,
                 styles?.cellClass,
@@ -60,7 +61,7 @@ export function DataTableCell<T extends { id: number }>({
                 <EditableCell
                     value={cell.getValue() as undefined}
                     displayValue={flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    rowIndex={row.index}
+                    
                     columnId={cell.column.id as keyof T as never}
                     className={cn("w-full", isNumericColumn && "text-right tabular-nums")}
                     resource={resource}

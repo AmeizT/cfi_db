@@ -43,7 +43,7 @@ export function Navigation({
         <nav aria-label="Tithes views" className="w-full overflow-x-auto px-4 pb-3 no-scrollbar">
             <div className="flex min-w-max items-center gap-1">
                 {PRIMARY_NAV.map((item) => {
-                    const active = item.key === view && !(item.key === "records" && status !== "active")
+                    const active = item.key === view && !(item.key === "transactions" && status !== "active")
 
                     return (
                         <Link
@@ -53,7 +53,7 @@ export function Navigation({
                                 module: "tithes",
                                 searchParams,
                                 submodule: item.submodule,
-                                updates: item.key === "records" ? { status: null } : {},
+                                updates: item.key === "transactions" ? { status: null } : {},
                             })}
                             data-tithes-nav-active={active ? "true" : undefined}
                             className={cn(

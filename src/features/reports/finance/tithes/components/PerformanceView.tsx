@@ -24,6 +24,7 @@ export function PerformanceView({
 
     return (
         <DataTable
+            variant="advanced"
             data={data.rows}
             config={data.config}
             enableDelete={false}

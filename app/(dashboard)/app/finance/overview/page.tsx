@@ -1,5 +1,11 @@
-export default function SpacesPage() {
-    return (
-        <h1>Spaces</h1>
-    )
+import { redirect } from "next/navigation"
+
+import { reportHref, type ReportRouteSearchParams } from "@/features/reports/modules/lib/report-route-redirect"
+
+export default async function LegacyFinanceOverviewPage({
+    searchParams,
+}: {
+    searchParams: Promise<ReportRouteSearchParams>
+}) {
+    redirect(reportHref("/finance/tithes", await searchParams))
 }

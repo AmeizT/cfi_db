@@ -16,6 +16,8 @@ import type {
     DataTableExportFormat,
     DataTableExportMetadata,
 } from "@/features/reports/core/components/DataTable.types"
+import { TrashBinMinimalisticIcon } from '@solar-icons/react/line-duotone/trash-bin-minimalistic'
+import { DownloadMinimalisticIcon } from '@solar-icons/react/line-duotone/download-minimalistic'
 
 type DataTableToolbarProps<T> = {
     table: Table<T>
@@ -53,14 +55,14 @@ export function DataTableToolbar<T>({
                 {showFilters && <DataTableFilters table={table} />}
             </Flex>
 
-            <Flex gap={2} align="center">
-                {enableDelete && (
+            <Flex gap={1.5} align="center">
+                {/* {enableDelete && (
                 <Button asChild variant="toolbar">
                     <Link href={`${pathname}?${params}`}>
-                        <HugeiconsIcon icon={Delete03Icon} /> Trash
+                        <TrashBinMinimalisticIcon /> Trash
                     </Link>
                 </Button>
-                )}
+                )} */}
                 {showColumnVisibility && <DataTableColumnVisibility table={table} />}
                 {showExport && (
                     <DataTableExport

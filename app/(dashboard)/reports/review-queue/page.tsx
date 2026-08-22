@@ -11,5 +11,5 @@ type ReviewQueueRedirectPageProps = {
 export default async function ReviewQueueRedirectPage({
     searchParams,
 }: ReviewQueueRedirectPageProps) {
-    redirect(reportHref("/reports/review/queue", await searchParams))
+    redirect(reportHref("/reports/activity/queue", await searchParams))
 }

@@ -56,6 +56,7 @@ export default function TithesView({ tithes, isLoading, pagination }: ViewProps)
                     </div>
 
                     <DataTable
+                        variant="advanced"
                         data={rows as TitheRecord[]}
                         config={config}
                         options={tableOptions}

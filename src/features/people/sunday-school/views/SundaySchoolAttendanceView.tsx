@@ -428,6 +428,7 @@ function ExpandedRecord({
     onOpenDetail,
     isApproving,
     isRejecting,
+    readOnly,
 }: {
     row: SundaySchoolTableRow
     onEdit: (record: SundaySchoolAttendance) => void
@@ -436,6 +437,7 @@ function ExpandedRecord({
     onOpenDetail: (id: number) => void
     isApproving: boolean
     isRejecting: boolean
+    readOnly: boolean
 }) {
     const record = row.record
 
@@ -469,52 +471,46 @@ function ExpandedRecord({
                     <EyeIcon className="size-4" />
                     Detail
                 </Button>
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => onEdit(record)}
-                >
-                    <PencilIcon className="size-4" />
-                    Edit
-                </Button>
-                <Button
-                    type="button"
-                    variant="outline"
-                    disabled={isApproving}
-                    onClick={() => onApprove(record.id)}
-                >
-                    {isApproving ? (
-                        <Loader2Icon className="size-4 animate-spin" />
-                    ) : (
-                        <CheckIcon className="size-4" />
-                    )}
-                    Approve
-                </Button>
-                <Button
-                    type="button"
-                    variant="outline"
-                    disabled={isRejecting}
-                    onClick={() => onReject(record.id)}
-                >
-                    {isRejecting ? (
-                        <Loader2Icon className="size-4 animate-spin" />
-                    ) : (
-                        <XIcon className="size-4" />
-                    )}
-                    Reject
-                </Button>
+                {!readOnly ? (
+                    <>
+                        <Button type="button" variant="outline" onClick={() => onEdit(record)}>
+                            <PencilIcon className="size-4" />
+                            Edit
+                        </Button>
+                        <Button type="button" variant="outline" disabled={isApproving} onClick={() => onApprove(record.id)}>
+                            {isApproving ? <Loader2Icon className="size-4 animate-spin" /> : <CheckIcon className="size-4" />}
+                            Approve
+                        </Button>
+                        <Button type="button" variant="outline" disabled={isRejecting} onClick={() => onReject(record.id)}>
+                            {isRejecting ? <Loader2Icon className="size-4 animate-spin" /> : <XIcon className="size-4" />}
+                            Reject
+                        </Button>
+                    </>
+                ) : null}
             </div>
         </div>
     )
 }
 
-export function SundaySchoolAttendanceView() {
+export function SundaySchoolAttendanceView({
+    embedded = false,
+    period,
+    readOnly = false,
+}: {
+    embedded?: boolean
+    period?: string | null
+    readOnly?: boolean
+}) {
     const router = useRouter()
     const queryClient = useQueryClient()
     const [dialogOpen, setDialogOpen] = React.useState(false)
     const [editingRecord, setEditingRecord] = React.useState<SundaySchoolAttendance | null>(null)
-    const attendanceQuery = useSundaySchoolAttendance()
-    const aggregatesQuery = useSundaySchoolAggregates()
+    const periodStart = period ? `${period.slice(0, 7)}-01` : undefined
+    const periodEnd = periodStart
+        ? new Date(Number(periodStart.slice(0, 4)), Number(periodStart.slice(5, 7)), 0).toISOString().slice(0, 10)
+        : undefined
+    const attendanceQuery = useSundaySchoolAttendance({ dateAfter: periodStart, dateBefore: periodEnd })
+    const aggregatesQuery = useSundaySchoolAggregates({ dateAfter: periodStart, dateBefore: periodEnd })
 
     const rows = React.useMemo(
         () => (attendanceQuery.data ?? []).map(mapTableRow),
@@ -558,10 +554,9 @@ export function SundaySchoolAttendanceView() {
 
     return (
         <View className="gap-0">
-            <View.Header
-                pagename="Sunday School Attendance"
-                description="Weekly class attendance, visitors, first timers, lessons, and offering."
-            />
+            {!embedded ? (
+                <View.Header pagename="Sunday School Attendance" />
+            ) : null}
 
             <View.Body className="gap-4 py-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -573,7 +568,7 @@ export function SundaySchoolAttendanceView() {
                             Records are submitted for review and approval independently from main service attendance.
                         </p>
                     </div>
-                    <Button type="button" onClick={openCreateDialog}>
+                    <Button type="button" onClick={openCreateDialog} className={readOnly ? "hidden" : undefined}>
                         <PlusIcon className="size-4" />
                         New Record
                     </Button>
@@ -614,6 +609,7 @@ export function SundaySchoolAttendanceView() {
                     </Card>
                 ) : (
                     <DataTable<SundaySchoolTableRow>
+                        variant="simple"
                         data={rows}
                         config={sundaySchoolAttendanceTableSchema}
                         isLoading={isLoading}
@@ -626,16 +622,17 @@ export function SundaySchoolAttendanceView() {
                         expandedRow={(row) => (
                             <ExpandedRecord
                                 row={row}
-                                onEdit={openEditDialog}
-                                onApprove={(id) => approveMutation.mutate(id)}
-                                onReject={(id) => rejectMutation.mutate(id)}
-                                onOpenDetail={(id) => router.push(`/app/people/sunday-school/${id}`)}
+                                onEdit={readOnly ? () => undefined : openEditDialog}
+                                onApprove={readOnly ? () => undefined : (id) => approveMutation.mutate(id)}
+                                onReject={readOnly ? () => undefined : (id) => rejectMutation.mutate(id)}
+                                onOpenDetail={(id) => router.push(`/engagement/attendance/sunday-school/${id}`)}
                                 isApproving={
                                     approveMutation.isPending && approveMutation.variables === row.id
                                 }
                                 isRejecting={
                                     rejectMutation.isPending && rejectMutation.variables === row.id
                                 }
+                                readOnly={readOnly}
                             />
                         )}
                     />

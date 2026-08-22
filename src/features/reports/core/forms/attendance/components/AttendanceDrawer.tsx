@@ -17,7 +17,7 @@ export function AttendanceDetailDrawer({
     if (!record) return null
 
     return (
-        <div className="fixed right-0 top-0 h-full w-[420px] bg-white shadow-xl p-6">
+        <div className="fixed right-0 top-0 h-full w-105 z-50 bg-white shadow-xl p-6">
 
             <div className="flex justify-between mb-4">
                 <h2 className="text-lg font-semibold">

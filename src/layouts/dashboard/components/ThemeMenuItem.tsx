@@ -1,8 +1,7 @@
 import React from "react"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { PaintBrush04Icon } from "@hugeicons/core-free-icons"
 import { PremiumThemeSelector } from "./ThemeSelector"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { PaintRollerIcon } from '@solar-icons/react/line-duotone/paint-roller'
 
 export function ThemeMenuItem() {
     const [open, setOpen] = React.useState(false)
@@ -15,12 +14,8 @@ export function ThemeMenuItem() {
                     setOpen(true)
                 }}
             >
-                <HugeiconsIcon 
-                    icon={PaintBrush04Icon} 
-                    strokeWidth={2} 
-                    className="size-5.5" 
-                />
-                Theme
+                <PaintRollerIcon strokeWidth={2} className="size-5.5" />
+                Appearance
             </DropdownMenuItem>
 
             <PremiumThemeSelector open={open} onOpenChange={setOpen} />

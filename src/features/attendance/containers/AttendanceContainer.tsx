@@ -179,9 +179,11 @@ const attendanceData = [
     },
 ]
 
-export function AttendanceContainer() {
+export function AttendanceContainer({ period }: { period?: string | null }) {
     const { data } = useAttendance()
-    const attendance = data?.results ?? []
+    const attendance = (data?.results ?? []).filter((record: { timestamp?: string }) => (
+        !period || record.timestamp?.slice(0, 7) === period.slice(0, 7)
+    ))
     const [activeView, setActiveView] = useState("overview")
 
     return (

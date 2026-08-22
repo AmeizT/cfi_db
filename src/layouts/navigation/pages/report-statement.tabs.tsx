@@ -3,7 +3,7 @@ import { createQueryString } from "@/features/reports/core/lib/create-query-stri
 
 const TAB_CONFIG = [
     { label: "Monthly", key: "monthly", view: "monthly" },
-    { label: "Analytics", key: "analytics", view: "analytics" },
+    { label: "Cumulative", key: "cumulative", view: "cumulative" },
 ] as const
 
 export const getReportStatementTabs = (

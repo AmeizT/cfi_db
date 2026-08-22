@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { getReports } from "../services/get-reports"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
 
 type ReportsParams = {
     year: string | undefined
@@ -10,6 +12,7 @@ type ReportsParams = {
 }
 
 export function useReports({ year, month, page, pageSize, enabled }: ReportsParams) {
+    const assemblyId = useActiveAssemblyId()
     const params = new URLSearchParams()
 
     if (year) {
@@ -32,8 +35,8 @@ export function useReports({ year, month, page, pageSize, enabled }: ReportsPara
     const queryParams = queryString ? `?${queryString}` : ""
 
     return useQuery({
-        queryKey: ["reports", year ?? "all-years", month ?? "all", page ?? 1, pageSize ?? 10],
+        queryKey: assemblyQueryKeys.key(assemblyId, "reports", year ?? "all-years", month ?? "all", page ?? 1, pageSize ?? 10),
         queryFn: () => getReports(queryParams),
-        enabled: enabled ?? !!year,
+        enabled: Boolean(assemblyId) && (enabled ?? !!year),
     })
 }

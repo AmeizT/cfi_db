@@ -50,8 +50,8 @@ export const dashboardMenu: {
         //     activeIcon: IconLayoutGridFilled,
         // },
         {
-            name: "People",
-            description: "People",
+            name: "Members",
+            description: "Members",
             pathname: "/people",
             icon: UserMultiple02Icon,
             activeIcon: IconUsers,
@@ -262,7 +262,7 @@ export const dashboardMenu: {
                         name: "Overview",
                         description: "Summary of key data across attendance, income, expenses, and tithes",
                         get pathname() {
-                            return `/reports/overview?year=${year}`
+                            return `/reports?year=${year}`
                         },
                     },
                     {
