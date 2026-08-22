@@ -66,6 +66,7 @@ export const SundaySchoolAttendanceSchema = z.object({
 })
 
 export const SundaySchoolAttendancePayloadSchema = z.object({
+    report: z.number().int().positive().optional(),
     teacher: z.number().int().positive(),
     service_date: z.iso.date(),
     class_name: SundaySchoolClassNameSchema,

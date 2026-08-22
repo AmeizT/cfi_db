@@ -96,7 +96,7 @@ const remainingAssemblies = Math.max(
 
 const triggerContent = isLoading ? (
     <>
-        <Skeleton className="size-7.5 shrink-0 rounded-full" />
+        <Skeleton className="size-7 shrink-0 rounded-full" />
         <Skeleton className="h-4 w-20 min-w-0 sm:w-24" />
 
         {hasMultipleAssemblies && (
@@ -105,9 +105,10 @@ const triggerContent = isLoading ? (
     </>
 ) : (
     <>
-        <div className="p-1 flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+        <div className="p-1.5 flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
             {hasMultipleAssemblies ? (
-                <AvatarGroup className="h-fit shrink-0">
+                <div className="flex gap-1.5">
+                    <AvatarGroup className="h-fit shrink-0">
                     {visibleAssemblies.map((assembly) => {
                         const isActive =
                             assembly.id === activeAssembly?.id
@@ -116,9 +117,9 @@ const triggerContent = isLoading ? (
                             <Avatar
                                 key={assembly.id}
                                 className={cn(
-                                    "size-7.5 rounded-full",
+                                    "size-7 rounded-full",
                                     isActive &&
-                                        "z-20 ring-2 ring-primary ring-offset-[1.5px] ring-offset-(--shell-chrome-hover)"
+                                        "z-20 ring-2 ring-primary ring-offset-[2px] ring-offset-(--shell-chrome-hover) group-hover/switcher:ring-offset-(--shell-chrome-active)"
                                 )}
                             >
                                 <AvatarImage
@@ -144,16 +145,18 @@ const triggerContent = isLoading ? (
                         )
                     })}
 
-                    {remainingAssemblies > 0 && (
-                        <Avatar className="size-7.5 rounded-full">
-                            <AvatarFallback className="font-semibold">
+                    
+                </AvatarGroup>
+                {remainingAssemblies > 0 && (
+                        <Avatar className="w-fit h-7 rounded-full">
+                            <AvatarFallback className="text-right! font-semibold bg-transparent">
                                 +{remainingAssemblies}
                             </AvatarFallback>
                         </Avatar>
                     )}
-                </AvatarGroup>
+                </div>
             ) : (
-                <Avatar className="size-7.5 shrink-0 rounded-full">
+                <Avatar className="size-7 shrink-0 rounded-full">
                     <AvatarImage
                         src={activeAssembly?.avatar || undefined}
                     />
@@ -191,11 +194,10 @@ const triggerContent = isLoading ? (
 )
 
 const triggerClassName = cn(
-    "flex h-fit min-w-0 max-w-60 items-center justify-between gap-2 rounded-full has-[>svg]:px-0.5 has-[>svg]:pr-2 py-0.5",
-    "border border-(--shell-sidebar-border)",
+    "group/switcher flex h-fit min-w-0 w-full items-center justify-between gap-2 rounded-full has-[>svg]:px-0.5 has-[>svg]:pr-3 py-0.5",
+    "border-0 border-(--shell-sidebar-border)",
     "bg-(--shell-chrome-hover)",
     "text-(--shell-chrome-foreground)",
-    "shadow-sm",
     "hover:bg-(--shell-chrome-active)"
 )
 

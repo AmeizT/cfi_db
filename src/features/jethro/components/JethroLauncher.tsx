@@ -56,8 +56,8 @@ export function JethroLauncher({ variant }: { variant?: JethroComposerVariant })
                             className="
                                 fixed right-4
                                 bottom-[calc(5rem+env(safe-area-inset-bottom))]
-                                z-50 size-14 rounded-full border
-                                border-border-subtle bg-background/70
+                                z-50 size-14 rounded-2xl border
+                                border-border-subtle dark:border-neutral-700 bg-linear-to-b to-background/70 dark:from-neutral-800 dark:to-background
                                 p-0 shadow-xl backdrop-blur-2xl
                                 hover:bg-background/90
                                 sm:right-6 sm:bottom-6

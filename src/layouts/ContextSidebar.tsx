@@ -29,6 +29,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { AppSearch } from "./AppSearch"
+import { AddCircleIcon } from '@solar-icons/react/line-duotone/add-circle'
 
 export function ContextSidebar({
     className,
@@ -67,7 +68,7 @@ export function ContextSidebar({
             variant={variant}
             className={cn(className)}
         >
-            <SidebarHeader className="shrink-0 gap-2.5 border-b border-(--shell-sidebar-border) px-2.5 py-3">
+            <SidebarHeader className="shrink-0 gap-2.5 border-b-0 border-(--shell-sidebar-border) px-2 py-3">
                 <div className="flex min-w-0 items-center gap-2">
                     <SidebarTrigger
                         aria-label="Close workspace navigation"
@@ -84,9 +85,9 @@ export function ContextSidebar({
                         <Button
                             type="button"
                             variant="ghost"
-                            className="h-9 w-full justify-start gap-2 rounded-lg px-2 text-(--shell-sidebar-foreground) hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            className="h-7 w-full justify-start gap-2 rounded-md px-0 text-(--shell-sidebar-foreground) hover:bg-sidebar-accent hover:text-sidebar-accent-foreground has-[>svg]:px-2"
                         >
-                            <Plus aria-hidden="true" />
+                            <AddCircleIcon className="size-5 text-primary" aria-hidden="true" />
                             <span>Create</span>
                             <ChevronDown aria-hidden="true" className="ml-auto" />
                         </Button>

@@ -27,7 +27,7 @@ export async function createSessionClient(formData: FormData) {
     }
 
     try {
-        const response = await fetch("http://localhost:8000/api/v1/auth/login/", {
+        const response = await fetch(apiRoutes.auth.login(), {
             method: "POST",
             body: JSON.stringify(validatedFields.data),
             headers: {

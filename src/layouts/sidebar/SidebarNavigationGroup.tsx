@@ -52,6 +52,7 @@ export function SidebarNavigationGroup({
                 <CollapsibleContent
                     initial={false}
                     transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="mt-0.5"
                 >
                     <SidebarGroupContent>{children}</SidebarGroupContent>
                 </CollapsibleContent>
