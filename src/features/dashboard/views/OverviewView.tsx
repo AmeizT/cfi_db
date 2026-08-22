@@ -17,6 +17,7 @@ import { OverviewJethro } from "../components/overview/OverviewJethro"
 import { OverviewMetrics } from "../components/overview/OverviewMetrics"
 import { OverviewOperations, type AttentionItem } from "../components/overview/OverviewOperations"
 import { InsightRotator } from "../components/insight-rotator";
+import { InactivityView } from "@/layouts/components/InactivityView";
 
 type AttendanceRecord = {
     timestamp?: string
@@ -94,6 +95,7 @@ export function OverviewView({ initialNow }: { initialNow: string }) {
                         </h1>
                         {/* <p className="mt-1 text-center text-sm text-muted-foreground">Here&apos;s what&apos;s happening in your workspace today.</p> */}
                         <InsightRotator messages={messages} />
+                        {/* <InactivityView /> */}
                     </div>
                 </header>
 

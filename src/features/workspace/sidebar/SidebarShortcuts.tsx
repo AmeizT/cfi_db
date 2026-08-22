@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar"
 import { SidebarNavigationGroup } from "@/layouts/sidebar/SidebarNavigationGroup"
 import type { ShortcutDestination } from "./shortcuts"
+import { History2Icon } from '@solar-icons/react/line-duotone/history-2'
 
 export function SidebarShortcuts({
     pinned,
@@ -45,7 +46,7 @@ export function SidebarShortcuts({
                                 onClick={onNavigate}
                                 aria-label={item.accessibleLabel}
                             >
-                                <Pin aria-hidden="true" className="rotate-45 fill-current" />
+                                <Pin aria-hidden="true" className="rotate-45" />
                                 <span>{item.label}</span>
                             </Link>
                         </SidebarMenuButton>
@@ -60,7 +61,7 @@ export function SidebarShortcuts({
                                 onUnpin(item.key)
                             }}
                         >
-                            <Pin aria-hidden="true" className="rotate-45 fill-current" />
+                            <Pin aria-hidden="true" className="size-5 rotate-45 fill-current" />
                         </SidebarMenuAction>
                     </SidebarMenuItem>
                 ))}
@@ -77,7 +78,7 @@ export function SidebarShortcuts({
                                 onClick={onNavigate}
                                 aria-label={item.accessibleLabel}
                             >
-                                <History aria-hidden="true" />
+                                <History2Icon className="size-5" aria-hidden="true" />
                                 <span>{item.label}</span>
                             </Link>
                         </SidebarMenuButton>

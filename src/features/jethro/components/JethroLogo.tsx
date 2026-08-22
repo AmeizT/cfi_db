@@ -17,9 +17,10 @@ export function JethroLogo({
             )}
         >
             <Image
-                src="/icons/easy-bloom.png"
+                src="/brand/jethro/jethro-primary.svg"
                 alt="Jethro AI"
-                fill
+                width={40}
+                height={40}
                 sizes="48px"
                 className="object-contain"
                 priority

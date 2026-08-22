@@ -19,7 +19,7 @@ function AvatarGroup({
 }: AvatarGroupProps) {
   return (
     <AvatarGroupPrimitive
-      className={cn('h-12 -space-x-3', className)}
+      className={cn('h-12 -space-x-2', className)}
       invertOverlap={invertOverlap}
       {...props}
     />

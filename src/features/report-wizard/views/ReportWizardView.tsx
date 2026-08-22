@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { FinancialEntriesForm } from "@/features/manual-entry/components/FinancialEntriesForm";
-import { SundaySchoolAttendanceView } from "@/features/people/sunday-school/views/SundaySchoolAttendanceView";
+import { SundaySchoolAttendanceForm } from "@/features/people/sunday-school/views/SundaySchoolAttendanceView";
 import { ReportWizardFooter } from "@/features/report-wizard/components/ReportWizardFooter";
 import { ReportWizardHeader } from "@/features/report-wizard/components/ReportWizardHeader";
 import { ReportWizardSectionCard } from "@/features/report-wizard/components/ReportWizardSectionCard";
@@ -145,7 +145,12 @@ function ManualEntryPanel({
     return <ReviewSubmitPanel reportId={reportId} />;
   }
   if (section.id === "sunday-school") {
-    return <SundaySchoolAttendanceView embedded period={period} />;
+    return (
+      <SundaySchoolAttendanceForm
+        period={period}
+        reportId={effectiveReportId}
+      />
+    );
   }
   if (section.id === "attendance") {
     return <AttendanceFormView period={period} reportId={effectiveReportId} />;

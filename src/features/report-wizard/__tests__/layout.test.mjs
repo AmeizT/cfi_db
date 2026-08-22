@@ -101,3 +101,14 @@ test("uploads are unified and review bypasses upload mode", async () => {
     assert.doesNotMatch(engine, /aria-label="Spreadsheet upload"|aria-label="Image upload"/)
     assert.match(dropzone, /Excel sheets, CSVs, or images/)
 })
+
+test("Sunday School manual entry renders the attendance form directly", async () => {
+    const view = await readFile(
+        "src/features/report-wizard/views/ReportWizardView.tsx",
+        "utf8"
+    )
+
+    assert.match(view, /<SundaySchoolAttendanceForm/)
+    assert.match(view, /reportId=\{effectiveReportId\}/)
+    assert.doesNotMatch(view, /<SundaySchoolAttendanceView/)
+})

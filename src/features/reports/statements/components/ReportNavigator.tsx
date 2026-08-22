@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import {
     usePathname,
     useRouter,
@@ -16,7 +15,6 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { EmptyState } from "@/components/ui/empty-state"
 import {
     Popover,
     PopoverContent,
@@ -30,40 +28,19 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import type { AssemblyReport } from "@/dal/types"
-import {
-    createReportWizardHref,
-    REPORT_WIZARD_SECTIONS,
-} from "@/features/report-wizard/config/report-types"
 import { parsePeriod } from "@/layouts/navigation/helpers/parse-period"
 import { cn } from "@/lib/utils"
-import { buildTab } from "@/utils/build-tab"
 import { useReports } from "../../core/hooks/use-reports"
-import { createQueryString } from "../../core/lib/create-query-string"
+import {
+    ALL_REPORTS_PAGE_SIZE,
+    createReportSelectionQuery,
+    getReportPeriod,
+    getReportPeriodKey,
+    getReportRows,
+    sortReportsByPeriod,
+} from "../../core/lib/report-selection"
 import { MONTHS, SHORT_MONTHS } from "../config/months"
 import { yearOptions } from "./PeriodSelector"
-
-const PRESERVED_WIZARD_PARAMS = [
-    "section",
-    "module",
-    "period",
-    "year",
-    "month",
-    "assembly",
-    "zone",
-    "country",
-] as const
-
-const MODULE_TO_WIZARD_SECTION: Record<string, string> = {
-    attendance: "attendance",
-    tithes: "tithes",
-    tithe: "tithes",
-    revenue: "revenue",
-    "income-expenditure": "revenue",
-    expenditure: "expenses",
-    expenditures: "expenses",
-    expenses: "expenses",
-    overhead: "overhead",
-}
 
 type ReportVisualStatus = "completed" | "in-progress" | "overdue" | "not-started"
 
@@ -98,76 +75,6 @@ const REPORT_STATUS_META: Record<
     },
 }
 
-function getReportRows(response: unknown): AssemblyReport[] {
-    if (Array.isArray(response)) return response as AssemblyReport[]
-
-    if (!response || typeof response !== "object") return []
-
-    const data = "data" in response ? response.data : undefined
-    const results = "results" in response ? response.results : undefined
-
-    if (Array.isArray(data)) return data as AssemblyReport[]
-    if (Array.isArray(results)) return results as AssemblyReport[]
-
-    return []
-}
-
-function getReportCount(response: unknown, fallbackRows: AssemblyReport[]) {
-    if (response && typeof response === "object" && "count" in response) {
-        const count = Number(response.count)
-        if (Number.isFinite(count)) return count
-    }
-
-    return fallbackRows.length
-}
-
-function getRouteContext(pathname: string) {
-    const segments = pathname.split("/").filter(Boolean)
-    const reportsIndex = segments.findIndex((segment) => segment === "reports")
-    const workspaceIndex = segments.findIndex((segment) => segment === "workspace")
-    const routeIndex = reportsIndex >= 0 ? reportsIndex : workspaceIndex
-
-    return {
-        section: routeIndex >= 0 ? segments[routeIndex + 1] : undefined,
-        module: routeIndex >= 0 ? segments[routeIndex + 2] : undefined,
-    }
-}
-
-function getWizardSection(searchParams: ReadonlyURLSearchParams, pathname: string) {
-    const routeContext = getRouteContext(pathname)
-    const routeModule = searchParams.get("module") ?? routeContext.module
-    const section = searchParams.get("section") ?? routeContext.section
-    const candidate = routeModule ? MODULE_TO_WIZARD_SECTION[routeModule] : undefined
-    const fallback = section ? MODULE_TO_WIZARD_SECTION[section] : undefined
-
-    return candidate
-        ?? fallback
-        ?? REPORT_WIZARD_SECTIONS[0]?.id
-        ?? "attendance"
-}
-
-function buildReportWizardHref(searchParams: ReadonlyURLSearchParams, pathname: string) {
-    const routeContext = getRouteContext(pathname)
-    const href = createReportWizardHref(getWizardSection(searchParams, pathname))
-    const [wizardPath, wizardQuery = ""] = href.split("?")
-    const params = new URLSearchParams(wizardQuery)
-
-    for (const key of PRESERVED_WIZARD_PARAMS) {
-        const value = searchParams.get(key)
-        if (value) params.set(key, value)
-    }
-
-    if (!params.has("section") && routeContext.section) {
-        params.set("section", routeContext.section)
-    }
-
-    if (!params.has("module") && routeContext.module) {
-        params.set("module", routeContext.module)
-    }
-
-    return `${wizardPath}?${params.toString()}`
-}
-
 function getNavigatorYear(searchParams: ReadonlyURLSearchParams) {
     const period = parsePeriod(searchParams.get("period") || "")
 
@@ -177,26 +84,6 @@ function getNavigatorYear(searchParams: ReadonlyURLSearchParams) {
 
     const year = Number(searchParams.get("year"))
     return Number.isFinite(year) && year > 0 ? year : new Date().getFullYear()
-}
-
-function getReportPeriod(report: AssemblyReport) {
-    const date = new Date(`${report.period_start.slice(0, 10)}T00:00:00`)
-
-    return {
-        date,
-        month: date.getMonth(),
-        year: date.getFullYear(),
-    }
-}
-
-function getPeriodKey(year: number, month: number) {
-    return `${year}-${String(month + 1).padStart(2, "0")}`
-}
-
-function sortReportsByPeriod(reports: AssemblyReport[]) {
-    return [...reports].sort(
-        (left, right) => getReportPeriod(left).date.getTime() - getReportPeriod(right).date.getTime(),
-    )
 }
 
 function getReportVisualStatus(report?: AssemblyReport): ReportVisualStatus {
@@ -231,31 +118,6 @@ function getReportVisualStatus(report?: AssemblyReport): ReportVisualStatus {
     }
 
     return "in-progress"
-}
-
-function ReportNavigatorEmptyState({
-    href,
-    isFirstReport,
-}: {
-    href: string
-    isFirstReport: boolean
-}) {
-    return (
-        <EmptyState
-            type="reports"
-            title="No reports found"
-            description="Create a report to start tracking this period."
-            size="compact"
-            className="min-h-40 rounded-lg bg-muted/20 px-4 py-3"
-            action={
-                <Button asChild size="sm">
-                    <Link href={href}>
-                        {isFirstReport ? "Create your first report" : "Create report"}
-                    </Link>
-                </Button>
-            }
-        />
-    )
 }
 
 function NavigatorButton({
@@ -307,14 +169,10 @@ export function ReportNavigator() {
     })
     const { data: allReports } = useReports({
         year: undefined,
-        pageSize: yearOptions.length * 12,
+        pageSize: ALL_REPORTS_PAGE_SIZE,
         enabled: true,
     })
 
-    const wizardHref = React.useMemo(
-        () => buildReportWizardHref(searchParams, pathname),
-        [pathname, searchParams],
-    )
     const selectedReports = React.useMemo(
         () => sortReportsByPeriod(getReportRows(selectedYearReports)),
         [selectedYearReports],
@@ -327,15 +185,11 @@ export function ReportNavigator() {
         () => sortReportsByPeriod(getReportRows(allReports)),
         [allReports],
     )
-    const allReportCount = React.useMemo(
-        () => getReportCount(allReports, allReportRows),
-        [allReports, allReportRows],
-    )
     const availableYears = React.useMemo(
         () => Array.from(new Set([
             selectedYear,
             ...yearOptions.map((option) => option.year),
-            ...allReportRows.map((report) => getReportPeriod(report).year),
+            ...allReportRows.map((report) => getReportPeriod(report)!.year),
         ])).sort((left, right) => left - right),
         [allReportRows, selectedYear],
     )
@@ -345,8 +199,8 @@ export function ReportNavigator() {
 
         return new Map(
             reports.map((report) => {
-                const { month, year } = getReportPeriod(report)
-                return [getPeriodKey(year, month), report]
+                const { month, year } = getReportPeriod(report)!
+                return [getReportPeriodKey(year, month), report]
             }),
         )
     }, [allReportRows, selectedReports])
@@ -358,7 +212,7 @@ export function ReportNavigator() {
 
     const displayedReport = activeReport ?? selectedReports.at(-1)
     const displayedPeriod = displayedReport
-        ? getReportPeriod(displayedReport)
+        ? getReportPeriod(displayedReport)!
         : { month: new Date().getMonth(), year: selectedYear }
     const displayedLabel = `${MONTHS[displayedPeriod.month]} ${displayedPeriod.year}`
     const displayedStatus = getReportVisualStatus(displayedReport)
@@ -367,24 +221,24 @@ export function ReportNavigator() {
     const previousDate = new Date(displayedPeriod.year, displayedPeriod.month - 1, 1)
     const nextDate = new Date(displayedPeriod.year, displayedPeriod.month + 1, 1)
     const previousReport = reportByPeriod.get(
-        getPeriodKey(previousDate.getFullYear(), previousDate.getMonth()),
+        getReportPeriodKey(previousDate.getFullYear(), previousDate.getMonth()),
     )
     const nextReport = reportByPeriod.get(
-        getPeriodKey(nextDate.getFullYear(), nextDate.getMonth()),
+        getReportPeriodKey(nextDate.getFullYear(), nextDate.getMonth()),
     )
 
     const currentReport = React.useMemo(() => {
         const now = new Date()
-        const exact = reportByPeriod.get(getPeriodKey(now.getFullYear(), now.getMonth()))
+        const exact = reportByPeriod.get(getReportPeriodKey(now.getFullYear(), now.getMonth()))
         if (exact) return exact
 
         return allReportRows
-            .filter((report) => getReportPeriod(report).date.getTime() <= now.getTime())
+            .filter((report) => getReportPeriod(report)!.date.getTime() <= now.getTime())
             .at(-1)
     }, [allReportRows, reportByPeriod])
 
     const viewedReportsByMonth = React.useMemo(
-        () => new Map(viewedReports.map((report) => [getReportPeriod(report).month, report])),
+        () => new Map(viewedReports.map((report) => [getReportPeriod(report)!.month, report])),
         [viewedReports],
     )
 
@@ -395,25 +249,12 @@ export function ReportNavigator() {
         : undefined
 
     const navigateToReport = React.useCallback((report: AssemblyReport) => {
-        const reportPeriod = getReportPeriod(report)
-        const parsedPeriod = parsePeriod(searchParams.get("period") || "")
-        const updates: Record<string, string | number | null> = {
-            reportId: String(report.id),
-            tab: searchParams.get("tab") || buildTab("attendance", "sunday"),
-            page: 1,
-        }
-
-        if (parsedPeriod?.type === "year") {
-            updates.period = `year:${reportPeriod.year}`
-        } else if (searchParams.has("year")) {
-            updates.year = String(reportPeriod.year)
-        } else if (reportPeriod.year !== selectedYear) {
-            updates.period = `year:${reportPeriod.year}`
-        }
-
-        router.push(`${pathname}?${createQueryString(searchParams, updates)}`)
+        const query = createReportSelectionQuery(searchParams, report, {
+            resetPage: true,
+        })
+        router.push(`${pathname}?${query}`)
         setOpen(false)
-    }, [pathname, router, searchParams, selectedYear])
+    }, [pathname, router, searchParams])
 
     const handleOpenChange = React.useCallback((nextOpen: boolean) => {
         setOpen(nextOpen)
@@ -474,12 +315,6 @@ export function ReportNavigator() {
                     role="group"
                     aria-label="Report period navigator"
                 >
-                    <NavigatorButton
-                        direction="previous"
-                        disabled={isLoading || !previousReport}
-                        onClick={() => previousReport && navigateToReport(previousReport)}
-                    />
-
                     <PopoverTrigger asChild>
                         <Button
                             type="button"
@@ -487,7 +322,7 @@ export function ReportNavigator() {
                             disabled={isLoading || !displayedReport}
                             aria-label={`Choose reporting period, currently ${displayedLabel}`}
                             aria-expanded={open}
-                            className="h-8 min-w-32 max-w-[calc(100vw-7rem)] rounded-full border border-border-subtle px-3 font-semibold tabular-nums sm:min-w-44 bg-background"
+                            className="h-8 min-w-full max-w-[calc(100vw-7rem)] rounded-full border border-border-subtle px-3 font-semibold tabular-nums sm:min-w-44 bg-background"
                         >
                             <span
                                 aria-hidden="true"
@@ -502,6 +337,12 @@ export function ReportNavigator() {
                             />
                         </Button>
                     </PopoverTrigger>
+
+                    <NavigatorButton
+                        direction="previous"
+                        disabled={isLoading || !previousReport}
+                        onClick={() => previousReport && navigateToReport(previousReport)}
+                    />
 
                     <NavigatorButton
                         direction="next"

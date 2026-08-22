@@ -23,7 +23,6 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
@@ -56,6 +55,8 @@ import {
     useSundaySchoolAttendance,
 } from "../hooks/use-sunday-school-attendance"
 import { sundaySchoolAttendanceTableSchema } from "../config/table-schema"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { assemblyQueryKeys } from "@/lib/query-keys"
 
 type SundaySchoolTableRow = Record<string, unknown> & {
     id: number
@@ -90,20 +91,36 @@ type SundaySchoolFormState = {
     remarks: string
 }
 
-const defaultFormState: SundaySchoolFormState = {
-    teacher: "",
-    service_date: new Date().toISOString().slice(0, 10),
-    class_name: "beginners",
-    boys: "0",
-    girls: "0",
-    male_visitors: "0",
-    female_visitors: "0",
-    male_first_timers: "0",
-    female_first_timers: "0",
-    lesson_title: "",
-    scripture_reference: "",
-    offering: "0",
-    remarks: "",
+function getDefaultServiceDate(period?: string | null) {
+    if (!period) return new Date().toISOString().slice(0, 10)
+
+    const [year, month] = period.slice(0, 7).split("-").map(Number)
+    if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) {
+        return new Date().toISOString().slice(0, 10)
+    }
+
+    const firstDay = new Date(year, month - 1, 1)
+    const daysUntilSunday = (7 - firstDay.getDay()) % 7
+    const day = String(1 + daysUntilSunday).padStart(2, "0")
+    return `${year}-${String(month).padStart(2, "0")}-${day}`
+}
+
+function getDefaultFormState(period?: string | null): SundaySchoolFormState {
+    return {
+        teacher: "",
+        service_date: getDefaultServiceDate(period),
+        class_name: "beginners",
+        boys: "0",
+        girls: "0",
+        male_visitors: "0",
+        female_visitors: "0",
+        male_first_timers: "0",
+        female_first_timers: "0",
+        lesson_title: "",
+        scripture_reference: "",
+        offering: "0",
+        remarks: "",
+    }
 }
 
 const tableOptions = {
@@ -176,8 +193,12 @@ function numberFromForm(value: string) {
     return Number.isFinite(parsed) ? parsed : 0
 }
 
-function toPayload(form: SundaySchoolFormState): SundaySchoolAttendancePayload {
+function toPayload(
+    form: SundaySchoolFormState,
+    reportId?: string | number | null,
+): SundaySchoolAttendancePayload {
     return {
+        report: reportId ? Number(reportId) : undefined,
         teacher: Number(form.teacher),
         service_date: form.service_date,
         class_name: form.class_name,
@@ -232,43 +253,58 @@ function Field({
     )
 }
 
-function SundaySchoolDialog({
-    open,
-    record,
-    onOpenChange,
+export function SundaySchoolAttendanceForm({
+    record = null,
+    reportId,
+    period,
+    onCancel,
+    onSaved,
 }: {
-    open: boolean
-    record: SundaySchoolAttendance | null
-    onOpenChange: (open: boolean) => void
+    record?: SundaySchoolAttendance | null
+    reportId?: string | number | null
+    period?: string | null
+    onCancel?: () => void
+    onSaved?: (record: SundaySchoolAttendance) => void
 }) {
+    const assemblyId = useActiveAssemblyId()
     const queryClient = useQueryClient()
     const membersQuery = useMembersDirectory({})
-    const [form, setForm] = React.useState<SundaySchoolFormState>(defaultFormState)
-    const isEditing = Boolean(record)
+    const [currentRecord, setCurrentRecord] = React.useState(record)
+    const [form, setForm] = React.useState<SundaySchoolFormState>(() =>
+        record ? recordToFormState(record) : getDefaultFormState(period)
+    )
+    const isEditing = Boolean(currentRecord)
 
     React.useEffect(() => {
-        if (!open) return
-        queueMicrotask(() => setForm(record ? recordToFormState(record) : defaultFormState))
-    }, [open, record])
+        queueMicrotask(() => {
+            setCurrentRecord(record)
+            setForm(record ? recordToFormState(record) : getDefaultFormState(period))
+        })
+    }, [period, record])
 
     const saveMutation = useMutation({
         mutationFn: (payload: SundaySchoolAttendancePayload) => {
-            if (record) {
-                return updateSundaySchoolAttendance(record.id, payload)
+            if (currentRecord) {
+                return updateSundaySchoolAttendance(currentRecord.id, payload)
             }
 
             return createSundaySchoolAttendance(payload)
         },
-        onSuccess: async () => {
+        onSuccess: async (savedRecord) => {
+            setCurrentRecord(savedRecord)
+            setForm(recordToFormState(savedRecord))
             toast.success(
                 isEditing
                     ? "Sunday School attendance updated"
                     : "Sunday School attendance created"
             )
-            onOpenChange(false)
-            await queryClient.invalidateQueries({
-                queryKey: ["people", "sunday-school-attendance"],
-            })
+            onSaved?.(savedRecord)
+            await Promise.all([
+                queryClient.invalidateQueries({
+                    queryKey: assemblyQueryKeys.scope(assemblyId),
+                }),
+                queryClient.invalidateQueries({ queryKey: ["reports-workflow"] }),
+            ])
         },
         onError: (error) => {
             toast.error(getErrorMessage(error))
@@ -284,10 +320,145 @@ function SundaySchoolDialog({
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
-        saveMutation.mutate(toPayload(form))
+        saveMutation.mutate(toPayload(form, reportId))
     }
 
     const members = membersQuery.data ?? []
+
+    return (
+        <form className="grid gap-5" onSubmit={handleSubmit}>
+            <div className="grid gap-4 sm:grid-cols-3">
+                <Field label="Service date">
+                    <Input
+                        required
+                        type="date"
+                        value={form.service_date}
+                        onChange={(event) => updateField("service_date", event.target.value)}
+                    />
+                </Field>
+
+                <Field label="Class">
+                    <NativeSelect
+                        required
+                        className="min-w-full"
+                        value={form.class_name}
+                        onChange={(event) => updateField("class_name", event.target.value as SundaySchoolClassName)}
+                    >
+                        {SundaySchoolClassOptions.map((option) => (
+                            <NativeSelectOption key={option.value} value={option.value}>
+                                {option.label}
+                            </NativeSelectOption>
+                        ))}
+                    </NativeSelect>
+                </Field>
+
+                <Field label="Teacher">
+                    <NativeSelect
+                        required
+                        className="min-w-full"
+                        disabled={membersQuery.isLoading}
+                        value={form.teacher}
+                        onChange={(event) => updateField("teacher", event.target.value)}
+                    >
+                        <NativeSelectOption value="">
+                            Select teacher
+                        </NativeSelectOption>
+                        {members.map((member) => (
+                            <NativeSelectOption key={member.id} value={String(member.id)}>
+                                {member.full_name}
+                            </NativeSelectOption>
+                        ))}
+                    </NativeSelect>
+                </Field>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {([
+                    ["boys", "Boys"],
+                    ["girls", "Girls"],
+                    ["male_visitors", "Male visitors"],
+                    ["female_visitors", "Female visitors"],
+                    ["male_first_timers", "Male first timers"],
+                    ["female_first_timers", "Female first timers"],
+                ] as const).map(([key, label]) => (
+                    <Field key={key} label={label}>
+                        <Input
+                            min={0}
+                            required
+                            type="number"
+                            value={form[key]}
+                            onChange={(event) => updateField(key, event.target.value)}
+                        />
+                    </Field>
+                ))}
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+                <Field label="Lesson title">
+                    <Input
+                        value={form.lesson_title}
+                        onChange={(event) => updateField("lesson_title", event.target.value)}
+                    />
+                </Field>
+                <Field label="Scripture reference">
+                    <Input
+                        value={form.scripture_reference}
+                        onChange={(event) => updateField("scripture_reference", event.target.value)}
+                    />
+                </Field>
+                <Field label="Offering">
+                    <Input
+                        min={0}
+                        step="0.01"
+                        type="number"
+                        value={form.offering}
+                        onChange={(event) => updateField("offering", event.target.value)}
+                    />
+                </Field>
+            </div>
+
+            <Field label="Remarks">
+                <Textarea
+                    value={form.remarks}
+                    onChange={(event) => updateField("remarks", event.target.value)}
+                />
+            </Field>
+
+            <div className="flex flex-wrap items-center justify-end gap-2">
+                {onCancel ? (
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onCancel}
+                    >
+                        Cancel
+                    </Button>
+                ) : null}
+                <Button type="submit" disabled={saveMutation.isPending}>
+                    {saveMutation.isPending ? (
+                        <Loader2Icon className="size-4 animate-spin" />
+                    ) : null}
+                    {saveMutation.isPending ? "Saving..." : "Save attendance"}
+                </Button>
+            </div>
+        </form>
+    )
+}
+
+function SundaySchoolDialog({
+    open,
+    record,
+    reportId,
+    period,
+    onOpenChange,
+}: {
+    open: boolean
+    record: SundaySchoolAttendance | null
+    reportId?: string | number | null
+    period?: string | null
+    onOpenChange: (open: boolean) => void
+}) {
+    const isEditing = Boolean(record)
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -301,120 +472,14 @@ function SundaySchoolDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <form className="grid gap-5" onSubmit={handleSubmit}>
-                    <div className="grid gap-4 sm:grid-cols-3">
-                        <Field label="Service date">
-                            <Input
-                                required
-                                type="date"
-                                value={form.service_date}
-                                onChange={(event) => updateField("service_date", event.target.value)}
-                            />
-                        </Field>
-
-                        <Field label="Class">
-                            <NativeSelect
-                                required
-                                className="min-w-full"
-                                value={form.class_name}
-                                onChange={(event) => updateField("class_name", event.target.value as SundaySchoolClassName)}
-                            >
-                                {SundaySchoolClassOptions.map((option) => (
-                                    <NativeSelectOption key={option.value} value={option.value}>
-                                        {option.label}
-                                    </NativeSelectOption>
-                                ))}
-                            </NativeSelect>
-                        </Field>
-
-                        <Field label="Teacher">
-                            <NativeSelect
-                                required
-                                className="min-w-full"
-                                disabled={membersQuery.isLoading}
-                                value={form.teacher}
-                                onChange={(event) => updateField("teacher", event.target.value)}
-                            >
-                                <NativeSelectOption value="">
-                                    Select teacher
-                                </NativeSelectOption>
-                                {members.map((member) => (
-                                    <NativeSelectOption key={member.id} value={String(member.id)}>
-                                        {member.full_name}
-                                    </NativeSelectOption>
-                                ))}
-                            </NativeSelect>
-                        </Field>
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {([
-                            ["boys", "Boys"],
-                            ["girls", "Girls"],
-                            ["male_visitors", "Male visitors"],
-                            ["female_visitors", "Female visitors"],
-                            ["male_first_timers", "Male first timers"],
-                            ["female_first_timers", "Female first timers"],
-                        ] as const).map(([key, label]) => (
-                            <Field key={key} label={label}>
-                                <Input
-                                    min={0}
-                                    required
-                                    type="number"
-                                    value={form[key]}
-                                    onChange={(event) => updateField(key, event.target.value)}
-                                />
-                            </Field>
-                        ))}
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-3">
-                        <Field label="Lesson title">
-                            <Input
-                                value={form.lesson_title}
-                                onChange={(event) => updateField("lesson_title", event.target.value)}
-                            />
-                        </Field>
-                        <Field label="Scripture reference">
-                            <Input
-                                value={form.scripture_reference}
-                                onChange={(event) => updateField("scripture_reference", event.target.value)}
-                            />
-                        </Field>
-                        <Field label="Offering">
-                            <Input
-                                min={0}
-                                step="0.01"
-                                type="number"
-                                value={form.offering}
-                                onChange={(event) => updateField("offering", event.target.value)}
-                            />
-                        </Field>
-                    </div>
-
-                    <Field label="Remarks">
-                        <Textarea
-                            value={form.remarks}
-                            onChange={(event) => updateField("remarks", event.target.value)}
-                        />
-                    </Field>
-
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={saveMutation.isPending}>
-                            {saveMutation.isPending ? (
-                                <Loader2Icon className="size-4 animate-spin" />
-                            ) : null}
-                            {saveMutation.isPending ? "Saving..." : "Save"}
-                        </Button>
-                    </DialogFooter>
-                </form>
+                <SundaySchoolAttendanceForm
+                    key={record?.id ?? `${period ?? "current"}-new`}
+                    record={record}
+                    reportId={reportId}
+                    period={period}
+                    onCancel={() => onOpenChange(false)}
+                    onSaved={() => onOpenChange(false)}
+                />
             </DialogContent>
         </Dialog>
     )
@@ -495,10 +560,12 @@ function ExpandedRecord({
 export function SundaySchoolAttendanceView({
     embedded = false,
     period,
+    reportId,
     readOnly = false,
 }: {
     embedded?: boolean
     period?: string | null
+    reportId?: string | number | null
     readOnly?: boolean
 }) {
     const router = useRouter()
@@ -642,6 +709,8 @@ export function SundaySchoolAttendanceView({
             <SundaySchoolDialog
                 open={dialogOpen}
                 record={editingRecord}
+                reportId={reportId}
+                period={period}
                 onOpenChange={setDialogOpen}
             />
         </View>

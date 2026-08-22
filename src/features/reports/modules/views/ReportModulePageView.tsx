@@ -6,13 +6,16 @@ import {
     type ReadonlyURLSearchParams,
 } from "next/navigation"
 import { EmptyState } from "@/components/ui/empty-state"
+import { Skeleton } from "@/components/ui/skeleton"
 import View from "@/components/ui/view"
-import type { AttendanceResponse } from "@/dal/types"
+import type { AssemblyReport, AttendanceResponse } from "@/dal/types"
 import AttendanceView from "@/features/reports/attendance/views/AttendanceDataGrid"
 import { ComplianceStatusView } from "@/features/reports/compliance/status/views/ComplianceStatusView"
 import { useDataTablePagination } from "@/features/reports/core/components/hooks/useDataTablePagination"
 import { useReportAttendance } from "@/features/reports/core/hooks/use-attendance"
 import { useReportFinance } from "@/features/reports/core/hooks/use-report-finance"
+import { useReportSelection } from "@/features/reports/core/hooks/use-report-selection"
+import { getReportPeriod } from "@/features/reports/core/lib/report-selection"
 import type { FinanceResponse } from "@/features/reports/core/services/get-report-finance"
 import { ExceptionView } from "@/features/reports/exceptions/views/ExceptionView"
 import { CumulativeDataPageView } from "@/features/reports/cumulative/views/CumulativeDataPageView"
@@ -55,6 +58,7 @@ type RendererContext = {
     isFinanceLoading: boolean
     pagination: ReturnType<typeof useDataTablePagination>
     reportId: string | undefined
+    selectedReport: AssemblyReport | undefined
     submodule: string | undefined
     view: string
     pageContext: ModulePageContext
@@ -203,6 +207,7 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         isAttendanceLoading,
         pagination,
         reportId,
+        selectedReport,
         view,
         pageContext,
     }) => {
@@ -211,7 +216,18 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         }
 
         if (view === "sunday-school") {
-            return <SundaySchoolAttendanceView embedded />
+            const reportPeriod = selectedReport ? getReportPeriod(selectedReport) : null
+            const period = reportPeriod
+                ? `${reportPeriod.year}-${String(reportPeriod.month + 1).padStart(2, "0")}`
+                : undefined
+
+            return (
+                <SundaySchoolAttendanceView
+                    embedded
+                    period={period}
+                    reportId={reportId}
+                />
+            )
         }
 
         if (!reportId) {
@@ -283,6 +299,13 @@ const REPORT_NAVIGATOR_HIDDEN_ROUTES = new Set<ReportRouteKey>([
     "activity/flagged",
 ])
 
+const REPORT_BACKED_ROUTES = new Set<ReportRouteKey>([
+    "finance/tithes",
+    "finance/income-expenditure",
+    "finance/financial-activity",
+    "ministry/attendance",
+])
+
 function isTithesRouteView(view: string): view is TithesRouteView {
     return TITHE_ROUTE_VIEWS.has(view)
 }
@@ -300,25 +323,8 @@ export function ReportModulePageView({
 }) {
     const searchParams = useSearchParams()
     const pagination = useDataTablePagination()
-    const reportId = getReportId(searchParams)
     const routeKey = `${section}/${module}` as ReportRouteKey
-    const shouldLoadAttendance = routeKey === "ministry/attendance"
-    const shouldLoadFinance = routeKey === "finance/income-expenditure" || routeKey === "finance/financial-activity"
-    const paginationParams = {
-        page: pagination.currentPage,
-        pageSize: pagination.pageSize,
-    }
-    const { data: attendance, isLoading: isAttendanceLoading } =
-        useReportAttendance(shouldLoadAttendance ? reportId : undefined, paginationParams)
-    const { data: finance, isLoading: isFinanceLoading } =
-        useReportFinance(shouldLoadFinance ? reportId : undefined, paginationParams)
-
     const config = getReportModuleConfig(section, module)
-
-    if (!config) {
-        return null
-    }
-
     const submoduleTabs = getReportSubmoduleTabs(section, module, searchParams, pageContext)
     const moduleTabs = getReportModuleTabs(section, searchParams, pageContext)
     const viewTabs = submoduleTabs.length
@@ -331,12 +337,34 @@ export function ReportModulePageView({
         activeSubmodule ??
         searchParams.get("tab") ??
         (section === "activity" || section === "performance" ? module : undefined) ??
-        config.defaultView ??
+        config?.defaultView ??
         viewTabs.at(0)?.key ??
         "data"
     const renderView = submoduleTabs.length
         ? submodule ?? activeView
         : activeView
+    const reportId = getReportId(searchParams)
+    const needsReportSelection = REPORT_BACKED_ROUTES.has(routeKey)
+        && renderView !== "cumulative"
+    const reportSelection = useReportSelection({
+        enabled: needsReportSelection,
+        reportId,
+        defaultTab: !submoduleTabs.length && viewTabs.length ? activeView : undefined,
+    })
+    const shouldLoadAttendance = routeKey === "ministry/attendance"
+    const shouldLoadFinance = routeKey === "finance/income-expenditure" || routeKey === "finance/financial-activity"
+    const paginationParams = {
+        page: pagination.currentPage,
+        pageSize: pagination.pageSize,
+    }
+    const { data: attendance, isLoading: isAttendanceLoading } =
+        useReportAttendance(shouldLoadAttendance ? reportId : undefined, paginationParams)
+    const { data: finance, isLoading: isFinanceLoading } =
+        useReportFinance(shouldLoadFinance ? reportId : undefined, paginationParams)
+
+    if (!config) {
+        return null
+    }
     const renderer = REPORT_MODULE_RENDERERS[routeKey]
     const pageTitle =
         getReportSubmoduleTitle(section, module, renderView)
@@ -344,6 +372,13 @@ export function ReportModulePageView({
     const showReportNavigator =
         !REPORT_NAVIGATOR_HIDDEN_VIEWS.has(renderView)
         && !REPORT_NAVIGATOR_HIDDEN_ROUTES.has(routeKey)
+    const waitForSelectedSundaySchoolReport = routeKey === "ministry/attendance"
+        && renderView === "sunday-school"
+        && Boolean(reportId)
+        && reportSelection.isLoading
+        && !reportSelection.selectedReport
+    const isResolvingReport = reportSelection.isResolving
+        || waitForSelectedSundaySchoolReport
 
     return (
         <View className="gap-0" >
@@ -361,7 +396,12 @@ export function ReportModulePageView({
             <View.Body className="gap-0">
                 {pageContext === "workspace" ? <ReportSourceBanner /> : null}
                 <ReportModuleDataTable>
-                    {renderer ? (
+                    {isResolvingReport ? (
+                        <div className="space-y-3 py-4" aria-label="Loading report">
+                            <Skeleton className="h-24 w-full rounded-lg" />
+                            <Skeleton className="h-72 w-full rounded-lg" />
+                        </div>
+                    ) : renderer ? (
                         renderer({
                             attendance,
                             config,
@@ -371,6 +411,7 @@ export function ReportModulePageView({
                             pagination,
                             pageContext,
                             reportId,
+                            selectedReport: reportSelection.selectedReport,
                             submodule,
                             view: renderView,
                         })
