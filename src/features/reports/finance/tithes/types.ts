@@ -38,14 +38,26 @@ type ListResponseEnvelope<T, M> = {
     next?: string | null
     previous?: string | null
     results?: T[]
-    items?: T[]
-    data?: T[] | ListResponseEnvelope<T, M>
+    data?: T[]
     config?: TableSchema
     table_schema?: TableSchema
     meta?: M
 }
 
-export type TitheListResponse = TitheRecord[] | ListResponseEnvelope<TitheRecord, TithesMeta>
+type NestedListResponseEnvelope<T, M> = {
+    data: ListResponseEnvelope<T, M>
+    count?: number
+    next?: string | null
+    previous?: string | null
+    config?: TableSchema
+    table_schema?: TableSchema
+    meta?: M
+}
+
+export type TitheListResponse =
+    | TitheRecord[]
+    | ListResponseEnvelope<TitheRecord, TithesMeta>
+    | NestedListResponseEnvelope<TitheRecord, TithesMeta>
 
 export type TithesMeta = {
     config?: TableSchema
@@ -59,6 +71,8 @@ export type TithesListResult = {
     results: TitheRecord[]
     data: TitheRecord[]
     count: number
+    next?: string | null
+    previous?: string | null
     config?: TableSchema
     table_schema?: TableSchema
     meta?: TithesMeta
@@ -121,13 +135,18 @@ export type ContributorMeta = {
     }
 }
 
-export type ContributorResponse = ContributorRecord[] | ListResponseEnvelope<ContributorRecord, ContributorMeta>
+export type ContributorResponse =
+    | ContributorRecord[]
+    | ListResponseEnvelope<ContributorRecord, ContributorMeta>
+    | NestedListResponseEnvelope<ContributorRecord, ContributorMeta>
 
 export type ContributorRowsResult = {
     rows: ContributorRecord[]
     results: ContributorRecord[]
     data: ContributorRecord[]
     count: number
+    next?: string | null
+    previous?: string | null
     meta?: ContributorMeta
     config?: TableSchema
     table_schema?: TableSchema

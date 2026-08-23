@@ -27,8 +27,17 @@ type ListResponseObject<T, M> = {
     next?: string | null
     previous?: string | null
     results?: T[]
-    items?: T[]
-    data?: T[] | ListResponseObject<T, M>
+    data?: T[]
+    config?: TableSchema
+    table_schema?: TableSchema
+    meta?: M
+}
+
+type NestedListResponse<T, M> = {
+    data: ListResponseObject<T, M>
+    count?: number
+    next?: string | null
+    previous?: string | null
     config?: TableSchema
     table_schema?: TableSchema
     meta?: M
@@ -40,30 +49,19 @@ type NormalizableListResponse<
         config?: TableSchema
         table_schema?: TableSchema
     },
-> = T[] | ListResponseObject<T, M>
+> = T[] | ListResponseObject<T, M> | NestedListResponse<T, M>
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return Boolean(value) && typeof value === "object" && !Array.isArray(value)
 }
 
-/**
- * Removes transport-level `data` wrappers while leaving domain arrays intact.
- * This keeps direct Django responses and enveloped API responses on one
- * frontend contract.
- */
+/** Unwraps the single `data` object used by the supported API envelope. */
 export function unwrapDataEnvelope(response: unknown): unknown {
-    let payload = response
-    const seen = new Set<object>()
-
-    while (isRecord(payload) && isRecord(payload.data)) {
-        if (seen.has(payload)) break
-        seen.add(payload)
-
-        if (Array.isArray(payload.results) || Array.isArray(payload.items)) break
-        payload = payload.data
+    if (isRecord(response) && isRecord(response.data)) {
+        return response.data
     }
 
-    return payload
+    return response
 }
 
 export function getStatus(searchParams: URLSearchParams | ReadonlyURLSearchParams): TitheStatusFilter {
@@ -136,31 +134,32 @@ export function normalizeListResponse<T, M extends { config?: TableSchema; table
             results: response,
             data: response,
             count: response.length,
+            next: undefined,
+            previous: undefined,
             config: undefined,
             table_schema: undefined,
             meta: undefined,
         }
     }
 
-    const payload = unwrapDataEnvelope(response)
-    const payloadObject = isRecord(payload)
-        ? payload as ListResponseObject<T, M>
-        : undefined
     const responseObject = response as ListResponseObject<T, M>
-    const directData = payloadObject?.data
+    const unwrapped = unwrapDataEnvelope(response)
+    const payloadObject = isRecord(unwrapped)
+        ? unwrapped as ListResponseObject<T, M>
+        : responseObject
+    const directData = payloadObject.data
     const rows = payloadObject?.results
-        ?? payloadObject?.items
         ?? (Array.isArray(directData) ? directData : [])
-    const config = payloadObject
-        ? getResponseConfig(payloadObject) ?? getResponseConfig(responseObject)
-        : getResponseConfig(responseObject)
-    const meta = payloadObject?.meta ?? responseObject.meta
+    const config = getResponseConfig(payloadObject) ?? getResponseConfig(responseObject)
+    const meta = payloadObject.meta ?? responseObject.meta
 
     return {
         rows,
         results: rows,
         data: rows,
         count: payloadObject?.count ?? responseObject.count ?? rows.length,
+        next: payloadObject.next ?? responseObject.next,
+        previous: payloadObject.previous ?? responseObject.previous,
         config,
         table_schema: payloadObject?.table_schema ?? responseObject.table_schema ?? config,
         meta,

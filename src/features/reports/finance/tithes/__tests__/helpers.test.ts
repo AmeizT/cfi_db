@@ -14,6 +14,8 @@ test("normalizeListResponse preserves paginated count and current page rows", ()
     })
 
     assert.equal(result.count, 25)
+    assert.equal(result.next, "http://api.test/reports/1/tithes/?page=3")
+    assert.equal(result.previous, "http://api.test/reports/1/tithes/")
     assert.deepEqual(result.rows.map((row) => row.id), [11, 12])
     assert.equal(result.data.length, 2)
 })
@@ -26,6 +28,15 @@ test("normalizeListResponse does not re-count paginated rows as the total", () =
 
     assert.equal(result.count, 100)
     assert.equal(result.rows.length, 1)
+})
+
+test("normalizeListResponse supports an array-valued data contract", () => {
+    const result = normalizeListResponse({
+        data: [{ id: 3 }, { id: 4 }],
+    })
+
+    assert.deepEqual(result.rows.map((row) => row.id), [3, 4])
+    assert.equal(result.count, 2)
 })
 
 test("production-shaped Tithe responses feed transactions, contributors, and cumulative totals", () => {
@@ -64,12 +75,10 @@ test("production-shaped Tithe responses feed transactions, contributors, and cum
     }
     const cumulativeResponse = {
         data: {
-            data: {
-                statements: [
-                    { month: 1, total: "125.00" },
-                    { month: 2, total: "75.00" },
-                ],
-            },
+            statements: [
+                { month: 1, total: "125.00" },
+                { month: 2, total: "75.00" },
+            ],
         },
     }
 
