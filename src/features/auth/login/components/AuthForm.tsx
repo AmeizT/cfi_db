@@ -69,7 +69,8 @@ export function AuthForm(){
                     success: true,
                 })
 
-                router.push("/")
+                router.replace("/")
+                router.refresh()
 
             } catch (err) {
                 console.error("Unexpected error:", err)
@@ -136,7 +137,6 @@ export function AuthForm(){
     // }
 
     React.useEffect(() => {
-        console.log("state", authForm.state)
         if (formState?.error) {
             toast.error(formState?.error)
         }

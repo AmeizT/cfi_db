@@ -2,61 +2,82 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { routing } from "./src/i18n/routing"
 import createMiddleware from "next-intl/middleware"
+import {
+    clearAuthCookies,
+    isJwtExpired,
+    refreshBackendSession,
+    setAuthCookies,
+} from "./src/features/auth/server/auth-session"
+import {
+    isAuthRoute,
+    shouldBypassProxy,
+} from "./src/features/auth/server/proxy-routing"
 
-function isTokenExpired(token: string) {
-    try {
-        const payload = JSON.parse(
-            Buffer.from(token.split(".")[1], "base64").toString()
-        )
+const intlMiddleware = createMiddleware(routing)
 
-        const exp = payload.exp * 1000
-        return Date.now() > exp
-    } catch {
-        return true
+export default async function proxy(request: NextRequest) {
+    if (shouldBypassProxy(request.nextUrl.pathname)) {
+        return NextResponse.next()
     }
-}
 
-export async function proxy(request: NextRequest) {
     const nextUrl = new URL("/app/dashboard", request.nextUrl)
     const authUrl = new URL("/en/auth/login", request.nextUrl)
     const expiredAuthUrl = new URL("/en/auth/login?expired=1", request.nextUrl)
+    const accessToken = request.cookies.get("accessToken")?.value
     const refreshToken = request.cookies.get("refreshToken")?.value
+    const authRoute = isAuthRoute(request.nextUrl.pathname)
 
-    let isAuthenticated = false
+    if (!refreshToken) {
+        if (!authRoute) return NextResponse.redirect(authUrl)
+        return intlMiddleware(request)
+    }
 
-    if (refreshToken) {
-        const expired = isTokenExpired(refreshToken)
-        
-        if (!expired) {
-            isAuthenticated = true
-        } else {
-            const response = NextResponse.redirect(expiredAuthUrl)
-            response.cookies.delete("accessToken")
-            response.cookies.delete("refreshToken")
-            return response
+    if (isJwtExpired(refreshToken)) {
+        const response = authRoute
+            ? intlMiddleware(request)
+            : NextResponse.redirect(expiredAuthUrl)
+        clearAuthCookies(response)
+        return response
+    }
+
+    if (!accessToken || isJwtExpired(accessToken, 30)) {
+        try {
+            const refreshedTokens = await refreshBackendSession(
+                refreshToken,
+                request.headers.get("cookie") || ""
+            )
+
+            if (refreshedTokens?.access) {
+                const destination = authRoute ? nextUrl : request.nextUrl
+                const response = NextResponse.redirect(destination)
+                setAuthCookies(response, {
+                    access: refreshedTokens.access,
+                    refresh: refreshedTokens.refresh || refreshToken,
+                })
+                return response
+            }
+        } catch (error) {
+            console.error("Session refresh failed in proxy:", error)
         }
+
+        const response = authRoute
+            ? intlMiddleware(request)
+            : NextResponse.redirect(expiredAuthUrl)
+        clearAuthCookies(response)
+        return response
     }
 
-    const isAuthRoute = request.nextUrl.pathname.includes("/auth")
-
-    if (!isAuthenticated && !isAuthRoute) {
-        return NextResponse.redirect(authUrl)
-    }
-
-    if (isAuthenticated && isAuthRoute) {
-        return NextResponse.redirect(nextUrl)
-    }
+    if (authRoute) return NextResponse.redirect(nextUrl)
 
     return NextResponse.next()
 }
-
-export default createMiddleware(routing)
 
 export const config = {
     matcher: [
         "/",
         "/app/:path*",
         "/auth/:path*",
+        "/:locale/auth/:path*",
         "/admin/:path*",
         "/analytics/:path*",
         "/attendance/:path*",
@@ -77,7 +98,7 @@ export const config = {
         "/groups/:path*",
         "/homecell/:path*",
         "/inbox/:path*",
-        "/insights:path*",
+        "/insights/:path*",
         "/lab/:path*",
         "/manage/:path*",
         "/messages/:path*",
@@ -85,12 +106,13 @@ export const config = {
         "/people/:path*",
         "/projects/:path*",
         "/onboarding/:path*",
-        "/observability:path*",
+        "/observability/:path*",
         "/resources/:path*",
         "/reports/:path*",
         "/settings/:path*",
         "/strategy/:path*",
         "/tracker/:path*",
         "/trash/:path*",
+        "/workspace/:path*",
     ]
 }

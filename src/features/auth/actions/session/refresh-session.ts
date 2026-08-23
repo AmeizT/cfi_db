@@ -1,9 +1,7 @@
 "use server"
 
 import { cookies } from "next/headers"
-import axios, { AxiosError } from "axios"
-import { url } from "@/config/urls"
-import { jsonHeaders } from "@/config/headers"
+import { refreshBackendSession } from "../../server/auth-session"
 
 export async function refreshSession() {
     const cookieStore = await cookies()
@@ -14,40 +12,29 @@ export async function refreshSession() {
     }
 
     try {
-        const response = await axios.post(
-            url.refreshSession,
-            { refresh: refreshToken },
-            jsonHeaders
+        const tokens = await refreshBackendSession(
+            refreshToken,
+            cookieStore.toString()
         )
 
-        if (response.status === 200 && response.data?.access) {
-            const newAccessToken = response.data.access
-
-            cookieStore.set({
-                name: "accessToken",
-                value: newAccessToken,
-                httpOnly: true,
-                path: "/",
-                secure: process.env.NODE_ENV === "production",
-                maxAge: 60 * 60, // 1 hour
-                sameSite: "strict",
-            })
-
-            return newAccessToken
-        } else {
+        if (!tokens?.access) {
             throw new Error("Invalid server response while refreshing session.")
         }
-    } catch (error) {
-        const axiosError = error as AxiosError
 
-        if (axiosError.response) {
-            console.error("Session refresh failed:", axiosError.response.data)
-        } else if (axiosError.request) {
-            console.error("No response from server during session refresh:", axiosError.message)
-        } else {
-            console.error("Unexpected error during session refresh:", axiosError.message)
+        const cookieOptions = {
+            httpOnly: true,
+            path: "/",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax" as const,
+        }
+        cookieStore.set("accessToken", tokens.access, cookieOptions)
+        if (tokens.refresh) {
+            cookieStore.set("refreshToken", tokens.refresh, cookieOptions)
         }
 
+        return true
+    } catch (error) {
+        console.error("Session refresh failed:", error)
         throw new Error("Session refresh failed. Please log in again.")
     }
 }

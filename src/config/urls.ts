@@ -2,19 +2,20 @@ type Environment = "development" | "production"
 const env = (process.env.NODE_ENV || "production") as Environment
 
 const SERVER_URLS: Record<Environment, string> = {
-    development: process.env.NEXT_PUBLIC_SERVER_DEV_URL!,
-    production: process.env.NEXT_PUBLIC_SERVER_PROD_URL!,
+    development: process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_SERVER_DEV_URL || "",
+    production: process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_SERVER_PROD_URL || "",
 }
 
 const CLIENT_URLS: Record<Environment, string> = {
-    development: process.env.NEXT_PUBLIC_CLIENT_DEV_URL!,
-    production: process.env.NEXT_PUBLIC_CLIENT_PROD_URL!,
+    development: process.env.NEXT_PUBLIC_CLIENT_DEV_URL || "",
+    production: process.env.NEXT_PUBLIC_CLIENT_PROD_URL || "",
 }
 
 function buildUrl(baseUrl: string, path = "", trailingSlash = true): string {
+    const cleanBaseUrl = baseUrl.replace(/\/+$/, "")
     const cleanPath = path.replace(/^\/|\/$/g, "")
     const slash = trailingSlash ? "/" : ""
-    return `${baseUrl}/${cleanPath}${slash}`
+    return `${cleanBaseUrl}/${cleanPath}${slash}`
 }
 
 export function getServerUrl(path?: string, options: { trailingSlash?: boolean } = {}) {
@@ -29,8 +30,45 @@ export function getClientUrl(path?: string, options: { trailingSlash?: boolean }
 
 const API_PREFIX = "api/v1"
 
+const API_PROXY_PATH = process.env.NEXT_PUBLIC_API_PROXY_PATH || "/api/backend"
+const API_PROXY_ENABLED = process.env.NEXT_PUBLIC_API_PROXY_ENABLED !== undefined
+    ? process.env.NEXT_PUBLIC_API_PROXY_ENABLED === "true"
+    : env === "production"
+
+function shouldUseBrowserApiProxy() {
+    return typeof window !== "undefined" && API_PROXY_ENABLED
+}
+
+interface ApiRequestUrlOptions {
+    backendUrl: string
+    path: string
+    proxyEnabled: boolean
+    proxyPath?: string
+    trailingSlash?: boolean
+}
+
+export function buildApiRequestUrl({
+    backendUrl,
+    path,
+    proxyEnabled,
+    proxyPath = "/api/backend",
+    trailingSlash = true,
+}: ApiRequestUrlOptions) {
+    return buildUrl(
+        proxyEnabled ? proxyPath : backendUrl,
+        path,
+        trailingSlash
+    )
+}
+
 const api = (path: string, options?: { trailingSlash?: boolean }) =>
-    getServerUrl(`${API_PREFIX}/${path}`, options)
+    buildApiRequestUrl({
+        backendUrl: SERVER_URLS[env],
+        proxyEnabled: shouldUseBrowserApiProxy(),
+        proxyPath: API_PROXY_PATH,
+        path: `${API_PREFIX}/${path}`,
+        trailingSlash: options?.trailingSlash,
+    })
 
 export const url = {
     analyzer: api("analyzer"),
@@ -335,6 +373,7 @@ export const apiRoutes = {
     },
 
     auth: {
+        csrf: () => api("auth/csrf/"),
         djoserLogin: () => api("auth/jwt/create"),
         djoserRefresh: () => api("auth/jwt/refresh"),
         djoserVerify: () => api("auth/jwt/verify"),

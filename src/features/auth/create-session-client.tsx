@@ -1,6 +1,7 @@
 import { apiRoutes } from "@/config/urls"
 import { formatISO } from "date-fns"
 import z from "zod"
+import { authenticatedFetch } from "./client/csrf"
 
 /**
  * Client-side login function (recommended for cookie-based auth)
@@ -27,13 +28,12 @@ export async function createSessionClient(formData: FormData) {
     }
 
     try {
-        const response = await fetch(apiRoutes.auth.login(), {
+        const response = await authenticatedFetch(apiRoutes.auth.login(), {
             method: "POST",
             body: JSON.stringify(validatedFields.data),
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include", // 🔥 REQUIRED for cookies
         })
 
         if (!response.ok) {
@@ -49,9 +49,18 @@ export async function createSessionClient(formData: FormData) {
             }
         }
 
-        // Optional UI-only cookies (NOT auth cookies)
-        document.cookie = `sessionCreatedAt=${formatISO(new Date())}; path=/`
-        document.cookie = `startupSoundPlayed=false; path=/`
+        const sessionIsValid = await verifySession()
+        if (!sessionIsValid) {
+            return {
+                error: "Your session could not be restored after login. Please try again.",
+                status: 401,
+                success: false,
+            }
+        }
+
+        const secure = window.location.protocol === "https:" ? "; Secure" : ""
+        document.cookie = `sessionCreatedAt=${formatISO(new Date())}; Path=/; SameSite=Lax${secure}`
+        document.cookie = `startupSoundPlayed=false; Path=/; SameSite=Lax${secure}`
 
         return {
             status: response.status,
@@ -70,7 +79,7 @@ export async function createSessionClient(formData: FormData) {
 export async function verifySession() {
     const res = await fetch(apiRoutes.auth.verify(), {
         method: "GET",
-        credentials: "include", // ✅ correct for fetch
+        credentials: "include",
         cache: "no-store",
     })
 
