@@ -32,7 +32,7 @@ export function AppShell({
         <div className="flex min-h-0 flex-1 overflow-hidden">
           <ContextSidebar />
 
-          <SidebarInset className="min-h-0 min-w-0 flex-col overflow-hidden bg-transparent md:my-0 md:mr-0 md:rounded-none md:border-0 md:border-border-subtle md:shadow-sm">
+          <SidebarInset className="min-h-0 min-w-0 flex-col overflow-hidden bg-transparent md:my-0 md:mr-0 md:rounded-none md:border-0 md:shadow-none">
             <Topbar />
 
             <div className="@container/main flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-300">

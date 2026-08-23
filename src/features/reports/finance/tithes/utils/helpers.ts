@@ -22,18 +22,49 @@ export const MONTHS = [
 
 const VALID_STATUS = new Set<TitheStatusFilter>(["active", "voided", "deleted"])
 
-type NormalizableListResponse<T, M extends { config?: TableSchema; table_schema?: TableSchema } = { config?: TableSchema; table_schema?: TableSchema }> =
-    | T[]
-    | {
-        count?: number
-        next?: string | null
-        previous?: string | null
-        results?: T[]
-        data?: T[]
+type ListResponseObject<T, M> = {
+    count?: number
+    next?: string | null
+    previous?: string | null
+    results?: T[]
+    items?: T[]
+    data?: T[] | ListResponseObject<T, M>
+    config?: TableSchema
+    table_schema?: TableSchema
+    meta?: M
+}
+
+type NormalizableListResponse<
+    T,
+    M extends { config?: TableSchema; table_schema?: TableSchema } = {
         config?: TableSchema
         table_schema?: TableSchema
-        meta?: M
+    },
+> = T[] | ListResponseObject<T, M>
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return Boolean(value) && typeof value === "object" && !Array.isArray(value)
+}
+
+/**
+ * Removes transport-level `data` wrappers while leaving domain arrays intact.
+ * This keeps direct Django responses and enveloped API responses on one
+ * frontend contract.
+ */
+export function unwrapDataEnvelope(response: unknown): unknown {
+    let payload = response
+    const seen = new Set<object>()
+
+    while (isRecord(payload) && isRecord(payload.data)) {
+        if (seen.has(payload)) break
+        seen.add(payload)
+
+        if (Array.isArray(payload.results) || Array.isArray(payload.items)) break
+        payload = payload.data
     }
+
+    return payload
+}
 
 export function getStatus(searchParams: URLSearchParams | ReadonlyURLSearchParams): TitheStatusFilter {
     const status = searchParams.get("status")
@@ -111,16 +142,27 @@ export function normalizeListResponse<T, M extends { config?: TableSchema; table
         }
     }
 
-    const rows = response.results ?? response.data ?? []
-    const config = getResponseConfig(response)
+    const payload = unwrapDataEnvelope(response)
+    const payloadObject = isRecord(payload)
+        ? payload as ListResponseObject<T, M>
+        : undefined
+    const responseObject = response as ListResponseObject<T, M>
+    const directData = payloadObject?.data
+    const rows = payloadObject?.results
+        ?? payloadObject?.items
+        ?? (Array.isArray(directData) ? directData : [])
+    const config = payloadObject
+        ? getResponseConfig(payloadObject) ?? getResponseConfig(responseObject)
+        : getResponseConfig(responseObject)
+    const meta = payloadObject?.meta ?? responseObject.meta
 
     return {
         rows,
         results: rows,
         data: rows,
-        count: response.count ?? rows.length,
+        count: payloadObject?.count ?? responseObject.count ?? rows.length,
         config,
-        table_schema: response.table_schema ?? config,
-        meta: response.meta,
+        table_schema: payloadObject?.table_schema ?? responseObject.table_schema ?? config,
+        meta,
     }
 }

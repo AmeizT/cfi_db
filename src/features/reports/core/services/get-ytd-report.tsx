@@ -1,6 +1,7 @@
 "use server"
 
 import { cookies } from "next/headers"
+import { getServerUrl } from "@/config/urls"
 import { 
     AttendanceStatement,
     AttendanceKpis, 
@@ -50,7 +51,8 @@ export async function getAnalytics<T extends ReportTab>(
         if (value) params.set(key, value)
     }
 
-    const url = `http://localhost:8000/api/v1/reports/summary/${tab}/?${params.toString()}`
+    const endpoint = getServerUrl(`api/v1/reports/summary/${tab}`)
+    const url = `${endpoint}?${params.toString()}`
 
     const response = await fetch(url, {
         headers: { Cookie: cookieStore.toString() },

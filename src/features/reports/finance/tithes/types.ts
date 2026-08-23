@@ -20,7 +20,6 @@ export type TitheRecord = Tithe & {
     member_name?: string | null
     member_avatar?: string | null
     member_avatar_fallback?: string | null
-    status?: string
     deleted_at?: string | null
     void_reason?: string
     voided_by?: string | number | null
@@ -34,18 +33,19 @@ export type TitheRecord = Tithe & {
     email_sent_at?: string | null
 }
 
-export type TitheListResponse =
-    | TitheRecord[]
-    | {
-        count?: number
-        next?: string | null
-        previous?: string | null
-        results?: TitheRecord[]
-        data?: TitheRecord[]
-        config?: TableSchema
-        table_schema?: TableSchema
-        meta?: TithesMeta
-    }
+type ListResponseEnvelope<T, M> = {
+    count?: number
+    next?: string | null
+    previous?: string | null
+    results?: T[]
+    items?: T[]
+    data?: T[] | ListResponseEnvelope<T, M>
+    config?: TableSchema
+    table_schema?: TableSchema
+    meta?: M
+}
+
+export type TitheListResponse = TitheRecord[] | ListResponseEnvelope<TitheRecord, TithesMeta>
 
 export type TithesMeta = {
     config?: TableSchema
@@ -121,17 +121,7 @@ export type ContributorMeta = {
     }
 }
 
-export type ContributorResponse =
-    | ContributorRecord[]
-    | {
-        count?: number
-        next?: string | null
-        previous?: string | null
-        results?: ContributorRecord[]
-        data?: ContributorRecord[]
-        table_schema?: TableSchema
-        meta?: ContributorMeta
-    }
+export type ContributorResponse = ContributorRecord[] | ListResponseEnvelope<ContributorRecord, ContributorMeta>
 
 export type ContributorRowsResult = {
     rows: ContributorRecord[]

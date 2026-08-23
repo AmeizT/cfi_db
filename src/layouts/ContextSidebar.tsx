@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { usePathname } from "next/navigation"
-import { ChevronDown, Plus } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 
 import {
     Sidebar,
@@ -66,7 +66,10 @@ export function ContextSidebar({
         <Sidebar
             {...props}
             variant={variant}
-            className={cn(className)}
+            className={cn(
+                "",
+                className
+            )}
         >
             <SidebarHeader className="shrink-0 gap-2.5 border-b-0 border-(--shell-sidebar-border) px-2 py-3">
                 <div className="flex min-w-0 items-center gap-2">

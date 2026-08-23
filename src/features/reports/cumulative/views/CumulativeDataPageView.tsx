@@ -16,6 +16,7 @@ import { useAttendanceConfig } from "@/features/reports/analytics/config/attenda
 import { useCashflowConfig } from "@/features/reports/analytics/config/cashflow"
 import type { ModulePageContext } from "@/features/reports/modules/types/report-modules"
 import { useTithesConfig } from "@/features/reports/analytics/config/tithes"
+import { unwrapDataEnvelope } from "@/features/reports/finance/tithes/utils/helpers"
 
 export type CumulativeModule = "attendance" | "tithes" | "income-expenditure"
 
@@ -97,6 +98,16 @@ function normalizeStatements(statements: unknown) {
     })
 }
 
+function getResponseStatements(response: unknown) {
+    const payload = unwrapDataEnvelope(response)
+
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+        return []
+    }
+
+    return normalizeStatements((payload as Record<string, unknown>).statements)
+}
+
 function CumulativeState({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex min-h-72 items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-8 text-center text-sm text-muted-foreground">
@@ -127,7 +138,7 @@ function AttendanceCumulative({ config }: { config: CumulativePageConfig }) {
     const year = getYear(searchParams.get("period"))
     const query = useAttendanceAnalytics(year, selectedDataset?.filters)
     const dashboardConfig = useAttendanceConfig(selectedDataset?.filters, config.pathname)
-    const rows = normalizeStatements(query.data?.data?.statements)
+    const rows = getResponseStatements(query.data)
 
     function changeDataset(value: string) {
         const queryString = createQueryString(searchParams, { [parameter]: value })
@@ -169,7 +180,7 @@ function TithesCumulative({ config }: { config: CumulativePageConfig }) {
     const searchParams = useSearchParams()
     const year = getYear(searchParams.get("period"))
     const query = useTithesAnalytics(year)
-    const rows = normalizeStatements(query.data?.data?.statements)
+    const rows = getResponseStatements(query.data)
     const dashboardConfig = useTithesConfig(config.pathname)
 
     if (query.isLoading) return <CumulativeState>Loading cumulative tithes…</CumulativeState>
@@ -182,7 +193,7 @@ function CashflowCumulative({ config }: { config: CumulativePageConfig }) {
     const searchParams = useSearchParams()
     const year = getYear(searchParams.get("period"))
     const query = useCashflowAnalytics(year)
-    const rows = normalizeStatements(query.data?.data?.statements)
+    const rows = getResponseStatements(query.data)
     const dashboardConfig = useCashflowConfig(config.pathname)
 
     if (query.isLoading) return <CumulativeState>Loading cumulative financial activity…</CumulativeState>

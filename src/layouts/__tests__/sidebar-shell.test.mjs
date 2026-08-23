@@ -38,3 +38,14 @@ test("desktop shell is neutral and the themed sidebar uses the floating primitiv
     assert.match(primitive, /bg-sidebar flex h-full/)
     assert.match(primitive, /group-data-\[variant=floating\]:rounded-2xl/)
 })
+
+test("application sidebar and inset do not draw a shared-edge border or shadow", async () => {
+    const [shell, sidebar] = await Promise.all([
+        readFile("src/layouts/app-shell.tsx", "utf8"),
+        readFile("src/layouts/ContextSidebar.tsx", "utf8"),
+    ])
+
+    assert.match(shell, /md:border-0 md:shadow-none/)
+    assert.match(sidebar, /\[&>\[data-slot=sidebar-inner\]\]:border-0/)
+    assert.match(sidebar, /\[&>\[data-slot=sidebar-inner\]\]:shadow-none/)
+})
