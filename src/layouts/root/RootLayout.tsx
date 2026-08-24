@@ -27,8 +27,8 @@ interface LayoutProps {
 export default function RootLayout(props: LayoutProps) {
     return (
         <html lang={props.locale || "en"} dir="ltr" suppressHydrationWarning={true}>
-            <body className={`font-sans ${inter.variable} ${GeistSans.variable} ${GeistMono.variable} dark:bg-neutral-900 ${props.overflowY ? "overflow-y-auto" : "overflow-y-hidden"}`}>
-                <div className="w-full h-dvh">
+            <body className={`font-sans ${inter.variable} ${GeistSans.variable} ${GeistMono.variable} dark:bg-neutral-950 ${props.overflowY ? "overflow-y-auto" : "overflow-y-auto md:overflow-y-hidden"}`}>
+                <div className="min-h-dvh w-full md:h-dvh">
                     <ThemeProvider
                         attribute="class"
                         defaultTheme="system"

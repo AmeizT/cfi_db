@@ -42,11 +42,11 @@ export function ProfileDropdown({
                     className={cn(
                         "shadow-none",
                         isSidebar
-                            ? "h-auto w-full justify-start gap-3 rounded-xl bg-transparent p-2 text-(--shell-sidebar-foreground) hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                            : "size-10 rounded-full bg-(--shell-chrome-hover) text-(--shell-chrome-foreground) hover:bg-(--shell-chrome-hover) hover:text-(--shell-chrome-foreground)"
+                            ? "h-auto w-full justify-start gap-3 rounded-xl bg-transparent text-(--shell-sidebar-foreground) hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            : "rounded-full text-(--shell-chrome-foreground) hover:text-(--shell-chrome-foreground)"
                     )}
                 >
-                    <Avatar className={cn("size-7", isSidebar && "size-9")}>
+                    <Avatar className={cn("size-9", isSidebar && "size-9")}>
                         <AvatarImage src={user?.avatar || undefined} />
                         <AvatarFallback 
                             className="font-semibold"
@@ -77,10 +77,10 @@ export function ProfileDropdown({
             <DropdownMenuContent
                 align={isSidebar ? "start" : "end"}
                 side={isSidebar ? "top" : "bottom"}
-                className="w-64 p-1.5 border-border rounded-2xl bg-popover/95 shadow-card backdrop-blur-xl"
+                className="w-[calc(100dvw-1rem)] lg:w-64 p-1.5 border border-border rounded-2xl bg-popover/80 shadow-card backdrop-blur-xl dark:border-neutral-900"
             >
                 {/* User header */}
-                <DropdownMenuLabel className="flex items-center gap-3 py-2 rounded-[10px] shadow-elevation-sm">
+                <DropdownMenuLabel className="flex items-center gap-3 py-2 rounded-[10px] shadow-elevation-sm dark:bg-linear-to-l dark:from-neutral-900 dark:to-neutral-950 dark:border dark:border-neutral-800/80">
                     <Avatar className="">
                         <AvatarImage src={user?.avatar || undefined} />
                         <AvatarFallback

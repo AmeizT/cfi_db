@@ -97,59 +97,85 @@ const remainingAssemblies = Math.max(
 const triggerContent = isLoading ? (
     <>
         <Skeleton className="size-7 shrink-0 rounded-full" />
-        <Skeleton className="h-4 w-20 min-w-0 sm:w-24" />
+
+        <Skeleton className="hidden h-4 w-20 min-w-0 sm:block sm:w-24" />
 
         {hasMultipleAssemblies && (
-            <Skeleton className="ml-auto size-4 shrink-0 rounded-full" />
+            <Skeleton className="ml-auto hidden size-4 shrink-0 rounded-full sm:block" />
         )}
     </>
 ) : (
     <>
-        <div className="p-1.5 flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+        {/* Mobile: active assembly avatar only */}
+        <div className="flex items-center sm:hidden">
+            <Avatar className="size-7 shrink-0 rounded-full">
+                <AvatarImage
+                    src={activeAssembly?.avatar || undefined}
+                />
+
+                <AvatarFallback
+                    className="font-semibold"
+                    style={{
+                        background: oklchLinearGradient(
+                            activeAssembly?.avatar_fallback ||
+                                "oklch(87.2% 0.007 219.6)"
+                        ),
+                        color: getTextColor(
+                            activeAssembly?.avatar_fallback ||
+                                "oklch(45% 0.017 213.2)"
+                        ),
+                    }}
+                >
+                    {activeAssembly?.name?.charAt(0) || "A"}
+                </AvatarFallback>
+            </Avatar>
+        </div>
+
+        {/* Tablet/Desktop: current full switcher */}
+        <div className="hidden min-w-0 flex-1 items-center gap-2 overflow-hidden p-1.5 sm:flex">
             {hasMultipleAssemblies ? (
                 <div className="flex gap-1.5">
                     <AvatarGroup className="h-fit shrink-0">
-                    {visibleAssemblies.map((assembly) => {
-                        const isActive =
-                            assembly.id === activeAssembly?.id
+                        {visibleAssemblies.map((assembly) => {
+                            const isActive =
+                                assembly.id === activeAssembly?.id
 
-                        return (
-                            <Avatar
-                                key={assembly.id}
-                                className={cn(
-                                    "size-7 rounded-full",
-                                    isActive &&
-                                        "z-20 ring-2 ring-primary ring-offset-[2px] ring-offset-(--shell-chrome-hover) group-hover/switcher:ring-offset-(--shell-chrome-active)"
-                                )}
-                            >
-                                <AvatarImage
-                                    src={assembly.avatar || undefined}
-                                />
-
-                                <AvatarFallback
-                                    className="font-semibold"
-                                    style={{
-                                        background: oklchLinearGradient(
-                                            assembly.avatar_fallback ||
-                                                "oklch(87.2% 0.007 219.6)"
-                                        ),
-                                        color: getTextColor(
-                                            assembly.avatar_fallback ||
-                                                "oklch(45% 0.017 213.2)"
-                                        ),
-                                    }}
+                            return (
+                                <Avatar
+                                    key={assembly.id}
+                                    className={cn(
+                                        "size-7 rounded-full",
+                                        isActive &&
+                                            "z-20 ring-2 ring-primary ring-offset-[2px] ring-offset-(--shell-chrome-hover) group-hover/switcher:ring-offset-(--shell-chrome-active)"
+                                    )}
                                 >
-                                    {assembly.name?.charAt(0) || "A"}
-                                </AvatarFallback>
-                            </Avatar>
-                        )
-                    })}
+                                    <AvatarImage
+                                        src={assembly.avatar || undefined}
+                                    />
 
-                    
-                </AvatarGroup>
-                {remainingAssemblies > 0 && (
-                        <Avatar className="w-fit h-7 rounded-full">
-                            <AvatarFallback className="text-right! font-semibold bg-transparent">
+                                    <AvatarFallback
+                                        className="font-semibold"
+                                        style={{
+                                            background: oklchLinearGradient(
+                                                assembly.avatar_fallback ||
+                                                    "oklch(87.2% 0.007 219.6)"
+                                            ),
+                                            color: getTextColor(
+                                                assembly.avatar_fallback ||
+                                                    "oklch(45% 0.017 213.2)"
+                                            ),
+                                        }}
+                                    >
+                                        {assembly.name?.charAt(0) || "A"}
+                                    </AvatarFallback>
+                                </Avatar>
+                            )
+                        })}
+                    </AvatarGroup>
+
+                    {remainingAssemblies > 0 && (
+                        <Avatar className="h-7 w-fit rounded-full">
+                            <AvatarFallback className="bg-transparent text-right! font-semibold">
                                 +{remainingAssemblies}
                             </AvatarFallback>
                         </Avatar>
@@ -187,14 +213,15 @@ const triggerContent = isLoading ? (
         {hasMultipleAssemblies && (
             <ChevronDown
                 strokeWidth={2.5}
-                className="size-4 shrink-0 text-(--shell-chrome-foreground)"
+                className="hidden size-4 shrink-0 text-(--shell-chrome-foreground) sm:block"
             />
         )}
     </>
 )
 
+
 const triggerClassName = cn(
-    "group/switcher flex h-fit min-w-0 w-full items-center justify-between gap-2 rounded-full has-[>svg]:px-0.5 has-[>svg]:pr-3 py-0.5",
+    "group/switcher flex h-fit min-w-0 w-fit lg:w-full items-center justify-between gap-2 rounded-full has-[>svg]:px-0.5 lg:has-[>svg]:pr-3 py-0.5",
     "border-0 border-(--shell-sidebar-border)",
     "bg-(--shell-chrome-hover)",
     "text-(--shell-chrome-foreground)",

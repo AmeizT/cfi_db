@@ -148,11 +148,11 @@ export function AuthForm(){
         <div className="py-16 w-full flex-col items-center justify-center flex">
             <motion.div className="px-6 lg:p-0 w-full lg:w-3/5 flex flex-col justify-center">
                 <div className="mb-6 flex flex-col gap-y-2">
-                    <h3 className="text-2xl text-center text-zinc-800 dark:text-body-muted font-semibold">
+                    <h3 className="text-2xl text-center font-semibold">
                         {t("heading")}
                     </h3>
 
-                    <p className="text-sm text-center text-zinc-500">
+                    <p className="text-sm text-center text-muted dark:text-neutral-500">
                         {t("tagline")}
                     </p>
                 </div>

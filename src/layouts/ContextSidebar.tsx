@@ -67,17 +67,19 @@ export function ContextSidebar({
             {...props}
             variant={variant}
             className={cn(
-                "",
+                "[&>[data-slot=sidebar-inner]]:border-0",
                 className
             )}
         >
             <SidebarHeader className="shrink-0 gap-2.5 border-b-0 border-(--shell-sidebar-border) px-2 py-3">
-                <div className="flex min-w-0 items-center gap-2">
+                <div className="w-full flex justify-between min-w-0 items-center gap-3">
                     <SidebarTrigger
                         aria-label="Close workspace navigation"
                         className="size-8 shrink-0 md:hidden"
                     />
-                    <AssemblySwitcher />
+                    <div className="min-w-0 lg:flex-1">
+                        <AssemblySwitcher />
+                    </div>
                 </div>
 
                 <AppSearch variant="sidebar" />
@@ -104,10 +106,12 @@ export function ContextSidebar({
                 overflow-y-auto
                 px-2
                 py-2
+                pb-24
                 scrollbar-thin
                 scrollbar-track-transparent
                 scrollbar-thumb-transparent
                 hover:scrollbar-thumb-user-theme-500
+                md:pb-2
             ">
                 <UnifiedSidebarNavigation
                     sections={leadingSections}
@@ -142,7 +146,7 @@ export function ContextSidebar({
                 ) : null}
             </SidebarContent>
 
-            <SidebarFooter className="shrink-0 border-t border-(--shell-sidebar-border) p-2">
+            <SidebarFooter className="absolute inset-x-0 bottom-0 z-10 shrink-0 border-0 bg-gradient-to-t from-sidebar via-sidebar/90 to-transparent px-2 pt-6 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur-md md:static md:z-auto md:border-t md:border-(--shell-sidebar-border) md:bg-transparent md:bg-none md:p-2 md:backdrop-blur-none">
                 <ProfileDropdown variant="sidebar" />
             </SidebarFooter>
         </Sidebar>

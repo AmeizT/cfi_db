@@ -28,7 +28,7 @@ import {
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
+const SIDEBAR_WIDTH_MOBILE = "100dvw"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
@@ -186,7 +186,8 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+          className="bg-sidebar text-sidebar-foreground z-100 w-dvw max-w-none border-0 p-0 sm:max-w-none [&>button]:hidden"
+          overlayClassName="z-90"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -198,7 +199,7 @@ function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div className="relative flex h-full w-full flex-col">{children}</div>
         </SheetContent>
       </Sheet>
     )
@@ -242,7 +243,7 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="bg-sidebar flex h-full w-full flex-col group-data-[variant=floating]:rounded-2xl group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-card"
+          className="bg-sidebar dark:bg-neutral-900 flex h-full w-full flex-col group-data-[variant=floating]:rounded-2xl group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-card"
         >
           {children}
         </div>
@@ -271,7 +272,11 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <RoundDoubleAltArrowLeftIcon size={24} />
+      {/* <RoundDoubleAltArrowLeftIcon size={24} /> */}
+      <span className="w-6 flex flex-col gap-y-2.5">
+        <Separator className="bg-neutral-700 dark:bg-white" />
+        <Separator className="bg-neutral-700 dark:bg-white" />
+      </span>
 
       <span className="sr-only">Toggle Sidebar</span>
     </Button>

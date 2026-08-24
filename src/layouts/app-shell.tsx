@@ -25,17 +25,17 @@ export function AppShell({
   }, [user?.assembly?.avatar_fallback]);
 
   return (
-    <div className="flex min-h-dvh w-full flex-col overflow-hidden bg-zinc-50 text-foreground dark:bg-zinc-950 [--navbar-height:3.5rem] md:h-dvh md:[--navbar-height:3rem]">
-      <SidebarProvider className="min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="flex min-h-dvh w-full flex-col bg-zinc-50 text-foreground dark:bg-zinc-950 [--navbar-height:3.5rem] md:h-dvh md:overflow-hidden md:[--navbar-height:3rem]">
+      <SidebarProvider className="min-h-dvh flex-1 flex-col overflow-visible md:min-h-0 md:overflow-hidden">
         <RecentVisitsTracker />
 
-        <div className="flex min-h-0 flex-1 overflow-hidden">
+        <div className="flex min-h-0 flex-1 overflow-visible md:overflow-hidden">
           <ContextSidebar />
 
-          <SidebarInset className="min-h-0 min-w-0 flex-col overflow-hidden bg-transparent md:my-0 md:mr-0 md:rounded-none md:border-0 md:shadow-none">
+          <SidebarInset className="min-h-0 min-w-0 flex-col overflow-visible bg-transparent md:my-0 md:mr-0 md:overflow-hidden md:rounded-none md:border-0 md:shadow-none">
             <Topbar />
 
-            <div className="@container/main flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-300">
+            <div className="@container/main flex min-h-0 flex-1 flex-col overflow-visible overscroll-auto pb-[env(safe-area-inset-bottom)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-300 md:overflow-y-auto md:overscroll-contain">
               {children}
             </div>
           </SidebarInset>

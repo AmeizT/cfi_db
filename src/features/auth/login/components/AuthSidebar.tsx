@@ -146,9 +146,7 @@ const translations: TranslationItem[] = [
 
 export function AuthSidebar() {
     return (
-        <div className="relative w-full lg:w-1/2 h-dvh overflow-hidden flex items-center justify-center">
-            <CarouselOrientation />
-        </div>
+        <CarouselOrientation />
     )
 }
 
@@ -171,8 +169,8 @@ export function CarouselOrientation() {
 
     return (
         <div className="relative w-full max-w-md">
-            <div className="absolute top-0 left-0 w-full h-16 bg-linear-to-b from-white/90 to-transparent z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-full h-16 bg-linear-to-t from-white/90 to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-16 bg-linear-to-b from-white/90 to-transparent dark:from-neutral-950 z-10 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-full h-16 bg-linear-to-t from-white/90 to-transparent dark:from-neutral-950 z-10 pointer-events-none" />
 
             <Carousel
                 orientation="vertical"
@@ -194,7 +192,10 @@ export function CarouselOrientation() {
                         const isActive = i === activeIndex
 
                         return (
-                            <CarouselItem key={i} className="min-h-12 flex items-center justify-center basis-auto">
+                            <CarouselItem
+                                key={i}
+                                className="min-h-12 flex items-center justify-center basis-auto"
+                            >
                                 <motion.div
                                     className="flex flex-col items-center justify-center select-none"
                                     animate={{
@@ -208,18 +209,14 @@ export function CarouselOrientation() {
                                             text={item.message}
                                             className={cn(
                                                 "font-semibold text-zinc-800 dark:text-white text-center",
-                                                item.language.toLowerCase().includes("amharic")
-                                                    ? "text-3xl"
-                                                    : "text-3xl"
+                                                "text-[clamp(1.5rem,4vw,1.875rem)]"
                                             )}
                                         />
                                     ) : (
                                         <h1
                                             className={cn(
                                                 "font-semibold text-zinc-400 text-center",
-                                                item.language.toLowerCase().includes("amharic")
-                                                    ? "text-3xl"
-                                                    : "text-3xl"
+                                                "text-[clamp(1.5rem,4vw,1.875rem)]"
                                             )}
                                         >
                                             {item.message}

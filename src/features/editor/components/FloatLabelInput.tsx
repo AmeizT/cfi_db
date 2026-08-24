@@ -68,13 +68,42 @@ export const FloatLabelInput = React.forwardRef<
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    {...rest} 
+                    {...rest}
                     aria-invalid={isInvalid}
                     aria-describedby={describedBy}
                     className={cn(
-                        "peer block h-14 w-full rounded-[14px] border-[1.25px] border-border-subtle bg-white px-4 pb-2 pt-6 text-zinc-800 placeholder:text-zinc-500 transition-all duration-250 focus:border-[1.5px] focus:border-primary focus:outline-hidden focus:ring-3 focus:ring-zinc-800/10 dark:bg-neutral-800 dark:text-white dark:border-neutral-600 dark:focus:border-zinc-800 dark:focus:ring-primary/20",
+                        `
+                            peer block h-14 w-full rounded-[14px]
+                            border-[1.25px] border-border-subtle
+                            bg-white px-4 pb-2 pt-6
+                            text-zinc-800
+                            placeholder:text-muted
+                            transition-all duration-250
+
+                            focus:border-[1.5px]
+                            focus:border-primary
+                            focus:outline-hidden
+                            focus:ring-3
+                            focus:ring-zinc-800/10
+
+                            dark:border-neutral-800
+                            dark:bg-neutral-800
+                            dark:text-white
+                            dark:placeholder:text-neutral-500
+                            dark:focus:border-primary
+                            dark:focus:ring-primary/20
+                        `,
                         error &&
-                        "border-red-500 ring-3 ring-red-500/10 focus:border-red-500 focus:ring-red-500/20",
+                            `
+                                border-red-500
+                                ring-3 ring-red-500/10
+                                focus:border-red-500
+                                focus:ring-red-500/20
+
+                                dark:border-red-500
+                                dark:focus:border-red-500
+                                dark:focus:ring-red-500/20
+                            `,
                         className
                     )}
                     {...props}
