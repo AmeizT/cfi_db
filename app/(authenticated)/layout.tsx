@@ -1,11 +1,7 @@
-import React from "react"
+import type { ReactNode } from "react"
 
 import { AuthenticatedAppLayout } from "@/layouts/AuthenticatedAppLayout"
 
-export default function WorkspaceRootLayout({
-    children,
-}: {
-    children: Readonly<React.ReactNode>
-}) {
+export default function AuthenticatedRootLayout({ children }: { children: ReactNode }) {
     return <AuthenticatedAppLayout>{children}</AuthenticatedAppLayout>
 }

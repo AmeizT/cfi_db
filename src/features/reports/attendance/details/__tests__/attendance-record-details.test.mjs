@@ -46,14 +46,14 @@ test("detail loading and navigation are ID-backed", async () => {
         ),
         readFile(
             new URL(
-                "app/(workspace)/engagement/attendance/records/[recordId]/page.tsx",
+                "app/(authenticated)/(shell)/(workspace)/engagement/attendance/records/[recordId]/page.tsx",
                 projectRoot
             ),
             "utf8"
         ),
         readFile(
             new URL(
-                "app/(dashboard)/reports/ministry/attendance/records/[recordId]/page.tsx",
+                "app/(authenticated)/(shell)/(dashboard)/reports/ministry/attendance/records/[recordId]/page.tsx",
                 projectRoot
             ),
             "utf8"

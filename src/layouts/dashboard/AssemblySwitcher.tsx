@@ -399,6 +399,8 @@ export function AssemblySwitcherItem({
                 // Dashboard routes can contain Server Components that read the
                 // active assembly from the session/cookie.
                 router.refresh()
+            }).catch(() => {
+                toast("The assembly changed, but some workspace data could not be refreshed.")
             })
         }
     }, [assembly.id, formState, queryClient, router])

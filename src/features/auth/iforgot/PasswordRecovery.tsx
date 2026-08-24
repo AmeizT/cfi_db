@@ -3,8 +3,8 @@
 import React from "react"
 import Link from "next/link"
 import { toast } from "sonner"
-import { useTranslations } from "next-intl"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useLocale, useTranslations } from "next-intl"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { resetPassword } from "../actions/reset-password"
 import { AnimatePresence, motion } from "motion/react"
 import { FormInput } from "@/components/ui/form-input"
@@ -23,6 +23,7 @@ const initialState = {
 
 export default function PasswordRecovery() {
     const router = useRouter()
+    const pathname = usePathname()
     const t = useTranslations("Recover")
     const searchParams = useSearchParams()
     const [email, setEmail] = React.useState<string>("")
@@ -65,12 +66,12 @@ export default function PasswordRecovery() {
     }
 
     React.useEffect(() => {
-        if (formState.success) {
-            const params = new URLSearchParams(searchParams.toString())
-            params.set("initialize_recovery", "true")
-            router.push(`/en/auth/password/recover?${params.toString()}`)
-        }
-    }, [formState, router, searchParams])
+        if (!formState.success || isRecoveryInitialized) return
+
+        const params = new URLSearchParams(searchParams.toString())
+        params.set("initialize_recovery", "true")
+        router.replace(`${pathname}?${params.toString()}`)
+    }, [formState.success, isRecoveryInitialized, pathname, router, searchParams])
 
     return (
         <React.Fragment>
@@ -150,12 +151,13 @@ export default function PasswordRecovery() {
 
 function RecoveryInitializedMessage() {
     const t = useTranslations("Initialize")
+    const locale = useLocale()
 
     return (
         <Container>
             <Container.Auth type="initialize-recovery">
                 <div className="block content-center">
-                    <Link href="/en/auth/login?stage=verification" className="py-2 px-4 text-sm dark:text-white font-semibold rounded-lg border dark:border-neutral-700 dark:bg-linear-to-b dark:from-neutral-800 dark:to-neutral-900 hover:bg-zinc-50 transition-colors duration-200">
+                    <Link href={`/${locale}/auth/login?stage=verification`} className="py-2 px-4 text-sm dark:text-white font-semibold rounded-lg border dark:border-neutral-700 dark:bg-linear-to-b dark:from-neutral-800 dark:to-neutral-900 hover:bg-zinc-50 transition-colors duration-200">
                         {t("action")}
                     </Link>
                 </div>
@@ -163,6 +165,4 @@ function RecoveryInitializedMessage() {
         </Container>
     )
 }
-
-
 

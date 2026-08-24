@@ -24,6 +24,14 @@
             "notice": "By continuing to use CFI Workspace, you agree to our <Link>Terms of Service</Link> and Privacy Policy."
         }
     },
+    "Password": {
+        "warningText": "For your security, we recommend using private browsing if you are on a shared or public device.",
+        "reset-password": "Forgot your password?",
+        "title": "Please enter your password to sign in",
+        "pending": "Signing in...",
+        "action": "Continue",
+        "input": "Password"
+    },
     "Recover": {
         "action": "Send login link",
         "actionLabel": "Login",
@@ -58,7 +66,6 @@
         "action": "Sign in"
     }
 }
-
 
 
 

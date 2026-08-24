@@ -16,24 +16,26 @@ import {
 } from "../config/workspace-module-routing.ts"
 
 const sharedModulePages = [
-    "app/(workspace)/finance/tithes/page.tsx",
-    "app/(workspace)/finance/revenue/page.tsx",
-    "app/(workspace)/finance/expenses/page.tsx",
-    "app/(workspace)/finance/statements/page.tsx",
-    "app/(workspace)/finance/remittance/page.tsx",
-    "app/(workspace)/engagement/attendance/page.tsx",
-    "app/(workspace)/engagement/outreach/page.tsx",
-    "app/(workspace)/engagement/check-ins/page.tsx",
+    "app/(authenticated)/(shell)/(workspace)/finance/tithes/page.tsx",
+    "app/(authenticated)/(shell)/(workspace)/finance/revenue/page.tsx",
+    "app/(authenticated)/(shell)/(workspace)/finance/expenses/page.tsx",
+    "app/(authenticated)/(shell)/(workspace)/finance/statements/page.tsx",
+    "app/(authenticated)/(shell)/(workspace)/finance/remittance/page.tsx",
+    "app/(authenticated)/(shell)/(workspace)/engagement/attendance/page.tsx",
+    "app/(authenticated)/(shell)/(workspace)/engagement/outreach/page.tsx",
+    "app/(authenticated)/(shell)/(workspace)/engagement/check-ins/page.tsx",
 ]
 
 test("Workspace module and submodule routes reuse ReportModulePageView on the shared shell", async () => {
-    const [moduleRoute, submoduleRoute, layout, ...explicitRoutes] = await Promise.all([
-        readFile("app/(workspace)/finance/[module]/page.tsx", "utf8"),
-        readFile("app/(workspace)/finance/[module]/[submodule]/page.tsx", "utf8"),
-        readFile("app/(workspace)/layout.tsx", "utf8"),
+    const [moduleRoute, submoduleRoute, shellLayout, authenticatedLayout, ...explicitRoutes] = await Promise.all([
+        readFile("app/(authenticated)/(shell)/(workspace)/finance/[module]/page.tsx", "utf8"),
+        readFile("app/(authenticated)/(shell)/(workspace)/finance/[module]/[submodule]/page.tsx", "utf8"),
+        readFile("app/(authenticated)/(shell)/layout.tsx", "utf8"),
+        readFile("app/(authenticated)/layout.tsx", "utf8"),
         ...sharedModulePages.map((path) => readFile(path, "utf8")),
     ])
-    assert.match(layout, /AuthenticatedAppLayout/)
+    assert.match(shellLayout, /AppShell/)
+    assert.match(authenticatedLayout, /AuthenticatedAppLayout/)
     assert.match(moduleRoute, /workspaceModuleRedirect/)
     assert.match(moduleRoute, /pageContext="workspace"/)
     assert.match(submoduleRoute, /isReportSubmoduleRoute/)
@@ -61,10 +63,10 @@ test("Workspace route redirects resolve to simplified canonical destinations", (
 
 test("removed overview URLs redirect to useful destinations and preserve query state", async () => {
     const [workspaceOverview, financeOverview, engagementOverview, legacyFinance] = await Promise.all([
-        readFile("app/(workspace)/workspace/page.tsx", "utf8"),
-        readFile("app/(workspace)/workspace/finance/page.tsx", "utf8"),
-        readFile("app/(workspace)/workspace/engagement/page.tsx", "utf8"),
-        readFile("app/(dashboard)/app/finance/overview/page.tsx", "utf8"),
+        readFile("app/(authenticated)/(shell)/(workspace)/workspace/page.tsx", "utf8"),
+        readFile("app/(authenticated)/(shell)/(workspace)/workspace/finance/page.tsx", "utf8"),
+        readFile("app/(authenticated)/(shell)/(workspace)/workspace/engagement/page.tsx", "utf8"),
+        readFile("app/(authenticated)/(shell)/(dashboard)/app/finance/overview/page.tsx", "utf8"),
     ])
     assert.match(workspaceOverview, /reportHref\("\/", await searchParams\)/)
     assert.match(financeOverview, /reportHref\("\/finance\/tithes", await searchParams\)/)
@@ -180,7 +182,7 @@ test("the app shell renders one global sidebar with the recovered shortcut integ
 
 test("Members workflows live in shared page navigation", async () => {
     const [layout, navigation] = await Promise.all([
-        readFile("app/(dashboard)/members/layout.tsx", "utf8"),
+        readFile("app/(authenticated)/(shell)/(dashboard)/members/layout.tsx", "utf8"),
         readFile("src/features/people/members/config/members-section-navigation.ts", "utf8"),
     ])
     assert.match(layout, /MembersSectionNavigation/)

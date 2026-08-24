@@ -3,11 +3,11 @@
 import { z } from "zod"
 import React from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { URLParamsProps } from "@/types/api"
 import { useForm } from "react-hook-form"
 import { Text } from "@/components/ui/text"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { Spinner } from "@/components/ui/spinner"
 import { FormInput } from "@/components/ui/form-input"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -33,6 +33,7 @@ const resetPasswordSchema = z.object({
 
 export function PasswordReset({ params: { uid, token } }: URLParamsProps) {
     const router = useRouter()
+    const pathname = usePathname()
     const searchParams = useSearchParams()
     const formRef = React.useRef<HTMLFormElement>(null)
     const reset = useTranslations("Reset")
@@ -56,15 +57,17 @@ export function PasswordReset({ params: { uid, token } }: URLParamsProps) {
     }
 
     React.useEffect(() => {
-        if (formState.success) {
-            const params = new URLSearchParams(searchParams.toString())
-            params.set("password_updated", "true")
-            router.push(`/en/auth/password/reset/${uid}/${token}?${params.toString()}`)
-        }
+        if (!formState.success || isPasswordUpdated) return
 
-        router.prefetch("/en/auth/login/")
+        const params = new URLSearchParams(searchParams.toString())
+        params.set("password_updated", "true")
+        router.replace(`${pathname}?${params.toString()}`)
+    }, [formState.success, isPasswordUpdated, pathname, router, searchParams])
 
-    }, [router, formState, searchParams, uid, token])
+    React.useEffect(() => {
+        const localeRoot = pathname.split("/").filter(Boolean)[0] ?? "en"
+        router.prefetch(`/${localeRoot}/auth/login`)
+    }, [pathname, router])
 
     return (
         <React.Fragment>
@@ -149,12 +152,13 @@ export function PasswordReset({ params: { uid, token } }: URLParamsProps) {
 
 function PasswordUpdatedMessage() {
     const t = useTranslations("PasswordUpdated")
+    const locale = useLocale()
 
     return (
         <Container>
             <Container.Auth type="password-updated">
                 <div className="block content-center">
-                    <Link href="/en/auth/login?stage=verification" className="py-2 px-4 text-sm dark:text-white font-semibold rounded-lg border dark:border-neutral-700 dark:bg-linear-to-b dark:from-neutral-800 dark:to-neutral-900 hover:bg-zinc-50 transition-colors duration-200">
+                    <Link href={`/${locale}/auth/login?stage=verification`} className="py-2 px-4 text-sm dark:text-white font-semibold rounded-lg border dark:border-neutral-700 dark:bg-linear-to-b dark:from-neutral-800 dark:to-neutral-900 hover:bg-zinc-50 transition-colors duration-200">
                         {t("action")}
                     </Link>
                 </div>

@@ -63,7 +63,7 @@ test("submitted sections open operational source records without reusing Wizard 
 
 test("Current Report remains a shortcut that redirects to the canonical current period", async () => {
   const navigation = await readFile("src/config/workspace-navigation.ts", "utf8")
-  const currentPage = await readFile("app/(dashboard)/reports/current/page.tsx", "utf8")
+  const currentPage = await readFile("app/(authenticated)/(shell)/(dashboard)/reports/current/page.tsx", "utf8")
   assert.match(navigation, /label: "Current Report",\s+href: APP_ROUTES\.reports\.current/)
   assert.match(currentPage, /redirect\(reportPeriodHref\(new Date\(\)\)\)/)
 })
