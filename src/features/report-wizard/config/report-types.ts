@@ -2,6 +2,7 @@ import { apiRoutes } from "@/config/urls"
 
 export {
     REPORT_SECTION_WIZARD_ROUTES,
+    createCentralTemplatesHref,
     createReportSectionWizardHref,
     createReportWizardHref,
     type ReportWizardHrefOptions,
@@ -18,6 +19,7 @@ export type ReportWizardSectionStatus =
     | "completed"
     | "submitted"
     | "no_activity"
+    | "not_required"
     | "skipped"
     | "error"
 
@@ -25,6 +27,8 @@ export type ReportWizardSection = {
     id: string
     backendId: string
     label: string
+    navigationLabel?: string
+    canConfirmNoActivity?: boolean
     uploadType?: string
     uploadUrl?: string
     imageUploadUrl?: string
@@ -68,7 +72,13 @@ export const REPORT_WIZARD_SECTIONS: ReportWizardSection[] = [
         id: "sunday-school",
         backendId: "sunday_school_attendance",
         label: "Sunday School Attendance",
-        templateUrls: {},
+        navigationLabel: "Sunday School",
+        uploadType: "sunday-school",
+        uploadUrl: apiRoutes.uploadExcel.sundaySchool,
+        templateUrl: apiRoutes.downloadTemplate.sundaySchool,
+        templateUrls: {
+            excel: apiRoutes.downloadTemplate.sundaySchool,
+        },
     },
     {
         id: "tithes",
@@ -84,7 +94,7 @@ export const REPORT_WIZARD_SECTIONS: ReportWizardSection[] = [
     {
         id: "revenue",
         backendId: "revenue",
-        label: "Revenue",
+        label: "General Income",
         uploadType: "revenue",
         uploadUrl: apiRoutes.uploadExcel.revenue,
         templateUrl: apiRoutes.downloadTemplate.revenue,
@@ -95,7 +105,8 @@ export const REPORT_WIZARD_SECTIONS: ReportWizardSection[] = [
     {
         id: "expenses",
         backendId: "activity_other_expenses",
-        label: "Activity & Other Expenses",
+        label: "Other Expenses",
+        canConfirmNoActivity: true,
         uploadType: "expenditure",
         uploadUrl: apiRoutes.uploadExcel.expenses,
         imageUploadUrl: apiRoutes.uploadImage.expenses,
@@ -107,7 +118,7 @@ export const REPORT_WIZARD_SECTIONS: ReportWizardSection[] = [
     {
         id: "overhead",
         backendId: "operating_expenses",
-        label: "Operating Expenses",
+        label: "Operating Costs",
         uploadType: "overhead",
         uploadUrl: apiRoutes.uploadExcel.overhead,
         templateUrl: apiRoutes.downloadTemplate.overhead,
@@ -133,6 +144,17 @@ export function getReportWizardSectionByBackend(section: string | null | undefin
     return REPORT_WIZARD_SECTIONS.find((item) => item.backendId === section)
         ?? REPORT_WIZARD_SECTIONS.find((item) => item.id === section)
         ?? REPORT_WIZARD_SECTIONS[0]
+}
+
+export function getReportWizardSectionDisplayLabel(
+    section: string | null | undefined,
+    fallback = "Report section",
+) {
+    const configured = REPORT_WIZARD_SECTIONS.find(
+        (item) => item.backendId === section || item.id === section,
+    )
+
+    return configured?.navigationLabel ?? configured?.label ?? fallback
 }
 
 export function getReportWizardSectionByPathname(pathname: string) {
@@ -172,6 +194,18 @@ export function getReportWizardSections(report: ReportWizardReport): ReportWizar
         name: section.backendId,
         status: "pending",
     }))
+}
+
+export function getResolvedReportSectionCount(
+    sections: ReportWizardSectionSnapshot[],
+) {
+    return sections.filter((section) =>
+        section.status === "submitted" ||
+        section.status === "completed" ||
+        section.status === "no_activity" ||
+        section.status === "not_required" ||
+        section.status === "skipped"
+    ).length
 }
 
 export function getReportWizardResumeSection(report: ReportWizardReport) {

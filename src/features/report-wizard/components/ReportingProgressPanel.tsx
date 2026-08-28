@@ -27,12 +27,14 @@ type ReportingProgressPanelProps = {
 
 type ProgressState =
   | "completed"
+  | "not_required"
   | "in_progress"
   | "skipped"
   | "attention"
   | "pending";
 
 function normalizeStatus(status?: string, resolved?: boolean): ProgressState {
+  if (status === "not_required") return "not_required";
   if (status === "submitted" || status === "completed" || status === "no_activity") {
     return "completed";
   }
@@ -78,15 +80,13 @@ export function ReportingProgressPanel({
   });
 
   const completed = rows.filter((item) => item.state === "completed").length;
+  const notRequired = rows.filter((item) => item.state === "not_required").length;
   const skipped = rows.filter((item) => item.state === "skipped").length;
   const attentionRows = rows.filter((item) => item.state === "attention");
   const blockingFindings = report?.findings.filter((finding) => finding.blocking) ?? [];
   const attentionCount = Math.max(attentionRows.length, blockingFindings.length);
-  const calculatedProgress = Math.round(((completed + skipped) / rows.length) * 100);
-  const progress = Math.max(
-    0,
-    Math.min(100, report?.completion_percentage ?? calculatedProgress),
-  );
+  const resolved = completed + skipped + notRequired;
+  const progress = Math.round((resolved / rows.length) * 100);
   const assemblyName = report?.assembly.name ?? fallbackReport?.assembly?.name;
 
   return (
@@ -113,7 +113,7 @@ export function ReportingProgressPanel({
         </span>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-300">
         {loading ? (
           <div className="grid gap-3" aria-label="Loading report progress">
             <div className="h-5 w-2/3 animate-pulse rounded bg-muted" />
@@ -129,8 +129,9 @@ export function ReportingProgressPanel({
               </div>
               <Progress value={progress} className="mt-3 h-2" />
               <p className="mt-3 text-xs text-muted-foreground">
-                {completed} of {rows.length} steps completed
+                {resolved} of {rows.length} steps resolved
                 {skipped ? ` · ${skipped} skipped` : ""}
+                {notRequired ? ` · ${notRequired} not required` : ""}
               </p>
             </div>
 

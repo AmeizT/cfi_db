@@ -34,6 +34,10 @@ import { Widget6Icon } from '@solar-icons/react/line-duotone/widget-6'
 import { Widget6Icon as Widget6IconBold } from '@solar-icons/react/bold/widget-6'
 import type { ComponentType, SVGProps } from "react"
 import { APP_ROUTES } from "./app-routes.ts"
+import {
+    createReportSectionWizardHref,
+    type WorkflowReportSectionKey,
+} from "@/features/report-wizard/config/report-routing"
 import { CashOutIcon, DollarIcon, HomeAngle2Icon, Planet3Icon } from "@solar-icons/react/line-duotone";
 import { JethroIcon } from "@/assets/icons/brand/jethro.tsx";
 
@@ -70,6 +74,33 @@ export type QuickCreateAction = {
     icon: NavigationIcon
     permission?: WorkspacePermission
     disabled?: boolean
+    reportSection?: WorkflowReportSectionKey
+}
+
+export type QuickCreateReportContext = {
+    id: number | null
+    status: string
+    capabilities: { is_editable: boolean }
+}
+
+export function resolveQuickCreateHref(
+    action: QuickCreateAction,
+    report?: QuickCreateReportContext,
+) {
+    if (!action.reportSection) return action.href
+    if (
+        !report?.id
+        || !report.capabilities.is_editable
+        || report.status === "submitted"
+        || report.status === "locked"
+    ) {
+        return APP_ROUTES.reports.current
+    }
+    return createReportSectionWizardHref(action.reportSection, {
+        method: "manual-entry",
+        report_id: report.id,
+        amendment_context: report.status === "reopened" ? "reopened" : null,
+    })
 }
 
 const financeItems: NavigationItem[] = [
@@ -302,42 +333,47 @@ export const quickCreateActions: QuickCreateAction[] = [
         key: "continue-report",
         label: "Continue current report",
         description: "Open the report workspace",
-        href: "/reports/current",
+        href: APP_ROUTES.reports.current,
         icon: FilePenLine,
     },
     {
         key: "attendance",
         label: "Record attendance",
         description: "Add an attendance record",
-        href: "/forms/attendance",
+        href: createReportSectionWizardHref("general_attendance"),
+        reportSection: "general_attendance",
         icon: ClipboardCheck,
     },
     {
         key: "tithe",
         label: "Record tithe",
         description: "Add a tithe entry",
-        href: "/forms/tithes",
+        href: createReportSectionWizardHref("tithes"),
+        reportSection: "tithes",
         icon: HandCoins,
     },
     {
         key: "revenue",
         label: "Add revenue",
         description: "Record revenue received",
-        href: "/forms/income",
+        href: createReportSectionWizardHref("revenue"),
+        reportSection: "revenue",
         icon: CircleDollarSign,
     },
     {
         key: "operating-expense",
         label: "Add operating expense",
         description: "Record an operating expense",
-        href: "/forms/expenses",
+        href: createReportSectionWizardHref("operating_expenses"),
+        reportSection: "operating_expenses",
         icon: ReceiptText,
     },
     {
         key: "activity-expense",
         label: "Add activity or other expense",
         description: "Record another expense",
-        href: "/forms/expenses",
+        href: createReportSectionWizardHref("activity_other_expenses"),
+        reportSection: "activity_other_expenses",
         icon: PlusCircle,
     },
     {

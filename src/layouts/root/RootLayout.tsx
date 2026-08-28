@@ -39,7 +39,6 @@ export default function RootLayout(props: LayoutProps) {
 
                         <Toaster
                             position="top-right"
-                            richColors
                         />
                     </ThemeProvider>
                 </div>

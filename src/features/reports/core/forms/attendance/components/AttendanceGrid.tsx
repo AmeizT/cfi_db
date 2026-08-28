@@ -20,6 +20,19 @@ export const attendanceMetrics = [
     "altar_call_women", "online_viewers", "volunteers_on_duty", "total_leaders_present",
 ] as const
 
+export function hasAttendanceDetails(record?: AttendanceRecord) {
+    if (!record) return false
+    return Boolean(
+        record.is_special_event
+        || record.special_event_name?.trim()
+        || record.preacher?.trim()
+        || record.sermon?.trim()
+        || record.scriptures?.trim()
+        || record.weather
+        || record.notes?.trim()
+    )
+}
+
 type Props = {
     year: number
     month: number
@@ -55,11 +68,12 @@ export function AttendanceGrid({ year, month, records, dirtyDates, errors, disab
                             Metric
                         </th>
                         
-                        {sundays.map((day) => <th key={day} className="sticky top-0 z-20 min-w-28 border-b border-border-subtle p-2 text-center">
-                            <button 
-                                type="button" 
-                                className="font-semibold cursor-pointer hover:bg-surface transition-colors" 
+                        {sundays.map((day) => <th key={day} className="sticky top-0 z-20 min-w-32 border-b border-border-subtle p-2 text-center">
+                            <button
+                                type="button"
+                                className="cursor-pointer font-semibold transition-colors hover:text-primary"
                                 onClick={() => openDetails(recordMap[day] ?? { timestamp: day } as AttendanceRecord)}
+                                disabled={disabled}
                             >
                                 {new Date(`${day}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
                             </button>
@@ -67,6 +81,15 @@ export function AttendanceGrid({ year, month, records, dirtyDates, errors, disab
                             <span className="mt-0 block text-[11px] font-normal text-muted-foreground">
                                 {recordMap[day]?.id ? dirtyDates.has(day) ? "Unsaved changes" : "Saved" : "Not saved"}
                             </span>
+
+                            <button
+                                type="button"
+                                className="mt-1 rounded-md px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/10 disabled:pointer-events-none disabled:opacity-50"
+                                onClick={() => openDetails(recordMap[day] ?? { timestamp: day } as AttendanceRecord)}
+                                disabled={disabled}
+                            >
+                                {hasAttendanceDetails(recordMap[day]) ? "Edit details" : "Add details"}
+                            </button>
                             
                             {errors[day] ? <span className="mt-1 block text-xs font-normal text-destructive" role="alert">{errors[day]}</span> : null}
                         </th>)}

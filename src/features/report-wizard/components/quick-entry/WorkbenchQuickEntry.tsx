@@ -109,7 +109,7 @@ type AttendanceBulkCreateResponse = {
 const REPORT_ACTIONS = [
     { label: "Create attendance", type: "attendance", icon: CalendarAdd01Icon },
     { label: "Create tithes", type: "tithes", icon: WalletAdd02Icon },
-    { label: "Create revenue", type: "revenue", icon: WalletAdd02Icon },
+    { label: "Create General Income", type: "revenue", icon: WalletAdd02Icon },
     { label: "Create expenditure", type: "expenditure", icon: CreditCardAddIcon },
 ] as const
 

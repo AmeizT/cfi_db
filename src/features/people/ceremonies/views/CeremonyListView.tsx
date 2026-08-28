@@ -14,7 +14,6 @@ export function CeremonyListView({ title, emptyType }: CeremonyListViewProps) {
 
     return (
         <View className="gap-0">
-            <View.Header pagename={title} />
             <View.Body className="py-4">
                 {user.isLoading ? (
                     <p className="text-sm text-muted-foreground">Loading {title.toLowerCase()}…</p>

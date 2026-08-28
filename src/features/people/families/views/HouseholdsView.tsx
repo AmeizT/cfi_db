@@ -69,7 +69,6 @@ export function HouseholdsView() {
 
     return (
         <View className="min-h-0 gap-0 overflow-hidden">
-            <View.Header pagename="Households" />
             <View.Body className="min-h-0 p-0 pb-0 lg:px-6 lg:pb-4">
                 <EntityMasterDetailView
                     config={config}

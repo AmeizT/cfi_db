@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { UserPlusIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { APP_ROUTES } from "@/config/app-routes"
 import { EmptyState } from "@/components/ui/empty-state"
 import View from "@/components/ui/view"
 import { useChildrenDirectory } from "@/features/people/children/hooks"
@@ -36,7 +37,7 @@ function canManagePeople(user: ReturnType<typeof useUser>["data"]) {
 
 function AddMemberAction({ visible }: { visible: boolean }) {
     if (!visible) return null
-    return <Button asChild size="sm"><Link href="/members/onboarding"><UserPlusIcon aria-hidden="true" className="size-4" /> Add member</Link></Button>
+    return <Button asChild size="sm"><Link href={APP_ROUTES.members.onboarding}><UserPlusIcon aria-hidden="true" className="size-4" /> Add member</Link></Button>
 }
 
 function ActiveMembersDirectory({ state, group, canManage, canViewSensitive, assemblyName }: {
@@ -153,7 +154,6 @@ export function DirectoryView({ initialSegment = "all" }: { initialSegment?: str
 
     return (
         <View className="min-h-0 gap-0 overflow-hidden">
-            <View.Header pagename="Directory" />
             <View.Body className="min-h-0 p-0 pb-0 lg:px-6 lg:pb-4">
                 {state.activeSegment === "former" ? (
                     <FormerMembersDirectory state={state} canManage={canManage} assemblyName={assemblyName} />

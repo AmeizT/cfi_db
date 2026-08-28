@@ -13,6 +13,7 @@ import { DataTableBody } from "./DataTableBody"
 import { CHECKBOX_COLUMN_WIDTH, EXPAND_COLUMN_WIDTH } from "./DataTable.constants"
 import { DataTableHeader } from "./DataTableHeader"
 import { DataTableToolbar } from "./DataTableToolbar"
+import type { DataTableDensity } from "@/components/ui/data-table/DataTableToolbar"
 import { DataTablePagination } from "./DataTablePagination"
 import { useSmartPagination } from "./hooks/useSmartPagination"
 import {
@@ -32,6 +33,7 @@ export function DataTable<T extends { id: number }>({
     data,
     rows: controlledRows,
     config,
+    onDeleteRows,
     isLoading = false,
     loadingMode = "skeleton",
     expandedRow,
@@ -50,6 +52,8 @@ export function DataTable<T extends { id: number }>({
     exportMetadata,
     onExport,
     exportFilename = "export",
+    toolbarLeading,
+    toolbarSupplementalActions,
     resource = "reports",
     totalRows,
     currentPage = 1,
@@ -84,10 +88,13 @@ export function DataTable<T extends { id: number }>({
         () => controlledRows ?? data ?? [],
         [controlledRows, data]
     )
+    const initialDensity = config?.variant?.interaction?.density ?? "default"
+    const [density, setDensity] = React.useState<DataTableDensity>(initialDensity)
 
     const engine = useTableEngine<T>({
         data: rowsData,
         config: config as never,
+        density,
         user: user ?? undefined,
         expandable: !!expandedRow,
         enablePinning: isPinningEnabled,
@@ -263,9 +270,30 @@ export function DataTable<T extends { id: number }>({
         setLocalPage(1)
     }
 
+    function resetView() {
+        table.resetColumnVisibility()
+        table.resetColumnOrder()
+        table.resetColumnSizing()
+        table.resetColumnPinning()
+        table.resetColumnFilters()
+        table.resetSorting()
+        setDensity(initialDensity)
+    }
+
+    function deleteAllRows() {
+        if (!onDeleteRows) return
+        onDeleteRows(rowsData.map((row) => row.id))
+    }
+
     return (
-        <div ref={tableRootRef} className="flex w-full h-fit flex-col items-center justify-center gap-4">
-            {showToolbar && (showFilters || resolvedShowColumnVisibility || resolvedShowExport) && (
+        <div ref={tableRootRef} className="flex w-full h-fit flex-col items-center justify-center">
+            {showToolbar && (
+                showFilters
+                || resolvedShowColumnVisibility
+                || resolvedShowExport
+                || toolbarLeading
+                || toolbarSupplementalActions
+            ) && (
                 <DataTableToolbar
                     table={table}
                     showColumnVisibility={resolvedShowColumnVisibility}
@@ -276,10 +304,16 @@ export function DataTable<T extends { id: number }>({
                     exportMetadata={resolvedExportMetadata}
                     onExport={onExport}
                     exportFilename={exportFilename}
+                    leading={toolbarLeading}
+                    supplementalActions={toolbarSupplementalActions}
+                    density={density}
+                    onDensityChange={setDensity}
+                    onResetView={resetView}
+                    onDeleteAll={onDeleteRows && rowsData.length > 0 ? deleteAllRows : undefined}
                 />
             )}
 
-            <div className="w-full relative bg-card/80 backdrop-blur-md overflow-hidden border-t border-border-subtle">
+            <div className="w-full relative backdrop-blur-md overflow-hidden border-t border-border-subtle">
                 {canScrollLeft && (
                     <div className="pointer-events-none absolute left-0 top-0 h-full w-10 bg-linear-to-r from-background to-transparent z-10" />
                 )}

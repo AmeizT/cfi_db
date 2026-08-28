@@ -396,6 +396,7 @@ export const apiRoutes = {
 
     downloadTemplate: {
         attendance: api("people/attendance/download_template/"),
+        sundaySchool: api("people/sunday-school-attendance/download_sunday_school_template/"),
         tithes: api("bookkeeper/tithes/download_tithe_template/"),
         revenue: api("bookkeeper/revenue/download_revenue_template/"),
         overhead: api("bookkeeper/overhead/download_overhead_template/"),
@@ -404,6 +405,7 @@ export const apiRoutes = {
 
     uploadExcel: {
         attendance: api("people/attendance/upload_excel/"),
+        sundaySchool: api("people/sunday-school-attendance/upload_excel/"),
         tithes: api("bookkeeper/tithes/upload_excel/"),
         revenue: api("bookkeeper/revenue/upload_excel/"),
         overhead: api("bookkeeper/overhead/upload_excel/"),

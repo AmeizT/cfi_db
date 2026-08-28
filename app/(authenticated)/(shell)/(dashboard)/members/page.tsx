@@ -1,6 +1,4 @@
-import { redirect } from "next/navigation"
 import { APP_ROUTES } from "@/config/app-routes"
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
 
-export default function MembersPage() {
-    redirect(APP_ROUTES.members.directory)
-}
+export default createLegacyRedirectPage(APP_ROUTES.members.directory)

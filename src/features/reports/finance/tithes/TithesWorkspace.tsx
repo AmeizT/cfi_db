@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 import View from "@/components/ui/view"
 import { PeriodSelector } from "@/features/reports/statements/components/PeriodSelector"
 import { getReportSubmoduleTitle } from "@/features/reports/modules/config/report-submodules"
+import type { ModulePageContext } from "@/features/reports/modules/types/report-modules"
 import { useDataTablePagination } from "@/features/reports/core/components/hooks/useDataTablePagination"
 import TithesView from "./TithesView"
 import { AuditView } from "./components/AuditView"
@@ -25,7 +26,13 @@ import { getReportId, getStatus, getViewFromPathname } from "./utils/helpers"
 
 export type { TithesRouteView } from "./types"
 
-export function TithesRouteContent({ view }: { view: TithesRouteView }) {
+export function TithesRouteContent({
+    view,
+    pageContext = "reports",
+}: {
+    view: TithesRouteView
+    pageContext?: ModulePageContext
+}) {
     const searchParams = useSearchParams()
     const status = view === "transactions" ? getStatus(searchParams) : "active"
     const reportId = getReportId(searchParams)
@@ -91,6 +98,7 @@ export function TithesRouteContent({ view }: { view: TithesRouteView }) {
             tithes={rowsQuery.data}
             isLoading={rowsQuery.isLoading}
             pagination={pagination}
+            showWorkspaceToolbar={pageContext === "workspace"}
         />
     )
 }

@@ -67,7 +67,7 @@ export function ContextSidebar({
             {...props}
             variant={variant}
             className={cn(
-                "[&>[data-slot=sidebar-inner]]:border-0",
+                "*:data-[slot=sidebar-inner]:border-0",
                 className
             )}
         >
@@ -146,7 +146,7 @@ export function ContextSidebar({
                 ) : null}
             </SidebarContent>
 
-            <SidebarFooter className="absolute inset-x-0 bottom-0 z-10 shrink-0 border-0 bg-gradient-to-t from-sidebar via-sidebar/90 to-transparent px-2 pt-6 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur-md md:static md:z-auto md:border-t md:border-(--shell-sidebar-border) md:bg-transparent md:bg-none md:p-2 md:backdrop-blur-none">
+            <SidebarFooter className="absolute inset-x-0 bottom-0 z-10 shrink-0 border-0 bg-linear-to-t from-sidebar via-sidebar/90 to-transparent px-2 pt-6 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur-md md:static md:z-auto md:border-t md:border-(--shell-sidebar-border) md:bg-transparent md:bg-none md:p-2 md:backdrop-blur-none">
                 <ProfileDropdown variant="sidebar" />
             </SidebarFooter>
         </Sidebar>

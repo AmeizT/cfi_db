@@ -89,6 +89,8 @@ export type DataGridProps<T> = {
     exportMetadata?: DataTableExportMetadata
     onExport?: (context: DataTableExportContext<T>) => void | Promise<void>
     exportFilename?: string
+    toolbarLeading?: React.ReactNode
+    toolbarSupplementalActions?: React.ReactNode
     resource?: DataTableResource
 } & DataTablePaginationProps
 

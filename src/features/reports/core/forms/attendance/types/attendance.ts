@@ -16,10 +16,12 @@ export type AttendanceRecord = {
     volunteers_on_duty: number
     total_leaders_present: number
     service_type?: string
+    is_special_event?: boolean
+    special_event_name?: string
 
     preacher?: string
     sermon?: string
     scriptures?: string
-    weather?: string
+    weather?: string | null
     notes?: string
 }

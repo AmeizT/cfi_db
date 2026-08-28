@@ -25,9 +25,10 @@ import {
     TithesRouteContent,
     type TithesRouteView,
 } from "@/features/reports/finance/tithes/workspace/TithesWorkspace"
+import { TithesCumulativeToolbar } from "@/features/reports/finance/tithes/components/TithesDataToolbar"
 import { ReportsOverview as ReportsQueueView } from "@/features/reports/activity/views/ReportOverview"
 import { SundaySchoolAttendanceView } from "@/features/people/sunday-school/views/SundaySchoolAttendanceView"
-import { ReportSourceBanner } from "@/features/reports/workflow/components/ReportSourceBanner"
+import { ReportStatusPopover } from "@/features/reports/workflow/components/ReportStatusPopover"
 import {
     getReportModuleConfig,
     getReportModuleTabs,
@@ -118,7 +119,12 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         view,
     }) => {
         if (view === "cumulative") {
-            return <CumulativeDataPageView module="tithes" pageContext={pageContext} />
+            return (
+                <>
+                    {pageContext === "workspace" ? <TithesCumulativeToolbar /> : null}
+                    <CumulativeDataPageView module="tithes" pageContext={pageContext} />
+                </>
+            )
         }
 
         if (!reportId) {
@@ -126,11 +132,11 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         }
 
         if (isTithesRouteView(view)) {
-            return <TithesRouteContent view={view} />
+            return <TithesRouteContent view={view} pageContext={pageContext} />
         }
 
         if (view === "more") {
-            return <TithesRouteContent view="audit-log" />
+            return <TithesRouteContent view="audit-log" pageContext={pageContext} />
         }
 
         return (
@@ -327,11 +333,15 @@ export function ReportModulePageView({
     const config = getReportModuleConfig(section, module)
     const submoduleTabs = getReportSubmoduleTabs(section, module, searchParams, pageContext)
     const moduleTabs = getReportModuleTabs(section, searchParams, pageContext)
-    const viewTabs = submoduleTabs.length
+    const resolvedViewTabs = submoduleTabs.length
         ? submoduleTabs
         : section === "activity" || section === "performance"
             ? moduleTabs
             : getReportModuleViewTabs(section, module, searchParams, pageContext)
+    const isTithesWorkspace = pageContext === "workspace" && routeKey === "finance/tithes"
+    const viewTabs = isTithesWorkspace
+        ? resolvedViewTabs.filter((tab) => tab.key !== "cumulative")
+        : resolvedViewTabs
     const activeSubmodule = getActiveReportSubmodule(section, module, submodule)
     const activeView =
         activeSubmodule ??
@@ -366,8 +376,11 @@ export function ReportModulePageView({
         return null
     }
     const renderer = REPORT_MODULE_RENDERERS[routeKey]
+    const navigationActiveView = isTithesWorkspace && renderView === "cumulative"
+        ? "transactions"
+        : activeView
     const pageTitle =
-        getReportSubmoduleTitle(section, module, renderView)
+        getReportSubmoduleTitle(section, module, navigationActiveView)
         ?? getReportSubmoduleTitle(section, module, activeView)
     const showReportNavigator =
         !REPORT_NAVIGATOR_HIDDEN_VIEWS.has(renderView)
@@ -383,18 +396,20 @@ export function ReportModulePageView({
     return (
         <View className="gap-0" >
             <ReportModuleHeader
+                actions={pageContext === "workspace" && REPORT_BACKED_ROUTES.has(routeKey)
+                    ? <ReportStatusPopover />
+                    : undefined}
                 config={config}
                 showReportNavigator={showReportNavigator}
                 title={pageTitle}
             />
 
             <ReportModuleTabs
-                activeView={activeView}
+                activeView={navigationActiveView}
                 tabs={viewTabs} 
             />
 
             <View.Body className="gap-0">
-                {pageContext === "workspace" ? <ReportSourceBanner /> : null}
                 <ReportModuleDataTable>
                     {isResolvingReport ? (
                         <div className="space-y-3 py-4" aria-label="Loading report">

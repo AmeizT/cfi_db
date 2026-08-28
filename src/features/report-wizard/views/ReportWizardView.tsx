@@ -4,11 +4,11 @@ import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  CheckCircle2Icon,
+  DatabaseIcon,
   DownloadIcon,
-  ListTreeIcon,
   Loader2Icon,
   SkipForwardIcon,
-  TrendingUpIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,27 +28,22 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { CentralCreateWorkspace } from "@/features/central-create/components/CentralCreateWorkspace";
+import { YearReportProgress } from "@/features/central-create/components/YearReportProgress";
 import { FinancialEntriesForm } from "@/features/manual-entry/components/FinancialEntriesForm";
 import { SundaySchoolAttendanceForm } from "@/features/people/sunday-school/views/SundaySchoolAttendanceView";
 import { ReportWizardFooter } from "@/features/report-wizard/components/ReportWizardFooter";
 import { ReportWizardHeader } from "@/features/report-wizard/components/ReportWizardHeader";
 import { ReportWizardSectionCard } from "@/features/report-wizard/components/ReportWizardSectionCard";
 import { ReportWizardSidebar } from "@/features/report-wizard/components/ReportWizardSidebar";
-import { ReportingProgressPanel } from "@/features/report-wizard/components/ReportingProgressPanel";
 import {
   REPORT_WIZARD_SECTIONS,
+  createCentralTemplatesHref,
   createReportWizardHref,
   formatReportWizardPeriod,
   getReportWizardSectionByRoute,
+  getReportWizardSectionDisplayLabel,
   getReportWizardSections,
   isPartialReportWizardReport,
   toReportWizardList,
@@ -230,15 +225,27 @@ function ReviewSubmitPanel({ reportId }: { reportId: string | null }) {
             key={item.key}
             className="flex items-center justify-between gap-4 px-4 py-3 text-sm"
           >
-            <span className="font-medium">{item.label}</span>
+            <span className="font-medium">
+              {getReportWizardSectionDisplayLabel(item.key, item.label)}
+            </span>
             <span
               className={
-                item.resolved
-                  ? "text-emerald-700 dark:text-emerald-400"
-                  : "text-amber-700 dark:text-amber-400"
+                item.status === "not_required"
+                  ? "text-muted-foreground"
+                  : item.status === "no_activity"
+                    ? "text-cyan-700 dark:text-cyan-300"
+                    : item.resolved
+                      ? "text-emerald-700 dark:text-emerald-400"
+                      : "text-amber-700 dark:text-amber-400"
               }
             >
-              {item.resolved ? "Resolved" : "Needs attention"}
+              {item.status === "not_required"
+                ? "Not required"
+                : item.status === "no_activity"
+                  ? "No activity"
+                  : item.resolved
+                    ? "Resolved"
+                    : "Needs attention"}
             </span>
           </div>
         ))}
@@ -315,6 +322,110 @@ function UploadPanel({ section }: { section: ReportWizardSection }) {
           </a>
         </Button>
       ) : null}
+    </div>
+  );
+}
+
+function NoActivityDeclaration({
+  section,
+  reportId,
+  periodLabel,
+  confirmed,
+  editable,
+}: {
+  section: ReportWizardSection;
+  reportId: string;
+  periodLabel: string;
+  confirmed: boolean;
+  editable: boolean;
+}) {
+  const queryClient = useQueryClient();
+  const [declared, setDeclared] = React.useState(false);
+  const mutation = useMutation({
+    mutationFn: (status: "no_activity" | "not_started") =>
+      updateReportSection(Number(reportId), section.backendId, {
+        status,
+        ...(status === "no_activity"
+          ? { no_activity_note: `Confirmed no activity for ${periodLabel}.` }
+          : {}),
+      }),
+    onSuccess: async (_, status) => {
+      setDeclared(false);
+      toast.success(
+        status === "no_activity"
+          ? `${section.label} marked as no activity`
+          : `${section.label} is ready for entry`,
+      );
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["reports"] }),
+        queryClient.invalidateQueries({ queryKey: ["reports-workflow"] }),
+      ]);
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "The section state could not be updated.",
+      );
+    },
+  });
+
+  if (confirmed) {
+    return (
+      <div className="rounded-xl border border-border bg-muted/20 p-5">
+        <div className="flex items-start gap-3">
+          <CheckCircle2Icon
+            className="mt-0.5 size-5 shrink-0 text-emerald-600"
+            aria-hidden="true"
+          />
+          <div>
+            <h2 className="font-semibold">Marked as no activity</h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              You confirmed there was no activity to record for {periodLabel}.
+            </p>
+          </div>
+        </div>
+        {editable ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4"
+            disabled={mutation.isPending}
+            onClick={() => mutation.mutate("not_started")}
+          >
+            {mutation.isPending ? (
+              <Loader2Icon className="size-4 animate-spin" />
+            ) : null}
+            Undo — I need to enter activity
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-border p-4">
+      <label className="flex items-start gap-3 text-sm">
+        <Checkbox
+          checked={declared}
+          disabled={!editable || mutation.isPending}
+          onCheckedChange={(checked) => setDeclared(checked === true)}
+        />
+        <span>There was no activity to record for this section.</span>
+      </label>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="mt-4"
+        disabled={!editable || !declared || mutation.isPending}
+        onClick={() => mutation.mutate("no_activity")}
+      >
+        {mutation.isPending ? (
+          <Loader2Icon className="size-4 animate-spin" />
+        ) : null}
+        Confirm no activity
+      </Button>
     </div>
   );
 }
@@ -460,6 +571,19 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
     : activeReport
       ? getReportWizardSections(activeReport)
       : [];
+  const workflowSection = workflowReportQuery.data?.sections.find(
+    (item) => item.key === section.backendId,
+  );
+  const sectionIsNotRequired = workflowSection?.status === "not_required";
+  const sectionHasNoActivity = workflowSection?.status === "no_activity";
+  const showNoActivityDeclaration = Boolean(
+    reportId &&
+      workflowSection &&
+      workflowSection.record_count === 0 &&
+      section.canConfirmNoActivity === true &&
+      !sectionIsNotRequired &&
+      section.id !== "review",
+  );
   const periodLabel = workflowReportQuery.data
     ? formatReportPeriod(workflowReportQuery.data.period_start)
     : activeReport
@@ -483,6 +607,12 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
   const nextHref = nextSection
     ? createReportWizardHref(nextSection.id, routeOptions)
     : null;
+  const reportHref = createReportWizardHref(section.id, routeOptions);
+  const templatesHref = createCentralTemplatesHref(section.id, routeOptions);
+  const reportPeriodStart = workflowReportQuery.data?.period_start ?? activeReport?.period_start ?? null;
+  const reportYear = reportPeriodStart
+    ? new Date(`${reportPeriodStart}T00:00:00`).getFullYear()
+    : new Date().getFullYear();
 
   const sidebar = (
     <ReportWizardSidebar
@@ -497,97 +627,105 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
       className="h-full rounded-none border-0 shadow-none xl:rounded-2xl xl:border xl:shadow-elevation-01"
     />
   );
-  const progress = (
-    <ReportingProgressPanel
-      report={workflowReportQuery.data}
-      fallbackReport={activeReport}
-      sections={sectionSnapshots}
-      periodLabel={periodLabel}
-      loading={workflowReportQuery.isLoading || reportsQuery.isLoading}
-      className="h-full rounded-none border-0 shadow-none 2xl:rounded-2xl 2xl:border 2xl:shadow-sm"
-    />
-  );
 
   return (
-    <div className="flex min-h-full min-w-0 flex-col">
-      <ReportWizardHeader
-        section={section}
-        method={method}
-        uploadType={uploadType}
-        reportId={reportId}
-        amendmentContext={amendmentContext}
-        reportTitle={reportTitle}
-      />
+    <CentralCreateWorkspace
+      active="report"
+      reportHref={reportHref}
+      templatesHref={templatesHref}
+      modeSwitcher={(
+        <ReportWizardHeader
+          section={section}
+          method={method}
+          uploadType={uploadType}
+          reportId={reportId}
+          amendmentContext={amendmentContext}
+        />
+      )}
+      topbarProgress={(
+        <YearReportProgress
+          year={reportYear}
+          activeReportId={reportId}
+          activePeriodStart={reportPeriodStart}
+          method={method}
+          uploadType={uploadType}
+          amendmentContext={amendmentContext}
+        />
+      )}
+      contextPanel={sidebar}
+      contextLabel="Report steps"
+      mainClassName="bg-background"
+    >
+      <div className="flex min-h-full min-w-0 flex-col">
+        <div className="flex items-start gap-3 border-b border-border-subtle px-4 py-5 sm:px-6">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <DatabaseIcon className="size-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              Create Report
+            </h1>
+            <p className="mt-1 truncate text-sm text-muted-foreground">
+              {reportTitle}
+            </p>
+          </div>
+        </div>
 
-      <div className="flex items-center justify-between gap-2 border-b border-border bg-background px-4 py-2 xl:hidden">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="sm">
-              <ListTreeIcon className="size-4" />
-              Report steps
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[min(21rem,92vw)] gap-0 p-0">
-            <SheetHeader className="sr-only">
-              <SheetTitle>Report steps</SheetTitle>
-              <SheetDescription>Move between report sections.</SheetDescription>
-            </SheetHeader>
-            {sidebar}
-          </SheetContent>
-        </Sheet>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="sm">
-              <TrendingUpIcon className="size-4" />
-              Progress
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[min(24rem,94vw)] gap-0 p-0">
-            <SheetHeader className="sr-only">
-              <SheetTitle>Report progress</SheetTitle>
-              <SheetDescription>Overall completion and issues.</SheetDescription>
-            </SheetHeader>
-            {progress}
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      <div className="grid min-h-0 min-w-0 flex-1 items-start gap-4 px-3 sm:px-4 xl:grid-cols-[250px_minmax(0,1fr)] 2xl:grid-cols-[250px_minmax(0,1fr)_320px]">
-        <aside className="sticky top-4 hidden h-[calc(100dvh-8rem)] min-h-128 xl:block">
-          {sidebar}
-        </aside>
-
-        <main className="min-w-0">
+        <div className="min-w-0 flex-1 p-3 pb-24 sm:p-5 sm:pb-28 lg:p-6 lg:pb-28">
           <ReportWizardSectionCard
             title={section.label}
             description={SECTION_DESCRIPTIONS[section.id] ?? "Complete this report section."}
           >
-            {section.id === "review" ? (
-              <ReviewSubmitPanel reportId={reportId} />
-            ) : method === "upload" && section.uploadUrl ? (
-              <UploadPanel section={section} />
-            ) : (
-              <ManualEntryPanel
+            {sectionIsNotRequired ? (
+              <Alert>
+                <AlertTitle>Not required</AlertTitle>
+                <AlertDescription>
+                  Sunday School reporting begins in September 2026. No entry or declaration is needed for this period.
+                </AlertDescription>
+              </Alert>
+            ) : sectionHasNoActivity && reportId ? (
+              <NoActivityDeclaration
                 section={section}
-                report={activeReport}
                 reportId={reportId}
-                period={workflowReportQuery.data?.period_start.slice(0, 7)}
+                periodLabel={periodLabel}
+                confirmed
+                editable={Boolean(workflowReportQuery.data?.capabilities.is_editable)}
               />
+            ) : section.id === "review" ? (
+              <ReviewSubmitPanel reportId={reportId} />
+            ) : (
+              <div className="space-y-6">
+                {method === "upload" && section.uploadUrl ? (
+                  <UploadPanel section={section} />
+                ) : (
+                  <ManualEntryPanel
+                    section={section}
+                    report={activeReport}
+                    reportId={reportId}
+                    period={workflowReportQuery.data?.period_start.slice(0, 7)}
+                  />
+                )}
+                {showNoActivityDeclaration && reportId ? (
+                  <NoActivityDeclaration
+                    section={section}
+                    reportId={reportId}
+                    periodLabel={periodLabel}
+                    confirmed={false}
+                    editable={Boolean(workflowReportQuery.data?.capabilities.is_editable)}
+                  />
+                ) : null}
+              </div>
             )}
           </ReportWizardSectionCard>
+        </div>
 
-          <ReportWizardFooter
-            backHref={backHref}
-            nextHref={nextHref}
-            nextLabel={nextSection ? `Continue to ${nextSection.label}` : undefined}
-            canSkip={Boolean(reportId) && section.id !== "review"}
-            onSkip={() => setSkipOpen(true)}
-          />
-        </main>
-
-        <aside className="sticky top-4 hidden h-[calc(100dvh-8rem)] min-h-128 2xl:block">
-          {progress}
-        </aside>
+        <ReportWizardFooter
+          backHref={backHref}
+          nextHref={nextHref}
+          nextLabel={nextSection ? `Continue to ${nextSection.navigationLabel ?? nextSection.label}` : undefined}
+          canSkip={Boolean(reportId) && section.id !== "review" && !sectionIsNotRequired && !sectionHasNoActivity}
+          onSkip={() => setSkipOpen(true)}
+        />
       </div>
 
       <SkipSectionDialog
@@ -597,6 +735,6 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
         reportId={reportId}
         onOpenChange={setSkipOpen}
       />
-    </div>
+    </CentralCreateWorkspace>
   );
 }

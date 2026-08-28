@@ -1,2 +1,4 @@
-import { MemberTransfersView } from "@/features/people/transfers/views/MemberTransfersView"
-export default function TransfersPage() { return <MemberTransfersView /> }
+import { APP_ROUTES } from "@/config/app-routes"
+import { createLegacyRedirectPage } from "@/features/navigation/create-legacy-redirect-page"
+
+export default createLegacyRedirectPage(APP_ROUTES.members.transfers)

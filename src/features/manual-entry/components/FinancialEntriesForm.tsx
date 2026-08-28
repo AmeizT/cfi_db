@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -109,6 +110,7 @@ export function FinancialEntriesForm({
     reportId,
 }: FinancialEntriesFormProps) {
   const user = useUser();
+  const queryClient = useQueryClient();
   const options = useFinancialEntryOptions(kind);
   const mutation = useBatchEntry(kind);
   const [categoryDialogOpen, setCategoryDialogOpen] = React.useState(false);
@@ -248,6 +250,10 @@ export function FinancialEntriesForm({
             form.reset({
                 entries: [emptyRow(defaultDate)],
       });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["reports"] }),
+        queryClient.invalidateQueries({ queryKey: ["reports-workflow"] }),
+      ]);
         } catch (error) {
             if (error instanceof BatchRequestError) {
         let firstErrorPath: `entries.${number}.${keyof EntryRow}` | null = null;
@@ -408,7 +414,7 @@ export function FinancialEntriesForm({
 
                             {kind === "revenue" ? (
                                 <div className="grid gap-1.5">
-                                    <Label>Revenue category</Label>
+                                    <Label>Income category</Label>
 
                                     <NativeSelect
                     {...form.register(`entries.${index}.category`, {
@@ -440,18 +446,18 @@ export function FinancialEntriesForm({
                       setCategoryDialogOpen(true);
                     }}
                   >
-                    <PlusIcon className="size-4" /> Add custom category
+                    <PlusIcon className="size-4" /> Add custom income category
                   </Button>
                                 </div>
                             ) : null}
 
                             {kind === "overhead" ? (
                                 <div className="grid gap-1.5">
-                                    <Label>Overhead type</Label>
+                                    <Label>Operating cost type</Label>
 
                                     <NativeSelect
                     {...form.register(`entries.${index}.overhead_type`, {
-                      required: "Choose an overhead type.",
+                      required: "Choose an operating cost type.",
                     })}
                                     >
                                         <NativeSelectOption value="">
@@ -479,7 +485,7 @@ export function FinancialEntriesForm({
                       setCategoryDialogOpen(true);
                     }}
                   >
-                    <PlusIcon className="size-4" /> Add custom overhead type
+                    <PlusIcon className="size-4" /> Add custom operating cost type
                   </Button>
                                 </div>
                             ) : null}

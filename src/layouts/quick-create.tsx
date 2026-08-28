@@ -26,7 +26,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { quickCreateActions } from "@/config/workspace-navigation";
+import {
+  quickCreateActions,
+  resolveQuickCreateHref,
+  type QuickCreateAction,
+} from "@/config/workspace-navigation";
+import { useCurrentReport } from "@/features/reports/workflow/hooks";
 import { NavIcon } from "@/layouts/dashboard/AppNavIcon";
 
 export function QuickCreate({
@@ -37,12 +42,13 @@ export function QuickCreate({
   onAction?: () => void;
 } = {}) {
   const router = useRouter();
+  const currentReportQuery = useCurrentReport();
   const [open, setOpen] = React.useState(false);
 
-  function openAction(href: string) {
+  function openAction(action: QuickCreateAction) {
     setOpen(false);
     onAction?.();
-    router.push(href);
+    router.push(resolveQuickCreateHref(action, currentReportQuery.data));
   }
 
   const defaultTrigger = (
@@ -89,7 +95,7 @@ export function QuickCreate({
                     key={action.key}
                     value={`${action.label} ${action.description}`}
                     disabled={action.disabled}
-                    onSelect={() => openAction(action.href)}
+                    onSelect={() => openAction(action)}
                     className="h-auto min-h-12 cursor-pointer items-start py-2.5"
                   >
                     <NavIcon

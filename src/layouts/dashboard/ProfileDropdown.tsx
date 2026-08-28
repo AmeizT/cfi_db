@@ -20,7 +20,7 @@ import { getTextColor } from "../utils/get-text-color"
 import { SignoutButton } from "./components/SignoutButton"
 import { ThemeMenuItem } from "./components/ThemeMenuItem"
 import { SettingsIcon } from '@solar-icons/react/line-duotone/settings'
-import { ChevronsUpDown } from "lucide-react"
+import { EllipsisVertical } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function ProfileDropdown({
@@ -68,7 +68,7 @@ export function ProfileDropdown({
                                     {user?.roles?.[0]?.name || user?.email}
                                 </span>
                             </span>
-                            <ChevronsUpDown className="size-4 text-(--shell-sidebar-muted-foreground)" />
+                            <EllipsisVertical className="size-4 text-(--shell-sidebar-muted-foreground)" />
                         </>
                     ) : null}
                 </Button>

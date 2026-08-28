@@ -65,8 +65,8 @@ export function EditableCell<T, K extends keyof T>({
     }
 
     return (
-        <div title="Double-click to edit" className={`px-2 h-full w-full flex items-center rounded-md transition-colors border border-transparent relative ${
-                editing ? "z-20 bg-background shadow-[0_4px_12px_rgba(0,0,0,0.08)]" : "hover:bg-accent hover:border-border"
+        <div className={`px-2 h-full w-full flex items-center rounded-md transition-colors border border-transparent relative ${
+                editing ? "z-20 bg-background shadow-[0_4px_12px_rgba(0,0,0,0.08)]" : "hover:bg-background hover:border-border"
             } focus:bg-background focus:border-border data-invalid:border-destructive focus-within:border-primary focus-within:ring-1 focus-within:ring-primary`}
             onDoubleClick={() => setEditing(true)}
         >

@@ -12,6 +12,14 @@ export const MEMBERS_SECTION_NAVIGATION = [
         href: APP_ROUTES.members.households,
     },
     {
+        key: "lifecycle",
+        label: "Lifecycle",
+        href: APP_ROUTES.members.lifecycle,
+    },
+] as const
+
+export const MEMBERS_LIFECYCLE_NAVIGATION = [
+    {
         key: "onboarding",
         label: "Onboarding",
         href: APP_ROUTES.members.onboarding,
