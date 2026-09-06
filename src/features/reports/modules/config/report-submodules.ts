@@ -39,6 +39,7 @@ export type ReportSubmoduleGroup = {
     defaultSubmodule: ReportSubmoduleKey
     tabs: readonly ReportSubmoduleTab[]
     moreItems?: readonly ReportSubmoduleMenuItem[]
+    hiddenSubmodules?: readonly ReportSubmoduleKey[]
 }
 
 export type ReportSubmoduleLink = {
@@ -52,23 +53,20 @@ const REPORT_SUBMODULE_GROUP_DEFINITIONS = {
         defaultSubmodule: "main-service",
         tabs: [
             { label: "General", key: "main-service", submodule: null, pageTitle: "Attendance" },
-            { label: "Sunday School", key: "sunday-school", submodule: "sunday-school", pageTitle: "Sunday School" },
-            { label: "Homecell", key: "homecell", submodule: "homecell", pageTitle: "Homecell" },
-            { label: "Midweek", key: "midweek", submodule: "midweek", pageTitle: "Midweek" },
+            { label: "Groups", key: "homecell", submodule: "homecell", pageTitle: "Attendance" },
             { label: "Special Services", key: "special-services", submodule: "special-services", pageTitle: "Special Services" },
-            { label: "Cumulative", key: "cumulative", submodule: "cumulative", pageTitle: "Attendance Cumulative" },
         ],
+        hiddenSubmodules: ["sunday-school", "midweek", "cumulative"],
     },
     "finance/tithes": {
         defaultSubmodule: "transactions",
         tabs: [
             { label: "Transactions", key: "transactions", submodule: null, pageTitle: "Tithes" },
             { label: "Contributors", key: "contributors", submodule: "contributors", pageTitle: "Contributors" },
-            { label: "Cumulative", key: "cumulative", submodule: "cumulative" },
             // { label: "Performance", key: "performance", submodule: "performance" },
             { label: "Receipts", key: "receipts", submodule: "receipts" },
-            { label: "More", key: "more", submodule: "audit-log" },
         ],
+        hiddenSubmodules: ["cumulative"],
         moreItems: [
             {
                 label: "Voided",
@@ -175,6 +173,7 @@ export function isReportSubmoduleRoute(
     }
 
     return group.tabs.some((tab) => tab.submodule === submodule)
+        || group.hiddenSubmodules?.some((item) => item === submodule)
         || group.moreItems?.some((item) => item.submodule === submodule)
         || false
 }

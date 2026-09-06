@@ -6,13 +6,15 @@ import { useSearchParams } from "next/navigation";
 import { bulksoftDeleteRecords } from "@/features/reports/core/actions/delete/bulkSoftDelete";
 import type { ApiBulkDeleteRouteKey } from "@/config/urls";
 import { removeRecordsFromCache } from "@/helpers/removeFromCache";
+import { Button } from "@/components/ui/button"
 
 type BulkActionToolbarProps = {
     selectedCount: number
     selectedIds: (number)[]
     // onDelete: (ids: (number)[]) => void
-    resource: ApiBulkDeleteRouteKey
+    resource?: ApiBulkDeleteRouteKey
     onClear: () => void
+    queryKey?: readonly unknown[]
 }
 
 export function DataTableBulkActionToolbar({
@@ -21,13 +23,19 @@ export function DataTableBulkActionToolbar({
     // onDelete,
     onClear,
     resource,
+    queryKey,
 }: BulkActionToolbarProps) {
     const searchParams = useSearchParams()
-    const reportId = searchParams.get("reportid") ?? ""
-    const queryKey = queryKeys[resource as keyof typeof queryKeys]?.(reportId)
+    const reportId = searchParams.get("reportId")
+        ?? searchParams.get("reportid")
+        ?? searchParams.get("report_id")
+        ?? ""
+    const resolvedQueryKey = queryKey
+        ?? (resource ? queryKeys[resource as keyof typeof queryKeys]?.(reportId) : undefined)
+        ?? ["data-table-records", resource ?? "selection"]
     
     const mutation = useOptimisticMutation({
-        queryKey,
+        queryKey: resolvedQueryKey,
         mutationFn: bulksoftDeleteRecords,
         updateCache: (old, payload) =>
             removeRecordsFromCache(
@@ -36,6 +44,7 @@ export function DataTableBulkActionToolbar({
             ),
 
         successMessage: "Records deleted",
+        invalidateAll: true,
 
         onSuccess: () => {
             onClear()
@@ -43,7 +52,7 @@ export function DataTableBulkActionToolbar({
     })
 
     function handleBulkDelete(){
-        console.log("deleting bulk...")
+        if (!resource) return
         mutation.mutate({
             resource,
             ids: selectedIds,
@@ -71,21 +80,31 @@ export function DataTableBulkActionToolbar({
                         </span>
 
                         {/* Delete */}
-                        <button
-                            onClick={() => handleBulkDelete()}
-                            className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                            Delete
-                        </button>
+                        {resource ? (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                disabled={mutation.isPending}
+                                onClick={handleBulkDelete}
+                                className="rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                {mutation.isPending ? "Deleting…" : "Delete"}
+                            </Button>
+                        ) : null}
 
                         {/* Clear */}
-                        <button
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Clear row selection"
                             onClick={onClear}
-                            className="p-2 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+                            className="size-8 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
                         >
                             <X className="h-4 w-4" />
-                        </button>
+                        </Button>
                     </div>
                 </motion.div>
             )}

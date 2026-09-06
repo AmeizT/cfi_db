@@ -20,6 +20,14 @@
             "notice": "Deur voort te gaan om CFI Workspace te gebruik, stem jy in tot ons <Link>Diensbepalings</Link> en Privaatheidsbeleid."
         }
     },
+    "Password": {
+        "warningText": "Vir jou sekuriteit beveel ons aan dat jy privaat blaai gebruik as jy op 'n gedeelde of openbare toestel is.",
+        "reset-password": "Het jy jou wagwoord vergeet?",
+        "title": "Voer asseblief jou wagwoord in om aan te meld",
+        "pending": "Meld aan...",
+        "action": "Gaan voort",
+        "input": "Wagwoord"
+    },
     "Recover": {
         "heading": "Herstel jou rekening",
         "subheading": "Laat ons jou identiteit bevestig",
@@ -56,7 +64,6 @@
 }
 
 	
-
 
 
 

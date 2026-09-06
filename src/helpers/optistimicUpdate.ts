@@ -15,16 +15,17 @@ export function optimisticUpdateRecord(
         return old.map((row) => updateRow(row))
     }
 
-    if (
-        typeof old === "object" &&
-        old !== null &&
-        "results" in old &&
-        Array.isArray(old.results)
-    ) {
-        return {
-            ...old,
-            results: old.results.map((row) => updateRow(row)),
+    if (typeof old === "object" && old !== null) {
+        const envelope = old as Record<string, unknown>
+        const updated = { ...envelope }
+
+        for (const key of ["rows", "results", "data"] as const) {
+            if (Array.isArray(envelope[key])) {
+                updated[key] = envelope[key].map((row) => updateRow(row as Record<string, unknown>))
+            }
         }
+
+        return updated
     }
 
     return old

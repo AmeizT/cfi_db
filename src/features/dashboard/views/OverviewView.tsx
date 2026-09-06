@@ -71,7 +71,7 @@ export function OverviewView({ initialNow }: { initialNow: string }) {
             ]
 
     return (
-        <main className="relative min-h-full overflow-x-hidden bg-[radial-gradient(circle_at_18%_0%,color-mix(in_srgb,var(--primary)_5%,transparent),transparent_28%),radial-gradient(circle_at_82%_12%,color-mix(in_srgb,var(--chart-4)_5%,transparent),transparent_28%)] px-4 pb-28 pt-7 sm:px-6 lg:px-8 lg:pt-9">
+        <div className="relative min-h-full overflow-x-hidden bg-[radial-gradient(circle_at_18%_0%,color-mix(in_srgb,var(--primary)_5%,transparent),transparent_28%),radial-gradient(circle_at_82%_12%,color-mix(in_srgb,var(--chart-4)_5%,transparent),transparent_28%)] px-4 pb-28 pt-19 sm:px-6 lg:px-8 lg:pt-9">
             <div className="mx-auto max-w-6xl space-y-7">
                 <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-center">
                     <div className="flex flex-col justify-center items-center">
@@ -184,6 +184,6 @@ export function OverviewView({ initialNow }: { initialNow: string }) {
                 </section>
             </div>
             <FloatingVerseCard />
-        </main>
+        </div>
     )
 }

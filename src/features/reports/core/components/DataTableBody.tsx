@@ -21,7 +21,7 @@ import type {
 
 type DataTableBodyProps<T extends { id: number }> = {
     rows: Row<T>[]
-    rowVirtualizer: Virtualizer<HTMLDivElement, Element>
+    rowVirtualizer?: Virtualizer<HTMLDivElement, Element>
     visibleColumnCount: number
     styles: DataTableStyles
     isEditable: boolean
@@ -32,6 +32,7 @@ type DataTableBodyProps<T extends { id: number }> = {
     expandedRow?: (row: T) => React.ReactNode
     onRowClick?: (row: T) => void
     resource: DataTableResource
+    mutationQueryKey?: readonly unknown[]
     showRowActions: boolean
     showDefaultRowActions: boolean
     rowActions?: (row: T) => DataTableAction[]
@@ -57,6 +58,7 @@ export function DataTableBody<T extends { id: number }>({
     expandedRow,
     onRowClick,
     resource,
+    mutationQueryKey,
     showRowActions,
     showDefaultRowActions,
     rowActions,
@@ -81,7 +83,7 @@ export function DataTableBody<T extends { id: number }>({
     return (
         <BaseTableBody
             style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
+                height: rowVirtualizer ? `${rowVirtualizer.getTotalSize()}px` : undefined,
                 position: "relative",
             }}
             className="transition-opacity duration-200"
@@ -96,7 +98,7 @@ export function DataTableBody<T extends { id: number }>({
                 ))
             )}
 
-            {!isLoading && rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            {!isLoading && (rowVirtualizer?.getVirtualItems() ?? rows.map((_, index) => ({ index }))).map((virtualRow) => {
                 const row = rows[virtualRow.index]
                 if (!row) return null
 
@@ -119,6 +121,7 @@ export function DataTableBody<T extends { id: number }>({
                     <React.Fragment key={row.id}>
                         <TableRow
                             className={cn(
+                                "group/row",
                                 styles?.rowClass,
                                 isSection && "font-bold bg-muted/20",
                                 isTotal && "font-bold bg-muted/10",
@@ -194,18 +197,29 @@ export function DataTableBody<T extends { id: number }>({
                                         pinnedUtilityClass,
                                     )}
                                 >
-                                    {(hoveredRowId === row.original.id || selectedRows.size > 0) && !isSection ? (
-                                        <span onClick={(event) => { event.stopPropagation(); onToggleRow(row.original.id) }}>
+                                    {!isSection ? (
+                                        <span className="relative inline-flex size-5 items-center justify-center">
+                                            <span
+                                                aria-hidden="true"
+                                                className={cn(
+                                                    "absolute transition-opacity group-hover/row:opacity-0 group-focus-within/row:opacity-0 [@media(pointer:coarse)]:opacity-0",
+                                                    selectedRows.has(row.original.id) && "opacity-0",
+                                                )}
+                                            >
+                                                {row.index + 1}
+                                            </span>
                                             <Checkbox
                                                 checked={selectedRows.has(row.original.id)}
                                                 onCheckedChange={() => onToggleRow(row.original.id)}
+                                                aria-label={`Select row ${row.index + 1}`}
+                                                className={cn(
+                                                    "absolute opacity-0 transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 [@media(pointer:coarse)]:opacity-100",
+                                                    selectedRows.has(row.original.id) && "opacity-100",
+                                                    hoveredRowId === row.original.id && "opacity-100",
+                                                )}
                                             />
                                         </span>
-                                    ) : (
-                                        !isSection && (
-                                            <span className="block text-center">{row.index + 1}</span>
-                                        )
-                                    )}
+                                    ) : null}
                                 </TableCell>
                             )}
 
@@ -217,18 +231,21 @@ export function DataTableBody<T extends { id: number }>({
                                     styles={styles}
                                     isEditable={isEditable}
                                     resource={resource}
+                                    mutationQueryKey={mutationQueryKey}
                                     utilityPinnedOffset={utilityPinnedOffset}
                                 />
                             ))}
 
                             {showRowActions && (
-                                <TableCell>
+                                <TableCell className="sticky right-0 z-20 w-12 min-w-12 bg-background/95 px-2 backdrop-blur-sm before:pointer-events-none before:absolute before:inset-y-0 before:-left-8 before:w-8 before:bg-linear-to-r before:from-transparent before:to-background/95">
                                     <DataTableDropdownMenu
                                         actions={rowActions?.(row.original)}
                                         rowId={String(row.original.id)}
                                         resource={resource}
                                         enableDelete={enableDelete}
                                         showDefaultActions={showDefaultRowActions}
+                                        triggerClassName="opacity-100 transition-opacity sm:opacity-0 sm:group-hover/row:opacity-100 sm:group-focus-within/row:opacity-100 [@media(pointer:coarse)]:opacity-100"
+                                        mutationQueryKey={mutationQueryKey}
                                     />
                                 </TableCell>
                             )}

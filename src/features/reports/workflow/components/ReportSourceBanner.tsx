@@ -1,5 +1,7 @@
 "use client"
 
+import { createReportSectionWizardHref } from "@/features/create/routing"
+
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -19,7 +21,6 @@ import {
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import {
-  createReportSectionWizardHref,
   type WorkflowReportSectionKey,
 } from "@/features/report-wizard/config/report-routing"
 import { getReportContextActionVisibility } from "@/features/workspace/config/report-context"

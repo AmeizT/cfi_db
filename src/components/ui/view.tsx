@@ -39,6 +39,7 @@ type ViewHeaderProps = React.ComponentPropsWithoutRef<"header"> & {
     pagename?: React.ReactNode
     actions?: React.ReactNode
     showReportNavigator?: boolean
+    headingAs?: "h1" | "h2" | "div"
 }
 
 type ViewComponent = <T extends React.ElementType = "div">(
@@ -74,17 +75,31 @@ const View = (<T extends React.ElementType = "div">({
 }) as ViewType
 
 
-View.Header = ({ pagename, actions, showReportNavigator = false, ...props }) => {
+View.Header = ({ pagename, actions, showReportNavigator = false, headingAs = "div", ...props }) => {
+    const Heading = headingAs
+
     return (
-        <header {...props} className={cn("py-4 h-fit flex flex-col shrink-0 relative bg-inherit overflow-hidden", props.className)}>
-            <div className="lg:px-6 flex h-fit w-full flex-col items-start gap-4 sm:flex-row sm:items-center">
-                <div className="min-w-0 text-2xl font-bold tracking-tight text-foreground capitalize lg:text-[24px]">
+        <header {...props} className={cn("flex flex-col shrink-0 relative bg-inherit overflow-hidden", props.className)}>
+            <div className={cn(
+            "flex w-full flex-col items-start gap-4 px-4 py-4",
+            "sm:h-18 sm:flex-row sm:items-center sm:py-0",
+            "lg:px-6"
+        )}>
+                <Heading className="min-w-0 text-2xl font-bold tracking-tight text-foreground capitalize lg:text-[24px]">
                     {pagename}
-                </div>
+                </Heading>
                 
                 {showReportNavigator || actions ? (
-                    <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto sm:flex-nowrap">
+                    <div className="flex w-full flex-wrap items-center gap-x-4 sm:ml-auto sm:w-auto sm:flex-nowrap">
                         {showReportNavigator ? <ReportNavigator /> : null}
+
+                        {actions && (
+                            <Separator 
+                                orientation="vertical" 
+                                className="hidden sm:block data-[orientation=vertical]:h-4.5" 
+                            />
+                        )}
+
                         {actions}
                     </div>
                 ) : null}

@@ -13,6 +13,7 @@ import { DataTableBody } from "./DataTableBody"
 import { CHECKBOX_COLUMN_WIDTH, EXPAND_COLUMN_WIDTH } from "./DataTable.constants"
 import { DataTableHeader } from "./DataTableHeader"
 import { DataTableToolbar } from "./DataTableToolbar"
+import type { DataTableDensity } from "@/components/ui/data-table/DataTableToolbar"
 import { DataTablePagination } from "./DataTablePagination"
 import { useSmartPagination } from "./hooks/useSmartPagination"
 import {
@@ -32,6 +33,7 @@ export function DataTable<T extends { id: number }>({
     data,
     rows: controlledRows,
     config,
+    onDeleteRows,
     isLoading = false,
     loadingMode = "skeleton",
     expandedRow,
@@ -50,7 +52,13 @@ export function DataTable<T extends { id: number }>({
     exportMetadata,
     onExport,
     exportFilename = "export",
+    toolbarLeading,
+    toolbarSupplementalActions,
     resource = "reports",
+    mutationQueryKey,
+    editingDisabled = false,
+    getRowGroup,
+    emptyState,
     totalRows,
     currentPage = 1,
     pageSize = 10,
@@ -84,10 +92,13 @@ export function DataTable<T extends { id: number }>({
         () => controlledRows ?? data ?? [],
         [controlledRows, data]
     )
+    const initialDensity = config?.variant?.interaction?.density ?? "default"
+    const [density, setDensity] = React.useState<DataTableDensity>(initialDensity)
 
     const engine = useTableEngine<T>({
         data: rowsData,
         config: config as never,
+        density,
         user: user ?? undefined,
         expandable: !!expandedRow,
         enablePinning: isPinningEnabled,
@@ -95,7 +106,7 @@ export function DataTable<T extends { id: number }>({
     })
 
     const { table, styles, ui, interaction } = engine
-    const isEditable = interaction.isEditable
+    const isEditable = interaction.isEditable && !editingDisabled
     const allRows = table.getRowModel().rows
     const hasExternalPagination =
         typeof totalRows === "number" &&
@@ -177,6 +188,16 @@ export function DataTable<T extends { id: number }>({
     }
 
     const { parentRef, rowVirtualizer } = useTableVirtualization({ rows })
+    const rowGroups = React.useMemo(() => {
+        if (!getRowGroup || !rows.length) return [{ key: "all", label: "", rows }]
+        const groups = new Map<string, { key: string; label: string; rows: typeof rows }>()
+        rows.forEach(row => {
+            const group = getRowGroup(row.original)
+            if (!groups.has(group.key)) groups.set(group.key, { ...group, rows: [] })
+            groups.get(group.key)!.rows.push(row)
+        })
+        return [...groups.values()].sort((left, right) => left.key.localeCompare(right.key))
+    }, [getRowGroup, rows])
     const isGrid = ui.mode === "grid"
     const hideRow = true
     const columnPinning = table.getState().columnPinning
@@ -263,9 +284,30 @@ export function DataTable<T extends { id: number }>({
         setLocalPage(1)
     }
 
+    function resetView() {
+        table.resetColumnVisibility()
+        table.resetColumnOrder()
+        table.resetColumnSizing()
+        table.resetColumnPinning()
+        table.resetColumnFilters()
+        table.resetSorting()
+        setDensity(initialDensity)
+    }
+
+    function deleteAllRows() {
+        if (!onDeleteRows) return
+        onDeleteRows(rowsData.map((row) => row.id))
+    }
+
     return (
-        <div ref={tableRootRef} className="flex w-full h-fit flex-col items-center justify-center gap-4">
-            {showToolbar && (showFilters || resolvedShowColumnVisibility || resolvedShowExport) && (
+        <div ref={tableRootRef} className="flex min-h-0 w-full flex-1 flex-col items-stretch">
+            {showToolbar && (
+                showFilters
+                || resolvedShowColumnVisibility
+                || resolvedShowExport
+                || toolbarLeading
+                || toolbarSupplementalActions
+            ) && (
                 <DataTableToolbar
                     table={table}
                     showColumnVisibility={resolvedShowColumnVisibility}
@@ -276,10 +318,16 @@ export function DataTable<T extends { id: number }>({
                     exportMetadata={resolvedExportMetadata}
                     onExport={onExport}
                     exportFilename={exportFilename}
+                    leading={toolbarLeading}
+                    supplementalActions={toolbarSupplementalActions}
+                    density={density}
+                    onDensityChange={setDensity}
+                    onResetView={resetView}
+                    onDeleteAll={onDeleteRows && rowsData.length > 0 ? deleteAllRows : undefined}
                 />
             )}
 
-            <div className="w-full relative bg-card/80 backdrop-blur-md overflow-hidden border-t border-border-subtle">
+            <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden border-t border-border-subtle backdrop-blur-md">
                 {canScrollLeft && (
                     <div className="pointer-events-none absolute left-0 top-0 h-full w-10 bg-linear-to-r from-background to-transparent z-10" />
                 )}
@@ -288,7 +336,9 @@ export function DataTable<T extends { id: number }>({
                     <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-linear-to-l from-background to-transparent z-10" />
                 )}
 
-                <div ref={parentRef} onScroll={handleScroll} className={`${ui.border} overflow-x-auto scrollbar-hidden`}>
+                <div ref={parentRef} onScroll={handleScroll} className={`${ui.border} relative flex min-h-0 flex-1 flex-col overflow-x-auto scrollbar-hidden`}>
+                    {rowGroups.map(group => <React.Fragment key={group.key}>
+                    {group.label && <h2 className="px-4 pb-3 pt-6 text-base font-semibold text-foreground">{group.label}</h2>}
                     <Table className={`w-full text-sm ${styles?.containerClass}`}>
                         <DataTableHeader
                             table={table}
@@ -306,8 +356,8 @@ export function DataTable<T extends { id: number }>({
                         />
 
                         <DataTableBody
-                            rows={rows}
-                            rowVirtualizer={rowVirtualizer}
+                            rows={group.rows}
+                            rowVirtualizer={getRowGroup ? undefined : rowVirtualizer}
                             visibleColumnCount={table.getVisibleLeafColumns().length}
                             styles={styles}
                             isEditable={isEditable}
@@ -318,6 +368,7 @@ export function DataTable<T extends { id: number }>({
                             expandedRow={expandedRow}
                             onRowClick={onRowClick}
                             resource={resource}
+                            mutationQueryKey={mutationQueryKey}
                             showRowActions={showRowActions}
                             showDefaultRowActions={showDefaultRowActions}
                             rowActions={rowActions}
@@ -330,14 +381,14 @@ export function DataTable<T extends { id: number }>({
                             onToggleRow={handleToggleRow}
                         />
                     </Table>
+                    </React.Fragment>)}
 
-                    {isSelectable && enableDelete && hasBulkDeleteRoute(resource) ? (
-                        <DataTableBulkActionToolbar
-                            selectedCount={selectionCount}
-                            selectedIds={selectedIds}
-                            onClear={() => setSelectedRows(new Set())}
-                            resource={resource}
-                        />
+                    {!isLoading && rows.length === 0 ? (
+                        <div className="flex min-h-0 flex-1 items-center justify-center p-6 text-center">
+                            {emptyState ?? (
+                                <p className="text-sm text-muted-foreground">No records found.</p>
+                            )}
+                        </div>
                     ) : null}
 
                     {isLoading && loadingMode === "overlay" && (
@@ -347,6 +398,16 @@ export function DataTable<T extends { id: number }>({
                     )}
                 </div>
             </div>
+
+            {isSelectable ? (
+                <DataTableBulkActionToolbar
+                    selectedCount={selectionCount}
+                    selectedIds={selectedIds}
+                    onClear={() => setSelectedRows(new Set())}
+                    resource={enableDelete && hasBulkDeleteRoute(resource) ? resource : undefined}
+                    queryKey={mutationQueryKey}
+                />
+            ) : null}
 
             {shouldRenderPagination ? (
                 <DataTablePagination

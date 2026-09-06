@@ -19,9 +19,9 @@ export function WorkspaceSwitcher() {
     const currentWorkspace = workspaces?.find(workspace => workspace?.id === Number(currentWorkspaceId))
 
     return (
-        <Command className="rounded-t-3xl w-full overflow-y-hidden ">
-            <div className="p-4 [&>[data-slot=command-input-wrapper]]:h-fit [&>[data-slot=command-input-wrapper]]:bg-gray-100 dark:[&>[data-slot=command-input-wrapper]]:bg-neutral-700 [&>[data-slot=command-input-wrapper]]:border-0 [&>[data-slot=command-input-wrapper]]:rounded-xl">
-                <CommandInput className="h-11 lg:h-10 text-base md:text-sm" placeholder="Search workspaces..." />
+        <Command className="rounded-t-3xl w-full overflow-y-hidden bg-neutral-900 text-white [&_[cmdk-group-heading]]:text-neutral-400 [&_[data-slot=command-input-wrapper]>svg]:text-neutral-300 ">
+            <div className="p-4 [&>[data-slot=command-input-wrapper]]:h-fit [&>[data-slot=command-input-wrapper]]:bg-neutral-800 dark:[&>[data-slot=command-input-wrapper]]:bg-neutral-800 [&>[data-slot=command-input-wrapper]]:border-0 [&>[data-slot=command-input-wrapper]]:rounded-xl">
+                <CommandInput className="h-11 lg:h-10 text-base md:text-sm text-white placeholder:text-neutral-400" placeholder="Search workspaces..." />
             </div>
                     
             <ScrollArea className="h-full">
@@ -31,17 +31,17 @@ export function WorkspaceSwitcher() {
                     {groupedWorkspaces?.length > 0 && (
                         <React.Fragment>
                             {groupedWorkspaces?.sort()?.map((workspace) => (
-                                <CommandGroup key={workspace} heading={workspace} className="px-0">
+                                <CommandGroup key={workspace} heading={workspace} className="px-0 text-white [&_[cmdk-group-heading]]:text-neutral-400">
                                     {user?.assemblies?.filter((assembly) => (assembly.country ?? assembly.country_code ?? "Other").toLowerCase() === workspace.toLowerCase())
                                         .map((assembly) => (
-                                            <CommandItem key={assembly?.id} className="px-0 flex items-center gap-3">
+                                            <CommandItem key={assembly?.id} className="px-0 flex items-center gap-3 text-white hover:bg-neutral-800 data-[selected=true]:bg-neutral-800 data-[selected=true]:text-white">
                                                 <WorkspaceSwitchForm
                                                     workspace={assembly}
                                                     setSelectedWorkspace={setSelectedWorkspace}
                                                 />
 
                                                 <Check
-                                                    className={cn("size-4", currentWorkspace?.id === assembly?.id ? "opacity-100" : "opacity-0")}
+                                                    className={cn("size-4 text-neutral-300", currentWorkspace?.id === assembly?.id ? "opacity-100" : "opacity-0")}
                                                 />
                                             </CommandItem>
                                         ))}

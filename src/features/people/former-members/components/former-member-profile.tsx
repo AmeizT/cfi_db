@@ -16,6 +16,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { APP_ROUTES } from "@/config/app-routes"
 import { useReadmitFormerMember } from "../hooks"
 import type { FormerMember, FormerMemberDetail } from "../schema"
 import {
@@ -68,7 +69,7 @@ export function FormerMemberProfileHeader({ former, canManage }: { former: Forme
                 actions={(
                     <>
                         {canManage && !former.has_been_readmitted ? <Button type="button" size="sm" onClick={() => setRestoreOpen(true)}><RotateCcwIcon aria-hidden="true" className="size-4" /> Restore</Button> : null}
-                        <Button asChild size="sm" variant="outline"><Link href={`/members/transfers?search=${encodeURIComponent(former.member_full_name)}`}><HistoryIcon aria-hidden="true" className="size-4" /> Transfer history</Link></Button>
+                        <Button asChild size="sm" variant="outline"><Link href={`${APP_ROUTES.members.transfers}?search=${encodeURIComponent(former.member_full_name)}`}><HistoryIcon aria-hidden="true" className="size-4" /> Transfer history</Link></Button>
                     </>
                 )}
             />

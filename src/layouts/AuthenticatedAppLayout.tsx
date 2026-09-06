@@ -8,7 +8,6 @@ import { makeQueryClient, seedCurrentUser } from "@/layouts/providers/query-clie
 import ReactQueryProvider from "@/layouts/providers/query"
 
 const Document = getLayoutComponent("root")
-const DashboardLayout = getLayoutComponent("dashboard")
 
 export function AuthenticatedAppLayout({
     children,
@@ -24,9 +23,7 @@ export function AuthenticatedAppLayout({
             <ReactQueryProvider>
                 <HydrationBoundary state={dehydrate(queryClient)}>
                     <AuthenticatedWorkspaceProviders>
-                        <React.Suspense>
-                            <DashboardLayout>{children}</DashboardLayout>
-                        </React.Suspense>
+                        {children}
                     </AuthenticatedWorkspaceProviders>
                 </HydrationBoundary>
             </ReactQueryProvider>

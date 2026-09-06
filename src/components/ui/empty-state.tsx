@@ -300,7 +300,7 @@ function EmptyStateCard({
 
     return (
         <div className={cn("flex flex-col items-center text-center", size === "compact" ? "gap-y-2" : "gap-y-4")}>
-            {icon ?? <Icon className={cn("text-olive-300", size === "compact" ? "size-12" : "size-64")} />}
+            {icon ?? <Icon className={cn("text-olive-300", size === "compact" ? "size-12" : "size-48")} />}
 
             <div className="max-w-md">
                 {showHeading && heading && (

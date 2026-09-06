@@ -114,7 +114,7 @@ function HomeCellsError({ error }: { error: unknown }) {
     )
 }
 
-export function HomeCellsView() {
+export function HomeCellsView({ communities = false }: { communities?: boolean }) {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -149,7 +149,7 @@ export function HomeCellsView() {
     return (
         <View className="gap-0">
             <View.Header
-                pagename="Homecells"
+                pagename={communities ? "Communities" : "Homecells"}
                 actions={(
                     <ResourceViewToggle
                         value={view}
@@ -162,7 +162,12 @@ export function HomeCellsView() {
                 {homecellsQuery.isError ? (
                     <HomeCellsError error={homecellsQuery.error} />
                 ) : !isLoading && homecells.length === 0 ? (
-                    <EmptyState type="homecell" />
+                    <EmptyState
+                        type="homecell"
+                        title={communities ? "No communities yet" : undefined}
+                        description={communities ? "Create a Homecell to start organizing members into local communities." : undefined}
+                        href={communities ? "/create/homecells" : undefined}
+                    />
                 ) : view === "cards" ? (
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                         {isInitialCardLoading

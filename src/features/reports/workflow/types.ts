@@ -13,6 +13,7 @@ export type ReportSectionStatus =
   | "in_progress"
   | "completed"
   | "no_activity"
+  | "not_required"
   | "skipped"
 
 export type ReportFinding = {
@@ -136,12 +137,12 @@ export type SubmittedReport = {
 }
 
 export const REPORT_SECTIONS = [
-  { key: "general_attendance", label: "General Attendance", source: "Engagement" },
-  { key: "sunday_school_attendance", label: "Sunday School Attendance", source: "Engagement" },
+  { key: "general_attendance", label: "Attendance", source: "Engagement" },
+  { key: "sunday_school_attendance", label: "Sunday School", source: "Engagement" },
   { key: "tithes", label: "Tithes", source: "Finance" },
-  { key: "revenue", label: "Revenue", source: "Finance" },
-  { key: "operating_expenses", label: "Operating Expenses", source: "Finance" },
-  { key: "activity_other_expenses", label: "Activity & Other Expenses", source: "Finance" },
+  { key: "revenue", label: "General Income", source: "Finance" },
+  { key: "operating_expenses", label: "Operating Costs", source: "Finance" },
+  { key: "activity_other_expenses", label: "Other Expenses", source: "Finance" },
 ] as const
 
 export const SKIP_REASONS = [

@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-table"
 import { useTableStyleSystem } from "../hooks/use-table-style"
 import { DataTableVariant } from "../types/tableVariant.types"
+import type { DataTableDensity } from "@/components/ui/data-table/DataTableToolbar"
 
 import { buildColumns, ColumnMeta } from "../utils/buildColumns"
 import { User } from "@/features/auth/schemas/user"
@@ -33,6 +34,7 @@ type UseTableEngineProps<T> = {
     expandable?: boolean
     enablePinning?: boolean
     enableResizing?: boolean
+    density?: DataTableDensity
 }
 
 export function useTableEngine<T extends Record<string, unknown>>({
@@ -42,6 +44,7 @@ export function useTableEngine<T extends Record<string, unknown>>({
     expandable = false,
     enablePinning = false,
     enableResizing = true,
+    density,
 }: UseTableEngineProps<T>) {
     const safeConfig = React.useMemo(() => {
         return config ?? { columns: [] }
@@ -93,7 +96,10 @@ export function useTableEngine<T extends Record<string, unknown>>({
         },
     })
 
-    const interaction = safeConfig.variant?.interaction ?? {}
+    const interaction = {
+        ...safeConfig.variant?.interaction,
+        ...(density ? { density } : {}),
+    }
 
     const isEditable = !!interaction.editable
     const isSelectable = !!interaction.selectable

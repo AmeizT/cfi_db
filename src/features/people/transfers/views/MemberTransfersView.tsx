@@ -518,10 +518,6 @@ export function MemberTransfersView() {
 
     return (
         <View className="gap-0">
-            <View.Header
-                pagename="Member Transfers"
-            />
-
             <View.Body className="gap-4 py-4">
                 <View.Tabs items={transferTabs} activeKey={tab} />
 

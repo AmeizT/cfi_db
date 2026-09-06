@@ -78,7 +78,7 @@ export function SidebarShortcuts({
                                 onClick={onNavigate}
                                 aria-label={item.accessibleLabel}
                             >
-                                <History2Icon className="size-5" aria-hidden="true" />
+                                <History2Icon strokeWidth={2} className="size-5" aria-hidden="true" />
                                 <span>{item.label}</span>
                             </Link>
                         </SidebarMenuButton>

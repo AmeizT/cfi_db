@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-import { Button } from "@/components/ui/button"
 import { Attendance, AttendanceResponse } from "@/dal/types"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { DataTable } from "../../core/components/DataTable"
@@ -9,6 +8,12 @@ import { Flex } from "@/components/ui/box"
 import { ViewIcon } from "@hugeicons/core-free-icons"
 import type { DataTablePaginationProps } from "../../core/components/DataTable.types"
 import { attendanceRecordPath } from "@/config/app-routes"
+import { ReportDataToolbarControls, ReportSummarizeAction } from "../../core/components/ReportDataToolbar"
+import type { ModulePageContext } from "../../modules/types/report-modules"
+import { reportAttendanceQueryKey } from "../../core/hooks/use-attendance"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
+import { EmptyState } from "@/components/ui/empty-state"
+import { attendanceReportingWeek } from "../utils/reporting-week"
 
 interface ViewProps {
     attendance: (AttendanceResponse & {
@@ -18,12 +23,26 @@ interface ViewProps {
     isLoading: boolean
     pagination?: DataTablePaginationProps
     service?: "main-service" | "homecell" | "midweek" | "special-services"
+    reportId?: string
+    pageContext?: ModulePageContext
+    readOnly?: boolean
+    reportingPeriod?: { start: string; end: string }
 }
 
 const slugify = (value: string) =>
     value.toLowerCase().trim().replace(/\s+/g, "-")
 
-export default function AttendanceView({ attendance, isLoading, pagination, service = "main-service" }: ViewProps) {
+export default function AttendanceView({
+    attendance,
+    isLoading,
+    pagination,
+    service = "main-service",
+    reportId,
+    pageContext = "reports",
+    readOnly = false,
+    reportingPeriod,
+}: ViewProps) {
+    const assemblyId = useActiveAssemblyId()
     const pathname = usePathname()
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -92,89 +111,26 @@ export default function AttendanceView({ attendance, isLoading, pagination, serv
         router.push(`${detailBase}?${detailParams.toString()}`)
     }, [pathname, router, searchParams])
 
-    // const COLUMNS: ColumnDef<Attendance>[] = [
-    //     {
-    //         accessorKey: "timestamp",
-    //         header: "Date",
-    //         size: 220,
-    //         minSize: 220,
-    //         maxSize: 300,
-    //         cell: ({ row, getValue }) => {
-    //             const value = getValue<string>()
-    //             const formmattedDate = new Date(value).toLocaleDateString(undefined, {
-    //                 month: "long",
-    //                 day: "numeric",
-    //                 year: "numeric",
-    //             })
-
-    //             return (
-    //                 <div className="w-full h-full flex gap-2 justify-between items-center">
-    //                     <EditableCell<Attendance, "timestamp">
-    //                         value={formmattedDate}
-    //                         rowIndex={row.index}
-    //                         columnId="timestamp"
-    //                         onSave={updateRow}
-    //                     />
-
-    //                     <div className="w-fit">
-    //                         <button
-    //                             className="w-5 h-5 flex justify-center items-center gap-1 border border-mist-400/60 bg-white rounded-md opacity-0 group-hover:opacity-100 hover:bg-mist-200 shadow-[0_1px_3px_rgba(22,27,29,0.08),0_1px_2px_rgba(22,27,29,0.05)] cursor-pointer"
-    //                             onClick={(e) => {
-    //                                 e.stopPropagation()
-    //                                 handleRowClick(row.original)
-    //                             }}
-    //                         >
-    //                             <IconArrowsDiagonal strokeWidth={2.75} className="size-3 text-mist-400 group-hover:text-mist-500" />
-    //                         </button>
-    //                     </div>
-    //                 </div>
-    //             )
-    //         },
-    //     },
-    //     
-    //     {
-    //         accessorKey: "weather",
-    //         header: "Weather",
-    //         cell: ({ row, getValue }) => {
-    //             const value = getValue<
-    //                 | "sunny"
-    //                 | "partly_cloudy"
-    //                 | "cloudy"
-    //                 | "windy"
-    //                 | "light_rain"
-    //                 | "heavy_rain"
-    //                 | "storm"
-    //                 | "very_hot"
-    //                 | "cold"
-    //                 | "extreme"
-    //                 | null
-    //                 | undefined
-    //             >()
-
-    //             return (
-    //                 <EditableCell<Attendance, "weather">
-    //                     value={(value ?? "") as "sunny" | "partly_cloudy" | "cloudy" | "windy" | "light_rain" | "heavy_rain" | "storm" | "very_hot" | "cold" | "extreme" | ""}
-    //                     rowIndex={row.index}
-    //                     columnId="weather"
-    //                     onSave={updateRow}
-    //                     formatter={(val: string | null | undefined) => {
-    //                         return columnTypes.weather(val ?? "")
-    //                     }}
-    //                 />
-    //             )
-    //         },
-    //     },
-    // ]
-
     const tableOptions = {
         selectable: true,
     }
+    const search = searchParams.get("search") ?? undefined
+    const mutationQueryKey = reportAttendanceQueryKey(assemblyId, reportId ?? "", {
+        page: pagination?.currentPage,
+        pageSize: pagination?.pageSize,
+        search,
+    })
+    const showWorkspaceToolbar = pageContext === "workspace"
+    const getWeekGroup = React.useCallback((row: Attendance) =>
+        attendanceReportingWeek(row.timestamp, reportingPeriod?.start, reportingPeriod?.end),
+    [reportingPeriod?.start, reportingPeriod?.end])
 
     return (
         <Flex className="w-full" direction="column" gap={4}>
             <DataTable
                 variant="advanced"
                 data={filteredAttendance}
+                getRowGroup={service === "homecell" ? getWeekGroup : undefined}
                 config={attendance?.config}
                 options={tableOptions}
                 isLoading={isLoading}
@@ -191,6 +147,9 @@ export default function AttendanceView({ attendance, isLoading, pagination, serv
                 ]}
                 footerData={undefined}
                 resource="attendance"
+                mutationQueryKey={mutationQueryKey}
+                editingDisabled={readOnly}
+                enableDelete={!readOnly}
                 totalRows={attendance?.count ?? filteredAttendance.length}
                 currentPage={pagination?.currentPage}
                 pageSize={pagination?.pageSize}
@@ -198,11 +157,27 @@ export default function AttendanceView({ attendance, isLoading, pagination, serv
                 onPageChange={pagination?.onPageChange}
                 onPageSizeChange={pagination?.onPageSizeChange}
                 emptyState={
-                    <div className="text-center">
-                        <p>No attendance yet</p>
-                        <Button>Add first record</Button>
-                    </div>
+                    <EmptyState
+                        type="reports"
+                        title={service === "homecell" ? "No Homecell attendance yet" : "No attendance yet"}
+                        description={service === "homecell"
+                            ? "No Homecell attendance is available in the current report results."
+                            : "Attendance recorded for this service will appear here."}
+                    />
                 }
+                toolbarLeading={showWorkspaceToolbar ? (
+                    <ReportDataToolbarControls
+                        section="ministry"
+                        module="attendance"
+                        pageContext={pageContext}
+                        monthlySubmodule={service === "main-service" ? null : service}
+                        cumulativeUpdates={{ service }}
+                        label="Attendance"
+                    />
+                ) : undefined}
+                toolbarSupplementalActions={showWorkspaceToolbar
+                    ? <ReportSummarizeAction label="Attendance" />
+                    : undefined}
                 expandedRow={(row) => (
                     <div className="flex flex-col">
                         <p className="text-sm text-wrap text-gray-700">

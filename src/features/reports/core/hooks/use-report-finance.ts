@@ -6,6 +6,7 @@ import { assemblyQueryKeys } from "@/lib/query-keys"
 type PaginationParams = {
     page?: number
     pageSize?: number
+    search?: string
 }
 
 export function useReportFinance(
@@ -14,7 +15,14 @@ export function useReportFinance(
 ) {
     const assemblyId = useActiveAssemblyId()
     return useQuery<FinanceResponse>({
-        queryKey: assemblyQueryKeys.key(assemblyId, "reportFinance", reportId, pagination?.page ?? 1, pagination?.pageSize ?? 10),
+        queryKey: assemblyQueryKeys.key(
+            assemblyId,
+            "reportFinance",
+            reportId,
+            pagination?.page ?? 1,
+            pagination?.pageSize ?? 10,
+            pagination?.search ?? "",
+        ),
         queryFn: () => getReportFinance(reportId as string, pagination),
         enabled: Boolean(assemblyId && reportId),
     })

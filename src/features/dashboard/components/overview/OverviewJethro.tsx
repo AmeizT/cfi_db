@@ -17,7 +17,7 @@ import { JethroIcon } from "@/assets/icons/brand/jethro";
 const directActions = [
     {
         label: "Create report",
-        href: "/report-wizard",
+        href: "/create",
         icon: FilePlus2,
     },
     {

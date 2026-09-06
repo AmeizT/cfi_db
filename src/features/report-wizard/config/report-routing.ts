@@ -27,11 +27,10 @@ export type ReportWizardHrefOptions = {
     amendment_context?: string | null
 }
 
-export function createReportWizardHref(
-    section: string,
-    updates: ReportWizardHrefOptions = {}
+function applyReportContext(
+    params: URLSearchParams,
+    updates: ReportWizardHrefOptions,
 ) {
-    const params = new URLSearchParams()
     const method = updates.method ?? "manual-entry"
     params.set("method", method)
 
@@ -44,8 +43,27 @@ export function createReportWizardHref(
     if (updates.amendment_context) {
         params.set("amendment_context", updates.amendment_context)
     }
+}
+
+export function createReportWizardHref(
+    section: string,
+    updates: ReportWizardHrefOptions = {}
+) {
+    const params = new URLSearchParams()
+    applyReportContext(params, updates)
 
     return `/report-wizard/create/${section}?${params.toString()}`
+}
+
+export function createCentralTemplatesHref(
+    returnSection: string,
+    updates: ReportWizardHrefOptions = {},
+) {
+    const params = new URLSearchParams()
+    params.set("return_section", returnSection)
+    applyReportContext(params, updates)
+
+    return `/create/templates?${params.toString()}`
 }
 
 export function createReportSectionWizardHref(

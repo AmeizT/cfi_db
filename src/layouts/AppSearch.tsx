@@ -72,7 +72,7 @@ export function AppSearch({
                 >
                     <MinimalisticMagnifierIcon className="size-5 md:size-4.5" />
                     <span className={cn("font-normal", !isSidebar && "hidden md:inline")}>
-                        Find anything...
+                        Search
                     </span>
                 </Button>
             </PopoverTrigger>

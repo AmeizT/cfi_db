@@ -1,4 +1,4 @@
-import { MailIcon, MoreHorizontalIcon, PhoneIcon } from "lucide-react"
+import { MailIcon, MoreHorizontalIcon, PencilIcon, PhoneIcon, Trash2Icon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -24,7 +24,19 @@ import {
 } from "../../shared/master-detail"
 import type { DirectoryTab } from "../config/directory-view.config"
 
-export function MemberProfileHeader({ member, assemblyName }: { member: Member; assemblyName?: string }) {
+export function MemberProfileHeader({
+    member,
+    assemblyName,
+    canManage = false,
+    onEdit,
+    onDelete,
+}: {
+    member: Member
+    assemblyName?: string
+    canManage?: boolean
+    onEdit?: () => void
+    onDelete?: () => void
+}) {
     return (
         <EntityProfileHeader
             avatar={(
@@ -47,7 +59,14 @@ export function MemberProfileHeader({ member, assemblyName }: { member: Member; 
                     {member.phone_number ? <Button asChild size="sm" variant="outline"><a href={`tel:${member.phone_number}`}><PhoneIcon aria-hidden="true" className="size-4" /> Call</a></Button> : null}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild><Button size="icon" variant="ghost" aria-label="More member actions"><MoreHorizontalIcon className="size-4" /></Button></DropdownMenuTrigger>
-                        <DropdownMenuContent align="end"><DropdownMenuItem disabled>More actions are not available</DropdownMenuItem></DropdownMenuContent>
+                        <DropdownMenuContent align="end">
+                            {canManage ? (
+                                <>
+                                    <DropdownMenuItem onSelect={onEdit}><PencilIcon className="size-4" /> Edit member</DropdownMenuItem>
+                                    <DropdownMenuItem variant="destructive" onSelect={onDelete}><Trash2Icon className="size-4" /> Delete member</DropdownMenuItem>
+                                </>
+                            ) : <DropdownMenuItem disabled>More actions are not available</DropdownMenuItem>}
+                        </DropdownMenuContent>
                     </DropdownMenu>
                 </>
             )}

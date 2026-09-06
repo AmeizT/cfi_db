@@ -41,6 +41,8 @@ import {
 } from "../../core/lib/report-selection"
 import { MONTHS, SHORT_MONTHS } from "../config/months"
 import { yearOptions } from "./PeriodSelector"
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
 
 type ReportVisualStatus = "completed" | "in-progress" | "overdue" | "not-started"
 
@@ -139,12 +141,13 @@ function NavigatorButton({
             aria-label={`${isPrevious ? "Previous" : "Next"} reporting period`}
             disabled={disabled}
             onClick={onClick}
-            className={cn(
-                "size-8 rounded-none bg-background shadow-elevation-sm",
-                isPrevious ? "rounded-full" : "rounded-full",
-            )}
+            className="size-8 shrink-0 rounded-full bg-zinc-200/50 dark:bg-background"
         >
-            {isPrevious ? <ChevronLeft /> : <ChevronRight />}
+            {isPrevious ? (
+                <ChevronLeft className="size-4" />
+            ) : (
+                <ChevronRight className="size-4" />
+            )}
         </Button>
     )
 }
@@ -304,14 +307,26 @@ export function ReportNavigator() {
     }, [open, viewYear])
 
     if (isLoading) {
-        return <Spinner />
+        return (
+            <div className="flex items-center gap-2">
+                <div className="flex h-8 shrink-0 items-center gap-2">
+                    <Skeleton className="h-8 w-40 rounded-full" />
+                    <Skeleton className="size-8 rounded-full" />
+                    <Skeleton className="size-8 rounded-full" />
+                </div>
+
+                {/* <Separator orientation="vertical" aria-hidden="true" className="data-[orientation=vertical]:h-4.5 mx-1 hidden w-px sm:block bg-zinc-100 dark:bg-surface" /> */}
+
+                <Skeleton className="h-8 w-40 rounded-full" />
+            </div>
+        )
     }
 
     return (
-        <div className="flex w-full justify-start">
+        <div className="flex w-auto shrink-0 items-center">
             <Popover open={open} onOpenChange={handleOpenChange}>
                 <div
-                    className="inline-flex max-w-full items-center gap-2 p-1 overflow-hidden rounded-lg border-0 border-border"
+                    className="inline-flex h-fit max-w-full items-center gap-2 overflow-hidden"
                     role="group"
                     aria-label="Report period navigator"
                 >
@@ -322,7 +337,7 @@ export function ReportNavigator() {
                             disabled={isLoading || !displayedReport}
                             aria-label={`Choose reporting period, currently ${displayedLabel}`}
                             aria-expanded={open}
-                            className="h-8 min-w-full max-w-[calc(100vw-7rem)] rounded-full border border-border-subtle px-3 font-semibold tabular-nums sm:min-w-44 bg-background"
+                            className="h-8 min-w-full max-w-[calc(100vw-7rem)] rounded-full border-0 border-border px-3 font-semibold tabular-nums sm:min-w-44 bg-zinc-200/50 dark:bg-background"
                         >
                             <span
                                 aria-hidden="true"

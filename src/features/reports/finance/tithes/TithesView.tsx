@@ -1,15 +1,14 @@
 "use client"
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { DownloadCircle01Icon } from "@hugeicons/core-free-icons"
-import { apiRoutes } from "@/config/urls"
 import { DataTable } from "../../core/components/DataTable"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { DataTablePaginationProps } from "../../core/components/DataTable.types"
 import type { TableSchema } from "@/features/data-table/types/tableSchema.types"
 import type { TitheRecord, TithesMeta } from "./types"
+import {
+    TithesSummarizeAction,
+    TithesToolbarControls,
+} from "./components/TithesDataToolbar"
 
 type TithesViewData = {
     rows?: TitheRecord[]
@@ -25,9 +24,19 @@ interface ViewProps {
     tithes: TithesViewData | undefined
     isLoading: boolean
     pagination?: DataTablePaginationProps
+    showWorkspaceToolbar?: boolean
+    mutationQueryKey?: readonly unknown[]
+    readOnly?: boolean
 }
 
-export default function TithesView({ tithes, isLoading, pagination }: ViewProps) {
+export default function TithesView({
+    tithes,
+    isLoading,
+    pagination,
+    showWorkspaceToolbar = false,
+    mutationQueryKey,
+    readOnly = false,
+}: ViewProps) {
     const rows = tithes?.rows ?? tithes?.data ?? []
     const config = tithes?.config ?? tithes?.meta?.config
 
@@ -38,23 +47,11 @@ export default function TithesView({ tithes, isLoading, pagination }: ViewProps)
     return (
         <div className="flex-1 flex">
             {isLoading ? (
-                <TableSkeleton />
+                <div className="pt-4">
+                    <TableSkeleton />
+                </div>
             ) : (
                 <div className="w-full h-full flex flex-col gap-4">
-                    <div className="w-full hidden _flex justify-between items-center">
-                        <div></div>
-                        <div className="h-fit flex items-center gap-x-2">
-                            <Button asChild variant="outline" className="h-fit">
-                                <Link
-                                    href={apiRoutes.downloadTemplate.attendance}
-                                >
-                                    <HugeiconsIcon icon={DownloadCircle01Icon} strokeWidth={2} className="size-4.5" />
-                                    Download Template
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
-
                     <DataTable
                         variant="advanced"
                         data={rows as TitheRecord[]}
@@ -68,6 +65,19 @@ export default function TithesView({ tithes, isLoading, pagination }: ViewProps)
                         pageSizeOptions={pagination?.pageSizeOptions}
                         onPageChange={pagination?.onPageChange}
                         onPageSizeChange={pagination?.onPageSizeChange}
+                        enableExport
+                        exportFilename="tithes"
+                        exportFormat="pdf"
+                        toolbarLeading={showWorkspaceToolbar
+                            ? <TithesToolbarControls />
+                            : undefined}
+                        toolbarSupplementalActions={showWorkspaceToolbar
+                            ? <TithesSummarizeAction />
+                            : undefined}
+                        resource="tithes"
+                        mutationQueryKey={mutationQueryKey}
+                        editingDisabled={readOnly || !mutationQueryKey}
+                        enableDelete={!readOnly}
                         expandedRow={(row) => (
                             <p className="text-sm text-wrap text-gray-700">
                                 {row.notes ? row.notes : "No additional notes for this record."}

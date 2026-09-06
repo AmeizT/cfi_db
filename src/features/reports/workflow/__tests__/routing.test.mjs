@@ -10,7 +10,7 @@ import {
 import {
   REPORT_SECTION_WIZARD_ROUTES,
   createReportSectionWizardHref,
-} from "../../../report-wizard/config/report-routing.ts"
+} from "../../../create/routing.ts"
 import { createSourceRecordsHref } from "../../../workspace/config/report-source-routing.ts"
 
 test("every month state resolves to the same canonical period route", () => {
@@ -48,9 +48,9 @@ test("all report sections route through the Report Wizard with context intact", 
       report_id: 84,
       amendment_context: "reopened",
     }),
-    "/report-wizard/create/overhead?method=upload&upload_type=excel&report_id=84&amendment_context=reopened",
+    "/create?workspace=monthly-report&section=overhead&method=upload&upload_type=excel&report_id=84&amendment_context=reopened",
   )
-  assert.equal(createReportSectionWizardHref("review", { report_id: 84 }), "/report-wizard/create/review?method=manual-entry&report_id=84")
+  assert.equal(createReportSectionWizardHref("review", { report_id: 84 }), "/create?workspace=monthly-report&section=review&method=manual-entry&report_id=84")
 })
 
 test("submitted sections open operational source records without reusing Wizard routes", () => {
@@ -63,7 +63,7 @@ test("submitted sections open operational source records without reusing Wizard 
 
 test("Current Report remains a shortcut that redirects to the canonical current period", async () => {
   const navigation = await readFile("src/config/workspace-navigation.ts", "utf8")
-  const currentPage = await readFile("app/(dashboard)/reports/current/page.tsx", "utf8")
+  const currentPage = await readFile("app/(authenticated)/(shell)/(dashboard)/reports/current/page.tsx", "utf8")
   assert.match(navigation, /label: "Current Report",\s+href: APP_ROUTES\.reports\.current/)
   assert.match(currentPage, /redirect\(reportPeriodHref\(new Date\(\)\)\)/)
 })

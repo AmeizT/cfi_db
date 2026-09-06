@@ -183,11 +183,11 @@ export function CreateFinancialCategoryDialog({
       !createOption.isPending,
   );
   const title = kind === "revenue"
-    ? "Add custom revenue category"
-    : "Add custom overhead type";
+    ? "Add custom income category"
+    : "Add custom operating cost type";
   const fieldLabel = kind === "revenue"
-    ? "Revenue category name"
-    : "Overhead type name";
+    ? "Income category name"
+    : "Operating cost type name";
 
   function choose(option: FinancialCategoryOption) {
     onSelect(option);
@@ -214,8 +214,8 @@ export function CreateFinancialCategoryDialog({
       onSelect(created);
       toast.success(
         kind === "revenue"
-          ? "Revenue category added"
-          : "Overhead type added",
+          ? "Income category added"
+          : "Operating cost type added",
       );
       onOpenChange(false);
     } catch (error) {
@@ -416,7 +416,7 @@ export function CreateFinancialCategoryDialog({
           </Button>
           {createMode ? (
             <Button type="button" onClick={() => void createCategory()} disabled={!canCreate}>
-              {createOption.isPending ? "Adding…" : kind === "revenue" ? "Add category for revenue" : "Add type for overhead"}
+              {createOption.isPending ? "Adding…" : kind === "revenue" ? "Add income category" : "Add operating cost type"}
             </Button>
           ) : null}
         </DialogFooter>

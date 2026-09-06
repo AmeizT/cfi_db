@@ -15,16 +15,17 @@ export function removeRecordsFromCache(
         return filterRows(old)
     }
 
-    if (
-        typeof old === "object" &&
-        old !== null &&
-        "results" in old &&
-        Array.isArray(old.results)
-    ) {
-        return {
-            ...old,
-            results: filterRows(old.results),
+    if (typeof old === "object" && old !== null) {
+        const envelope = old as Record<string, unknown>
+        const updated = { ...envelope }
+
+        for (const key of ["rows", "results", "data"] as const) {
+            if (Array.isArray(envelope[key])) {
+                updated[key] = filterRows(envelope[key] as Record<string, unknown>[])
+            }
         }
+
+        return updated
     }
 
     return old

@@ -405,8 +405,8 @@ export const tithesQuickEntrySchema: QuickEntryReportSchema = {
 
 export const revenueQuickEntrySchema: QuickEntryReportSchema = {
     type: "revenue",
-    label: "Revenue",
-    description: "Enter a revenue item and category.",
+    label: "General Income",
+    description: "Enter a General Income item and category.",
     backend: {
         sectionId: "income",
         endpoint: apiRoutes.finance.revenue.list(),
@@ -449,7 +449,7 @@ export const revenueQuickEntrySchema: QuickEntryReportSchema = {
     calculateSummary(values) {
         return [
             {
-                label: "Total revenue",
+                label: "Total income",
                 value: asMoneyString(values.amount),
             },
         ]

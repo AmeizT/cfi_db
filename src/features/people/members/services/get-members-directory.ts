@@ -9,6 +9,8 @@ import {
     MembersApiResponseSchema,
     MemberSchema,
     type Member,
+    MemberUpdateSchema,
+    type MemberUpdate,
     type MembersListResponse,
     type MembersPage,
 } from "../schemas/member"
@@ -76,4 +78,44 @@ export async function getMemberDetail(memberKey: string): Promise<Member> {
     })
     if (!response.ok) throw new Error(response.status === 404 ? "Member not found." : "Failed to fetch member profile.")
     return MemberSchema.parse(await response.json())
+}
+
+async function memberMutationError(response: Response, fallback: string) {
+    const payload = await response.json().catch(() => null) as Record<string, unknown> | null
+    if (payload?.detail && typeof payload.detail === "string") return payload.detail
+    if (payload && Object.keys(payload).length) {
+        return Object.entries(payload)
+            .map(([field, value]) => `${field}: ${Array.isArray(value) ? value.join(", ") : String(value)}`)
+            .join(" ")
+    }
+    return fallback
+}
+
+export async function updateMemberDetail(memberKey: string, updates: MemberUpdate): Promise<Member> {
+    const cookieStore = await cookies()
+    const accessToken = cookieStore.get("accessToken")?.value
+    const payload = MemberUpdateSchema.parse(updates)
+    const response = await fetch(apiRoutes.members.detail(memberKey), {
+        ...withJwt(accessToken),
+        method: "PATCH",
+        headers: {
+            ...withJwt(accessToken).headers,
+            "Content-Type": "application/json",
+        },
+        cache: "no-store",
+        body: JSON.stringify(payload),
+    })
+    if (!response.ok) throw new Error(await memberMutationError(response, "Failed to update member."))
+    return MemberSchema.parse(await response.json())
+}
+
+export async function deleteMember(memberKey: string): Promise<void> {
+    const cookieStore = await cookies()
+    const accessToken = cookieStore.get("accessToken")?.value
+    const response = await fetch(apiRoutes.members.detail(memberKey), {
+        ...withJwt(accessToken),
+        method: "DELETE",
+        cache: "no-store",
+    })
+    if (!response.ok) throw new Error(await memberMutationError(response, "Failed to delete member."))
 }

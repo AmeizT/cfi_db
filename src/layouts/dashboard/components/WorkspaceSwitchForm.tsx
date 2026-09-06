@@ -39,7 +39,7 @@ export function WorkspaceSwitchForm({ workspace, setSelectedWorkspace }: Workspa
 
     return (
         <form className="w-full">
-            <label htmlFor={workspace?.name} className="flex items-center text-sm gap-x-2 capitalize">
+            <label htmlFor={workspace?.name} className="flex items-center text-sm gap-x-2 capitalize text-white">
                 <input
                     id={workspace?.name}
                     type="radio"
@@ -50,7 +50,7 @@ export function WorkspaceSwitchForm({ workspace, setSelectedWorkspace }: Workspa
                     className="hidden"
                 />
 
-                <Avatar className="w-7 h-7">
+                <Avatar className="w-7 h-7 ring-2 ring-neutral-900">
                     <AvatarImage src={workspace.avatar ?? undefined} />
                     <AvatarFallback aria-label="avatar-fallback" className="uppercase text-sm font-medium text-white" style={{ backgroundImage: `linear-gradient(to bottom, ${workspace?.avatar_fallback}, ${workspace?.avatar_fallback})` }}>
                         {workspace?.name?.slice(0, 1)}

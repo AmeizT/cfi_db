@@ -10,7 +10,7 @@ test("sidebar uses one Quick Create implementation with topbar and sidebar trigg
     ])
     assert.match(sidebar, /<QuickCreate\s+onAction=\{closeMobile\}\s+trigger=/)
     assert.match(topbar, /<QuickCreate \/>/)
-    assert.equal((quickCreate.match(/<DialogContent/g) ?? []).length, 1)
+    assert.match(quickCreate, /router\.push\("\/create"\)/)
 })
 
 test("shortcut and primary navigation groups share an expanded collapsible treatment", async () => {
@@ -37,4 +37,15 @@ test("desktop shell is neutral and the themed sidebar uses the floating primitiv
     assert.match(sidebar, /variant = "floating"/)
     assert.match(primitive, /bg-sidebar flex h-full/)
     assert.match(primitive, /group-data-\[variant=floating\]:rounded-2xl/)
+})
+
+test("application sidebar and inset do not draw a shared-edge border or shadow", async () => {
+    const [shell, sidebar] = await Promise.all([
+        readFile("src/layouts/app-shell.tsx", "utf8"),
+        readFile("src/layouts/ContextSidebar.tsx", "utf8"),
+    ])
+
+    assert.match(shell, /md:border-0 md:shadow-none/)
+    assert.match(sidebar, /\[&>\[data-slot=sidebar-inner\]\]:border-0/)
+    assert.match(sidebar, /\[&>\[data-slot=sidebar-inner\]\]:shadow-none/)
 })

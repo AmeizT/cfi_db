@@ -6,12 +6,15 @@ import { TableCell as BaseTableCell } from "@/components/ui/table"
 import { getPinningStyles } from "@/components/ui/data-table/styles/pinning"
 import { cn } from "@/lib/utils"
 import type { DataTableResource, DataTableStyles } from "./DataTable.types"
+import type { ColumnFormatter, TableColumnConfig } from "@/features/data-table/types/tableSchema.types"
 import React from "react";
 
 type ColumnMeta<T> = {
     editable?: boolean
     isNumeric?: boolean
     disableEditForRow?: (row: T) => boolean
+    formatter?: ColumnFormatter
+    editor?: TableColumnConfig["editor"]
 }
 
 type DataTableCellProps<T extends { id: number }> = {
@@ -20,6 +23,7 @@ type DataTableCellProps<T extends { id: number }> = {
     styles: DataTableStyles
     isEditable: boolean
     resource: DataTableResource
+    mutationQueryKey?: readonly unknown[]
     utilityPinnedOffset?: number
 }
 
@@ -29,6 +33,7 @@ export function DataTableCell<T extends { id: number }>({
     styles,
     isEditable,
     resource,
+    mutationQueryKey,
     utilityPinnedOffset = 0,
 }: DataTableCellProps<T>) {
     "use no memo"
@@ -66,6 +71,14 @@ export function DataTableCell<T extends { id: number }>({
                     className={cn("w-full", isNumericColumn && "text-right tabular-nums")}
                     resource={resource}
                     recordId={Number(row.original.id)}
+                    queryKey={mutationQueryKey}
+                    editor={columnMeta?.editor ?? (
+                        columnMeta?.formatter === "date"
+                            ? { type: "date" }
+                            : isNumericColumn
+                                ? { type: "number" }
+                                : { type: "text" }
+                    )}
                 />
             ) : (
                 <React.Fragment>

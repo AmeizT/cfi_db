@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 import View from "@/components/ui/view"
 import { PeriodSelector } from "@/features/reports/statements/components/PeriodSelector"
 import { getReportSubmoduleTitle } from "@/features/reports/modules/config/report-submodules"
+import type { ModulePageContext } from "@/features/reports/modules/types/report-modules"
 import { useDataTablePagination } from "@/features/reports/core/components/hooks/useDataTablePagination"
 import TithesView from "./TithesView"
 import { AuditView } from "./components/AuditView"
@@ -19,18 +20,34 @@ import { useAudit } from "./hooks/useAudit"
 import { useContributors } from "./hooks/useContributors"
 import { usePerformance } from "./hooks/usePerformance"
 import { useReceipts } from "./hooks/useReceipts"
-import { useReportTithes } from "./hooks/useReportTithes"
+import { reportTithesQueryKey, useReportTithes } from "./hooks/useReportTithes"
 import type { TithesRouteView } from "./types"
 import { getReportId, getStatus, getViewFromPathname } from "./utils/helpers"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
 
 export type { TithesRouteView } from "./types"
 
-export function TithesRouteContent({ view }: { view: TithesRouteView }) {
+export function TithesRouteContent({
+    view,
+    pageContext = "reports",
+    readOnly = false,
+}: {
+    view: TithesRouteView
+    pageContext?: ModulePageContext
+    readOnly?: boolean
+}) {
     const searchParams = useSearchParams()
+    const assemblyId = useActiveAssemblyId()
     const status = view === "transactions" ? getStatus(searchParams) : "active"
     const reportId = getReportId(searchParams)
     const pagination = useDataTablePagination()
     const rowsQuery = useReportTithes(reportId, status, view === "transactions")
+    const rowsQueryKey = reportTithesQueryKey(
+        assemblyId,
+        reportId,
+        status,
+        searchParams.toString(),
+    )
     const auditQuery = useAudit(reportId, view === "audit-log")
     const contributorsQuery = useContributors(reportId, view === "contributors")
     const receiptsQuery = useReceipts(reportId, view === "receipts")
@@ -91,6 +108,9 @@ export function TithesRouteContent({ view }: { view: TithesRouteView }) {
             tithes={rowsQuery.data}
             isLoading={rowsQuery.isLoading}
             pagination={pagination}
+            mutationQueryKey={rowsQueryKey}
+            readOnly={readOnly}
+            showWorkspaceToolbar={pageContext === "workspace"}
         />
     )
 }

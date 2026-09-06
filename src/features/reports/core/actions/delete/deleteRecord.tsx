@@ -9,31 +9,19 @@ export async function softDeleteRecord(resource: ApiDetailRouteKey, recordId: st
 
     const endpoint = route.detail(recordId)
 
-    try {
-        const response = await fetch(`${endpoint}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                Cookie: cookieStore.toString(),
-            },
-            cache: "no-store",
-        })
+    const response = await fetch(`${endpoint}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            Cookie: cookieStore.toString(),
+        },
+        cache: "no-store",
+    })
 
-        if (!response.ok) {
-            throw new Error("Failed to delete record. Please try again.")
-        }
-
-        return {
-            success: true,
-            status: response.status,
-        }
-    } catch (error) {
-        return {
-            success: false,
-            error:
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error",
-        }
+    if (!response.ok) {
+        const payload = await response.json().catch(() => null) as { detail?: string } | null
+        throw new Error(payload?.detail ?? "Failed to delete record. Please try again.")
     }
+
+    return { success: true, status: response.status }
 }

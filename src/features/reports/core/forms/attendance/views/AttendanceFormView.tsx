@@ -14,18 +14,20 @@ import type { AttendanceRecord } from "../types/attendance"
 
 const zeroMetrics = Object.fromEntries(attendanceMetrics.map((metric) => [metric, 0]))
 
-function serializeAttendanceRecord(record: AttendanceRecord) {
+export function serializeAttendanceRecord(record: AttendanceRecord): AttendanceRecord {
     return {
         id: record.id,
         timestamp: record.timestamp,
         service_type: record.service_type || "sunday",
         ...Object.fromEntries(attendanceMetrics.map((metric) => [metric, record[metric] ?? 0])),
+        is_special_event: Boolean(record.is_special_event),
+        special_event_name: record.is_special_event ? record.special_event_name || "" : "",
         preacher: record.preacher || "",
         sermon: record.sermon || "",
         scriptures: record.scriptures || "",
         weather: record.weather || null,
         notes: record.notes || "",
-    }
+    } as AttendanceRecord
 }
 
 export default function AttendanceFormView({ period, reportId }: { period: string; reportId?: string | number | null }) {
@@ -56,21 +58,23 @@ export default function AttendanceFormView({ period, reportId }: { period: strin
     )
     const dirtyDates = React.useMemo(() => new Set(Object.keys(edits)), [edits])
 
+    const saveEntries = React.useCallback(async (entries: AttendanceRecord[]) => {
+        const response = await fetch(apiRoutes.attendance.batch(), {
+            method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ period, report: reportId ? Number(reportId) : undefined, entries }),
+        })
+        const body = await response.json().catch(() => ({}))
+        if (!response.ok) throw body
+        return body
+    }, [period, reportId])
+
     const mutation = useMutation({
-        mutationFn: async (entries: AttendanceRecord[]) => {
-            const response = await fetch(apiRoutes.attendance.batch(), {
-                method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ period, report: reportId ? Number(reportId) : undefined, entries }),
-            })
-            const body = await response.json().catch(() => ({}))
-            if (!response.ok) throw body
-            return body
-        },
+        mutationFn: saveEntries,
         onSuccess: async (body) => {
             setEdits({})
             setErrors({})
             queryClient.setQueryData<AttendanceRecord[]>(queryKey, (current = []) => current.map((record) => body.records.find((saved: AttendanceRecord) => saved.timestamp === record.timestamp) ?? record))
-            await Promise.all([queryClient.invalidateQueries({ queryKey }), queryClient.invalidateQueries({ queryKey: ["reports"] }), queryClient.invalidateQueries({ queryKey: ["attendanceAnalytics"] })])
+            await Promise.all([queryClient.invalidateQueries({ queryKey }), queryClient.invalidateQueries({ queryKey: ["reports"] }), queryClient.invalidateQueries({ queryKey: ["reports-workflow"] }), queryClient.invalidateQueries({ queryKey: ["attendanceAnalytics"] })])
             toast.success(`${body.count} attendance ${body.count === 1 ? "week" : "weeks"} saved.`)
         },
         onError: (body: { message?: string; errors?: { entries?: Record<string, Record<string, string[] | string>> } }) => {
@@ -83,6 +87,45 @@ export default function AttendanceFormView({ period, reportId }: { period: strin
             })
             setErrors(nextErrors)
             toast.error(body.message || "Could not save attendance. Your changes have been preserved.")
+        },
+    })
+
+    const detailsMutation = useMutation({
+        mutationFn: async (record: AttendanceRecord) => {
+            const body = await saveEntries([
+                serializeAttendanceRecord(record) as AttendanceRecord,
+            ])
+            return { body, timestamp: record.timestamp }
+        },
+        onSuccess: async ({ body, timestamp }) => {
+            const saved = body.records?.find(
+                (record: AttendanceRecord) => record.timestamp === timestamp
+            )
+            if (saved) {
+                queryClient.setQueryData<AttendanceRecord[]>(queryKey, (current = []) =>
+                    current.map((record) => record.timestamp === timestamp ? saved : record)
+                )
+            }
+            setEdits((current) => {
+                const next = { ...current }
+                delete next[timestamp]
+                return next
+            })
+            setErrors((current) => {
+                const next = { ...current }
+                delete next[timestamp]
+                return next
+            })
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey }),
+                queryClient.invalidateQueries({ queryKey: ["reports"] }),
+                queryClient.invalidateQueries({ queryKey: ["reports-workflow"] }),
+                queryClient.invalidateQueries({ queryKey: ["attendanceAnalytics"] }),
+            ])
+            toast.success("Attendance details saved.")
+        },
+        onError: (body: { message?: string }) => {
+            toast.error(body.message || "Could not save attendance details. Your changes are still open.")
         },
     })
 
@@ -107,7 +150,7 @@ export default function AttendanceFormView({ period, reportId }: { period: strin
                 records={records}
                 dirtyDates={dirtyDates}
                 errors={errors}
-                disabled={mutation.isPending || query.isLoading}
+                disabled={mutation.isPending || detailsMutation.isPending || query.isLoading}
                 updateRecord={updateRecord}
                 openDetails={setSelected}
             />
@@ -138,9 +181,13 @@ export default function AttendanceFormView({ period, reportId }: { period: strin
             </div>
 
             <AttendanceDetailDrawer
+                key={selected?.timestamp ?? "attendance-details-closed"}
                 record={selected}
                 close={() => setSelected(null)}
-                updateRecord={async (record) => updateRecord(record)}
+                saveRecord={async (record) => {
+                    await detailsMutation.mutateAsync(record)
+                }}
+                isSaving={detailsMutation.isPending}
             />
         </div>
     )

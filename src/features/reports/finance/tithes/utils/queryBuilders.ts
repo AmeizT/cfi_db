@@ -20,15 +20,39 @@ const TITHES_QUERY_PARAMS = [
     "page_size",
 ] as const
 
+const RELATIVE_URL_BASE = "http://tithes-relative.invalid"
+
+function createEndpointUrl(endpoint: string) {
+    const isAbsolute = /^https?:\/\//i.test(endpoint)
+    const isRootRelative = endpoint.startsWith("/")
+
+    if (!isAbsolute && !isRootRelative) {
+        throw new TypeError(
+            `Tithes API endpoint must be an absolute HTTP(S) URL or a root-relative path: ${endpoint || "<empty>"}`
+        )
+    }
+
+    return {
+        isAbsolute,
+        url: new URL(endpoint, RELATIVE_URL_BASE),
+    }
+}
+
+function serializeEndpointUrl(url: URL, isAbsolute: boolean) {
+    return isAbsolute
+        ? url.toString()
+        : `${url.pathname}${url.search}${url.hash}`
+}
+
 export function buildTithesActionQuery(searchParams: URLSearchParams, endpoint: string) {
-    const url = new URL(endpoint)
+    const { isAbsolute, url } = createEndpointUrl(endpoint)
 
     for (const key of TITHES_QUERY_PARAMS) {
         const value = searchParams.get(key)
         if (value) url.searchParams.set(key, value)
     }
 
-    return url.toString()
+    return serializeEndpointUrl(url, isAbsolute)
 }
 
 export function buildReportTithesQuery(
@@ -36,7 +60,9 @@ export function buildReportTithesQuery(
     searchParams: URLSearchParams,
     status: TitheStatusFilter
 ) {
-    const url = new URL(apiRoutes.reports.tithes.list(reportId))
+    const { isAbsolute, url } = createEndpointUrl(
+        apiRoutes.reports.tithes.list(reportId)
+    )
 
     for (const key of TITHES_QUERY_PARAMS) {
         const value = searchParams.get(key)
@@ -45,5 +71,5 @@ export function buildReportTithesQuery(
 
     url.searchParams.set("status", status)
 
-    return url.toString()
+    return serializeEndpointUrl(url, isAbsolute)
 }

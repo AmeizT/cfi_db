@@ -12,6 +12,7 @@ import {
 import { AlarmClockCheck, Bug, LogOut, Settings, type LucideIcon } from "lucide-react"
 import type { User } from "@/features/auth/schemas/user"
 import { signOut } from "@/features/auth/actions/sign-out"
+import { useRouter } from "next/navigation"
 
 
 interface AccountMenuProps {
@@ -25,6 +26,7 @@ interface AccountMenuItem {
 }
 
 export function AccountMenu({ user }: AccountMenuProps){   
+    const router = useRouter()
     const AccountMenuItems: AccountMenuItem[] = [
         {
             name: "Settings",
@@ -43,7 +45,11 @@ export function AccountMenu({ user }: AccountMenuProps){
             icon: LogOut,
             onClick: async () => {
                 try {
-                    await signOut(String(user?.id))
+                    const result = await signOut(String(user?.id))
+                    if (result.success) {
+                        router.replace("/en/auth/login")
+                        router.refresh()
+                    }
                 } catch (error) {
                     console.error("Sign out failed:", error)
                 }

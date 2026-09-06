@@ -7,6 +7,7 @@ import { cookies } from "next/headers"
 type PaginationParams = {
     page?: number
     pageSize?: number
+    search?: string
 }
 
 function buildPaginationQuery(pagination?: PaginationParams) {
@@ -18,6 +19,10 @@ function buildPaginationQuery(pagination?: PaginationParams) {
 
     if (pagination?.pageSize) {
         params.set("page_size", String(pagination.pageSize))
+    }
+
+    if (pagination?.search) {
+        params.set("search", pagination.search)
     }
 
     const query = params.toString()

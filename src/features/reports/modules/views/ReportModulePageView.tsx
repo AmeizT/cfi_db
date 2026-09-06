@@ -25,9 +25,11 @@ import {
     TithesRouteContent,
     type TithesRouteView,
 } from "@/features/reports/finance/tithes/workspace/TithesWorkspace"
+import { TithesCumulativeToolbar } from "@/features/reports/finance/tithes/components/TithesDataToolbar"
+import { ReportCumulativeToolbar } from "@/features/reports/core/components/ReportDataToolbar"
 import { ReportsOverview as ReportsQueueView } from "@/features/reports/activity/views/ReportOverview"
 import { SundaySchoolAttendanceView } from "@/features/people/sunday-school/views/SundaySchoolAttendanceView"
-import { ReportSourceBanner } from "@/features/reports/workflow/components/ReportSourceBanner"
+import { ReportStatusPopover } from "@/features/reports/workflow/components/ReportStatusPopover"
 import {
     getReportModuleConfig,
     getReportModuleTabs,
@@ -49,6 +51,7 @@ import type {
     ReportSection,
 } from "../types/report-modules"
 import { ReportPerformancePageView } from "./ReportPerformancePageView"
+import { Separator } from "@/components/ui/separator";
 
 type RendererContext = {
     attendance: AttendanceResponse | undefined
@@ -115,10 +118,16 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         config,
         pageContext,
         reportId,
+        selectedReport,
         view,
     }) => {
         if (view === "cumulative") {
-            return <CumulativeDataPageView module="tithes" pageContext={pageContext} />
+            return (
+                <>
+                    {pageContext === "workspace" ? <TithesCumulativeToolbar /> : null}
+                    <CumulativeDataPageView module="tithes" pageContext={pageContext} />
+                </>
+            )
         }
 
         if (!reportId) {
@@ -126,11 +135,17 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         }
 
         if (isTithesRouteView(view)) {
-            return <TithesRouteContent view={view} />
+            return (
+                <TithesRouteContent
+                    view={view}
+                    pageContext={pageContext}
+                    readOnly={Boolean(selectedReport && selectedReport.status !== "draft")}
+                />
+            )
         }
 
         if (view === "more") {
-            return <TithesRouteContent view="audit-log" />
+            return <TithesRouteContent view="audit-log" pageContext={pageContext} />
         }
 
         return (
@@ -150,7 +165,20 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         pageContext,
     }) => {
         if (view === "cumulative") {
-            return <CumulativeDataPageView module="income-expenditure" pageContext={pageContext} />
+            return (
+                <>
+                    {pageContext === "workspace" ? (
+                        <ReportCumulativeToolbar
+                            section="finance"
+                            module="income-expenditure"
+                            pageContext={pageContext}
+                            monthlySubmodule="statement"
+                            label="Income & Expenditure"
+                        />
+                    ) : null}
+                    <CumulativeDataPageView module="income-expenditure" pageContext={pageContext} />
+                </>
+            )
         }
 
         if (!reportId) {
@@ -162,6 +190,13 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
                 cashflow={finance?.cashflow}
                 isLoading={isFinanceLoading}
                 pagination={pagination}
+                toolbarScope={pageContext === "workspace" ? {
+                    section: "finance",
+                    module: "income-expenditure",
+                    pageContext,
+                    monthlySubmodule: "statement",
+                    label: "Income & Expenditure",
+                } : undefined}
             />
         )
     },
@@ -175,7 +210,20 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         pageContext,
     }) => {
         if (view === "cumulative") {
-            return <CumulativeDataPageView module="income-expenditure" pageContext={pageContext} />
+            return (
+                <>
+                    {pageContext === "workspace" ? (
+                        <ReportCumulativeToolbar
+                            section="finance"
+                            module="financial-activity"
+                            pageContext={pageContext}
+                            monthlySubmodule="statement"
+                            label="Financial Activity"
+                        />
+                    ) : null}
+                    <CumulativeDataPageView module="income-expenditure" pageContext={pageContext} />
+                </>
+            )
         }
 
         if (!reportId) {
@@ -198,6 +246,13 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
                 isLoading={isFinanceLoading}
                 pagination={pagination}
                 showSummary
+                toolbarScope={pageContext === "workspace" ? {
+                    section: "finance",
+                    module: "financial-activity",
+                    pageContext,
+                    monthlySubmodule: "statement",
+                    label: "Financial Activity",
+                } : undefined}
             />
         )
     },
@@ -212,35 +267,69 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         pageContext,
     }) => {
         if (view === "cumulative") {
-            return <CumulativeDataPageView module="attendance" pageContext={pageContext} />
-        }
-
-        if (view === "sunday-school") {
-            const reportPeriod = selectedReport ? getReportPeriod(selectedReport) : null
-            const period = reportPeriod
-                ? `${reportPeriod.year}-${String(reportPeriod.month + 1).padStart(2, "0")}`
-                : undefined
-
             return (
-                <SundaySchoolAttendanceView
-                    embedded
-                    period={period}
-                    reportId={reportId}
-                />
+                <>
+                    {pageContext === "workspace" ? (
+                        <ReportCumulativeToolbar
+                            section="ministry"
+                            module="attendance"
+                            pageContext={pageContext}
+                            monthlySubmodule={null}
+                            label="Attendance"
+                        />
+                    ) : null}
+                    <CumulativeDataPageView module="attendance" pageContext={pageContext} />
+                </>
             )
         }
 
-        if (!reportId) {
-            return <MissingReportState label={config.title} />
+        if (view === "special-services") {
+            return <ReportModulePlaceholder
+                title="No special service attendance yet"
+                description="Attendance recorded for conferences, special meetings, celebrations and other special services will appear here."
+            />
+        }
+
+        if (!reportId) return <MissingReportState label={config.title} />
+        const reportPeriod = selectedReport ? getReportPeriod(selectedReport) : null
+        const period = reportPeriod
+            ? `${reportPeriod.year}-${String(reportPeriod.month + 1).padStart(2, "0")}`
+            : undefined
+        const sharedProps = {
+            attendance,
+            isLoading: isAttendanceLoading,
+            pagination,
+            reportId,
+            pageContext,
+            readOnly: Boolean(selectedReport && selectedReport.status !== "draft"),
+        }
+
+        if (view === "homecell") {
+            return <AttendanceView
+                {...sharedProps}
+                service="homecell"
+                reportingPeriod={selectedReport ? { start: selectedReport.period_start, end: selectedReport.period_end } : undefined}
+            />
         }
 
         return (
-            <AttendanceView
-                attendance={attendance}
-                isLoading={isAttendanceLoading}
-                pagination={pagination}
-                service={view === "homecell" || view === "midweek" || view === "special-services" ? view : "main-service"}
-            />
+            <div className="flex flex-col gap-10 py-4">
+                <section aria-labelledby="general-sunday-heading">
+                    <h2 id="general-sunday-heading" className="pb-3 text-lg font-semibold text-foreground">Main Service</h2>
+                    <AttendanceView {...sharedProps} service="main-service" />
+                </section>
+                <Separator className="border-border-subtle dark:border-neutral-800" />
+                <section aria-labelledby="sunday-school-heading">
+                    <h2 id="sunday-school-heading" className="pb-3 text-lg font-semibold text-foreground">Sunday School</h2>
+                    {period ? <SundaySchoolAttendanceView embedded period={period} reportId={reportId} />
+                        : <MissingReportState label="Sunday School attendance for this period" />}
+                </section>
+                <Separator className="border-border-subtle dark:border-neutral-800" />
+                <section aria-labelledby="midweek-heading">
+                    <h2 id="midweek-heading" className="pb-3 text-lg font-semibold text-foreground">Midweek (Fasting and Prayer)</h2>
+                    <AttendanceView {...sharedProps} service="midweek" />
+                </section>
+            </div>
         )
     },
     "finance/remittance": ({ config }) => (
@@ -327,11 +416,21 @@ export function ReportModulePageView({
     const config = getReportModuleConfig(section, module)
     const submoduleTabs = getReportSubmoduleTabs(section, module, searchParams, pageContext)
     const moduleTabs = getReportModuleTabs(section, searchParams, pageContext)
-    const viewTabs = submoduleTabs.length
+    const resolvedViewTabs = submoduleTabs.length
         ? submoduleTabs
         : section === "activity" || section === "performance"
             ? moduleTabs
             : getReportModuleViewTabs(section, module, searchParams, pageContext)
+    const usesWorkspaceDataToolbar = pageContext === "workspace"
+        && (
+            routeKey === "finance/tithes"
+            || routeKey === "finance/income-expenditure"
+            || routeKey === "finance/financial-activity"
+            || routeKey === "ministry/attendance"
+        )
+    const viewTabs = usesWorkspaceDataToolbar
+        ? resolvedViewTabs.filter((tab) => tab.key !== "cumulative")
+        : resolvedViewTabs
     const activeSubmodule = getActiveReportSubmodule(section, module, submodule)
     const activeView =
         activeSubmodule ??
@@ -356,6 +455,7 @@ export function ReportModulePageView({
     const paginationParams = {
         page: pagination.currentPage,
         pageSize: pagination.pageSize,
+        search: searchParams.get("search") ?? undefined,
     }
     const { data: attendance, isLoading: isAttendanceLoading } =
         useReportAttendance(shouldLoadAttendance ? reportId : undefined, paginationParams)
@@ -366,35 +466,42 @@ export function ReportModulePageView({
         return null
     }
     const renderer = REPORT_MODULE_RENDERERS[routeKey]
+    const navigationActiveView = routeKey === "ministry/attendance" && renderView === "cumulative"
+        ? searchParams.get("service") === "homecell" ? "homecell" : "main-service"
+        : usesWorkspaceDataToolbar && renderView === "cumulative"
+            ? viewTabs.at(0)?.key ?? activeView
+            : activeView
     const pageTitle =
-        getReportSubmoduleTitle(section, module, renderView)
+        getReportSubmoduleTitle(section, module, navigationActiveView)
         ?? getReportSubmoduleTitle(section, module, activeView)
     const showReportNavigator =
         !REPORT_NAVIGATOR_HIDDEN_VIEWS.has(renderView)
         && !REPORT_NAVIGATOR_HIDDEN_ROUTES.has(routeKey)
-    const waitForSelectedSundaySchoolReport = routeKey === "ministry/attendance"
-        && renderView === "sunday-school"
+    const waitForSelectedAttendanceReport = routeKey === "ministry/attendance"
+        && renderView !== "cumulative"
         && Boolean(reportId)
         && reportSelection.isLoading
         && !reportSelection.selectedReport
     const isResolvingReport = reportSelection.isResolving
-        || waitForSelectedSundaySchoolReport
+        || waitForSelectedAttendanceReport
 
     return (
         <View className="gap-0" >
             <ReportModuleHeader
+                actions={pageContext === "workspace" && REPORT_BACKED_ROUTES.has(routeKey)
+                    ? <ReportStatusPopover />
+                    : undefined}
                 config={config}
                 showReportNavigator={showReportNavigator}
                 title={pageTitle}
             />
 
             <ReportModuleTabs
-                activeView={activeView}
+                activeView={navigationActiveView}
                 tabs={viewTabs} 
             />
 
             <View.Body className="gap-0">
-                {pageContext === "workspace" ? <ReportSourceBanner /> : null}
                 <ReportModuleDataTable>
                     {isResolvingReport ? (
                         <div className="space-y-3 py-4" aria-label="Loading report">

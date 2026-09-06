@@ -1,8 +1,9 @@
 "use client"
 
 import { Table } from "@tanstack/react-table"
-import { DownloadIcon } from "lucide-react"
+import { DownloadIcon, FileDownIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { exportTablePdf, type PdfTableRow } from "@/features/data-table/utils/pdf-export"
 import type {
     DataTableExportContext,
@@ -16,6 +17,7 @@ type DataTableExportProps<T> = {
     format?: DataTableExportFormat
     metadata?: DataTableExportMetadata
     onExport?: (context: DataTableExportContext<T>) => void | Promise<void>
+    trigger?: "button" | "menu-item"
 }
 
 function formatColumnLabel(value: string) {
@@ -51,6 +53,7 @@ export function DataTableExport<T>({
     format = "csv",
     metadata,
     onExport,
+    trigger = "button",
 }: DataTableExportProps<T>) {
     async function handleExport() {
         const resolvedMetadata = {
@@ -121,6 +124,15 @@ export function DataTableExport<T>({
         link.download = `${filename}.csv`
         link.click()
         URL.revokeObjectURL(url)
+    }
+
+    if (trigger === "menu-item") {
+        return (
+            <DropdownMenuItem className="h-10 rounded-xl px-3" onSelect={() => void handleExport()}>
+                <FileDownIcon aria-hidden="true" />
+                {format === "pdf" ? "Export PDF" : "Export CSV"}
+            </DropdownMenuItem>
+        )
     }
 
     return (

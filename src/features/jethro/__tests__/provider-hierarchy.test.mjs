@@ -2,8 +2,8 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import test from "node:test"
 
-test("authenticated dashboard and headless shells share the Jethro provider boundary", async () => {
-    const [dashboard, headless, providers, shell, headlessShell] = await Promise.all([
+test("all authenticated shells inherit one Jethro provider boundary", async () => {
+    const [authenticatedRoot, headless, providers, shell, headlessShell] = await Promise.all([
         readFile("src/layouts/AuthenticatedAppLayout.tsx", "utf8"),
         readFile("src/layouts/HeadlessAppLayout.tsx", "utf8"),
         readFile("src/layouts/providers/authenticated-workspace.tsx", "utf8"),
@@ -11,8 +11,8 @@ test("authenticated dashboard and headless shells share the Jethro provider boun
         readFile("src/layouts/headless/HeadlessLayout.tsx", "utf8"),
     ])
 
-    assert.match(dashboard, /<AuthenticatedWorkspaceProviders>/)
-    assert.match(headless, /<AuthenticatedWorkspaceProviders>/)
+    assert.match(authenticatedRoot, /<AuthenticatedWorkspaceProviders>/)
+    assert.doesNotMatch(headless, /AuthenticatedWorkspaceProviders/)
     assert.match(providers, /<JethroSessionProvider>\{children\}<\/JethroSessionProvider>/)
     assert.doesNotMatch(shell, /JethroSessionProvider/)
     assert.equal((shell.match(/<JethroLauncher/g) ?? []).length, 1)

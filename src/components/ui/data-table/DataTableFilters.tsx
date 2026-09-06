@@ -38,9 +38,9 @@ export function DataTableFilters<T>({ table }: DataTableFiltersProps<T>) {
         <div className="flex items-center gap-2">
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button variant="toolbar">
-                        <ListFilterIcon size={16} className="opacity-60" aria-hidden="true" />
-                        Filters
+                    <Button variant="ghost" size="sm" className="h-8 rounded-full px-3">
+                        <ListFilterIcon size={17} aria-hidden="true" />
+                        Filter
                         {activeFiltersCount > 0 && (
                             <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
                                 {activeFiltersCount}
@@ -48,6 +48,7 @@ export function DataTableFilters<T>({ table }: DataTableFiltersProps<T>) {
                         )}
                     </Button>
                 </PopoverTrigger>
+                
                 <PopoverContent align="start" className="w-72 space-y-3">
                     <div className="flex items-center justify-between">
                         <p className="text-sm font-medium">Filters</p>

@@ -20,7 +20,6 @@ export type TitheRecord = Tithe & {
     member_name?: string | null
     member_avatar?: string | null
     member_avatar_fallback?: string | null
-    status?: string
     deleted_at?: string | null
     void_reason?: string
     voided_by?: string | number | null
@@ -34,18 +33,31 @@ export type TitheRecord = Tithe & {
     email_sent_at?: string | null
 }
 
+type ListResponseEnvelope<T, M> = {
+    count?: number
+    next?: string | null
+    previous?: string | null
+    results?: T[]
+    data?: T[]
+    config?: TableSchema
+    table_schema?: TableSchema
+    meta?: M
+}
+
+type NestedListResponseEnvelope<T, M> = {
+    data: ListResponseEnvelope<T, M>
+    count?: number
+    next?: string | null
+    previous?: string | null
+    config?: TableSchema
+    table_schema?: TableSchema
+    meta?: M
+}
+
 export type TitheListResponse =
     | TitheRecord[]
-    | {
-        count?: number
-        next?: string | null
-        previous?: string | null
-        results?: TitheRecord[]
-        data?: TitheRecord[]
-        config?: TableSchema
-        table_schema?: TableSchema
-        meta?: TithesMeta
-    }
+    | ListResponseEnvelope<TitheRecord, TithesMeta>
+    | NestedListResponseEnvelope<TitheRecord, TithesMeta>
 
 export type TithesMeta = {
     config?: TableSchema
@@ -59,6 +71,8 @@ export type TithesListResult = {
     results: TitheRecord[]
     data: TitheRecord[]
     count: number
+    next?: string | null
+    previous?: string | null
     config?: TableSchema
     table_schema?: TableSchema
     meta?: TithesMeta
@@ -123,21 +137,16 @@ export type ContributorMeta = {
 
 export type ContributorResponse =
     | ContributorRecord[]
-    | {
-        count?: number
-        next?: string | null
-        previous?: string | null
-        results?: ContributorRecord[]
-        data?: ContributorRecord[]
-        table_schema?: TableSchema
-        meta?: ContributorMeta
-    }
+    | ListResponseEnvelope<ContributorRecord, ContributorMeta>
+    | NestedListResponseEnvelope<ContributorRecord, ContributorMeta>
 
 export type ContributorRowsResult = {
     rows: ContributorRecord[]
     results: ContributorRecord[]
     data: ContributorRecord[]
     count: number
+    next?: string | null
+    previous?: string | null
     meta?: ContributorMeta
     config?: TableSchema
     table_schema?: TableSchema

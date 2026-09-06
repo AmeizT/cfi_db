@@ -57,7 +57,7 @@ export function navRail({ user, searchParams, regionId }: Props): RailNavigation
     //     icon: FileEditIcon,
     //     activeIcon: FileEditIcon,
     //     mobile: true,
-    //     href: "/report-wizard",
+    //     href: "/create",
     // })
 
     topItems.push({
@@ -73,7 +73,7 @@ export function navRail({ user, searchParams, regionId }: Props): RailNavigation
         icon: AddCircleIcon,
         activeIcon: AddCircleIcon,
         mobile: true,
-        href: "/report-wizard",
+        href: "/create",
     })
 
     const formsIndex = topItems.findIndex(item => item.label === "Forms")

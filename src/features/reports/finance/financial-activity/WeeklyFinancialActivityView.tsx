@@ -181,12 +181,14 @@ export function WeeklyFinancialActivityView({
 
     if (!transactions.length) {
         return (
-            <EmptyState
-                type="financialTransactions"
-                title={`No ${kind} recorded`}
-                description={`Add ${kind} transactions to see weekly totals and comparisons.`}
-                size="full"
-            />
+            <div className="flex min-h-0 flex-1 items-center justify-center">
+                <EmptyState
+                    type="financialTransactions"
+                    title={`No ${kind} recorded`}
+                    description={`Add ${kind} transactions to see weekly totals and comparisons.`}
+                    size="full"
+                />
+            </div>
         )
     }
 

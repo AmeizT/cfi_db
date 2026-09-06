@@ -22,18 +22,47 @@ export const MONTHS = [
 
 const VALID_STATUS = new Set<TitheStatusFilter>(["active", "voided", "deleted"])
 
-type NormalizableListResponse<T, M extends { config?: TableSchema; table_schema?: TableSchema } = { config?: TableSchema; table_schema?: TableSchema }> =
-    | T[]
-    | {
-        count?: number
-        next?: string | null
-        previous?: string | null
-        results?: T[]
-        data?: T[]
+type ListResponseObject<T, M> = {
+    count?: number
+    next?: string | null
+    previous?: string | null
+    results?: T[]
+    data?: T[]
+    config?: TableSchema
+    table_schema?: TableSchema
+    meta?: M
+}
+
+type NestedListResponse<T, M> = {
+    data: ListResponseObject<T, M>
+    count?: number
+    next?: string | null
+    previous?: string | null
+    config?: TableSchema
+    table_schema?: TableSchema
+    meta?: M
+}
+
+type NormalizableListResponse<
+    T,
+    M extends { config?: TableSchema; table_schema?: TableSchema } = {
         config?: TableSchema
         table_schema?: TableSchema
-        meta?: M
+    },
+> = T[] | ListResponseObject<T, M> | NestedListResponse<T, M>
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return Boolean(value) && typeof value === "object" && !Array.isArray(value)
+}
+
+/** Unwraps the single `data` object used by the supported API envelope. */
+export function unwrapDataEnvelope(response: unknown): unknown {
+    if (isRecord(response) && isRecord(response.data)) {
+        return response.data
     }
+
+    return response
+}
 
 export function getStatus(searchParams: URLSearchParams | ReadonlyURLSearchParams): TitheStatusFilter {
     const status = searchParams.get("status")
@@ -105,22 +134,34 @@ export function normalizeListResponse<T, M extends { config?: TableSchema; table
             results: response,
             data: response,
             count: response.length,
+            next: undefined,
+            previous: undefined,
             config: undefined,
             table_schema: undefined,
             meta: undefined,
         }
     }
 
-    const rows = response.results ?? response.data ?? []
-    const config = getResponseConfig(response)
+    const responseObject = response as ListResponseObject<T, M>
+    const unwrapped = unwrapDataEnvelope(response)
+    const payloadObject = isRecord(unwrapped)
+        ? unwrapped as ListResponseObject<T, M>
+        : responseObject
+    const directData = payloadObject.data
+    const rows = payloadObject?.results
+        ?? (Array.isArray(directData) ? directData : [])
+    const config = getResponseConfig(payloadObject) ?? getResponseConfig(responseObject)
+    const meta = payloadObject.meta ?? responseObject.meta
 
     return {
         rows,
         results: rows,
         data: rows,
-        count: response.count ?? rows.length,
+        count: payloadObject?.count ?? responseObject.count ?? rows.length,
+        next: payloadObject.next ?? responseObject.next,
+        previous: payloadObject.previous ?? responseObject.previous,
         config,
-        table_schema: response.table_schema ?? config,
-        meta: response.meta,
+        table_schema: payloadObject?.table_schema ?? responseObject.table_schema ?? config,
+        meta,
     }
 }

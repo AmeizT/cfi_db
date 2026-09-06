@@ -220,7 +220,7 @@ export function UnifiedSidebarNavigation({
                                     aria-hidden="true"
                                     className={cn(
                                         "size-2! mx-auto my-auto",
-                                        "fill-user-theme-900",
+                                        "fill-user-theme-900 dark:fill-white",
                                         "absolute inset-0 size-5",
                                         "rotate-90 scale-90 opacity-0",
                                         "transition-all duration-150",
