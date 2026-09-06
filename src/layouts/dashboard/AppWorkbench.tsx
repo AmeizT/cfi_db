@@ -1,5 +1,7 @@
 "use client"
 
+import { createReportWizardHref } from "@/features/create/routing"
+
 import React from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Drawer } from "vaul"
@@ -9,7 +11,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { WorkbenchQuickEntry } from "@/features/report-wizard/components/quick-entry/WorkbenchQuickEntry"
 import { useReports } from "@/features/reports/core/hooks/use-reports"
 import {
-    createReportWizardHref,
     formatReportWizardPeriod,
     getReportWizardSectionByPathname,
     getReportWizardSections,

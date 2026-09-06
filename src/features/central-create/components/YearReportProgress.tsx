@@ -1,5 +1,7 @@
 "use client"
 
+import { createReportWizardHref } from "@/features/create/routing"
+
 import Link from "next/link"
 import { CalendarRangeIcon, Loader2Icon } from "lucide-react"
 
@@ -22,7 +24,7 @@ import {
 } from "@/components/ui/sheet"
 import {
     REPORT_WIZARD_SECTIONS,
-    createReportWizardHref,
+
     type ReportWizardMethod,
     type ReportWizardUploadType,
 } from "@/features/report-wizard/config/report-types"

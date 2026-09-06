@@ -2,7 +2,9 @@
 
 import * as React from "react"
 import { SearchIcon, UserRoundIcon } from "lucide-react"
-import { UserSwitchIcon } from "@hugeicons/core-free-icons"
+import { Delete03Icon, Edit02Icon, UserSwitchIcon } from "@hugeicons/core-free-icons"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -22,6 +24,9 @@ import { membersTableSchema } from "../config/table-schema"
 import { useMembersDirectory } from "../hooks/use-members-directory"
 import type { Member } from "../schemas/member"
 import { getMembersTabs } from "../config/members.tabs"
+import { MemberEditDialog } from "../components/MemberEditDialog"
+import { deleteMember } from "../services/get-members-directory"
+import { useUser } from "@/hooks/query/use-user"
 
 type MemberTableRow = Record<string, unknown> & {
     id: number
@@ -202,7 +207,10 @@ export function MembersView({ embedded = false, group = "all" }: { embedded?: bo
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
+    const queryClient = useQueryClient()
+    const userQuery = useUser()
     const [transferMember, setTransferMember] = React.useState<Member | null>(null)
+    const [editingMember, setEditingMember] = React.useState<Member | null>(null)
     const search = searchParams.get("search") ?? ""
     const viewParam = searchParams.get("view")
     const view: ResourceViewMode = viewParam === "cards" ? "cards" : "table"
@@ -219,6 +227,21 @@ export function MembersView({ embedded = false, group = "all" }: { embedded?: bo
     )
     const isLoading = membersQuery.isLoading || membersQuery.isFetching
     const isInitialCardLoading = isLoading && members.length === 0
+    const canManage = Boolean(
+        userQuery.data?.is_admin
+        || userQuery.data?.is_staff
+        || userQuery.data?.is_db_staff
+        || userQuery.data?.is_region_staff
+    )
+
+    const deleteMutation = useMutation({
+        mutationFn: deleteMember,
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ["assembly"] })
+            toast.success("Member deleted")
+        },
+        onError: (error) => toast.error(error instanceof Error ? error.message : "Member could not be deleted."),
+    })
 
     const updateParams = React.useCallback(
         (updates: Record<string, string | null>) => {
@@ -258,13 +281,28 @@ export function MembersView({ embedded = false, group = "all" }: { embedded?: bo
     )
 
     const getRowActions = React.useCallback((row: MemberTableRow): DataTableAction[] => [
+        ...(canManage ? [{
+            label: "Edit member",
+            icon: Edit02Icon,
+            variant: "default" as const,
+            onClick: () => setEditingMember(row.member),
+        }, {
+            label: "Delete member",
+            icon: Delete03Icon,
+            variant: "destructive" as const,
+            onClick: () => {
+                if (window.confirm(`Delete ${row.member.full_name}? Their historical records will be preserved.`)) {
+                    deleteMutation.mutate(row.member.member_key)
+                }
+            },
+        }] : []),
         {
             label: "Transfer Member",
             icon: UserSwitchIcon,
             variant: "default",
             onClick: () => setTransferMember(row.member),
         },
-    ], [])
+    ], [canManage, deleteMutation])
 
     return (
         <View className="gap-0">
@@ -349,6 +387,12 @@ export function MembersView({ embedded = false, group = "all" }: { embedded?: bo
                 onOpenChange={(open) => {
                     if (!open) setTransferMember(null)
                 }}
+            />
+            <MemberEditDialog
+                key={editingMember?.member_key ?? "closed"}
+                member={editingMember}
+                open={Boolean(editingMember)}
+                onOpenChange={(open) => { if (!open) setEditingMember(null) }}
             />
         </View>
     )

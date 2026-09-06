@@ -1,3 +1,4 @@
+import { createReportSectionWizardHref } from "@/features/create/routing"
 import type { IconSvgElement } from "@hugeicons/react"
 import type { LucideIcon } from "lucide-react"
 import {
@@ -35,7 +36,6 @@ import { Widget6Icon as Widget6IconBold } from '@solar-icons/react/bold/widget-6
 import type { ComponentType, SVGProps } from "react"
 import { APP_ROUTES } from "./app-routes.ts"
 import {
-    createReportSectionWizardHref,
     type WorkflowReportSectionKey,
 } from "@/features/report-wizard/config/report-routing"
 import { CashOutIcon, DollarIcon, HomeAngle2Icon, Planet3Icon } from "@solar-icons/react/line-duotone";
@@ -215,7 +215,7 @@ export const workspaceNavigation: NavigationSection[] = [
                 key: "current-report",
                 label: "Current Report",
                 href: APP_ROUTES.reports.current,
-                match: ["/report-wizard"],
+                match: ["/create"],
                 icon: NotesIconLineDutone,
                 activeIcon: NotesIconDuotone,
             },

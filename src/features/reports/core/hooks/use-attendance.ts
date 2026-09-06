@@ -8,6 +8,21 @@ import { assemblyQueryKeys } from "@/lib/query-keys"
 type PaginationParams = {
     page?: number
     pageSize?: number
+    search?: string
+}
+
+export function reportAttendanceQueryKey(
+    assemblyId: string | number | null | undefined,
+    reportId: string,
+    pagination?: PaginationParams,
+) {
+    return assemblyQueryKeys.key(
+        assemblyId,
+        ...queryKeys.attendance(reportId),
+        pagination?.page ?? 1,
+        pagination?.pageSize ?? 10,
+        pagination?.search ?? "",
+    )
 }
 
 export function useReportAttendance(
@@ -16,7 +31,7 @@ export function useReportAttendance(
 ) {
     const assemblyId = useActiveAssemblyId()
     return useQuery<AttendanceResponse>({
-        queryKey: assemblyQueryKeys.key(assemblyId, ...queryKeys.attendance(reportId ?? ""), pagination?.page ?? 1, pagination?.pageSize ?? 10),
+        queryKey: reportAttendanceQueryKey(assemblyId, reportId ?? "", pagination),
         queryFn: () => getReportAttendance(reportId as string, pagination),
         enabled: Boolean(assemblyId && reportId),
     })

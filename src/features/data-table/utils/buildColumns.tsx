@@ -9,6 +9,7 @@ import { getTextColor } from "@/layouts/utils/get-text-color"
 import { Badge } from "@/components/ui/badge"
 import { MasksBoldDuotoneIcon } from "@solar-icons/react";
 import { cn } from "@/utils/cn";
+import type { TableColumnConfig } from "../types/tableSchema.types"
 
 type RowFlags = {
     is_section?: boolean
@@ -32,6 +33,7 @@ export type ColumnMeta<T> = {
     width?: number
     sortable?: boolean
     editable?: boolean
+    editor?: TableColumnConfig["editor"]
     pinned?: "left" | "right"
     className?: string
     cellClassName?: string
@@ -259,8 +261,11 @@ export function buildColumns<T extends Record<string, unknown>>(
             meta: {
                 editable: col.editable ?? false,
                 isNumeric,
+                formatter: col.formatter,
+                editor: col.editor,
                 disableEditForRow: (row: T) => {
                     const r = row as unknown as RowFlags
+                    if ("can_edit" in r && r.can_edit === false) return true
                     if (r.is_section && col.meta?.disableEditForSection) return true
                     if (r.is_total) return true
                     return false

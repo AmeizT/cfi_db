@@ -1,27 +1,37 @@
 "use client"
 
-import React from "react"
-import { cn } from "@/lib/utils"
-import { updateCell } from "@/features/reports/core/actions/cell-edit"
+import * as React from "react"
+import { Loader2Icon } from "lucide-react"
 import type { ApiDetailRouteKey } from "@/config/urls"
-import { useSearchParams } from "next/navigation"
-import { useOptimisticMutation } from "@/hooks/use-optimistic-mutation"
+import type { TableColumnConfig } from "@/features/data-table/types/tableSchema.types"
+import { updateCell } from "@/features/reports/core/actions/cell-edit"
 import { optimisticUpdateRecord } from "@/helpers/optistimicUpdate"
+import { useOptimisticMutation } from "@/hooks/use-optimistic-mutation"
+import { cn } from "@/lib/utils"
 
-type EditableCellProps<T, K extends keyof T> = React.InputHTMLAttributes<HTMLInputElement> & {
+type EditableCellProps<T, K extends keyof T> = Omit<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    "value" | "onChange" | "type"
+> & {
     value: T[K] | undefined
-    // rowIndex: number
     columnId: K
     resource: ApiDetailRouteKey
     recordId: number
     autoFocus?: boolean
-    formatter?: (value: T[K]) => React.ReactNode
     displayValue?: React.ReactNode
-    // onNavigate?: (direction: "up" | "down" | "left" | "right", rowIndex: number, columnId: K) => void
+    editor?: TableColumnConfig["editor"]
+    queryKey?: readonly unknown[]
 }
 
+// Kept for existing report query factories that share these stable key parts.
 export const queryKeys = {
-  attendance: (reportId: string) => ["attendance", reportId] as const,
+    attendance: (reportId: string) => ["attendance", reportId] as const,
+}
+
+function editorValue(value: unknown, editorType: NonNullable<TableColumnConfig["editor"]>["type"]) {
+    if (value == null) return ""
+    if (editorType === "date") return String(value).slice(0, 10)
+    return String(value)
 }
 
 export function EditableCell<T, K extends keyof T>({
@@ -31,19 +41,19 @@ export function EditableCell<T, K extends keyof T>({
     autoFocus = false,
     displayValue,
     resource,
+    editor = { type: "text" },
+    queryKey,
+    className,
     ...inputProps
 }: EditableCellProps<T, K>) {
-    const searchParams = useSearchParams()
-    const reportId = searchParams.get("reportid") ?? ""
     const [editing, setEditing] = React.useState(autoFocus)
-    const [value, setValue] = React.useState<T[K] | undefined>(initialValue)
-    const queryKey = queryKeys[resource as keyof typeof queryKeys]?.(reportId)
-    const isNumeric = typeof value === "number"
+    const [draft, setDraft] = React.useState(() => editorValue(initialValue, editor.type))
+    const cancelRef = React.useRef(false)
+    const resolvedQueryKey = queryKey ?? ["data-table-records", resource]
 
     const mutation = useOptimisticMutation({
-        queryKey,
+        queryKey: resolvedQueryKey,
         mutationFn: updateCell,
-
         updateCache: (old, payload) =>
             optimisticUpdateRecord(
                 old,
@@ -53,83 +63,118 @@ export function EditableCell<T, K extends keyof T>({
             ),
     })
 
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "Enter") {
-            mutation.mutate({
+    function beginEditing() {
+        if (mutation.isPending) return
+        cancelRef.current = false
+        setDraft(editorValue(initialValue, editor.type))
+        setEditing(true)
+    }
+
+    function parsedDraft() {
+        if (editor.type !== "number") return draft
+        if (draft.trim() === "") return null
+        const parsed = Number(draft)
+        return Number.isFinite(parsed) ? parsed : draft
+    }
+
+    function save() {
+        if (cancelRef.current) {
+            cancelRef.current = false
+            return
+        }
+
+        setEditing(false)
+        const value = parsedDraft()
+        if (editorValue(initialValue, editor.type) === editorValue(value, editor.type)) return
+
+        mutation.mutate(
+            {
                 resource,
                 recordId,
                 columnId: String(columnId),
                 value,
-            })
+            },
+            {
+                onError: () => setDraft(editorValue(initialValue, editor.type)),
+            }
+        )
+    }
+
+    function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>) {
+        if (event.key === "Enter") {
+            event.preventDefault()
+            event.currentTarget.blur()
+            return
+        }
+
+        if (event.key === "Escape") {
+            event.preventDefault()
+            cancelRef.current = true
+            setDraft(editorValue(initialValue, editor.type))
+            setEditing(false)
         }
     }
 
+    const editorClassName = cn(
+        "absolute inset-0 z-20 h-full w-full bg-background px-2 outline-none",
+        editor.type === "number" ? "text-right tabular-nums" : "text-left",
+        className,
+    )
+
     return (
-        <div className={`px-2 h-full w-full flex items-center rounded-md transition-colors border border-transparent relative ${
-                editing ? "z-20 bg-background shadow-[0_4px_12px_rgba(0,0,0,0.08)]" : "hover:bg-background hover:border-border"
-            } focus:bg-background focus:border-border data-invalid:border-destructive focus-within:border-primary focus-within:ring-1 focus-within:ring-primary`}
-            onDoubleClick={() => setEditing(true)}
+        <div
+            className={cn(
+                "relative flex h-full w-full items-center rounded-md border border-transparent px-2 transition-colors",
+                editing
+                    ? "z-20 bg-background shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+                    : "hover:border-border hover:bg-background",
+                "focus-within:border-primary focus-within:bg-background focus-within:ring-1 focus-within:ring-primary",
+            )}
+            onDoubleClick={beginEditing}
         >
             {editing ? (
-                <input
-                    autoFocus
-                    {...inputProps}
-                    className={cn(
-                        `absolute inset-0 w-full h-full outline-none px-2 z-20 
-                        ${inputProps.className ?? ""}`, 
-                        isNumeric ? "text-right" : "text-left",
-                        inputProps.className)
-                    }
-                    value={value !== undefined ? String(value) : ""}
-                    onChange={(e) => {
-                        let newVal: unknown = e.target.value
-                        if (typeof initialValue === "number") newVal = Number(newVal)
-                        setValue(newVal as React.SetStateAction<T[K] | undefined>)
-                    }}
-                    onBlur={() => {
-                        mutation.mutate({
-                            resource,
-                            recordId,
-                            columnId: String(columnId),
-                            value,
-                        })
-
-                        setEditing(false)
-
-                    }}
-                    onKeyDown={handleKeyDown}
-                    // onKeyDown={(e) => {
-                    //     if (e.key === "Enter") {
-                    //         if (value !== undefined) onSave(rowIndex, columnId, value)
-                    //         setEditing(false)
-                    //     }
-
-                    //     if (e.key === "ArrowUp") {
-                    //         e.preventDefault()
-                    //         onNavigate?.("up", rowIndex, columnId)
-                    //     }
-
-                    //     if (e.key === "ArrowDown") {
-                    //         e.preventDefault()
-                    //         onNavigate?.("down", rowIndex, columnId)
-                    //     }
-
-                    //     if (e.key === "ArrowLeft") {
-                    //         e.preventDefault()
-                    //         onNavigate?.("left", rowIndex, columnId)
-                    //     }
-
-                    //     if (e.key === "ArrowRight") {
-                    //         e.preventDefault()
-                    //         onNavigate?.("right", rowIndex, columnId)
-                    //     }
-                    // }}
-                />
+                editor.type === "select" ? (
+                    <select
+                        autoFocus
+                        aria-label={`Edit ${String(columnId)}`}
+                        className={editorClassName}
+                        disabled={mutation.isPending}
+                        value={draft}
+                        onBlur={save}
+                        onChange={(event) => setDraft(event.target.value)}
+                        onKeyDown={handleKeyDown}
+                    >
+                        {(editor.options ?? []).map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                ) : (
+                    <input
+                        autoFocus
+                        {...inputProps}
+                        aria-label={`Edit ${String(columnId)}`}
+                        className={editorClassName}
+                        disabled={mutation.isPending}
+                        inputMode={editor.type === "number" ? "decimal" : inputProps.inputMode}
+                        step={editor.type === "number" ? "any" : inputProps.step}
+                        type={editor.type}
+                        value={draft}
+                        onBlur={save}
+                        onChange={(event) => setDraft(event.target.value)}
+                        onKeyDown={handleKeyDown}
+                    />
+                )
             ) : (
-                <span className={cn(`w-full capitalize ${isNumeric ? "text-right" : "text-left"}`)}>
-                    {editing
-                        ? null
-                        : displayValue ?? (value !== undefined ? String(value) : "")}
+                <span className={cn(
+                    "flex w-full items-center capitalize",
+                    editor.type === "number" ? "justify-end text-right tabular-nums" : "text-left",
+                )}>
+                    <span className="min-w-0 flex-1">{displayValue ?? editorValue(initialValue, editor.type)}</span>
+                    {mutation.isPending ? (
+                        <Loader2Icon className="ml-2 size-3.5 shrink-0 animate-spin text-muted-foreground" aria-label="Saving" />
+                    ) : null}
                 </span>
             )}
         </div>

@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation"
 
-export default function CentralCreatePage() {
-    redirect("/report-wizard/create/attendance?method=manual-entry")
+
+import { CreateHub } from "@/features/create/CreateHub";
+
+export default function CreatePage() {
+    return <CreateHub />
 }

@@ -75,8 +75,8 @@ const TEMPLATE_FORMATS: Array<{
 function isItemActive(pathname: string, item: NavItem) {
     const href = item.href?.split("?")[0] ?? ""
 
-    if (href === "/report-wizard") {
-        return pathname === href || pathname.startsWith("/report-wizard/create")
+    if (href === "/create") {
+        return pathname === href || pathname.startsWith("/create")
     }
 
     return item.exact
@@ -155,7 +155,7 @@ function TemplateDownloadMenu({ activeSection }: { activeSection: ReportWizardSe
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href="/report-wizard">
+                    <Link href="/create">
                         <DownloadIcon className="size-4" />
                         <span>Open report wizard</span>
                     </Link>

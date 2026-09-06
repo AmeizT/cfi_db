@@ -3,24 +3,17 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
-import { ChevronDownIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import {
     getReportSubmoduleGroup,
     getReportSubmoduleHref,
-    getReportSubmoduleMoreItems,
 } from "@/features/reports/modules/config/report-submodules"
 import type { TitheStatusFilter, TithesRouteView } from "../types"
 
 const TITHES_SUBMODULE_GROUP = getReportSubmoduleGroup("finance", "tithes")
-const PRIMARY_NAV = TITHES_SUBMODULE_GROUP?.tabs.filter((tab) => tab.key !== "more") ?? []
+const PRIMARY_NAV = TITHES_SUBMODULE_GROUP?.tabs.filter(
+    (tab) => tab.key !== "more" && tab.key !== "cumulative"
+) ?? []
 
 export function Navigation({
     view,
@@ -31,8 +24,6 @@ export function Navigation({
 }) {
     const searchParams = useSearchParams()
     const pathname = usePathname()
-    const moreItems = getReportSubmoduleMoreItems("finance", "tithes", searchParams)
-    const moreActive = view === "audit-log" || status === "voided" || status === "deleted"
 
     React.useEffect(() => {
         const active = document.querySelector<HTMLElement>("[data-tithes-nav-active='true']")
@@ -68,27 +59,6 @@ export function Navigation({
                     )
                 })}
 
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            type="button"
-                            variant={moreActive ? "default" : "ghost"}
-                            size="sm"
-                            className="h-8 rounded-lg px-3 font-semibold"
-                            data-tithes-nav-active={moreActive ? "true" : undefined}
-                        >
-                            More
-                            <ChevronDownIcon className="size-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {moreItems.map((item) => (
-                            <DropdownMenuItem key={item.key} asChild>
-                                <Link href={item.href}>{item.label}</Link>
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
             </div>
         </nav>
     )

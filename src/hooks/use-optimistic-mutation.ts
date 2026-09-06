@@ -8,6 +8,7 @@ type UseOptimisticMutationProps<TPayload> = {
     successMessage?: string
     errorMessage?: string
     onSuccess?: (payload: TPayload) => void
+    invalidateAll?: boolean
 }
 
 export function useOptimisticMutation<TPayload>({
@@ -16,7 +17,8 @@ export function useOptimisticMutation<TPayload>({
     updateCache,
     successMessage = "Updated successfully",
     errorMessage = "Update failed",
-    onSuccess
+    onSuccess,
+    invalidateAll = false,
 }: UseOptimisticMutationProps<TPayload>) {
     const queryClient = useQueryClient()
 
@@ -44,6 +46,13 @@ export function useOptimisticMutation<TPayload>({
             await queryClient.invalidateQueries({ queryKey })
             toast.success(successMessage)
             onSuccess?.(payload)
-        }
+        },
+        onSettled: async () => {
+            if (invalidateAll) {
+                await queryClient.invalidateQueries()
+            } else {
+                await queryClient.invalidateQueries({ queryKey })
+            }
+        },
     })
 }

@@ -1,10 +1,5 @@
 "use client"
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { DownloadCircle01Icon } from "@hugeicons/core-free-icons"
-import { apiRoutes } from "@/config/urls"
 import { DataTable } from "../../core/components/DataTable"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { DataTablePaginationProps } from "../../core/components/DataTable.types"
@@ -30,6 +25,8 @@ interface ViewProps {
     isLoading: boolean
     pagination?: DataTablePaginationProps
     showWorkspaceToolbar?: boolean
+    mutationQueryKey?: readonly unknown[]
+    readOnly?: boolean
 }
 
 export default function TithesView({
@@ -37,6 +34,8 @@ export default function TithesView({
     isLoading,
     pagination,
     showWorkspaceToolbar = false,
+    mutationQueryKey,
+    readOnly = false,
 }: ViewProps) {
     const rows = tithes?.rows ?? tithes?.data ?? []
     const config = tithes?.config ?? tithes?.meta?.config
@@ -75,6 +74,10 @@ export default function TithesView({
                         toolbarSupplementalActions={showWorkspaceToolbar
                             ? <TithesSummarizeAction />
                             : undefined}
+                        resource="tithes"
+                        mutationQueryKey={mutationQueryKey}
+                        editingDisabled={readOnly || !mutationQueryKey}
+                        enableDelete={!readOnly}
                         expandedRow={(row) => (
                             <p className="text-sm text-wrap text-gray-700">
                                 {row.notes ? row.notes : "No additional notes for this record."}

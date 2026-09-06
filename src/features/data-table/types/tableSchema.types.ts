@@ -57,6 +57,13 @@ export type TableColumnConfig = {
     // 🔥 future-proof
     type?: "text" | "avatar" | "badge" | "currency" | "date"
     editable?: boolean
+    editor?: {
+        type: "text" | "number" | "date" | "select"
+        options?: Array<{
+            label: string
+            value: string
+        }>
+    }
 }
 
 export type TableFooterConfig = {

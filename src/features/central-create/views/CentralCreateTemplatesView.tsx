@@ -1,5 +1,7 @@
 "use client"
 
+import { createReportWizardHref } from "@/features/create/routing"
+
 import { useSearchParams } from "next/navigation"
 import { FileSpreadsheetIcon } from "lucide-react"
 
@@ -7,7 +9,6 @@ import { CentralCreateWorkspace } from "@/features/central-create/components/Cen
 import { ReportTemplateCard } from "@/features/central-create/components/ReportTemplateCard"
 import {
     REPORT_WIZARD_SECTIONS,
-    createReportWizardHref,
     getReportWizardSectionByRoute,
     type ReportWizardMethod,
     type ReportWizardUploadType,

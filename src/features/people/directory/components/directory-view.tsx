@@ -4,6 +4,8 @@ import * as React from "react"
 import Link from "next/link"
 import { UserPlusIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import { APP_ROUTES } from "@/config/app-routes"
 import { EmptyState } from "@/components/ui/empty-state"
 import View from "@/components/ui/view"
@@ -11,6 +13,8 @@ import { useChildrenDirectory } from "@/features/people/children/hooks"
 import type { ChildDirectoryRow } from "@/features/people/children/schema"
 import { useMemberDetail, useMembersDirectoryPage } from "@/features/people/members/hooks/use-members-directory"
 import type { Member } from "@/features/people/members/schemas/member"
+import { MemberEditDialog } from "@/features/people/members/components/MemberEditDialog"
+import { deleteMember } from "@/features/people/members/services/get-members-directory"
 import { useUser } from "@/hooks/query/use-user"
 import {
     EntityMasterDetailView,
@@ -47,11 +51,26 @@ function ActiveMembersDirectory({ state, group, canManage, canViewSensitive, ass
     canViewSensitive: boolean
     assemblyName?: string
 }) {
+    const queryClient = useQueryClient()
+    const [editingMember, setEditingMember] = React.useState<Member | null>(null)
     const query = useMembersDirectoryPage({ search: state.search, group, page: state.page, page_size: state.pageSize })
     const selectedSummary = query.data?.results.find((member) => member.member_key === state.selectedId)
     const detailQuery = useMemberDetail(state.selectedId)
     const selectedEntity = detailQuery.data ?? selectedSummary
     const tabs = getDirectoryTabs(canViewSensitive)
+    const deleteMutation = useMutation({
+        mutationFn: deleteMember,
+        onSuccess: async () => {
+            state.setSelectedId(null)
+            await queryClient.invalidateQueries({ queryKey: ["assembly"] })
+            toast.success("Member deleted")
+        },
+        onError: (error) => toast.error(error instanceof Error ? error.message : "Member could not be deleted."),
+    })
+    const handleDelete = React.useCallback((member: Member) => {
+        if (!window.confirm(`Delete ${member.full_name}? Their historical records will be preserved.`)) return
+        deleteMutation.mutate(member.member_key)
+    }, [deleteMutation])
     const config = React.useMemo<MasterDetailEntityConfig<Member, DirectoryTab>>(() => ({
         entityType: "member",
         title: "Directory",
@@ -62,35 +81,51 @@ function ActiveMembersDirectory({ state, group, canManage, canViewSensitive, ass
         getEntityId: (member) => member.member_key,
         getEntityLabel: (member) => member.full_name,
         renderListItem: (member, itemState) => <DirectoryMemberListItem member={member} selected={itemState.selected} />,
-        renderHeader: (member) => <MemberProfileHeader member={member} assemblyName={assemblyName} />,
+        renderHeader: (member) => (
+            <MemberProfileHeader
+                member={member}
+                assemblyName={assemblyName}
+                canManage={canManage}
+                onEdit={() => setEditingMember(member)}
+                onDelete={() => handleDelete(member)}
+            />
+        ),
         renderOverview: (member) => <MemberOverview member={member} assemblyName={assemblyName} showNotes={canViewSensitive} />,
         renderTabContent: ({ entity, tab }) => <MemberTabContent member={entity} tab={tab} />,
         primaryAction: <AddMemberAction visible={canManage} />,
         filters: <EntityFilterMenu value={state.activeSegment} options={DIRECTORY_SEGMENTS} onValueChange={state.setSegment} />,
         emptyState: <EmptyState type={state.search ? "filteredReports" : "demographics"} variant="both" context={{ label: "members" }} />,
-    }), [assemblyName, canManage, canViewSensitive, group, state.activeSegment, state.search, state.setSegment, tabs])
+    }), [assemblyName, canManage, canViewSensitive, group, handleDelete, state.activeSegment, state.search, state.setSegment, tabs])
 
     return (
-        <EntityMasterDetailView
-            config={config}
-            entities={query.data?.results ?? []}
-            selectedEntity={selectedEntity}
-            selectedId={state.selectedId}
-            activeTab={state.activeTab}
-            search={state.search}
-            totalCount={query.data?.count ?? 0}
-            isListLoading={query.isLoading || query.isFetching}
-            isDetailLoading={Boolean(state.selectedId) && detailQuery.isLoading}
-            error={query.error ?? detailQuery.error}
-            segments={DIRECTORY_SEGMENTS}
-            activeSegment={state.activeSegment}
-            pagination={{ page: state.page, pageSize: state.pageSize, total: query.data?.count ?? 0, onPageChange: state.setPage }}
-            onRetry={() => { void query.refetch(); if (state.selectedId) void detailQuery.refetch() }}
-            onSearchChange={state.setSearch}
-            onSegmentChange={state.setSegment}
-            onSelect={state.setSelectedId}
-            onTabChange={state.setActiveTab}
-        />
+        <>
+            <EntityMasterDetailView
+                config={config}
+                entities={query.data?.results ?? []}
+                selectedEntity={selectedEntity}
+                selectedId={state.selectedId}
+                activeTab={state.activeTab}
+                search={state.search}
+                totalCount={query.data?.count ?? 0}
+                isListLoading={query.isLoading || query.isFetching}
+                isDetailLoading={Boolean(state.selectedId) && detailQuery.isLoading}
+                error={query.error ?? detailQuery.error}
+                segments={DIRECTORY_SEGMENTS}
+                activeSegment={state.activeSegment}
+                pagination={{ page: state.page, pageSize: state.pageSize, total: query.data?.count ?? 0, onPageChange: state.setPage }}
+                onRetry={() => { void query.refetch(); if (state.selectedId) void detailQuery.refetch() }}
+                onSearchChange={state.setSearch}
+                onSegmentChange={state.setSegment}
+                onSelect={state.setSelectedId}
+                onTabChange={state.setActiveTab}
+            />
+            <MemberEditDialog
+                key={editingMember?.member_key ?? "closed"}
+                member={editingMember}
+                open={Boolean(editingMember)}
+                onOpenChange={(open) => { if (!open) setEditingMember(null) }}
+            />
+        </>
     )
 }
 

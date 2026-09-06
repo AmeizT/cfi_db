@@ -92,6 +92,10 @@ export type DataGridProps<T> = {
     toolbarLeading?: React.ReactNode
     toolbarSupplementalActions?: React.ReactNode
     resource?: DataTableResource
+    mutationQueryKey?: readonly unknown[]
+    editingDisabled?: boolean
+    /** Present filtered rows in labelled tables without changing toolbar state or data. */
+    getRowGroup?: (row: T) => { key: string; label: string }
 } & DataTablePaginationProps
 
 export type DataTableRowFlags = {
@@ -99,4 +103,5 @@ export type DataTableRowFlags = {
     is_total?: boolean
     is_deleted?: boolean
     tone?: "income" | "expense" | "neutral"
+    can_edit?: boolean
 }

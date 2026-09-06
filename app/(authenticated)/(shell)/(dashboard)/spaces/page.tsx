@@ -1,1 +1,3 @@
-export default function SpacesPage() { return <h1>Spaces</h1> }
+import { HomeCellsView } from "@/features/spaces/homecells/views/HomeCellsView"
+
+export default function SpacesPage() { return <HomeCellsView communities /> }

@@ -9,6 +9,15 @@ import { DataTable } from "../../core/components/DataTable"
 import type { DataTablePaginationProps } from "../../core/components/DataTable.types"
 import { useUser } from "@/hooks/query/use-user"
 import { formatCurrency } from "@/utils"
+import { Skeleton } from "@/components/ui/skeleton"
+import { EmptyState } from "@/components/ui/empty-state"
+import type { TableSchema } from "@/features/data-table/types/tableSchema.types"
+import {
+    ReportDataToolbarControls,
+    ReportSummarizeAction,
+    type ReportDataToolbarScope,
+} from "../../core/components/ReportDataToolbar"
+import type { CashflowResponse, CashflowRow } from "./types/cashflow"
 
 interface ViewProps {
     cashflow: (CashflowResponse & {
@@ -18,9 +27,16 @@ interface ViewProps {
     isLoading: boolean
     pagination?: DataTablePaginationProps
     showSummary?: boolean
+    toolbarScope?: ReportDataToolbarScope
 }
 
-export default function CashFlowView({ cashflow, isLoading, pagination, showSummary = false }: ViewProps) {
+export default function CashFlowView({
+    cashflow,
+    isLoading,
+    pagination,
+    showSummary = false,
+    toolbarScope,
+}: ViewProps) {
     const { data: user } = useUser()
     const sourceRows: Array<CashflowRow & { id?: number }> = (
         cashflow?.results ??
@@ -31,9 +47,7 @@ export default function CashFlowView({ cashflow, isLoading, pagination, showSumm
         ...row,
         id: row.id ?? index,
     }))
-    const tableOptions = {
-        selectable: true,
-    }
+    const tableOptions = { selectable: false }
     const totals = cashflow?.data?.totals
     const currencyOptions = {
         language: user?.assembly?.locale,
@@ -91,16 +105,17 @@ export default function CashFlowView({ cashflow, isLoading, pagination, showSumm
                     emptyState={
                         <EmptyState type={"reports"} />
                     }
+                    toolbarLeading={toolbarScope
+                        ? <ReportDataToolbarControls {...toolbarScope} />
+                        : undefined}
+                    toolbarSupplementalActions={toolbarScope
+                        ? <ReportSummarizeAction label={toolbarScope.label} />
+                        : undefined}
                 />
             </div>
         </div>
     )
 }
-
-import { Skeleton } from "@/components/ui/skeleton"
-import { CashflowResponse, CashflowRow } from "./types/cashflow"
-import { TableSchema } from "@/features/data-table/types/tableSchema.types"
-import { EmptyState } from "@/components/ui/empty-state"
 
 type TableSkeletonProps = {
     rows?: number

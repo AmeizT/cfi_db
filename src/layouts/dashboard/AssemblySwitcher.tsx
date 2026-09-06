@@ -318,9 +318,9 @@ export function AssemblySwitcher() {
                                     <Avatar
                                         key={assembly.id}
                                         className={cn(
-                                            "size-7 rounded-full ring-2 ring-(--shell-chrome-hover) group-hover/switcher:ring-offset-(--shell-chrome-active)",
+                                            "size-7 rounded-full ring-2 ring-neutral-800",
                                             isActive &&
-                                                "z-20 ring-2 ring-primary ring-offset-(--shell-chrome-hover) group-hover/switcher:ring-offset-(--shell-chrome-active)"
+                                                "z-20 ring-2 ring-neutral-800"
                                         )}
                                         style={{
                     zIndex: isActive
@@ -392,7 +392,7 @@ export function AssemblySwitcher() {
                     </Avatar>
                 )}
 
-                <span className="min-w-0 max-w-28 truncate text-(--shell-chrome-foreground) sm:max-w-32">
+                <span className="min-w-0 max-w-28 truncate text-white sm:max-w-32">
                     {activeAssembly?.name}
                 </span>
             </div>
@@ -400,7 +400,7 @@ export function AssemblySwitcher() {
             {hasMultipleAssemblies && (
                 <ChevronDown
                     strokeWidth={2.5}
-                    className="hidden size-4 shrink-0 text-(--shell-chrome-foreground) sm:block"
+                    className="hidden size-4 shrink-0 text-neutral-300 sm:block"
                 />
             )}
         </>
@@ -408,10 +408,10 @@ export function AssemblySwitcher() {
 
     const triggerClassName = cn(
         "group/switcher flex h-fit min-w-0 w-fit lg:w-full items-center justify-between gap-2 rounded-full has-[>svg]:px-0.5 lg:has-[>svg]:pr-3 py-0.5",
-        "border-0 border-(--shell-sidebar-border)",
-        "bg-(--shell-chrome-hover)",
-        "text-(--shell-chrome-foreground)",
-        "hover:bg-(--shell-chrome-active)"
+        "border-0 border-neutral-800",
+        "bg-neutral-800",
+        "text-white",
+        "hover:bg-neutral-700 hover:text-white dark:bg-neutral-800 dark:hover:bg-neutral-700"
     )
 
     const trigger = (

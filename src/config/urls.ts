@@ -152,6 +152,30 @@ export const apiRoutes = {
         bulkDelete: () => api("people/attendance/bulk_delete"),
     },
 
+    tithes: {
+        list: () => api("bookkeeper/tithes"),
+        detail: (id: string | number) => api(`bookkeeper/tithes/${id}`),
+        bulkDelete: () => api("bookkeeper/tithes/bulk_delete"),
+    },
+
+    revenue: {
+        list: () => api("bookkeeper/revenue"),
+        detail: (id: string | number) => api(`bookkeeper/revenue/${id}`),
+        bulkDelete: () => api("bookkeeper/revenue/bulk_delete"),
+    },
+
+    overhead: {
+        list: () => api("bookkeeper/overhead"),
+        detail: (id: string | number) => api(`bookkeeper/overhead/${id}`),
+        bulkDelete: () => api("bookkeeper/overhead/bulk_delete"),
+    },
+
+    expenditures: {
+        list: () => api("bookkeeper/expenditure"),
+        detail: (id: string | number) => api(`bookkeeper/expenditure/${id}`),
+        bulkDelete: () => api("bookkeeper/expenditure/bulk_delete"),
+    },
+
     sundaySchoolAttendance: {
         list: () => api("people/sunday-school-attendance"),
         detail: (id: string | number) => api(`people/sunday-school-attendance/${id}`),
@@ -159,6 +183,7 @@ export const apiRoutes = {
         approve: (id: string | number) => api(`people/sunday-school-attendance/${id}/approve`),
         reject: (id: string | number) => api(`people/sunday-school-attendance/${id}/reject`),
         review: (id: string | number) => api(`people/sunday-school-attendance/${id}/review`),
+        bulkDelete: () => api("people/sunday-school-attendance/bulk_delete"),
     },
 
     members: {

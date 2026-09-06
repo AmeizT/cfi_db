@@ -140,7 +140,7 @@ export function DataTableHeader<T extends { id: number }>({
                     )}
 
                     {showRowActions && (
-                        <TableHead className="border-b" />
+                        <TableHead className="sticky right-0 z-30 w-12 min-w-12 border-b bg-background/95 backdrop-blur-sm" />
                     )}
                 </TableRow>
             ))}

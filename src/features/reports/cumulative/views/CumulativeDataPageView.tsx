@@ -110,7 +110,7 @@ function getResponseStatements(response: unknown) {
 
 function CumulativeState({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex min-h-72 items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-8 text-center text-sm text-muted-foreground">
+        <div className="flex min-h-0 flex-1 items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-8 text-center text-sm text-muted-foreground">
             {children}
         </div>
     )
@@ -123,7 +123,7 @@ function CumulativeEmptyState({ description }: { description: string }) {
             title="No cumulative data"
             description={description}
             size="full"
-            className="min-h-72"
+            className="min-h-0 flex-1"
         />
     )
 }
@@ -146,13 +146,13 @@ function AttendanceCumulative({ config }: { config: CumulativePageConfig }) {
     }
 
     return (
-        <div className="grid gap-4">
+        <div className="grid gap-4 pt-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm text-muted-foreground">
                     Summaries, charts, and monthly totals for the selected attendance dataset.
                 </p>
                 <label className="flex items-center gap-2 text-sm font-medium">
-                    <span>{config.datasetLabel}</span>
+                    {/* <span>{config.datasetLabel}</span> */}
                     <NativeSelect
                         aria-label={config.datasetLabel}
                         value={selectedDataset?.value}

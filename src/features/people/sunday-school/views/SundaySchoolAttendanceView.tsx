@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
     CheckIcon,
@@ -57,6 +57,8 @@ import {
 import { sundaySchoolAttendanceTableSchema } from "../config/table-schema"
 import { useActiveAssemblyId } from "@/hooks/query/use-user"
 import { assemblyQueryKeys } from "@/lib/query-keys"
+import { ReportDataToolbarControls, ReportSummarizeAction } from "@/features/reports/core/components/ReportDataToolbar"
+import { ViewIcon } from "@hugeicons/core-free-icons"
 
 type SundaySchoolTableRow = Record<string, unknown> & {
     id: number
@@ -121,10 +123,6 @@ function getDefaultFormState(period?: string | null): SundaySchoolFormState {
         offering: "0",
         remarks: "",
     }
-}
-
-const tableOptions = {
-    enablePinning: true,
 }
 
 function formatDate(value: string) {
@@ -569,6 +567,8 @@ export function SundaySchoolAttendanceView({
     readOnly?: boolean
 }) {
     const router = useRouter()
+    const pathname = usePathname()
+    const assemblyId = useActiveAssemblyId()
     const queryClient = useQueryClient()
     const [dialogOpen, setDialogOpen] = React.useState(false)
     const [editingRecord, setEditingRecord] = React.useState<SundaySchoolAttendance | null>(null)
@@ -618,6 +618,18 @@ export function SundaySchoolAttendanceView({
 
     const aggregates = aggregatesQuery.data
     const isLoading = attendanceQuery.isLoading || attendanceQuery.isFetching
+    const pageContext = pathname.startsWith("/engagement/") ? "workspace" : "reports"
+    const queryParams = { dateAfter: periodStart, dateBefore: periodEnd }
+    const mutationQueryKey = assemblyQueryKeys.key(
+        assemblyId,
+        "people",
+        "sunday-school-attendance",
+        queryParams,
+    )
+    const openDetails = React.useCallback(
+        (row: SundaySchoolTableRow) => router.push(`/engagement/attendance/sunday-school/${row.id}`),
+        [router],
+    )
 
     return (
         <View className="gap-0">
@@ -625,8 +637,8 @@ export function SundaySchoolAttendanceView({
                 <View.Header pagename="Sunday School Attendance" />
             ) : null}
 
-            <View.Body className="gap-4 py-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <View.Body className="gap-4 py-4 px-0">
+                <div className="hidden _flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-base font-semibold text-foreground">
                             Attendance Records
@@ -641,7 +653,7 @@ export function SundaySchoolAttendanceView({
                     </Button>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                <div className="hidden _grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                     {aggregatesQuery.isLoading ? (
                         Array.from({ length: 5 }).map((_, index) => (
                             <Skeleton key={index} className="h-24 rounded-lg" />
@@ -658,7 +670,7 @@ export function SundaySchoolAttendanceView({
                 </div>
 
                 {attendanceQuery.isError ? (
-                    <Card className="rounded-lg border border-border bg-card px-6 py-12 text-center">
+                    <Card className="rounded-lg border border-border bg-card px-0 py-12 text-center">
                         <h2 className="text-lg font-semibold text-foreground">
                             Unable to load Sunday School attendance
                         </h2>
@@ -666,26 +678,48 @@ export function SundaySchoolAttendanceView({
                             {getErrorMessage(attendanceQuery.error)}
                         </p>
                     </Card>
-                ) : !isLoading && rows.length === 0 ? (
-                    <Card className="rounded-lg border border-border bg-card px-6 py-12">
-                        <EmptyState
-                            type="demographics"
-                            variant="both"
-                            context={{ label: "Sunday School attendance" }}
-                        />
-                    </Card>
                 ) : (
                     <DataTable<SundaySchoolTableRow>
-                        variant="simple"
+                        variant="advanced"
                         data={rows}
                         config={sundaySchoolAttendanceTableSchema}
                         isLoading={isLoading}
                         loadingMode="overlay"
-                        options={tableOptions}
-                        showToolbar={false}
-                        showRowActions={false}
+                        options={{ enablePinning: true, selectable: !readOnly }}
+                        showToolbar
+                        showRowActions
+                        showDefaultRowActions={false}
+                        rowActions={(row) => [{
+                            label: "Open details",
+                            icon: ViewIcon,
+                            variant: "default",
+                            onClick: () => openDetails(row),
+                        }]}
+                        onRowClick={openDetails}
+                        resource="sundaySchoolAttendance"
+                        mutationQueryKey={mutationQueryKey}
                         enableDelete={false}
                         exportFilename="sunday-school-attendance"
+                        toolbarLeading={(
+                            <ReportDataToolbarControls
+                                section="ministry"
+                                module="attendance"
+                                pageContext={pageContext}
+                                monthlySubmodule="sunday-school"
+                                cumulativeUpdates={{ service: "sunday-school" }}
+                                label="Sunday School Attendance"
+                            />
+                        )}
+                        toolbarSupplementalActions={(
+                            <ReportSummarizeAction label="Sunday School Attendance" />
+                        )}
+                        emptyState={
+                            <EmptyState
+                                type="reports"
+                                title={"No attendance yet"}
+                                description={"Attendance recorded for this service will appear here."}
+                            />
+                        }
                         expandedRow={(row) => (
                             <ExpandedRecord
                                 row={row}

@@ -27,11 +27,11 @@ test("report entry actions use canonical wizard routes with current context", ()
         capabilities: { is_editable: true },
     }
     const expected = {
-        attendance: "/report-wizard/create/attendance?method=manual-entry&report_id=84",
-        tithe: "/report-wizard/create/tithes?method=manual-entry&report_id=84",
-        revenue: "/report-wizard/create/revenue?method=manual-entry&report_id=84",
-        "operating-expense": "/report-wizard/create/overhead?method=manual-entry&report_id=84",
-        "activity-expense": "/report-wizard/create/expenses?method=manual-entry&report_id=84",
+        attendance: "/create?workspace=monthly-report&section=attendance&method=manual-entry&report_id=84",
+        tithe: "/create?workspace=monthly-report&section=tithes&method=manual-entry&report_id=84",
+        revenue: "/create?workspace=monthly-report&section=revenue&method=manual-entry&report_id=84",
+        "operating-expense": "/create?workspace=monthly-report&section=overhead&method=manual-entry&report_id=84",
+        "activity-expense": "/create?workspace=monthly-report&section=expenses&method=manual-entry&report_id=84",
     }
 
     for (const [key, href] of Object.entries(expected)) {
@@ -58,6 +58,6 @@ test("reopened reports preserve amendment context", () => {
             status: "reopened",
             capabilities: { is_editable: true },
         }),
-        "/report-wizard/create/revenue?method=manual-entry&report_id=84&amendment_context=reopened",
+        "/create?workspace=monthly-report&section=revenue&method=manual-entry&report_id=84&amendment_context=reopened",
     )
 })

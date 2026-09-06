@@ -16,7 +16,7 @@ export function reportWizard(): NavGroup[] {
                     description: "Start or continue report entry",
                     icon: PenNewSquareIcon,
                     activeIcon: PenNewSquareIcon,
-                    href: "/report-wizard",
+                    href: "/create",
                     exact: true,
                 },
                 {
@@ -24,7 +24,7 @@ export function reportWizard(): NavGroup[] {
                     description: "Unfinished reports that still need sections",
                     icon: ChecklistMinimalisticIcon,
                     activeIcon: ChecklistMinimalisticIcon,
-                    href: "/report-wizard/in-progress",
+                    href: "/reports/activity?view=drafts",
                     exact: true,
                 },
             ],

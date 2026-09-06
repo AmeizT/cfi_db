@@ -81,6 +81,27 @@ export const MembersApiResponseSchema = z.union([
     PaginatedMembersResponseSchema,
 ])
 
+export const MemberUpdateSchema = z.object({
+    first_name: z.string().trim().min(1, "First name is required."),
+    middle_name: z.string().trim().optional(),
+    maiden_name: z.string().trim().optional(),
+    last_name: z.string().trim().min(1, "Last name is required."),
+    date_of_birth: z.iso.date(),
+    gender: MemberGenderSchema,
+    phone_number: z.string().trim().optional(),
+    secondary_phone_number: z.string().trim().optional(),
+    email: z.union([z.literal(""), z.email()]).optional(),
+    address: z.string().trim().optional(),
+    city: z.string().trim().optional(),
+    province: z.string().trim().optional(),
+    country: z.string().trim().min(1, "Country is required."),
+    membership_status: z.string().trim().optional(),
+    relationship: z.string().trim().optional(),
+    occupation: z.string().trim().optional(),
+    employer: z.string().trim().optional(),
+    notes: z.string().trim().optional(),
+})
+
 export function getMembersFromResponse(response: MembersApiResponse) {
     return Array.isArray(response) ? response : response.results
 }
@@ -98,6 +119,7 @@ export function getMembersPageFromResponse(response: MembersApiResponse) {
 }
 
 export type Member = z.infer<typeof MemberSchema>
+export type MemberUpdate = z.infer<typeof MemberUpdateSchema>
 export type MembersListResponse = z.infer<typeof MembersListResponseSchema>
 export type PaginatedMembersResponse = z.infer<typeof PaginatedMembersResponseSchema>
 export type MembersApiResponse = z.infer<typeof MembersApiResponseSchema>

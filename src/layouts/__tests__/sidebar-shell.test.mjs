@@ -10,7 +10,7 @@ test("sidebar uses one Quick Create implementation with topbar and sidebar trigg
     ])
     assert.match(sidebar, /<QuickCreate\s+onAction=\{closeMobile\}\s+trigger=/)
     assert.match(topbar, /<QuickCreate \/>/)
-    assert.equal((quickCreate.match(/<DialogContent/g) ?? []).length, 1)
+    assert.match(quickCreate, /router\.push\("\/create"\)/)
 })
 
 test("shortcut and primary navigation groups share an expanded collapsible treatment", async () => {

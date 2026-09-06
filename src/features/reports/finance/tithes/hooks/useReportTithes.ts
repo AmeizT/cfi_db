@@ -8,6 +8,15 @@ import { buildReportTithesQuery } from "../utils/queryBuilders"
 import { useActiveAssemblyId } from "@/hooks/query/use-user"
 import { assemblyQueryKeys } from "@/lib/query-keys"
 
+export function reportTithesQueryKey(
+    assemblyId: string | number | null | undefined,
+    reportId: string | null,
+    status: TitheStatusFilter,
+    searchKey: string,
+) {
+    return assemblyQueryKeys.key(assemblyId, "report-tithes", reportId, status, searchKey)
+}
+
 export function useReportTithes(
     reportId: string | null,
     status: TitheStatusFilter,
@@ -18,7 +27,7 @@ export function useReportTithes(
     const searchKey = searchParams.toString()
 
     return useQuery<TithesListResult>({
-        queryKey: assemblyQueryKeys.key(assemblyId, "report-tithes", reportId, status, searchKey),
+        queryKey: reportTithesQueryKey(assemblyId, reportId, status, searchKey),
         enabled: Boolean(assemblyId) && enabled && Boolean(reportId),
         queryFn: async () => {
             const params = new URLSearchParams(searchKey)
