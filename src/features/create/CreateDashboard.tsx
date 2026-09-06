@@ -644,7 +644,7 @@ export function CreateDashboard({
                         </div>
                     </div>
 
-                    <div className="rounded-[14px] border border-border bg-muted p-5">
+                    <div className="rounded-[14px] border border-border bg-muted p-5 hidden">
                         <span className="mb-3.5 grid size-[38px] place-items-center rounded-[10px] bg-card text-foreground shadow-sm">
                             <BookOpen className="size-[19px]" strokeWidth={1.75} />
                         </span>
