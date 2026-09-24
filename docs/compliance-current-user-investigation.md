@@ -39,3 +39,7 @@ For the failing branch's deployment, compare the configured API host with `[curr
 Recheck an authorized PDF download and a cross-region denial on Preview; the PDF should use `/api/backend/api/v1/reports/region/<id>/compliance/monthly-report.pdf`, and a user refetch should be a separate GET to `/api/auth/current-user`.
 
 References: [Vercel environment scopes](https://vercel.com/docs/environment-variables), [Next.js server actions](https://nextjs.org/docs/13/app/building-your-application/data-fetching/server-actions-and-mutations).
+
+## Local validation
+
+The updated frontend suite passed 252 tests, with the added assembly-switch single-fetch test passing separately. Targeted lint and a standalone full TypeScript check passed. The production build was attempted but failed during webpack compilation with `ENOSPC: no space left on device`; it did not complete. These checks do not establish Preview backend reachability.
