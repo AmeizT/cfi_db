@@ -76,7 +76,7 @@ function ViewModeSwitch({
                     className={cn(
                         "h-full rounded-full px-4 font-medium shadow-none",
                         activeView === value
-                            ? "bg-background font-semibold text-primary hover:bg-user-theme-50 hover:text-primary"
+                            ? "bg-background font-semibold text-primary hover:bg-assembly-theme-50 hover:text-primary"
                             : "text-foreground hover:bg-transparent",
                     )}
                 >

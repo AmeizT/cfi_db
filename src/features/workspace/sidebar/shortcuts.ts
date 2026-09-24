@@ -33,6 +33,8 @@ export function canonicalNavigationPath(href: string) {
 
 export function buildWorkspaceShortcutRegistry(sections: NavigationSection[]) {
     const destinations: ShortcutDestination[] = []
+    const seenKeys = new Set<string>()
+    const seenPaths = new Set<string>()
 
     function visit(
         items: NavigationSection["items"],
@@ -46,13 +48,21 @@ export function buildWorkspaceShortcutRegistry(sections: NavigationSection[]) {
                 return
             }
 
+            // Named navigation sections and child groups are nested navigation;
+            // the leading Home / AI entries are not shortcut destinations.
+            if (!parentLabel && (!sectionTitle || sectionTitle === "AI Assistant")) return
+            const href = canonicalNavigationPath(item.href)
+            if (seenKeys.has(item.key) || seenPaths.has(href)) return
+            seenKeys.add(item.key)
+            seenPaths.add(href)
+
             const areaLabel = parentLabel ?? sectionTitle ?? "Workspace"
             destinations.push({
                 key: item.key,
                 label: item.label,
                 areaLabel,
                 accessibleLabel: `${areaLabel} / ${item.label}`,
-                href: canonicalNavigationPath(item.href),
+                href,
                 icon: item.icon,
                 activeIcon: item.activeIcon,
             })
@@ -156,14 +166,43 @@ export function resolveShortcutLists(
     registry: ShortcutDestination[],
 ) {
     const registryByKey = new Map(registry.map((item) => [item.key, item]))
+    const seenKeys = new Set<string>()
+    const seenPaths = new Set<string>()
+    function unique(item: ShortcutDestination | undefined): item is ShortcutDestination {
+        if (!item) return false
+        const path = canonicalNavigationPath(item.href)
+        if (seenKeys.has(item.key) || seenPaths.has(path)) return false
+        seenKeys.add(item.key)
+        seenPaths.add(path)
+        return true
+    }
     const pinned = preferences.pinnedKeys
         .map((key) => registryByKey.get(key))
-        .filter((item): item is ShortcutDestination => Boolean(item))
+        .filter(unique)
     const pinnedKeys = new Set(pinned.map((item) => item.key))
     const recent = preferences.recent
         .filter((item) => !pinnedKeys.has(item.key))
         .map((item) => registryByKey.get(item.key))
-        .filter((item): item is ShortcutDestination => Boolean(item))
+        .filter(unique)
 
     return { pinned, pinnedKeys, recent }
+}
+
+/** Give the displayed shortcut sole ownership of the current destination. */
+export function getActiveShortcutKey(
+    activeKey: string | undefined,
+    sections: NavigationSection[],
+    shortcuts: ShortcutDestination[],
+) {
+    function findHref(items: NavigationSection["items"]): string | undefined {
+        for (const item of items) {
+            if (item.key === activeKey) return item.href
+            const href = findHref(item.children ?? [])
+            if (href) return href
+        }
+    }
+    const href = findHref(sections.flatMap((section) => section.items))
+    return shortcuts.find((item) => item.key === activeKey || (
+        href !== undefined && canonicalNavigationPath(item.href) === canonicalNavigationPath(href)
+    ))?.key
 }

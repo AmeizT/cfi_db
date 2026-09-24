@@ -7,11 +7,12 @@ import type { EntityPagination } from "./entity-master-detail.types"
 type EntityListPanelProps = {
     children: ReactNode
     header: ReactNode
+    listStart?: ReactNode
     pagination?: EntityPagination
     hidden?: boolean
 }
 
-export function EntityListPanel({ children, header, pagination, hidden }: EntityListPanelProps) {
+export function EntityListPanel({ children, header, listStart, pagination, hidden }: EntityListPanelProps) {
     const lastPage = pagination ? Math.max(1, Math.ceil(pagination.total / pagination.pageSize)) : 1
 
     return (
@@ -23,8 +24,9 @@ export function EntityListPanel({ children, header, pagination, hidden }: Entity
             )}
         >
             {header}
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain" role="listbox">
-                {children}
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                {listStart}
+                <div role="listbox">{children}</div>
             </div>
             {pagination && lastPage > 1 ? (
                 <footer className="flex shrink-0 items-center justify-between border-t border-border-subtle px-3 py-2 text-xs text-muted-foreground">

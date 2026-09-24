@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import Link from "next/link"
 import { MailIcon, MoreHorizontalIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -39,7 +40,7 @@ function householdActivity(household: Household | HouseholdDetail) {
     ]
 }
 
-export function HouseholdProfileHeader({ household, canManage }: { household: Household | HouseholdDetail; canManage: boolean }) {
+export function HouseholdProfileHeader({ household, canManage, actions }: { household: Household | HouseholdDetail; canManage: boolean; actions?: ReactNode }) {
     return (
         <EntityProfileHeader
             avatar={<HouseholdAvatar household={household} large />}
@@ -56,10 +57,10 @@ export function HouseholdProfileHeader({ household, canManage }: { household: Ho
                 <>
                     {canManage ? <HouseholdFormDialog household={household} /> : null}
                     {household.email ? <Button asChild size="sm" variant="outline"><a href={`mailto:${household.email}`}><MailIcon aria-hidden="true" className="size-4" /> Message</a></Button> : null}
-                    <DropdownMenu>
+                    {actions ?? <DropdownMenu>
                         <DropdownMenuTrigger asChild><Button size="icon" variant="ghost" aria-label="More household actions"><MoreHorizontalIcon className="size-4" /></Button></DropdownMenuTrigger>
                         <DropdownMenuContent align="end"><DropdownMenuItem disabled>No additional actions available</DropdownMenuItem></DropdownMenuContent>
-                    </DropdownMenu>
+                    </DropdownMenu>}
                 </>
             )}
         />

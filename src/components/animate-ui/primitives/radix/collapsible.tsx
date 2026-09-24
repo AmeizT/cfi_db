@@ -61,18 +61,17 @@ function CollapsibleContent({
   const { isOpen } = useCollapsible();
 
   return (
-    <AnimatePresence>
+    <AnimatePresence initial={false}>
       {keepRendered ? (
         <CollapsiblePrimitive.Content asChild forceMount>
           <motion.div
             key="collapsible-content"
             data-slot="collapsible-content"
-            layout
-            initial={{ opacity: 0, height: 0, overflow: 'hidden', y: 20 }}
+            initial={{ height: 0, overflow: 'hidden' }}
             animate={
               isOpen
-                ? { opacity: 1, height: 'auto', overflow: 'hidden', y: 0 }
-                : { opacity: 0, height: 0, overflow: 'hidden', y: 20 }
+                ? { height: 'auto', overflow: 'hidden' }
+                : { height: 0, overflow: 'hidden' }
             }
             transition={transition}
             {...props}
@@ -84,10 +83,9 @@ function CollapsibleContent({
             <motion.div
               key="collapsible-content"
               data-slot="collapsible-content"
-              layout
-              initial={{ opacity: 0, height: 0, overflow: 'hidden', y: 20 }}
-              animate={{ opacity: 1, height: 'auto', overflow: 'hidden', y: 0 }}
-              exit={{ opacity: 0, height: 0, overflow: 'hidden', y: 20 }}
+              initial={{ height: 0, overflow: 'hidden' }}
+              animate={{ height: 'auto', overflow: 'hidden' }}
+              exit={{ height: 0, overflow: 'hidden' }}
               transition={transition}
               {...props}
             />

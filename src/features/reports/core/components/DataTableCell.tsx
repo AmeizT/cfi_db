@@ -24,6 +24,7 @@ type DataTableCellProps<T extends { id: number }> = {
     isEditable: boolean
     resource: DataTableResource
     mutationQueryKey?: readonly unknown[]
+    trailingContent?: React.ReactNode
     utilityPinnedOffset?: number
 }
 
@@ -35,6 +36,7 @@ export function DataTableCell<T extends { id: number }>({
     resource,
     mutationQueryKey,
     utilityPinnedOffset = 0,
+    trailingContent,
 }: DataTableCellProps<T>) {
     "use no memo"
 
@@ -81,9 +83,10 @@ export function DataTableCell<T extends { id: number }>({
                     )}
                 />
             ) : (
-                <React.Fragment>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </React.Fragment>
+                trailingContent ? <div className="flex items-center gap-2">
+                    <div className="min-w-0 flex-1">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
+                    {trailingContent}
+                </div> : flexRender(cell.column.columnDef.cell, cell.getContext())
             )}
         </BaseTableCell>
     )

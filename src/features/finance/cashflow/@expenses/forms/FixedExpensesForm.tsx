@@ -218,7 +218,7 @@ export function FixedExpensesForm({ expenditure }: FixedExpensesProps) {
                         <input 
                             hidden type="text" 
                             name="assembly" 
-                            defaultValue={user?.church} 
+                            defaultValue={user?.church ?? ""} 
                         />
                     </fieldset>
                     <fieldset className="w-full flex flex-col">

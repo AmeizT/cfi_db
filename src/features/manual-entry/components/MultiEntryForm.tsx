@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import { Children, cloneElement, Fragment, isValidElement, useState, type ReactNode } from "react"
+import { InlineEntryTable } from "./InlineEntryTable"
 import { Button } from "@/components/ui/button"
 import { Loader2Icon, PencilIcon, PlusIcon } from "lucide-react"
 import { TrashBinMinimalisticIcon } from '@solar-icons/react/linear/trash-bin-minimalistic'
 
 type MultiEntryFormProps = {
+    inline?: { headers: string[]; savedRows?: Array<{ id: string; cells: ReactNode[] }>; addLabel: string; dirtyLabel?: string; externalSave?: boolean; saveLabel?: string }
     rows: Array<{ id: string }>
     renderRow: (row: { id: string }, index: number) => ReactNode
     renderSummary?: (row: { id: string }, index: number) => ReactNode
@@ -16,7 +18,7 @@ type MultiEntryFormProps = {
     isPending: boolean
 }
 
-export function MultiEntryForm({ rows, renderRow, renderSummary, onAddRow, onRemoveRow, onCancel, totalLabel, isPending }: MultiEntryFormProps) {
+export function MultiEntryForm({ inline, rows, renderRow, renderSummary, onAddRow, onRemoveRow, onCancel, totalLabel, isPending }: MultiEntryFormProps) {
     const [activeIndex, setActiveIndex] = useState(0)
 
     function addRow() {
@@ -29,6 +31,26 @@ export function MultiEntryForm({ rows, renderRow, renderSummary, onAddRow, onRem
             setActiveIndex(Math.max(0, activeIndex - 1))
         }
         onRemoveRow(index)
+    }
+
+    if (inline) {
+        const cells = (node: ReactNode): ReactNode[] => Children.toArray(node).flatMap(child =>
+            isValidElement<{ children?: ReactNode }>(child) && child.type === Fragment ? cells(child.props.children) : [child]
+        )
+        const labelControls = (node: ReactNode, label: string): ReactNode => Children.map(node, child => {
+            if (!isValidElement<{ children?: ReactNode; name?: string; "aria-label"?: string }>(child)) return child
+            return cloneElement(child, {
+                ...(child.props.name ? { "aria-label": child.props["aria-label"] ?? label } : {}),
+                ...(child.props.children !== undefined ? { children: labelControls(child.props.children, label) } : {}),
+            })
+        })
+        return <fieldset disabled={isPending} className="min-w-0 space-y-4">
+            <InlineEntryTable savedRows={inline.savedRows} headers={inline.headers} rows={rows} renderCells={index => {
+                const row = renderRow(rows[index], index)
+                return (isValidElement<{ children?: ReactNode }>(row) ? cells(row.props.children) : [row]).map((cell, column) => labelControls(cell, `${inline.headers[column]} row ${index + 1}`))
+            }} onAdd={onAddRow} onRemove={onRemoveRow} addLabel={inline.addLabel} disabled={isPending} totalLabel={totalLabel} dirtyLabel={inline.dirtyLabel} />
+            {!inline.externalSave && <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={onCancel}>Discard changes</Button><Button type="submit" disabled={isPending || rows.length === 0}>{isPending ? "Saving…" : inline.saveLabel ?? "Save & Continue"}</Button></div>}
+        </fieldset>
     }
 
     return (

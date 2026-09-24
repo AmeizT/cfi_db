@@ -24,7 +24,7 @@ import { EmptyMailboxIllustration } from "@/components/ui/empty-state-illustrati
 The original unDraw accent `#6c63ff` is mapped to:
 
 ```css
-var(--color-user-theme-500, #6c63ff)
+var(--color-assembly-theme-500, #6c63ff)
 ```
 
 This keeps the illustrations theme-aware while retaining the original purple as a fallback. Width, height, `viewBox`, `className`, accessibility attributes, and other SVG props can be overridden through component props.

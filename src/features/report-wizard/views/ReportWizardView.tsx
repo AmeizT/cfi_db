@@ -1,5 +1,7 @@
 "use client";
 
+import { SkippedSectionNotice } from "@/features/reports/workflow/components/SkippedSectionNotice";
+
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -472,10 +474,6 @@ function SkipSectionDialog({
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!notes.trim()) {
-      toast.error("Enter a reason note before skipping this section.");
-      return;
-    }
     skipMutation.mutate();
   }
 
@@ -506,10 +504,9 @@ function SkipSectionDialog({
             </NativeSelect>
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="skip-notes">Notes</Label>
+            <Label htmlFor="skip-notes">Notes (optional)</Label>
             <Textarea
               id="skip-notes"
-              required
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
             />
@@ -575,6 +572,7 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
     (item) => item.key === section.backendId,
   );
   const sectionIsNotRequired = workflowSection?.status === "not_required";
+  const sectionIsSkipped = workflowSection?.status === "skipped";
   const sectionHasNoActivity = workflowSection?.status === "no_activity";
   const showNoActivityDeclaration = Boolean(
     reportId &&
@@ -676,13 +674,17 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
             title={section.label}
             description={SECTION_DESCRIPTIONS[section.id] ?? "Complete this report section."}
           >
-            {sectionIsNotRequired ? (
-              <Alert>
+            {sectionIsSkipped && reportId ? (
+              <SkippedSectionNotice reportId={reportId} section={section} editable={Boolean(workflowReportQuery.data?.capabilities.is_editable)} />
+            ) : sectionIsNotRequired ? (
+              <div className="space-y-4"><Alert>
                 <AlertTitle>Not required</AlertTitle>
                 <AlertDescription>
-                  Sunday School reporting begins in September 2026. No entry or declaration is needed for this period.
+                  Sunday School reporting begins in September 2026. This section does not require records for this period.
                 </AlertDescription>
               </Alert>
+              {reportId ? <NoActivityDeclaration section={section} reportId={reportId} periodLabel={periodLabel} confirmed={false} editable={Boolean(workflowReportQuery.data?.capabilities.is_editable)} /> : null}
+              </div>
             ) : sectionHasNoActivity && reportId ? (
               <NoActivityDeclaration
                 section={section}
@@ -723,7 +725,7 @@ export function ReportWizardView({ section: sectionParam }: { section: string })
           backHref={backHref}
           nextHref={nextHref}
           nextLabel={nextSection ? `Continue to ${nextSection.navigationLabel ?? nextSection.label}` : undefined}
-          canSkip={Boolean(reportId) && section.id !== "review" && !sectionIsNotRequired && !sectionHasNoActivity}
+          canSkip={Boolean(reportId) && section.id !== "review" && !sectionIsNotRequired && !sectionHasNoActivity && !sectionIsSkipped && Boolean(workflowReportQuery.data?.capabilities.is_editable)}
           onSkip={() => setSkipOpen(true)}
         />
       </div>

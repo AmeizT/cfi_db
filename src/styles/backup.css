@@ -1,0 +1,1416 @@
+@import "tailwindcss";
+/* @import "@heroui/styles";  */
+@import "tw-animate-css";
+@plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
+@plugin "tailwind-scrollbar";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /*
+   * Dynamic assembly palette
+   * The assembly/avatar color is the exact 600 shade.
+   */
+  --assembly-theme-600: var(--color-indigo-600);
+
+  /* Lighter shades */
+  --assembly-theme-50: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 5%,
+    white
+  );
+
+  --assembly-theme-100: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 10%,
+    white
+  );
+
+  --assembly-theme-200: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 20%,
+    white
+  );
+
+  --assembly-theme-300: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 35%,
+    white
+  );
+
+  --assembly-theme-400: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 55%,
+    white
+  );
+
+  --assembly-theme-500: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 78%,
+    white
+  );
+  /* Exact assembly color */
+  /* --assembly-theme-600 is assigned above */
+
+  /* Darker shades */
+  --assembly-theme-700: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 86%,
+    black
+  );
+
+  --assembly-theme-800: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 70%,
+    black
+  );
+
+  --assembly-theme-900: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 52%,
+    black
+  );
+
+  --assembly-theme-950: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 32%,
+    black
+  );
+
+  --assembly-theme-10: color-mix(
+    in oklch,
+    var(--assembly-theme-400) 20%,
+    transparent
+  );
+
+  --assembly-theme-20: color-mix(
+    in oklch,
+    var(--assembly-theme-400) 40%,
+    transparent
+  );
+
+  /* Semantic assembly accent. */
+  --assembly-theme: var(--assembly-theme-600);
+  --assembly-theme-foreground: oklch(0.985 0 0);
+
+  /* Existing tokens */
+  --main: oklch(0.97 0 0);
+  --main-secondary: oklch(97% 0 0);
+  --main-foreground: oklch(0.925 0 0);
+  --main-muted: oklch(0.96 0 0);
+  --main-background: oklch(0.97 0 0);
+  --main-invert: oklch(0.205 0 0);
+
+  --primary-invert: oklch(1 0 0);
+  --primary: var(--assembly-theme);
+  --primary-foreground: var(--assembly-theme-foreground);
+  --primary-muted: var(--assembly-theme-100);
+
+  /* --radius: 0.5rem; */
+  --background: var(--color-white);
+  --foreground: oklch(0.18 0 0);
+
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+
+  --muted: var(--color-zinc-200);
+  --muted-foreground: var(--color-zinc-500);
+
+  --accent: var(--color-zinc-100);
+  --accent-foreground: var(--foreground);
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: var(--color-zinc-300);
+  --border-subtle: color-mix(
+    in oklab,
+    var(--color-zinc-200) 70%,
+    transparent
+  );
+  --border-offset: oklch(0.84 0 0);
+  --popover-border: var(--border-subtle);
+
+  --input: oklch(0.9 0 0);
+  --ring: var(--assembly-theme-400);
+
+  --chart-1: var(--assembly-theme-600);
+  --chart-2: var(--color-green-500);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.6558 0.189856 250.8341);
+  --chart-5: oklch(0.398 0.07 227.392);
+  --chart-6: oklch(0.828 0.189 84.429);
+
+  --base: var(--color-zinc-50);
+  --icon-active: var(--assembly-theme-50);
+
+  --shell-chrome-background: var(--assembly-theme-300);
+  --shell-chrome-foreground: var(--assembly-theme-900);
+  --shell-chrome-muted-foreground: var(--assembly-theme-800);
+  --shell-chrome-hover: var(--assembly-theme-200);
+  --shell-chrome-active: var(--assembly-theme-400);
+  /* One assembly palette; shell surfaces never change the app accent. */
+  --assembly-sidebar-active: color-mix(in oklab, var(--assembly-theme) 78%, oklch(25% 0.015 250) 22%);
+  --assembly-sidebar-active-foreground: var(--color-white);
+  --shell-sidebar-background: var(--assembly-theme-50);
+  --shell-sidebar-foreground: color-mix(in oklab, var(--assembly-theme-900) 20%, var(--color-zinc-800));
+  --shell-sidebar-muted-foreground: color-mix(in oklab, var(--assembly-theme-900) 12%, var(--color-zinc-600));
+  --shell-sidebar-hover: color-mix(in oklab, var(--assembly-theme-900) 7%, transparent);
+  --shell-sidebar-active: var(--assembly-sidebar-active);
+  --shell-sidebar-active-foreground: var(--assembly-sidebar-active-foreground);
+  --shell-sidebar-border: color-mix(in oklab, var(--shell-sidebar-foreground) 10%, transparent);
+  --shell-sidebar-connector: color-mix(in oklab, var(--shell-sidebar-muted-foreground) 40%, transparent);
+  --shell-focus-ring: var(--assembly-theme-500);
+
+  --sidebar-rail: var(--shell-chrome-background);
+  --sidebar-icon: var(--shell-chrome-foreground);
+  --sidebar: var(--shell-sidebar-background);
+  --sidebar-foreground: var(--shell-sidebar-foreground);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: var(--color-assembly-theme-100);
+  --sidebar-accent-active: var(--shell-sidebar-active);
+  --sidebar-text-active: var(--shell-sidebar-active-foreground);
+  --sidebar-accent: var(--shell-sidebar-hover);
+  --sidebar-accent-foreground: var(--shell-sidebar-foreground);
+  --sidebar-border: var(--shell-sidebar-border);
+  --sidebar-ring: var(--shell-focus-ring);
+
+  --surface: var(--color-zinc-50);
+  --surface-subtle: var(--color-zinc-100);
+  --surface-foreground: var(--color-zinc-100);
+
+  --base-gradient-from: var(--color-zinc-50);
+  --base-gradient-to: var(--color-zinc-100);
+
+  --navbar-height: 3rem;
+}
+
+:root[data-shell-color-mode="full"] {
+  --shell-chrome-background: var(--assembly-theme-950);
+  --shell-chrome-foreground: var(--assembly-theme-foreground);
+  --shell-chrome-muted-foreground: var(--assembly-theme-100);
+  --shell-chrome-hover: var(--assembly-theme-600);
+  --shell-chrome-active: var(--assembly-theme-500);
+}
+
+.color {
+  background: rgb(229, 231, 235);
+}
+
+
+
+.dark {
+  --main: oklch(0.178 0 0);
+  --main-secondary: oklch(0.205 0 0);
+  --main-foreground: oklch(0.269 0 0);
+  --main-muted: oklch(0.168 0 0);
+  --main-background: oklch(0.145 0 0);
+  --main-invert: oklch(0.8 0 0);
+
+  --primary: var(--assembly-theme);
+  --primary-invert: oklch(0 0 0);
+  --primary-foreground: var(--assembly-theme-foreground);
+  --primary-muted: oklch(0.708 0 0);
+
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: var(--foreground);
+  --popover: var(--color-neutral-950);
+  --popover-foreground: var(--foreground);
+  --primary: var(--assembly-theme);
+  --primary-foreground: var(--assembly-theme-foreground);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: var(--color-neutral-400);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.269 0 0);
+  --border-subtle: var(--neutral-700);
+  --border-offset: oklch(0.37 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.62 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --icon-active: var(--color-zinc-300);
+  --sidebar: var(--color-zinc-950);
+  --sidebar-icon: var(--color-mist-300);
+  --sidebar-rail: var(--color-zinc-900);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: var(--color-zinc-800);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --surface: oklch(0.205 0 0);
+  --surface-foreground: var(--color-neutral-800);
+  --surface-subtle: oklch(0.269 0 0);
+  --surface-card-shadow: var(--color-zinc-800);
+  --base-gradient-from: var(--color-zinc-700);
+  --base-graident-to: var(--color-zinc-950); 
+  --spinner-gradient:
+    linear-gradient(
+        0deg,
+        rgba(143, 143, 143, 0.5) 30%,
+        transparent 0 70%,
+        rgba(143, 143, 143, 1) 0
+      )
+      50%/8% 100%,
+    linear-gradient(
+        90deg,
+        rgba(143, 143, 143, 0.25) 30%,
+        transparent 0 70%,
+        rgba(143, 143, 143, 0.75) 0
+      )
+      50%/100% 8%;
+  --loader-main-color: oklch(1 0 0);
+  --loader-faded-color: oklch(1 0 0 / 30%);
+  --loader-bg-color: oklch(1 0 0);
+}
+
+:root{
+    --page-bg: #eeecf2;
+    --ink: #2c2840;
+    --ink-muted: #6b6785;
+    --icon-badge-bg: #e2dfe9;
+    --tree-line: rgba(30,25,50,0.14);
+ 
+    /* neutral glass (hover pills, dropdowns, command palette) */
+    --glass-bg-top: rgba(255,255,255,0.75);
+    --glass-bg-bottom: rgba(255,255,255,0.35);
+    --glass-shadow-outer: 0 6px 16px rgba(30,25,50,0.10);
+    --glass-highlight-top: inset 0 1px 0 rgba(255,255,255,0.9);
+    --glass-highlight-bottom: inset 0 -1px 0 rgba(30,25,50,0.04);
+    --glass-blur: 10px;
+    --glass-icon-bg: rgba(255,255,255,0.5);
+ 
+    /* active/accent glass (the blue pill) */
+    --active-grad: linear-gradient(180deg, #6fb0ea 0%, #4288d6 45%, #2a68b8 100%);
+    --active-glow: 0 10px 26px rgba(60,130,210,0.35), 0 2px 6px rgba(40,100,180,0.3);
+    --active-highlight-top: inset 0 1.5px 0 rgba(255,255,255,0.65);
+    --active-highlight-bottom: inset 0 -14px 22px rgba(0,0,0,0.16);
+    --active-sheen: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 100%);
+    --active-icon-bg: rgba(255,255,255,0.24);
+  }
+ 
+  html[data-theme="dark"]{
+    --page-bg: #0e0e10;
+    --ink: #e7e7ea;
+    --ink-muted: #9a97ab;
+    --icon-badge-bg: #26262a;
+    --tree-line: rgba(255,255,255,0.16);
+ 
+    --glass-bg-top: rgba(255,255,255,0.09);
+    --glass-bg-bottom: rgba(255,255,255,0.03);
+    --glass-shadow-outer: 0 6px 18px rgba(0,0,0,0.35);
+    --glass-highlight-top: inset 0 1px 0 rgba(255,255,255,0.14);
+    --glass-highlight-bottom: inset 0 0 0 rgba(0,0,0,0);
+    --glass-icon-bg: rgba(255,255,255,0.08);
+ 
+    --active-grad: linear-gradient(180deg, #3d84c9 0%, #2166a8 45%, #144a80 100%);
+    --active-glow: 0 10px 28px rgba(30,100,190,0.45), 0 2px 6px rgba(20,70,140,0.4);
+    --active-highlight-top: inset 0 1.5px 0 rgba(255,255,255,0.55);
+    --active-highlight-bottom: inset 0 -14px 22px rgba(0,0,0,0.28);
+    --active-sheen: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0) 100%);
+    --active-icon-bg: rgba(255,255,255,0.18);
+  }
+ 
+  /* single reusable shorthand — every glass surface below uses this */
+  :root, html[data-theme="dark"]{
+    --glass-bg: linear-gradient(180deg, var(--glass-bg-top), var(--glass-bg-bottom));
+    --glass-shadow: var(--glass-shadow-outer), var(--glass-highlight-top), var(--glass-highlight-bottom);
+  }
+
+  .pill-hover{
+    position:relative;border-radius:999px;
+    background:var(--glass-bg);
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(var(--glass-blur));
+    -webkit-backdrop-filter:blur(var(--glass-blur));
+  }
+
+  .dropdown{
+    background:var(--glass-bg);
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(var(--glass-blur));
+    -webkit-backdrop-filter:blur(var(--glass-blur));
+  }
+
+  .dropdown-item{
+    padding:9px 12px;
+    border-radius:9px;
+    font-size:14.5px;
+    font-weight:500;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .dropdown-item.danger{color:#e8836c;}
+  .dropdown-divider{height:1px;background:var(--tree-line);margin:5px 4px;}
+ 
+.command{
+  background:var(--glass-bg);
+  box-shadow:var(--glass-shadow);
+  backdrop-filter:blur(var(--glass-blur));
+  -webkit-backdrop-filter:blur(var(--glass-blur));
+}
+  
+
+.dark {
+  --shell-sidebar-background: color-mix(in oklab, var(--color-neutral-950) 92%, var(--assembly-theme-950));
+  --shell-sidebar-foreground: var(--color-zinc-200);
+  --shell-sidebar-muted-foreground: var(--color-zinc-400);
+  --shell-sidebar-hover: color-mix(in oklab, var(--color-white) 6%, transparent);
+  --shell-sidebar-border: color-mix(in oklab, var(--color-white) 8%, transparent);
+}
+
+
+/* Resolve sidebar aliases after both shell color modes and dark mode. */
+:root {
+  --sidebar: var(--shell-sidebar-background);
+  --sidebar-foreground: var(--shell-sidebar-foreground);
+  --sidebar-accent: var(--shell-sidebar-hover);
+  --sidebar-accent-foreground: var(--shell-sidebar-foreground);
+  --sidebar-border: var(--shell-sidebar-border);
+  --sidebar-ring: var(--shell-sidebar-foreground);
+}
+
+/* =====================================================
+   DESIGN TOKENS
+   These generate Tailwind utilities
+===================================================== */
+
+@theme {
+  /* Chart palette */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(11,29,58,0.10), 0 1px 4px rgba(11,29,58,0.06);
+  --shadow-surface: 0px 1px 1px 0px rgba(0,0,0,0.12), 0px 0px 0px 1px rgba(229,229,229),0px 2px 5px 0px rgba(229,229,229,0.9);
+  --shadow-card-dark: 
+  0 8px 32px rgba(0, 0, 0, 0.6),
+  0 2px 8px rgba(0, 0, 0, 0.4),
+  inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+    --shadow-control:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(0, 0, 0, 0.10);
+
+  --shadow-control-hover:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.07),
+    0 0 0 1px rgba(0, 0, 0, 0.13);
+
+  --shadow-control-dark:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 1px 2px rgba(0, 0, 0, 0.30),
+    0 0 0 1px rgba(255, 255, 255, 0.10);
+}
+
+
+/* =====================================================
+   TOKEN ALIASES / APP-SPECIFIC TOKENS
+   These map global tokens to app components
+===================================================== */
+
+@theme inline {
+  --color-assembly-theme-50: var(--assembly-theme-50);
+  --color-assembly-theme-100: var(--assembly-theme-100);
+  --color-assembly-theme-200: var(--assembly-theme-200);
+  --color-assembly-theme-300: var(--assembly-theme-300);
+  --color-assembly-theme-400: var(--assembly-theme-400);
+  --color-assembly-theme-500: var(--assembly-theme-500);
+  --color-assembly-theme-600: var(--assembly-theme-600);
+  --color-assembly-theme-700: var(--assembly-theme-700);
+  --color-assembly-theme-800: var(--assembly-theme-800);
+  --color-assembly-theme-900: var(--assembly-theme-900);
+  --color-assembly-theme-950: var(--assembly-theme-950);
+  /* USER THEME */
+
+  --color-assembly-theme: var(--assembly-theme);
+  --color-assembly-theme-10: var(--assembly-theme-10);
+  --color-assembly-theme-20: var(--assembly-theme-20);
+  --color-assembly-theme-foreground: var(--assembly-theme-foreground);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* Brand */
+  /* --color-primary: oklch(0.6558 0.189856 250.8341); */
+  /* --color-primary: oklch(0.4848 0.0827 246.27); */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  /* Secondary system */
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  /* Muted */
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  /* Accent */
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* Destructive */
+  --color-destructive: var(--destructive);
+
+  /* Borders & inputs */
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-offset: var(--border-offset);
+  --color-popover-border: var(--popover-border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-base-gradient-from: var(--base-gradient-from);
+  --color-base-gradient-to: var(--base-gradient-to);
+
+  /* Charts */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+
+  --color-sidebar-rail: var(--sidebar-rail);
+  --color-sidebar-icon: var(--sidebar-icon);
+  --color-icon-active: var(--icon-active);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent-active: var(--sidebar-accent-active);
+  --color-sidebar-text-active: var(--sidebar-text-active);
+
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Fonts */
+  --font-geist: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --font-sans:
+    -apple-system,
+    BlinkMacSystemFont,
+    var(--inter-variable),
+    "Segoe UI Variable Display",
+    "Segoe UI",
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    Arial,
+    sans-serif;
+
+  /* --font-sans: var(--inter-variable), sans-serif; */
+
+  /* --font-mono:
+  ui-monospace,
+  SFMono-Regular,
+  Menlo,
+  Monaco,
+  Consolas,
+  "Liberation Mono",
+  "Courier New",
+  monospace; */
+
+  --animate-shine: shine 6s linear infinite;
+  --animate-border-width: border-width 3s infinite alternate;
+  --animate-text-gradient: text-gradient 2s linear infinite;
+  --animate-text-shake: text-shake 1s ease 1;
+  --animate-text-glitch-to: text-glitch-to 0.6s ease-in-out infinite;
+  --animate-text-glitch-from: text-glitch-from 0.6s ease-in-out infinite;
+  --animate-text-scale: text-scale 1s linear infinite forwards;
+  --animate-brightness: brightness 2.2s linear infinite;
+  --animate-spinner: spinner 1.2s linear infinite;
+  --animate-accordion-open: accordion-open 0.2s ease-out;
+  --animate-accordion-close: accordion-close 0.2s ease-out;
+
+  --shadow-elevation-01: 0px 4px 16px 0px rgba(0, 0, 0, 0.05);
+  --shadow-elevation-sm:
+        0 4px 8px rgba(41, 41, 41, 0.06),
+        0 2px 4px rgba(41, 41, 41, 0.04),
+        0 1px 2px rgba(41, 41, 41, 0.04),
+        0 0 0 1px rgba(41, 41, 41, 0.08),
+        inset 0 -0.5px 0.5px rgba(41, 41, 41, 0.08);
+}
+
+
+/* =====================================================
+   KEYFRAMES (STANDARD CSS)
+===================================================== */
+
+@keyframes marquee {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
+@keyframes accordion-open {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-close {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+
+@keyframes shine {
+  from { background-position: 0 0; }
+  to { background-position: -400% 0; }
+}
+
+@keyframes border-width {
+  from {
+    width: 10px;
+    opacity: 0;
+  }
+  to {
+    width: 100px;
+    opacity: 1;
+  }
+}
+
+@keyframes text-gradient {
+  to { background-position: 200% center; }
+}
+
+@keyframes text-shake {
+  15% { transform: translateX(5px); }
+  30% { transform: translateX(-5px); }
+  50% { transform: translateX(3px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes text-glitch-to {
+  from { transform: translateY(0); }
+  to { transform: translateY(-100%); }
+}
+
+@keyframes text-glitch-from {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes brightness {
+  0% { transform: skew(-13deg) translateX(-100%); }
+  100% { transform: skew(-13deg) translateX(100%); }
+}
+
+@keyframes spinner {
+  0% { opacity: 1; }
+  100% { opacity: 0.15; }
+}
+
+@keyframes text-scale {
+  0% {
+    transform: scaleX(0);
+    transform-origin: bottom left;
+  }
+  25% {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
+  75% {
+    transform: scaleX(1);
+    transform-origin: bottom right;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: bottom right;
+  }
+}
+
+@keyframes gradientGlow {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+* {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    @apply bg-background text-foreground;
+  }
+
+  .prose h2 {
+    counter-increment: section;
+  }
+  .prose h2::before {
+    content: counter(section) ". ";
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    box-shadow: 0 0 0px 1000px var(--autofill-color) inset !important;
+    -webkit-box-shadow: 0 0 0px 1000px var(--autofill-color) inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  [data-read-more="true"]:not([aria-expanded="true"]) p:last-child::after {
+    content: "(Read more)";
+    @apply text-primary text-[0.875rem] font-medium hover:underline underline-offset-2;
+  }
+
+  .glow-shadow {
+    box-shadow:
+      0px 0px 10px red,
+      0px 0px 10px red inset;
+  }
+
+  @keyframes radial-step-spin {
+    100% {
+      transform: rotate(1turn);
+    }
+  }
+
+  .wheel-spinner {
+    width: 110px;
+    aspect-ratio: 2;
+    display: grid;
+    border-radius: 50%;
+    background: var(--spinner-gradient);
+    background-repeat: no-repeat;
+    animation: l23 1200ms infinite steps(12);
+  }
+  .wheel-spinner::before,
+  .wheel-spinner::after {
+    content: "";
+    grid-area: 1/1;
+    border-radius: 50%;
+    background: inherit;
+    opacity: 0.915;
+    transform: rotate(30deg);
+  }
+  .wheel-spinner::after {
+    opacity: 0.8;
+    transform: rotate(60deg);
+  }
+  @keyframes l23 {
+    100% {
+      transform: rotate(1turn);
+    }
+  }
+  .react-aria-Checkbox {
+    --selected-color: var(--highlight-background);
+    --selected-color-pressed: var(--highlight-background-pressed);
+    --checkmark-color: var(--highlight-foreground);
+    display: flex;
+    position: relative;
+    align-items: center;
+    gap: 0.571rem;
+    font-size: 1.143rem;
+    color: var(--text-color);
+    forced-color-adjust: none;
+
+    .checkbox {
+      width: 1.143rem;
+      height: 1.143rem;
+      border: 2px solid var(--border-color);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .checkbox,
+    svg {
+      transition: all 200ms;
+    }
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      fill: none;
+      stroke: var(--checkmark-color);
+      stroke-width: 3px;
+      stroke-dasharray: 22px;
+      stroke-dashoffset: 66;
+    }
+
+    &[data-pressed] .checkbox {
+      border-color: var(--border-color-pressed);
+    }
+
+    &[data-focus-visible] .checkbox {
+      outline: 2px solid var(--focus-ring-color);
+      outline-offset: 2px;
+    }
+
+    &[data-selected],
+    &[data-indeterminate] {
+      .checkbox {
+        border-color: var(--selected-color);
+        background: var(--selected-color);
+      }
+
+      &[data-pressed] .checkbox {
+        border-color: var(--selected-color-pressed);
+        background: var(--selected-color-pressed);
+      }
+
+      svg {
+        stroke-dashoffset: 44;
+      }
+    }
+
+    &[data-indeterminate] {
+      & svg {
+        stroke: none;
+        fill: var(--checkmark-color);
+      }
+    }
+  }
+}
+
+.v-separator {
+  @apply data-[orientation=vertical]:h-3/4 bg-zinc-200
+}
+
+@utility text-muted {
+  color: oklch(0.68 0 0);
+}
+
+@utility shadow-inset-light {
+  box-shadow:
+    0 1px 2px 0 rgb(0, 0, 0, 0.05),
+    inset 0 1px 0 0 rgb(255, 255, 255, 0.12);
+}
+
+@utility center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@utility squircle {
+  corner-shape: squircle superellipse(2);
+}
+
+@utility squircle-24 {
+  border-radius: 20px;
+  corner-shape: squircle;
+}
+
+@utility squircle-sm {
+  clip-path: path('M50,0 C75,0 100,25 100,50 C100,75 75,100 50,100 C25,100 0,75 0,50 C0,25 25,0 50,0 Z');
+}
+
+@utility squircle-md {
+  clip-path: path('M50,0 C85,0 100,15 100,50 C100,85 85,100 50,100 C15,100 0,85 0,50 C0,15 15,0 50,0 Z');
+}
+
+@utility squircle-lg {
+  clip-path: path('M50,0 C92,0 100,8 100,50 C100,92 92,100 50,100 C8,100 0,92 0,50 C0,8 8,0 50,0 Z');
+}
+
+@utility shadow-subtle-elevation {
+  box-shadow:
+    0 4px 8px rgba(41, 41, 41, 0.06),
+    0 2px 4px rgba(41, 41, 41, 0.04),
+    0 1px 2px rgba(41, 41, 41, 0.04),
+    0 0 0 1px rgba(41, 41, 41, 0.08),
+    inset 0 -0.5px 0.5px rgba(41, 41, 41, 0.08);
+}
+
+@utility shadow-inner-border {
+  outline: 1px solid rgba(255, 255, 255, 0.85);
+  outline-offset: -1px;
+}
+
+@utility text-stroke {
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: #000;
+  -webkit-text-stroke-width: 2px;
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@utility scrollbar-hidden {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@utility border-xs {
+  border-width: 0.5px;
+}
+@utility border-sm {
+  border-width: 1px;
+}
+
+@utility border-md {
+  border-width: 1px;
+}
+
+@utility shadow-offset-muted {
+  box-shadow: 0 1.5px 0 0 var(--color-assembly-theme);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+
+  &:active {
+    box-shadow: none;
+    transform: translateY(3px);
+  }
+}
+
+@utility shadow-offset-primary {
+  box-shadow: 0 1.5px 0 0 color-mix(in srgb, var(--assembly-theme) 65%, black);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+
+  &:active {
+    box-shadow: none;
+    transform: translateY(3px);
+  }
+}
+
+@utility shadow-offset-surface {
+  box-shadow: 0 1.5px 0 0 color-mix(in srgb, var(--assembly-theme) 40%, white);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+
+  &:active {
+    box-shadow: none;
+    transform: translateY(3px);
+  }
+}
+
+@utility shadow-offset-muted-active {
+  box-shadow: 0 1.5px 0 0 var(--assembly-theme);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+}
+
+/* ===================================================
+   THEME-AWARE UTILITY CLASSES
+   These use --assembly-theme CSS variable for dynamic colors
+   ===================================================== */
+
+/* Background colors using assembly-theme */
+@utility bg-theme {
+  background-color: var(--assembly-theme);
+}
+@utility bg-theme-50 {
+  background-color: color-mix(in srgb, var(--assembly-theme) 10%, white);
+}
+@utility bg-theme-100 {
+  background-color: color-mix(in srgb, var(--assembly-theme) 20%, white);
+}
+@utility bg-theme-200 {
+  background-color: color-mix(in srgb, var(--assembly-theme) 30%, white);
+}
+@utility bg-theme-300 {
+  background-color: color-mix(in srgb, var(--assembly-theme) 40%, white);
+}
+@utility bg-theme-400 {
+  background-color: color-mix(in srgb, var(--assembly-theme) 50%, white);
+}
+@utility bg-theme-500 {
+  background-color: var(--assembly-theme);
+}
+@utility bg-theme-600 {
+  background-color: color-mix(in srgb, var(--assembly-theme) 85%, black);
+}
+@utility bg-theme-700 {
+  background-color: color-mix(in srgb, var(--assembly-theme) 75%, black);
+}
+@utility bg-theme-800 {
+  background-color: color-mix(in srgb, var(--assembly-theme) 65%, black);
+}
+
+/* Text colors using assembly-theme */
+@utility text-theme {
+  color: var(--assembly-theme);
+}
+@utility text-theme-foreground {
+  color: var(--assembly-theme-foreground);
+}
+@utility text-theme-50 {
+  color: color-mix(in srgb, var(--assembly-theme) 10%, white);
+}
+@utility text-theme-100 {
+  color: color-mix(in srgb, var(--assembly-theme) 20%, white);
+}
+@utility text-theme-200 {
+  color: color-mix(in srgb, var(--assembly-theme) 30%, white);
+}
+@utility text-theme-300 {
+  color: color-mix(in srgb, var(--assembly-theme) 40%, white);
+}
+@utility text-theme-400 {
+  color: color-mix(in srgb, var(--assembly-theme) 50%, white);
+}
+@utility text-theme-500 {
+  color: var(--assembly-theme);
+}
+@utility text-theme-600 {
+  color: color-mix(in srgb, var(--assembly-theme) 85%, black);
+}
+@utility text-theme-700 {
+  color: color-mix(in srgb, var(--assembly-theme) 75%, black);
+}
+@utility text-theme-800 {
+  color: color-mix(in srgb, var(--assembly-theme) 65%, black);
+}
+
+/* Border colors using assembly-theme */
+@utility border-theme {
+  border-color: var(--assembly-theme);
+}
+@utility border-theme-50 {
+  border-color: color-mix(in srgb, var(--assembly-theme) 10%, white);
+}
+@utility border-theme-100 {
+  border-color: color-mix(in srgb, var(--assembly-theme) 20%, white);
+}
+@utility border-theme-200 {
+  border-color: color-mix(in srgb, var(--assembly-theme) 30%, white);
+}
+@utility border-theme-300 {
+  border-color: color-mix(in srgb, var(--assembly-theme) 40%, white);
+}
+@utility border-theme-400 {
+  border-color: color-mix(in srgb, var(--assembly-theme) 50%, white);
+}
+@utility border-theme-500 {
+  border-color: var(--assembly-theme);
+}
+@utility border-theme-600 {
+  border-color: color-mix(in srgb, var(--assembly-theme) 85%, black);
+}
+@utility border-theme-700 {
+  border-color: color-mix(in srgb, var(--assembly-theme) 75%, black);
+}
+@utility border-theme-800 {
+  border-color: color-mix(in srgb, var(--assembly-theme) 65%, black);
+}
+
+/* Divide colors using assembly-theme */
+@utility divide-theme-50 {
+  border-color: color-mix(in srgb, var(--assembly-theme) 10%, white);
+}
+@utility divide-theme-100 {
+  border-color: color-mix(in srgb, var(--assembly-theme) 20%, white);
+}
+@utility divide-theme-500 {
+  border-color: var(--assembly-theme);
+}
+
+/* Ring colors using assembly-theme */
+@utility ring-theme {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--assembly-theme) 20%, transparent);
+}
+@utility ring-theme-500 {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--assembly-theme) 20%, white);
+}
+
+/* Shadow colors with theme (for badges, highlights) */
+@utility shadow-theme-50 {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--assembly-theme) 20%, white);
+}
+@utility shadow-theme-500 {
+  box-shadow: 0 1px 2px 0 color-mix(in srgb, var(--assembly-theme) 30%, black);
+}
+
+/* Fill and stroke colors */
+@utility fill-theme {
+  fill: var(--assembly-theme);
+}
+@utility fill-theme-500 {
+  fill: var(--assembly-theme);
+}
+@utility stroke-theme {
+  stroke: var(--assembly-theme);
+}
+@utility stroke-theme-500 {
+  stroke: var(--assembly-theme);
+}
+
+/* Theme gradients for primary brand surfaces */
+@utility bg-theme-gradient-x {
+  background-image: linear-gradient(
+    to right,
+    var(--assembly-theme),
+    color-mix(in srgb, var(--assembly-theme) 72%, black)
+  );
+}
+
+@utility bg-theme-gradient-b {
+  background-image: linear-gradient(
+    to bottom,
+    var(--assembly-theme),
+    color-mix(in srgb, var(--assembly-theme) 82%, black)
+  );
+}
+
+@utility bg-theme-gradient-br {
+  background-image: linear-gradient(
+    to bottom right,
+    var(--assembly-theme),
+    color-mix(in srgb, var(--assembly-theme) 72%, black)
+  );
+}
+
+@utility bg-noise {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+  }
+
+  & > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@utility bg-crosshatch {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 1.75px,
+      rgb(255 255 255 / 0.1) 1.75px,
+      rgb(255 255 255 / 0.1) 2.75px
+    );
+
+    mix-blend-mode: soft-light;
+    opacity: 0.50;
+  }
+
+  & > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@utility border-wavy {
+  border: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='6' viewBox='0 0 20 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 3 Q5 0 10 3 T20 3' fill='none' stroke='%23e4e4e7' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: bottom;
+  background-size: 20px 6px;
+  padding-bottom: 10px;
+    
+}
+
+@theme {
+  --animate-collapsible-down: collapsible-down 0.2s cubic-bezier(0.83, 0, 0.17, 1);
+  --animate-collapsible-up: collapsible-up 0.2s cubic-bezier(0.83, 0, 0.17, 1);
+  --animate-accordion-down: accordion-down 0.2s cubic-bezier(0.83, 0, 0.17, 1);
+  --animate-accordion-up: accordion-up 0.2s cubic-bezier(0.83, 0, 0.17, 1);
+  
+  @keyframes collapsible-down {
+    from {
+      height: 0;
+      opacity: 0;
+    }
+    to {
+      height: var(--radix-collapsible-content-height);
+      opacity: 1;
+    }
+  }
+
+  @keyframes collapsible-up {
+    from {
+      height: var(--radix-collapsible-content-height);
+      opacity: 1;
+    }
+    to {
+      height: 0;
+      opacity: 0;
+    }
+  }
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+      opacity: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+      opacity: 1;
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+      opacity: 1;
+    }
+    to {
+      height: 0;
+      opacity: 0;
+    }
+  }
+}
+
+
+
+/* @utility bg-crosshatch {
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 2px,
+      rgb(80 70 65 / 0.12) 2px,
+      rgb(80 70 65 / 0.12) 3px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0,
+      transparent 2px,
+      rgb(80 70 65 / 0.08) 2px,
+      rgb(80 70 65 / 0.08) 3px
+    );
+} */
+
+/* Dark mode variants */
+/* .dark {
+  @utility bg-theme-50 {
+    background-color: color-mix(in srgb, var(--assembly-theme) 10%, black);
+  }
+  @utility bg-theme-100 {
+    background-color: color-mix(in srgb, var(--assembly-theme) 15%, black);
+  }
+  @utility bg-theme-200 {
+    background-color: color-mix(in srgb, var(--assembly-theme) 20%, black);
+  }
+  @utility text-theme-50 {
+    color: color-mix(in srgb, var(--assembly-theme) 40%, white);
+  }
+  @utility text-theme-100 {
+    color: color-mix(in srgb, var(--assembly-theme) 50%, white);
+  }
+  @utility text-theme-200 {
+    color: color-mix(in srgb, var(--assembly-theme) 60%, white);
+  }
+} */
+
+
+/* One group-owned border follows hover/focus, falling back to the current route. */
+.assembly-sidebar-branch {
+  --sidebar-connector-left: 18px;
+  position: relative;
+  isolation: isolate;
+}
+
+.assembly-sidebar-branch::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  left: var(--sidebar-connector-left);
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1.5px solid var(--border-subtle);
+}
+
+.assembly-sidebar-branch[data-connector-targeted="true"]::before {
+  bottom: auto;
+  height: var(--sidebar-connector-end, 0px);
+  width: var(--sidebar-connector-width, 18px);
+  border-bottom: 1.5px solid var(--border-subtle);
+  border-bottom-left-radius: 14px;
+}
+
+/* Paint over row fills but behind icons/text, without intercepting interaction. */
+.assembly-sidebar-branch > [data-sidebar="menu-sub-item"] > [data-sidebar="menu-sub-button"] > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* A restrained highlight on selected rows, without outlining every item. */
+[data-sidebar="menu-button"][data-active="true"],
+[data-sidebar="menu-sub-button"][data-active="true"] {
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--assembly-sidebar-active-foreground) 12%, transparent);
+}
+
+
+.active-glass {
+    position: relative;
+    overflow: hidden;
+
+    border-radius: 9999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(55, 128, 190, 0.44) 0%,
+            rgba(24, 73, 116, 0.58) 42%,
+            rgba(15, 48, 79, 0.68) 100%
+        );
+
+    border: 1px solid rgba(105, 184, 255, 0.28);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+        inset 0 8px 18px rgba(96, 177, 255, 0.08),
+        0 4px 12px rgba(0, 0, 0, 0.16);
+
+    backdrop-filter: blur(18px) saturate(125%);
+    -webkit-backdrop-filter: blur(18px) saturate(125%);
+
+    color: rgba(255, 255, 255, 0.96);
+}
+
+
+.active-glass::before {
+    content: "";
+    position: absolute;
+    inset: 1px 1px auto 1px;
+
+    height: 52%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.13),
+            rgba(255, 255, 255, 0.035) 55%,
+            transparent
+        );
+
+    pointer-events: none;
+}
+
+
+.active-glass::after {
+    content: "";
+    position: absolute;
+
+    left: 14%;
+    right: 14%;
+    top: -20%;
+
+    height: 80%;
+
+    border-radius: 9999px;
+
+    background: rgba(80, 170, 255, 0.12);
+    filter: blur(18px);
+
+    pointer-events: none;
+}
+
+
+.pill-hover {
+  position: relative;
+  border-radius: 999px;
+
+  /* faint two-stop gradient — lighter at top, fading down. This alone
+     is what keeps it from looking like a flat gray fill */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.09),
+    rgba(255, 255, 255, 0.03)
+  );
+
+  /* the depth comes from these two shadows working together */
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.35),       /* outer shadow — lifts it off the page */
+    inset 0 1px 0 rgba(255, 255, 255, 0.14); /* inset top highlight — the "glass edge" catching light */
+
+  /* real refraction of whatever sits behind it */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari still needs the prefix */
+}
+
+/* the icon badge inside picks up a lighter tint too, so it doesn't
+   look like a flat gray square sitting on top of the glass */
+.pill-hover .icon-badge {
+  background: rgba(255, 255, 255, 0.08);
+}

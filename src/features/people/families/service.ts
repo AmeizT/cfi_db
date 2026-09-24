@@ -51,13 +51,31 @@ export async function createHousehold(values: HouseholdWriteInput): Promise<Hous
     return HouseholdSchema.parse(await response.json())
 }
 
-export async function updateHousehold({ id, values }: { id: number; values: HouseholdWriteInput }): Promise<Household> {
+export async function updateHousehold({ id, values }: { id: number; values: Partial<HouseholdWriteInput> & { assembly?: number } }): Promise<Household> {
     const token = (await cookies()).get("accessToken")?.value
     const response = await fetch(apiRoutes.households.detail(id), {
         ...withJwt(token),
         method: "PATCH",
         body: JSON.stringify(values),
     })
-    if (!response.ok) throw new Error("The household could not be updated.")
+    if (!response.ok) {
+        const errors = await response.json().catch(() => null)
+        const message = errors?.assembly ?? errors?.detail
+        throw new Error(Array.isArray(message) ? message.join(" ") : typeof message === "string" ? message : "The household could not be updated.")
+    }
     return HouseholdSchema.parse(await response.json())
+}
+
+
+export async function deleteHousehold(id: number): Promise<void> {
+    const token = (await cookies()).get("accessToken")?.value
+    const response = await fetch(apiRoutes.households.detail(id), { ...withJwt(token), method: "DELETE" })
+    if (!response.ok) throw new Error("The household could not be deleted.")
+}
+
+export async function getHouseholdTransferOptions(): Promise<{ id: number; name: string }[]> {
+    const token = (await cookies()).get("accessToken")?.value
+    const response = await fetch(`${apiRoutes.households.list()}transfer-options/`, { ...withJwt(token), cache: "no-store" })
+    if (!response.ok) throw new Error("Unable to load household transfer destinations.")
+    return response.json()
 }

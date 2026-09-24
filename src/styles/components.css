@@ -1,0 +1,7 @@
+.color {
+  background: rgb(229, 231, 235);
+}
+
+.v-separator {
+  @apply data-[orientation=vertical]:h-3/4 bg-zinc-200
+}

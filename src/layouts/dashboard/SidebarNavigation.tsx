@@ -174,7 +174,7 @@ export function SidebarNavigation({ menu }: { menu: SidebarNavigationProps }) {
                     <div key={group.id} className="flex flex-col items-center">
                         <SidebarGroup  className="p-0">
                             {group.label ? (
-                                <SidebarGroupLabel className="px-2 text-xs font-semibold text-user-theme-500">
+                                <SidebarGroupLabel className="px-2 text-xs font-semibold text-assembly-theme-500">
                                     {group.label}
                                 </SidebarGroupLabel>
                             ) : null}

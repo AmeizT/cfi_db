@@ -48,9 +48,9 @@ test("all report sections route through the Report Wizard with context intact", 
       report_id: 84,
       amendment_context: "reopened",
     }),
-    "/create?workspace=monthly-report&section=overhead&method=upload&upload_type=excel&report_id=84&amendment_context=reopened",
+    "/record-center?workspace=monthly-report&section=overhead&method=upload&upload_type=excel&report_id=84&amendment_context=reopened",
   )
-  assert.equal(createReportSectionWizardHref("review", { report_id: 84 }), "/create?workspace=monthly-report&section=review&method=manual-entry&report_id=84")
+  assert.equal(createReportSectionWizardHref("review", { report_id: 84 }), "/record-center?workspace=monthly-report&section=review&method=manual-entry&report_id=84")
 })
 
 test("submitted sections open operational source records without reusing Wizard routes", () => {

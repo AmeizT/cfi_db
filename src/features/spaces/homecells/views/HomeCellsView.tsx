@@ -1,6 +1,9 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
+import { Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { HomeIcon, NetworkIcon } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
@@ -151,10 +154,13 @@ export function HomeCellsView({ communities = false }: { communities?: boolean }
             <View.Header
                 pagename={communities ? "Communities" : "Homecells"}
                 actions={(
+                    <>
+                    <Button asChild size="sm"><Link href="/spaces/new"><Plus className="size-4" aria-hidden="true" /> New Cell Group</Link></Button>
                     <ResourceViewToggle
                         value={view}
                         onChange={handleViewChange}
                     />
+                    </>
                 )}
             />
 
@@ -166,7 +172,7 @@ export function HomeCellsView({ communities = false }: { communities?: boolean }
                         type="homecell"
                         title={communities ? "No communities yet" : undefined}
                         description={communities ? "Create a Homecell to start organizing members into local communities." : undefined}
-                        href={communities ? "/create/homecells" : undefined}
+                        href={communities ? "/spaces/new" : undefined}
                     />
                 ) : view === "cards" ? (
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">

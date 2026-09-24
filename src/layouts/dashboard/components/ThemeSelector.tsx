@@ -1,5 +1,7 @@
 "use client"
 
+import { workspaceThemeColor, usesRegionalShell } from "@/features/regional-shell/scope"
+
 import { useTheme } from "next-themes"
 import { CheckIcon, MonitorIcon, MoonIcon, SunIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -32,8 +34,9 @@ export function PremiumThemeSelector({ open, onOpenChange }: Props) {
     const appearance = useChurchAppearance()
     const { mode: shellColorMode, setMode: setShellColorMode } = useShellColorMode()
     const selectedMode = modes.some((mode) => mode.key === theme) ? theme : "system"
-    const selectedColor = user?.assembly?.avatar_fallback
-    const canManageChurchTheme = user?.can_manage_church_appearance ?? Boolean(user?.is_admin)
+    const selectedColor = workspaceThemeColor(user)
+    const regionalShell = usesRegionalShell(user)
+    const canManageChurchTheme = !regionalShell && (user?.can_manage_church_appearance ?? Boolean(user?.is_admin))
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -41,7 +44,7 @@ export function PremiumThemeSelector({ open, onOpenChange }: Props) {
                 <DialogHeader>
                     <DialogTitle>Appearance</DialogTitle>
                     <DialogDescription>
-                        Choose your display mode and your church&apos;s shared color theme.
+                        {regionalShell ? "Choose your display mode. The active zone supplies your shared color theme." : "Choose your display mode and your church’s shared color theme."}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -73,7 +76,7 @@ export function PremiumThemeSelector({ open, onOpenChange }: Props) {
                 <section className="grid gap-3" aria-labelledby="shell-color-heading">
                     <div>
                         <h2 id="shell-color-heading" className="text-sm font-semibold">Shell color</h2>
-                        <p className="text-xs text-muted-foreground">Choose how strongly the church color fills the navigation shell.</p>
+                        <p className="text-xs text-muted-foreground">Choose how strongly the {regionalShell ? "zone" : "church"} color fills the navigation shell.</p>
                     </div>
                     <div className="grid grid-cols-2 rounded-lg bg-muted p-1" role="radiogroup" aria-label="Shell color">
                         {([
@@ -102,15 +105,20 @@ export function PremiumThemeSelector({ open, onOpenChange }: Props) {
 
                 <section className="grid gap-3" aria-labelledby="church-theme-heading">
                     <div>
-                        <h2 id="church-theme-heading" className="text-sm font-semibold">Church theme</h2>
+                        <h2 id="church-theme-heading" className="text-sm font-semibold">{regionalShell ? "Zone theme" : "Church theme"}</h2>
                         <p className="text-xs text-muted-foreground">
-                            {canManageChurchTheme
+                            {regionalShell ? "This color follows the active zone." : canManageChurchTheme
                                 ? "This color is shared by everyone using the active church."
                                 : "Your church administrator manages this shared color."}
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Church color theme">
+                    {regionalShell ? (
+                        <div className="flex items-center gap-2 text-sm">
+                            <span className="size-7 rounded-full border border-black/10" style={{ backgroundColor: selectedColor ?? undefined }} aria-hidden="true" />
+                            {user?.active_regional_zone?.name ?? "Active zone"}
+                        </div>
+                    ) : <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Church color theme">
                         {churchAppearanceThemes.map((option) => {
                             const selected = selectedColor === option.color
                             return (
@@ -140,7 +148,7 @@ export function PremiumThemeSelector({ open, onOpenChange }: Props) {
                                 </button>
                             )
                         })}
-                    </div>
+                    </div>}
                 </section>
             </DialogContent>
         </Dialog>

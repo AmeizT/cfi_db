@@ -35,6 +35,8 @@ export type MasterDetailEntityConfig<TEntity, TTab extends string> = {
     renderHeader: (entity: TEntity) => ReactNode
     renderOverview: (entity: TEntity) => ReactNode
     renderTabContent: (args: { entity: TEntity; tab: TTab }) => ReactNode
+    detailOverlay?: { content: ReactNode; active: boolean; title: string; onBack: () => void }
+    listStart?: ReactNode
     primaryAction?: ReactNode
     filters?: ReactNode
     emptyState: ReactNode

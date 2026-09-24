@@ -84,11 +84,10 @@ export function useTransferAssemblies() {
 }
 
 function useInvalidateMemberTransfers() {
-    const assemblyId = useActiveAssemblyId()
     const queryClient = useQueryClient()
 
     return () => queryClient.invalidateQueries({
-        queryKey: memberTransferQueryKeys.scope(assemblyId),
+        queryKey: assemblyQueryKeys.all,
     })
 }
 

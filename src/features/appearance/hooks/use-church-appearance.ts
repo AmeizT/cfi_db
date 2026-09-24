@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import type { User } from "@/features/auth/schemas/user"
 import { userQueryKeys } from "@/lib/query-keys"
+import { getAssemblyThemeColor } from "../lib/assembly-theme"
 import { applyChurchTheme } from "../lib/apply-church-theme"
 import { updateChurchAppearance } from "../services/update-church-appearance"
 
@@ -11,10 +12,10 @@ function withAppearance(user: User | null | undefined, color: string) {
     if (!user) return user
     return {
         ...user,
-        assembly: user.assembly ? { ...user.assembly, avatar_fallback: color } : user.assembly,
+        assembly: user.assembly ? { ...user.assembly, avatar_fallback: color, ...(user.assembly.avatar_fallback_color !== undefined ? { avatar_fallback_color: color } : {}) } : user.assembly,
         assemblies: user.assemblies.map((assembly) =>
             assembly.id === user.church
-                ? { ...assembly, avatar_fallback: color }
+                ? { ...assembly, avatar_fallback: color, ...(assembly.avatar_fallback_color !== undefined ? { avatar_fallback_color: color } : {}) }
                 : assembly
         ),
     }
@@ -32,12 +33,15 @@ export function useChurchAppearance() {
                 throw new Error("The active church is missing its public_id.")
             }
 
-            return updateChurchAppearance({ publicId, color })
+            return updateChurchAppearance({
+                publicId, color,
+                colorField: user?.assembly?.avatar_fallback_color !== undefined ? "avatar_fallback_color" : "avatar_fallback",
+            })
         },
         onMutate: async (color) => {
             await queryClient.cancelQueries({ queryKey: userQueryKeys.current })
             const previousUser = queryClient.getQueryData<User | null>(userQueryKeys.current)
-            const previousColor = previousUser?.assembly?.avatar_fallback
+            const previousColor = getAssemblyThemeColor(previousUser?.assembly)
             applyChurchTheme(color)
             queryClient.setQueryData<User | null>(userQueryKeys.current, (user) => withAppearance(user, color) ?? null)
             return { previousUser, previousColor }

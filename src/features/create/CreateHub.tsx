@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { CreateDashboard } from "./CreateDashboard"
-import { CreateTopbar } from "./CreateTopbar"
 import { MonthlyReportWorkspace } from "./monthly-report"
 import {
     createMonthlyReportHref,
@@ -24,16 +23,18 @@ type OpenReportRequest = {
     replace?: boolean
 }
 
-export function CreateHub() {
+export function CreateHub({ monthlyReport = false }: { monthlyReport?: boolean }) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const queryClient = useQueryClient()
     const [toast, setToast] = useState<string | null>(null)
     const directLaunchRef = useRef<string | null>(null)
-    const workspace = searchParams.get("workspace")
+    const workspace = searchParams.get("workspace") ?? (monthlyReport ? MONTHLY_REPORT_WORKSPACE : null)
     const section = searchParams.get("section") ?? "attendance"
     const reportId = searchParams.get("report_id")
-    const currentReportQuery = useCurrentReport()
+    const period = searchParams.get("period")
+    const validPeriod = period && /^\d{4}-(0[1-9]|1[0-2])$/.test(period) ? period : undefined
+    const currentReportQuery = useCurrentReport(validPeriod ? Number(validPeriod.slice(0, 4)) : undefined, validPeriod ? Number(validPeriod.slice(5)) : undefined)
     const currentYear = new Date().getFullYear()
     const overviewQuery = useReportsOverview(currentYear)
     const reports = overviewQuery.data?.months ?? []
@@ -83,8 +84,9 @@ export function CreateHub() {
                     amendment_context: report.status === "reopened" ? "reopened" : null,
                 },
             )
-            if (request.replace) router.replace(href)
-            else router.push(href)
+            const destination = validPeriod ? `${href}&period=${validPeriod}` : href
+            if (request.replace) router.replace(destination)
+            else router.push(destination)
         },
         onError: (error) => {
             showToast(error instanceof Error ? error.message : "The monthly report could not be opened.")
@@ -113,6 +115,7 @@ export function CreateHub() {
     }
 
     useEffect(() => {
+        if (reportId) directLaunchRef.current = null
         if (
             workspace !== MONTHLY_REPORT_WORKSPACE ||
             reportId ||
@@ -145,17 +148,17 @@ export function CreateHub() {
                     <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-center text-card-foreground shadow-sm">
                         <h1 className="text-xl font-bold">Opening Monthly Report</h1>
                         <p className="mt-2 text-sm text-muted-foreground">
-                            {openReportMutation.isError
-                                ? openReportMutation.error.message
+                            {(openReportMutation.isError || currentReportQuery.isError)
+                                ? (openReportMutation.error ?? currentReportQuery.error)?.message
                                 : "Loading the active assembly and reporting period…"}
                         </p>
                         {openReportMutation.isError ? (
                             <button
                                 type="button"
                                 className="mt-5 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
-                                onClick={() => router.replace("/create")}
+                                onClick={() => router.replace("/record-center")}
                             >
-                                Back to Create
+                                Back to Record Center
                             </button>
                         ) : null}
                     </div>
@@ -167,7 +170,6 @@ export function CreateHub() {
 
     return (
         <div className="min-h-screen font-sans text-foreground antialiased">
-            <CreateTopbar />
 
             <CreateDashboard
                 submitted={submitted}

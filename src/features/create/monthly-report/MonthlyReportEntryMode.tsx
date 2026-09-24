@@ -33,7 +33,7 @@ export function MonthlyReportEntryMode({
     <div
       role="group"
       aria-label="Report entry method"
-      className="flex h-10 w-fit rounded-xl bg-muted p-1"
+      className="flex h-10 w-fit max-w-full rounded-xl border border-border-subtle bg-background/60 p-0.5"
     >
       <Link
         href={createMonthlyReportHref(section.id, {
@@ -43,9 +43,9 @@ export function MonthlyReportEntryMode({
         })}
         aria-current={manualActive ? "page" : undefined}
         className={cn(
-          "inline-flex min-w-24 items-center justify-center rounded-lg px-4 text-sm font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+          "inline-flex min-w-20 items-center justify-center rounded-[0.625rem] px-4 text-sm font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
           manualActive
-            ? "bg-background text-primary shadow-sm"
+            ? "bg-primary/10 text-primary"
             : "text-muted-foreground hover:text-foreground",
         )}
       >
@@ -61,9 +61,9 @@ export function MonthlyReportEntryMode({
           })}
           aria-current={!manualActive ? "page" : undefined}
           className={cn(
-            "inline-flex min-w-24 items-center justify-center rounded-lg px-4 text-sm font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+            "inline-flex min-w-20 items-center justify-center rounded-lg px-4 text-sm font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
             !manualActive
-              ? "bg-background text-primary shadow-sm"
+              ? "bg-primary/10 text-primary"
               : "text-muted-foreground hover:text-foreground",
           )}
         >
@@ -73,7 +73,7 @@ export function MonthlyReportEntryMode({
         <span
           aria-disabled="true"
           title="Uploads are not available for this section"
-          className="inline-flex min-w-24 cursor-not-allowed items-center justify-center rounded-lg px-4 text-sm font-semibold text-muted-foreground/50"
+          className="inline-flex min-w-20 cursor-not-allowed items-center justify-center rounded-lg px-4 text-sm font-semibold text-muted-foreground/50"
         >
           Uploads
         </span>

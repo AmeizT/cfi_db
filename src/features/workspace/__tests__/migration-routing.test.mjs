@@ -136,15 +136,15 @@ test("report context actions separate editable, submitted, and locked reports", 
     assert.equal(getReportContextActionVisibility("locked", { is_editable: false, can_amend: false, can_request_reopen: true }).requestReopening, true)
 })
 
-test("Workspace report banner accepts canonical context aliases and disappears without a report", async () => {
+test("Workspace report status accepts canonical context aliases and lives in the header", async () => {
     const [banner, moduleView] = await Promise.all([
-        readFile("src/features/reports/workflow/components/ReportSourceBanner.tsx", "utf8"),
+        readFile("src/features/reports/workflow/components/ReportStatusPopover.tsx", "utf8"),
         readFile("src/features/reports/modules/views/ReportModulePageView.tsx", "utf8"),
     ])
     assert.match(banner, /searchParams\.get\("report_id"\)/)
     assert.match(banner, /searchParams\.get\("reportId"\)/)
-    assert.match(banner, /if \(!query\.data\) return null/)
-    assert.match(moduleView, /pageContext === "workspace" \? <ReportSourceBanner/)
+    assert.match(moduleView, /actions=\{pageContext === "workspace"/)
+    assert.match(moduleView, /\? <ReportStatusPopover \/>/)
 })
 
 test("Workspace navigation uses the required static groups and child hierarchy", () => {
@@ -185,7 +185,9 @@ test("Members workflows live in shared page navigation", async () => {
         readFile("app/(authenticated)/(shell)/(dashboard)/members/layout.tsx", "utf8"),
         readFile("src/features/people/members/config/members-section-navigation.ts", "utf8"),
     ])
-    assert.match(layout, /MembersSectionNavigation/)
+    assert.match(layout, /MembersWorkspace/)
+    const workspace = await readFile("src/features/people/members/components/MembersWorkspace.tsx", "utf8")
+    assert.match(workspace, /<MembersSectionNavigation/)
     for (const label of ["Directory", "Households", "Onboarding", "Baptisms", "Dedications", "Transfers"]) {
         assert.match(navigation, new RegExp(`label: "${label}"`))
     }

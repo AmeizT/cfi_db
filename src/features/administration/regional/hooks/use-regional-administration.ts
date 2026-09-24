@@ -1,3 +1,4 @@
+import { useRegionalZoneKey } from "@/features/regional-shell/use-regional-zone-key"
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import {
     getRegionalAssemblies,
@@ -25,17 +26,19 @@ function getRegionalDirectoryQueryKey(
 }
 
 export function useRegionalAssemblies(params: RegionalListParams) {
+    const zone = useRegionalZoneKey()
     return useQuery<PaginatedResponse<RegionalAssembly>>({
-        queryKey: getRegionalDirectoryQueryKey("assemblies", params),
+        queryKey: [...getRegionalDirectoryQueryKey("assemblies", params), zone],
         queryFn: () => getRegionalAssemblies(params),
-        placeholderData: keepPreviousData,
+        placeholderData: zone === "region" ? keepPreviousData : undefined,
     })
 }
 
 export function useRegionalUsers(params: RegionalListParams) {
+    const zone = useRegionalZoneKey()
     return useQuery<PaginatedResponse<RegionalUser>>({
-        queryKey: getRegionalDirectoryQueryKey("users", params),
+        queryKey: [...getRegionalDirectoryQueryKey("users", params), zone],
         queryFn: () => getRegionalUsers(params),
-        placeholderData: keepPreviousData,
+        placeholderData: zone === "region" ? keepPreviousData : undefined,
     })
 }

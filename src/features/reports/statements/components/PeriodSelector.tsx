@@ -77,7 +77,7 @@ export function PeriodSelector() {
                     </div> 
 
                     <span className="pr-0 size-6 flex justify-center items-center">
-                        <ChevronDown strokeWidth={2.5} className="size-4.5 text-user-theme-100" />
+                        <ChevronDown strokeWidth={2.5} className="size-4.5 text-assembly-theme-100" />
                     </span>
                 </Button>
             </DropdownMenuTrigger>

@@ -16,7 +16,7 @@ export function reportWizard(): NavGroup[] {
                     description: "Start or continue report entry",
                     icon: PenNewSquareIcon,
                     activeIcon: PenNewSquareIcon,
-                    href: "/create",
+                    href: "/record-center",
                     exact: true,
                 },
                 {

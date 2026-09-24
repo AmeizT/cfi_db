@@ -1,10 +1,15 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
+import { getAssetDetail } from "../services/get-assets-directory"
+import { Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { CalendarDaysIcon, ImageIcon, PackageIcon } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AssetQuickAdd } from "../components/AssetQuickAdd"
+import { useActiveAssemblyId } from "@/hooks/query/use-user"
 import { Skeleton } from "@/components/ui/skeleton"
 import View from "@/components/ui/view"
 import { DataTable } from "@/features/reports/core/components/DataTable"
@@ -27,10 +32,19 @@ type AssetTableRow = Record<string, unknown> & {
     assembly_label: string
     units: number
     acquisition_date_label: string
+    acquisition_cost_display: string
     acquisition_cost: string
     vendor: string
     currency?: string
     primary_currency?: string
+}
+
+const collectionTableSchema = {
+    ...assetsTableSchema,
+    columns: assetsTableSchema.columns.map(column => column.id === "acquisition_cost" ? {
+        ...column,
+        render: (_value: unknown, row: AssetTableRow) => row.acquisition_cost_display,
+    } : column),
 }
 
 const tableOptions = {
@@ -41,7 +55,7 @@ function formatDate(value: string) {
     const date = new Date(value)
 
     if (Number.isNaN(date.getTime())) {
-        return "Not available"
+        return "—"
     }
 
     return new Intl.DateTimeFormat(undefined, {
@@ -52,10 +66,10 @@ function formatDate(value: string) {
 }
 
 function formatAssetValue(asset: Asset) {
-    const amount = Number(asset.acquisition_cost)
+    const amount = asset.acquisition_cost == null || asset.acquisition_cost === "" ? NaN : Number(asset.acquisition_cost)
 
     if (!Number.isFinite(amount)) {
-        return "Not available"
+        return "—"
     }
 
     if (!asset.assembly.currency) {
@@ -80,14 +94,15 @@ function mapAssetRow(asset: Asset): AssetTableRow {
     return {
         id: asset.id,
         item_name: asset.item_name,
-        item_code: asset.item_code || "Not assigned",
+        item_code: asset.item_code || "—",
         asset_type: asset.asset_type,
         condition: asset.condition,
         assembly_label: `Assembly #${asset.assembly.id}`,
         units: asset.units,
         acquisition_date_label: formatDate(asset.acquisition_date),
-        acquisition_cost: asset.acquisition_cost ?? "0.00",
-        vendor: asset.vendor || "Not available",
+        acquisition_cost: asset.acquisition_cost ?? "—",
+        acquisition_cost_display: formatAssetValue(asset),
+        vendor: asset.vendor || "—",
         currency: asset.assembly.currency,
         primary_currency: asset.assembly.currency,
     }
@@ -129,7 +144,7 @@ function AssetCard({ asset }: { asset: Asset }) {
                             {asset.item_name}
                         </h2>
                         <p className="mt-1 truncate text-sm text-muted-foreground">
-                            {asset.item_code || "No asset code"}
+                            {asset.item_code || "—"}
                         </p>
                     </div>
                     <Badge variant="secondary">{asset.condition}</Badge>
@@ -165,7 +180,7 @@ function AssetCard({ asset }: { asset: Asset }) {
                 <div>
                     <dt className="text-xs font-medium text-muted-foreground">Vendor</dt>
                     <dd className="mt-1 truncate text-foreground">
-                        {asset.vendor || "Not available"}
+                        {asset.vendor || "—"}
                     </dd>
                 </div>
             </dl>
@@ -209,6 +224,14 @@ function AssetsError({ error }: { error: unknown }) {
 }
 
 export function AssetsView() {
+    const assemblyId = useActiveAssemblyId()
+    return <ScopedAssetsView key={assemblyId} />
+}
+
+function ScopedAssetsView() {
+    const [creating, setCreating] = React.useState(false)
+    const addRef = React.useRef<HTMLButtonElement>(null)
+    const closeCreate = () => { setCreating(false); requestAnimationFrame(() => addRef.current?.focus()) }
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -220,10 +243,19 @@ export function AssetsView() {
         page: pagination.currentPage,
         pageSize: pagination.pageSize,
     })
-    const assets = React.useMemo(
-        () => assetsQuery.data?.results ?? [],
-        [assetsQuery.data?.results]
-    )
+    const pageContext = `${pagination.currentPage}:${pagination.pageSize}`
+    const [recentAssets, setRecentAssets] = React.useState<{ context: string; assets: Asset[] }>({ context: pageContext, assets: [] })
+    const handleCreated = (id: string) => {
+        closeCreate()
+        void getAssetDetail(id).then(asset => {
+            setRecentAssets(current => ({ context: pageContext, assets: [...(current.context === pageContext ? current.assets : []), asset] }))
+        }).catch(error => toast.error(error instanceof Error ? error.message : "Refresh the collection to check the saved asset."))
+    }
+    const assets = React.useMemo(() => {
+        const loaded = assetsQuery.data?.results ?? []
+        const recent = recentAssets.context === pageContext ? recentAssets.assets : []
+        return [...loaded, ...recent.filter(asset => !loaded.some(item => item.id === asset.id))]
+    }, [assetsQuery.data?.results, recentAssets, pageContext])
     const tableRows = React.useMemo(
         () => assets.map(mapAssetRow),
         [assets]
@@ -249,24 +281,18 @@ export function AssetsView() {
             <View.Header
                 pagename="Assets"
                 actions={(
+                    <>
                     <ResourceViewToggle
                         value={view}
                         onChange={handleViewChange}
                     />
+                    </>
                 )}
             />
 
             <View.Body className="gap-4 py-4">
                 {assetsQuery.isError ? (
                     <AssetsError error={assetsQuery.error} />
-                ) : !isLoading && assets.length === 0 ? (
-                    <div className="rounded-lg border border-border bg-card px-6 py-12">
-                        <EmptyState
-                            type="assets"
-                            variant="both"
-                            context={{ label: "assets" }}
-                        />
-                    </div>
                 ) : view === "cards" ? (
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                         {isInitialCardLoading
@@ -276,12 +302,14 @@ export function AssetsView() {
                             : assets.map((asset) => (
                                 <AssetCard key={asset.id} asset={asset} />
                             ))}
+                        {creating ? <div className="rounded-lg border border-border bg-card sm:col-span-2 xl:col-span-3 2xl:col-span-4"><AssetQuickAdd onCancel={closeCreate} onCreated={handleCreated} /></div> : <button ref={addRef} type="button" onClick={() => setCreating(true)} className="flex min-h-80 items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-muted/20 text-muted-foreground hover:bg-muted/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Plus className="size-5" aria-hidden="true" /> Add Asset</button>}
                     </div>
                 ) : (
                     <DataTable<AssetTableRow>
+                        trailingRow={creating ? <AssetQuickAdd onCancel={closeCreate} onCreated={handleCreated} /> : <Button ref={addRef} type="button" variant="ghost" className="w-full justify-start rounded-none px-4" onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" /> Add Asset</Button>}
                         variant="simple"
                         data={tableRows}
-                        config={assetsTableSchema}
+                        config={collectionTableSchema}
                         isLoading={isLoading}
                         loadingMode="overlay"
                         options={tableOptions}

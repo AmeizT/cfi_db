@@ -8,7 +8,7 @@ export function ScreenLoader() {
             <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
             <p className="mt-4 text-xl font-semibold text-muted-foreground tracking-tight">
                 Getting <Text variant="shine" 
-                    className="text-xl font-semibold bg-[linear-gradient(110deg,var(--user-theme),35%,var(--user-theme-highlight),50%,var(--user-theme),75%,var(--user-theme))] dark:bg-[linear-gradient(110deg,var(--user-theme),35%,white,50%,var(--user-theme),75%,var(--user-theme))]">everything</Text> ready...
+                    className="text-xl font-semibold bg-[linear-gradient(110deg,var(--assembly-theme),35%,var(--assembly-theme-highlight),50%,var(--assembly-theme),75%,var(--assembly-theme))] dark:bg-[linear-gradient(110deg,var(--assembly-theme),35%,white,50%,var(--assembly-theme),75%,var(--assembly-theme))]">everything</Text> ready...
             </p>
         </div>
     )

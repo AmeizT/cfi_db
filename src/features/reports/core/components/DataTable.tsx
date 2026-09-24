@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Table } from "@/components/ui/table"
+import { Table, TableFooter, TableRow, TableCell } from "@/components/ui/table"
 import { DataTableBulkActionToolbar } from "@/components/ui/data-table/DataTableActionToolbar"
 import { Spinner } from "@/components/ui/spinner"
 import { useTableVirtualization } from "@/features/data-table/hooks/use-table-virtualization"
@@ -45,6 +45,7 @@ export function DataTable<T extends { id: number }>({
     showRowActions = true,
     showDefaultRowActions = true,
     rowActions,
+    rowActionsColumnId,
     enableDelete = true,
     enableExport,
     showExport = true,
@@ -59,6 +60,7 @@ export function DataTable<T extends { id: number }>({
     editingDisabled = false,
     getRowGroup,
     emptyState,
+    trailingRow,
     totalRows,
     currentPage = 1,
     pageSize = 10,
@@ -337,7 +339,7 @@ export function DataTable<T extends { id: number }>({
                 )}
 
                 <div ref={parentRef} onScroll={handleScroll} className={`${ui.border} relative flex min-h-0 flex-1 flex-col overflow-x-auto scrollbar-hidden`}>
-                    {rowGroups.map(group => <React.Fragment key={group.key}>
+                    {rowGroups.map((group, groupIndex) => <React.Fragment key={group.key}>
                     {group.label && <h2 className="px-4 pb-3 pt-6 text-base font-semibold text-foreground">{group.label}</h2>}
                     <Table className={`w-full text-sm ${styles?.containerClass}`}>
                         <DataTableHeader
@@ -348,7 +350,7 @@ export function DataTable<T extends { id: number }>({
                             showGridLabels={isGrid && !hideRow}
                             allSelected={allSelected}
                             someSelected={someSelected}
-                            showRowActions={showRowActions}
+                            showRowActions={showRowActions && !rowActionsColumnId}
                             selectable={isSelectable}
                             pinUtilityColumns={pinUtilityColumns}
                             utilityPinnedOffset={utilityPinnedOffset}
@@ -369,9 +371,10 @@ export function DataTable<T extends { id: number }>({
                             onRowClick={onRowClick}
                             resource={resource}
                             mutationQueryKey={mutationQueryKey}
-                            showRowActions={showRowActions}
+                            showRowActions={showRowActions && !rowActionsColumnId}
                             showDefaultRowActions={showDefaultRowActions}
                             rowActions={rowActions}
+                            rowActionsColumnId={showRowActions ? rowActionsColumnId : undefined}
                             selectable={isSelectable}
                             enableDelete={enableDelete}
                             pinUtilityColumns={pinUtilityColumns}
@@ -380,6 +383,9 @@ export function DataTable<T extends { id: number }>({
                             onClearHoveredRow={() => setHoveredRowId(null)}
                             onToggleRow={handleToggleRow}
                         />
+                        {trailingRow && groupIndex === rowGroups.length - 1 && <TableFooter>
+                            <TableRow><TableCell colSpan={table.getVisibleLeafColumns().length + (expandedRow ? 1 : 0) + (isSelectable ? 1 : 0) + (showRowActions && !rowActionsColumnId ? 1 : 0)} className="p-0 font-normal">{trailingRow}</TableCell></TableRow>
+                        </TableFooter>}
                     </Table>
                     </React.Fragment>)}
 

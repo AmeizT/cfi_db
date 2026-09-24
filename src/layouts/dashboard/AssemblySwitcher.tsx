@@ -1,5 +1,7 @@
 "use client"
 
+import { getAssemblyThemeColor } from "@/features/appearance/lib/assembly-theme"
+
 import React from "react"
 import {
     ArrowDown,
@@ -91,7 +93,7 @@ const kbdNavigation: KbdNavigationGroup[] = [
     },
 ]
 
-export function AssemblySwitcher() {
+export function AssemblySwitcher({ variant = "default" }: { variant?: "default" | "sidebar" }) {
     const [open, setOpen] = React.useState(false)
 
     const [selectedAssemblyId, setSelectedAssemblyId] =
@@ -290,11 +292,11 @@ export function AssemblySwitcher() {
                         className="font-semibold"
                         style={{
                             background: oklchLinearGradient(
-                                activeAssembly?.avatar_fallback ||
+                                getAssemblyThemeColor(activeAssembly) ||
                                     "oklch(87.2% 0.007 219.6)"
                             ),
                             color: getTextColor(
-                                activeAssembly?.avatar_fallback ||
+                                getAssemblyThemeColor(activeAssembly) ||
                                     "oklch(45% 0.017 213.2)"
                             ),
                         }}
@@ -307,7 +309,7 @@ export function AssemblySwitcher() {
             {/* Tablet/Desktop */}
             <div className="hidden min-w-0 flex-1 items-center gap-2 overflow-hidden p-1.5 sm:flex">
                 {hasMultipleAssemblies ? (
-                    <div className="flex gap-1.5">
+                    <div className={cn("flex items-center gap-1.5", variant === "sidebar" && "shrink-0")}>
                         <div className="flex space-x-[-0.6rem]">
                             {visibleAssemblies.map((assembly, index) => {
                                 const isActive =
@@ -318,15 +320,11 @@ export function AssemblySwitcher() {
                                     <Avatar
                                         key={assembly.id}
                                         className={cn(
-                                            "size-7 rounded-full ring-2 ring-neutral-800",
+                                            "size-6 rounded-full ring-2 ring-background",
                                             isActive &&
-                                                "z-20 ring-2 ring-neutral-800"
+                                                "z-20 ring-2 ring-background"
                                         )}
-                                        style={{
-                    zIndex: isActive
-                        ? 50
-                        : visibleAssemblies.length - index,
-                }}
+                                        style={{ zIndex: isActive ? 50 : visibleAssemblies.length - index }}
                                     >
                                         <AvatarImage
                                             src={
@@ -378,11 +376,11 @@ export function AssemblySwitcher() {
                             className="font-semibold"
                             style={{
                                 background: oklchLinearGradient(
-                                    activeAssembly?.avatar_fallback ||
+                                    getAssemblyThemeColor(activeAssembly) ||
                                         "oklch(87.2% 0.007 219.6)"
                                 ),
                                 color: getTextColor(
-                                    activeAssembly?.avatar_fallback ||
+                                    getAssemblyThemeColor(activeAssembly) ||
                                         "oklch(45% 0.017 213.2)"
                                 ),
                             }}
@@ -392,7 +390,7 @@ export function AssemblySwitcher() {
                     </Avatar>
                 )}
 
-                <span className="min-w-0 max-w-28 truncate text-white sm:max-w-32">
+                <span className={cn("min-w-0 max-w-28 truncate text-current sm:max-w-32", variant === "sidebar" && "flex-1 max-w-none sm:max-w-none")}>
                     {activeAssembly?.name}
                 </span>
             </div>
@@ -400,7 +398,7 @@ export function AssemblySwitcher() {
             {hasMultipleAssemblies && (
                 <ChevronDown
                     strokeWidth={2.5}
-                    className="hidden size-4 shrink-0 text-neutral-300 sm:block"
+                    className={cn("hidden size-4 shrink-0 sm:block", variant === "sidebar" ? "text-current dark:text-neutral-300" : "text-neutral-300")}
                 />
             )}
         </>
@@ -408,10 +406,10 @@ export function AssemblySwitcher() {
 
     const triggerClassName = cn(
         "group/switcher flex h-fit min-w-0 w-fit lg:w-full items-center justify-between gap-2 rounded-full has-[>svg]:px-0.5 lg:has-[>svg]:pr-3 py-0.5",
-        "border-0 border-neutral-800",
-        "bg-neutral-800",
-        "text-white",
-        "hover:bg-neutral-700 hover:text-white dark:bg-neutral-800 dark:hover:bg-neutral-700"
+        "border-neutral-800 border-0 border-border-subtle dark:border-neutral-800",
+        variant === "sidebar"
+            ? "h-8 w-full sm:h-10 bg-background pill-hover text-sidebar-foreground hover:bg-background hover:text-sidebar-foreground"
+            : "bg-neutral-800 text-white hover:bg-neutral-700 hover:text-white dark:bg-neutral-800 dark:hover:bg-neutral-700"
     )
 
     const trigger = (
@@ -483,7 +481,7 @@ export function AssemblySwitcher() {
                         sideOffset={4}
                         className="w-[min(25rem,calc(100vw-1rem))] rounded-2xl border-0 border-border-subtle p-0 shadow-elevation-sm"
                     >
-                        <Command className="w-full rounded-xl">
+                        <Command className="w-full rounded-2xl border border-border/40">
                             <CommandInput
                                 placeholder="Search for an assembly..."
                                 className="h-11 border-border-subtle"
@@ -538,13 +536,13 @@ export function AssemblySwitcher() {
                                 )}
                             </CommandList>
 
-                            <footer className="flex w-full items-center gap-4 border-t border-border-subtle p-2">
+                            <footer className="flex w-full items-center gap-4 border-t border-border-subtle p-3">
                                 {kbdNavigation.map((group) => (
                                     <div
                                         key={group.label}
-                                        className="flex items-center gap-1.5"
+                                        className="flex items-center gap-2"
                                     >
-                                        <div className="flex items-center gap-1.5">
+                                        <div className="flex items-center gap-2">
                                             {group.items.map(
                                                 (item) => {
                                                     const Icon =
@@ -561,7 +559,7 @@ export function AssemblySwitcher() {
                                                             title={
                                                                 item.label
                                                             }
-                                                            className="flex size-6 items-center justify-center rounded-md bg-white text-foreground shadow-elevation-sm dark:bg-neutral-800"
+                                                            className="flex size-7 items-center justify-center rounded-lg bg-white text-foreground shadow-elevation-sm dark:bg-neutral-800"
                                                         >
                                                             <Icon
                                                                 strokeWidth={
@@ -637,7 +635,7 @@ function AssemblySwitcherItem({
                     className="text-sm font-medium text-white uppercase"
                     style={{
                         background: gradient(
-                            assembly.avatar_fallback ??
+                            getAssemblyThemeColor(assembly) ??
                                 DEFAULT_AVATAR_COLOR
                         ),
                     }}

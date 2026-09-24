@@ -7,6 +7,7 @@ import {
     MAX_PINNED_PAGES,
     MAX_RECENT_PAGES,
     buildWorkspaceShortcutRegistry,
+    getActiveShortcutKey,
     parseShortcutPreferences,
     pinShortcut,
     recordShortcutVisit,
@@ -84,4 +85,40 @@ test("shortcut persistence remains versioned and scoped to user and assembly", a
     assert.match(hook, /user\.user_id/)
     assert.match(hook, /user\.church/)
     assert.match(hook, /useSyncExternalStore/)
+})
+
+
+test("only nested section destinations are eligible and legacy Home pins disappear", () => {
+    const leaf = { key: "home", label: "Home", href: "/home", icon, activeIcon: icon }
+    const registry = buildWorkspaceShortcutRegistry([
+        { items: [leaf] },
+        { title: "AI Assistant", items: [{ ...leaf, key: "ai", href: "/ai" }] },
+        { title: "Reporting", items: [{ ...leaf, key: "report", href: "/reports" }] },
+        ...sections,
+    ])
+    assert.deepEqual(registry.map((item) => item.key), ["report", "tithes", "expenses"])
+    const lists = resolveShortcutLists({ ...EMPTY_SHORTCUT_PREFERENCES, pinnedKeys: ["home", "report"] }, registry)
+    assert.deepEqual(lists.pinned.map((item) => item.key), ["report"])
+})
+
+test("duplicate routes and IDs cannot appear across pinned and recent shortcuts", () => {
+    const registry = buildWorkspaceShortcutRegistry(sections)
+    const alias = { ...registry[0], key: "tithes-alias", href: "/finance/tithes/?view=list" }
+    const lists = resolveShortcutLists({
+        version: 1,
+        pinnedKeys: ["tithes", "tithes"],
+        recent: [{ key: alias.key, visitedAt: 2 }, { key: "expenses", visitedAt: 1 }],
+    }, [...registry, alias])
+    assert.deepEqual([...lists.pinned, ...lists.recent].map((item) => item.key), ["tithes", "expenses"])
+    const duplicated = structuredClone(sections.map((section) => ({ ...section, items: [] })))
+    duplicated[0].items = [...sections[0].items, { ...sections[0].items[0].children[0], key: alias.key }]
+    assert.deepEqual(buildWorkspaceShortcutRegistry(duplicated).map((item) => item.key), ["tithes", "expenses"])
+})
+
+test("active destination belongs to the shortcut when present, otherwise normal navigation", () => {
+    const registry = buildWorkspaceShortcutRegistry(sections)
+    assert.equal(getActiveShortcutKey("tithes", sections, registry), "tithes")
+    assert.equal(getActiveShortcutKey("tithes", sections, [registry[1]]), undefined)
+    assert.equal(getActiveShortcutKey("tithes", sections, [{ ...registry[0], key: "alias" }]), "alias")
+    assert.equal(getActiveShortcutKey(undefined, sections, registry), undefined)
 })

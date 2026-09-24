@@ -63,7 +63,7 @@ export function createCentralTemplatesHref(
     params.set("return_section", returnSection)
     applyReportContext(params, updates)
 
-    return `/create/templates?${params.toString()}`
+    return `/record-center/templates?${params.toString()}`
 }
 
 export function createReportSectionWizardHref(

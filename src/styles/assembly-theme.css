@@ -1,0 +1,112 @@
+:root {
+  --assembly-theme-600: var(--color-indigo-600);
+  --assembly-theme-50: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 5%,
+    white
+  );
+
+  --assembly-theme-100: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 10%,
+    white
+  );
+
+  --assembly-theme-200: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 20%,
+    white
+  );
+
+  --assembly-theme-300: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 35%,
+    white
+  );
+
+  --assembly-theme-400: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 55%,
+    white
+  );
+
+  --assembly-theme-500: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 78%,
+    white
+  );
+  --assembly-theme-700: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 86%,
+    black
+  );
+
+  --assembly-theme-800: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 70%,
+    black
+  );
+
+  --assembly-theme-900: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 52%,
+    black
+  );
+
+  --assembly-theme-950: color-mix(
+    in oklch,
+    var(--assembly-theme-600) 32%,
+    black
+  );
+
+  --assembly-theme-10: color-mix(
+    in oklch,
+    var(--assembly-theme-400) 20%,
+    transparent
+  );
+
+  --assembly-theme-20: color-mix(
+    in oklch,
+    var(--assembly-theme-400) 40%,
+    transparent
+  );
+  --assembly-theme: var(--assembly-theme-600);
+  --assembly-theme-foreground: oklch(0.985 0 0);
+}
+
+@theme inline {
+  --color-assembly-theme-50: var(--assembly-theme-50);
+  --color-assembly-theme-100: var(--assembly-theme-100);
+  --color-assembly-theme-200: var(--assembly-theme-200);
+  --color-assembly-theme-300: var(--assembly-theme-300);
+  --color-assembly-theme-400: var(--assembly-theme-400);
+  --color-assembly-theme-500: var(--assembly-theme-500);
+  --color-assembly-theme-600: var(--assembly-theme-600);
+  --color-assembly-theme-700: var(--assembly-theme-700);
+  --color-assembly-theme-800: var(--assembly-theme-800);
+  --color-assembly-theme-900: var(--assembly-theme-900);
+  --color-assembly-theme-950: var(--assembly-theme-950);
+
+  --color-assembly-theme: var(--assembly-theme);
+  --color-assembly-theme-10: var(--assembly-theme-10);
+  --color-assembly-theme-20: var(--assembly-theme-20);
+  --color-assembly-theme-foreground: var(--assembly-theme-foreground);
+}
+
+/* Compatibility tokens for existing *-theme-* utilities. Their sRGB values
+   differ from the canonical palette. Use private aliases to avoid activating
+   additional public theme utilities/opacity variants and changing the design. */
+
+@theme inline {
+  --color-legacy-theme: var(--assembly-theme);
+  --color-legacy-theme-foreground: var(--assembly-theme-foreground);
+  --color-legacy-theme-500: var(--assembly-theme);
+  --color-legacy-theme-50: color-mix(in srgb, var(--assembly-theme) 10%, white);
+  --color-legacy-theme-100: color-mix(in srgb, var(--assembly-theme) 20%, white);
+  --color-legacy-theme-200: color-mix(in srgb, var(--assembly-theme) 30%, white);
+  --color-legacy-theme-300: color-mix(in srgb, var(--assembly-theme) 40%, white);
+  --color-legacy-theme-400: color-mix(in srgb, var(--assembly-theme) 50%, white);
+  --color-legacy-theme-600: color-mix(in srgb, var(--assembly-theme) 85%, black);
+  --color-legacy-theme-700: color-mix(in srgb, var(--assembly-theme) 75%, black);
+  --color-legacy-theme-800: color-mix(in srgb, var(--assembly-theme) 65%, black);
+}

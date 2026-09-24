@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@/hooks/query/use-user";
 import { formatCurrency } from "@/utils/currency";
 
+import { useReportFinance } from "@/features/reports/core/hooks/use-report-finance";
 import { MultiEntryForm } from "./MultiEntryForm";
 import {
     BatchRequestError,
@@ -102,17 +103,26 @@ interface FinancialEntriesFormProps {
   kind: BatchKind;
   period: string;
   reportId?: string | number | null;
+  inline?: boolean;
+  formId?: string;
+  onSaved?: () => void;
 }
 
 export function FinancialEntriesForm({
     kind,
     period,
     reportId,
+    inline = false,
+    formId,
+    onSaved,
 }: FinancialEntriesFormProps) {
   const user = useUser();
   const queryClient = useQueryClient();
   const options = useFinancialEntryOptions(kind);
   const mutation = useBatchEntry(kind);
+  const submitting = React.useRef(false);
+  const [savedPage, setSavedPage] = React.useState(1);
+  const savedQuery = useReportFinance(inline && reportId ? String(reportId) : undefined, { page: savedPage, pageSize: 20 });
   const [categoryDialogOpen, setCategoryDialogOpen] = React.useState(false);
   const [categoryTargetIndex, setCategoryTargetIndex] = React.useState(0);
   const [expandedOptional, setExpandedOptional] = React.useState<Record<string, boolean>>({});
@@ -121,7 +131,7 @@ export function FinancialEntriesForm({
 
     const form = useForm<FormValues>({
         defaultValues: {
-            entries: [emptyRow(defaultDate)],
+            entries: inline ? [] : [emptyRow(defaultDate)],
         },
   });
 
@@ -138,7 +148,7 @@ export function FinancialEntriesForm({
   const currency = user.data?.assembly?.currency || "USD";
   const language = user.data?.assembly?.language || undefined;
   const total = calculateEntryTotal(kind, rows);
-  const totalLabel = formatCurrency(total, { currency, language });
+  const totalLabel = inline && !rows?.some(row => String(kind === "expenses" ? row?.price ?? "" : row?.amount ?? "").trim() !== "") ? "—" : formatCurrency(total, { currency, language });
 
     const validateDuplicates = React.useCallback(
         (values: FormValues) => {
@@ -170,6 +180,7 @@ export function FinancialEntriesForm({
 
     const submit = form.handleSubmit(async (values) => {
     form.clearErrors();
+    if (!values.entries.length) { onSaved?.(); return; }
 
         if (!validateDuplicates(values)) {
       return;
@@ -246,14 +257,15 @@ export function FinancialEntriesForm({
         `${result.count ?? values.entries.length} entries saved successfully.`,
       );
 
-      replace([emptyRow(defaultDate)]);
+      replace(inline ? [] : [emptyRow(defaultDate)]);
             form.reset({
-                entries: [emptyRow(defaultDate)],
+                entries: inline ? [] : [emptyRow(defaultDate)],
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["reports"] }),
         queryClient.invalidateQueries({ queryKey: ["reports-workflow"] }),
       ]);
+      onSaved?.();
         } catch (error) {
             if (error instanceof BatchRequestError) {
         let firstErrorPath: `entries.${number}.${keyof EntryRow}` | null = null;
@@ -309,17 +321,25 @@ export function FinancialEntriesForm({
       return;
         }
 
-    replace([emptyRow(defaultDate)]);
+    replace(inline ? [] : [emptyRow(defaultDate)]);
         form.reset({
-            entries: [emptyRow(defaultDate)],
+            entries: inline ? [] : [emptyRow(defaultDate)],
     });
   };
+
+    const display = (value: unknown) => value == null || value === "" ? "—" : String(value);
+    const saved = savedQuery.data;
+    const savedRows = kind === "tithes" ? (saved?.tithes.results ?? saved?.tithes.data ?? []).map(row => ({ id: String(row.id), cells: [row.member?.full_name ?? "Anonymous", display(row.amount), display(row.payment_method), display(row.reference_code), display(row.timestamp), row.receipt ? "Attached" : "—", display(row.notes)] }))
+        : kind === "revenue" ? (saved?.revenue ?? []).map(row => ({ id: String(row.id), cells: [display(row.category_name ?? row.category), display(row.amount), display(row.timestamp), row.statement ? "Attached" : "—", display(row.notes)] }))
+            : kind === "overhead" ? (saved?.expenses.overheads ?? []).map(row => ({ id: String(row.id), cells: [display(row.overhead_type_name ?? row.overhead_type), display(row.amount), display(row.timestamp), display(row.notes)] }))
+                : (saved?.expenses.variables ?? []).map(row => ({ id: String(row.id), cells: [display(row.name), display(row.category), display(row.price), display(row.quantity), display(row.invoice_date), display(row.supplier), display(row.invoice_number), row.receipt ? "Attached" : "—", display(row.description)] }));
 
     const optionLabel = (option: Record<string, unknown>) =>
     String(option.full_name ?? option.name ?? option.id);
 
     return (
-        <form onSubmit={submit} className="space-y-4">
+        <form id={formId} onSubmit={event => { event.preventDefault(); if (submitting.current) return; submitting.current = true; void submit(event).finally(() => { submitting.current = false; }); }} noValidate={inline} className={inline ? "space-y-4 [&_td>div>label]:sr-only [&_td>div>button]:text-xs" : "space-y-4"}>
+            {inline && savedQuery.isError && <p role="alert" className="text-sm text-destructive">Saved entries could not be loaded. Your new entries remain here.</p>}
             {options.isError ? (
                 <p className="text-sm text-destructive">
                     Unable to load available selections.
@@ -327,6 +347,15 @@ export function FinancialEntriesForm({
             ) : null}
 
             <MultiEntryForm
+                inline={inline ? {
+                    savedRows,
+                    headers: kind === "tithes" ? ["Contributor", "Amount", "Payment", "Reference", "Date", "Attachment", "Notes"]
+                        : kind === "expenses" ? ["Item", "Category", "Unit price", "Quantity", "Date", "Supplier", "Invoice", "Receipt", "Notes"]
+                        : kind === "revenue" ? ["Category", "Amount", "Date", "Statement", "Notes"] : ["Type", "Amount", "Date", "Notes"],
+                    addLabel: kind === "tithes" ? "Add tithe" : kind === "revenue" ? "Add income" : kind === "overhead" ? "Add operating cost" : "Add expense",
+                    dirtyLabel: form.formState.isDirty ? "Unsaved changes" : undefined,
+                    externalSave: Boolean(formId),
+                } : undefined}
                 rows={fields}
                 onAddRow={() => append(emptyRow(defaultDate))}
                 onRemoveRow={remove}
@@ -496,6 +525,7 @@ export function FinancialEntriesForm({
                                         <Label>Item</Label>
 
                                         <Input
+                                    placeholder="—"
                       {...form.register(`entries.${index}.name`, {
                         required: "Enter an item name.",
                       })}
@@ -532,6 +562,7 @@ export function FinancialEntriesForm({
                 <Label>{kind === "expenses" ? "Unit price" : "Amount"}</Label>
 
                                 <Input
+                                    placeholder="—"
                                     type="number"
                                     min="0.01"
                                     step="0.01"
@@ -563,6 +594,7 @@ export function FinancialEntriesForm({
                                     <Label>Quantity</Label>
 
                                     <Input
+                                    placeholder="—"
                                         type="number"
                                         min="1"
                                         step="1"
@@ -599,6 +631,7 @@ export function FinancialEntriesForm({
                                         <Label>Reference</Label>
 
                                         <Input
+                                    placeholder="—"
                       {...form.register(`entries.${index}.reference_code`)}
                                         />
                                     </div>
@@ -609,6 +642,7 @@ export function FinancialEntriesForm({
                                 <Label>Transaction date</Label>
 
                                 <Input
+                                    placeholder="—"
                                     type="date"
                                     min={`${period}-01`}
                                     max={`${period}-31`}
@@ -632,13 +666,14 @@ export function FinancialEntriesForm({
                                         <Label>Invoice number</Label>
 
                                         <Input
+                                    placeholder="—"
                       {...form.register(`entries.${index}.invoice_number`)}
                                         />
                                     </div>
                                 </>
                             ) : null}
 
-                            {kind !== "overhead" && (selectedFile || expandedOptional[fileDisclosureKey]) ? (
+                            {kind !== "overhead" && (selectedFile || errors?.file || expandedOptional[fileDisclosureKey]) ? (
     <div className="col-span-full grid gap-1.5">
         <Label htmlFor={fileInputId}>
             {kind === "revenue"
@@ -750,7 +785,7 @@ export function FinancialEntriesForm({
   </Button>
 ) : null}
 
-                            {notesValue || expandedOptional[notesDisclosureKey] ? (
+                            {notesValue || errors?.notes || expandedOptional[notesDisclosureKey] ? (
                             <div className="col-span-full grid gap-1.5">
                                 <Label>Notes</Label>
 
@@ -773,6 +808,7 @@ export function FinancialEntriesForm({
           );
                 }}
             />
+            {inline && kind === "tithes" && (savedPage > 1 || saved?.tithes.next) && <div className="flex justify-end gap-2"><Button type="button" variant="ghost" disabled={savedPage === 1} onClick={() => setSavedPage(page => page - 1)}>Previous saved entries</Button><Button type="button" variant="ghost" disabled={!saved?.tithes.next} onClick={() => setSavedPage(page => page + 1)}>Next saved entries</Button></div>}
             {(kind === "revenue" || kind === "overhead") && user.data?.church ? (
               <CreateFinancialCategoryDialog
                 open={categoryDialogOpen}

@@ -30,6 +30,8 @@ import { ReportCumulativeToolbar } from "@/features/reports/core/components/Repo
 import { ReportsOverview as ReportsQueueView } from "@/features/reports/activity/views/ReportOverview"
 import { SundaySchoolAttendanceView } from "@/features/people/sunday-school/views/SundaySchoolAttendanceView"
 import { ReportStatusPopover } from "@/features/reports/workflow/components/ReportStatusPopover"
+import { useReportDetail } from "@/features/reports/workflow/hooks"
+import { isReportDataReadOnly } from "@/features/workspace/config/report-context"
 import {
     getReportModuleConfig,
     getReportModuleTabs,
@@ -62,6 +64,7 @@ type RendererContext = {
     pagination: ReturnType<typeof useDataTablePagination>
     reportId: string | undefined
     selectedReport: AssemblyReport | undefined
+    reportReadOnly: boolean
     submodule: string | undefined
     view: string
     pageContext: ModulePageContext
@@ -118,7 +121,7 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         config,
         pageContext,
         reportId,
-        selectedReport,
+        reportReadOnly,
         view,
     }) => {
         if (view === "cumulative") {
@@ -139,7 +142,7 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
                 <TithesRouteContent
                     view={view}
                     pageContext={pageContext}
-                    readOnly={Boolean(selectedReport && selectedReport.status !== "draft")}
+                    readOnly={reportReadOnly}
                 />
             )
         }
@@ -263,6 +266,7 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
         pagination,
         reportId,
         selectedReport,
+        reportReadOnly,
         view,
         pageContext,
     }) => {
@@ -301,7 +305,7 @@ const REPORT_MODULE_RENDERERS: Partial<Record<ReportRouteKey, ModuleRenderer>> =
             pagination,
             reportId,
             pageContext,
-            readOnly: Boolean(selectedReport && selectedReport.status !== "draft"),
+            readOnly: reportReadOnly,
         }
 
         if (view === "homecell") {
@@ -451,6 +455,13 @@ export function ReportModulePageView({
         defaultTab: !submoduleTabs.length && viewTabs.length ? activeView : undefined,
     })
     const shouldLoadAttendance = routeKey === "ministry/attendance"
+    const editableReportTable = needsReportSelection
+        && (shouldLoadAttendance || routeKey === "finance/tithes")
+    const reportDetail = useReportDetail(Number(reportId), editableReportTable)
+    // Status labels alone do not express edit permission (e.g. reopened reports).
+    // Keep submitted reports in the existing amendment flow, and fail closed
+    // while permission data is unavailable.
+    const reportReadOnly = isReportDataReadOnly(reportDetail.data)
     const shouldLoadFinance = routeKey === "finance/income-expenditure" || routeKey === "finance/financial-activity"
     const paginationParams = {
         page: pagination.currentPage,
@@ -519,6 +530,7 @@ export function ReportModulePageView({
                             pageContext,
                             reportId,
                             selectedReport: reportSelection.selectedReport,
+                            reportReadOnly,
                             submodule,
                             view: renderView,
                         })

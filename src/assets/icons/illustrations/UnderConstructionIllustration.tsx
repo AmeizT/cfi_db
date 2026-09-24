@@ -25,14 +25,14 @@ export function UnderConstructionIllustration(props: React.SVGProps<SVGSVGElemen
       <path d="M776.49,350.56l1.55,85.34.8,43.782,7.057-.237,4.442-.15-1.381-127.5-3.061-1.018-.671-.217Z" transform="translate(-520.25 -225.438)" fill="#d6d6e3"/>
       <path d="M776.65,350.51v.02l1.487,85.34.8,43.782,7.057-.237V350.51Z" transform="translate(-520.347 -225.408)" opacity="0.1"/>
       <path d="M303.341,472.72c.126,0,.209.13.272.237a10,10,0,0,1,.824,1.578c-.462.1-1.254.209-1.483-.2C302.833,474.132,302.979,472.7,303.341,472.72Z" transform="translate(-237.859 -334.028)" opacity="0.1"/>
-      <path d="M481.387,358.04v4.749l-81.314,15.861-4.218,2.555H381.3v-2.676l79.892-19.3Z" transform="translate(-300.646 -134.798)" fill="var(--color-user-theme-500, #6c63ff)"/>
+      <path d="M481.387,358.04v4.749l-81.314,15.861-4.218,2.555H381.3v-2.676l79.892-19.3Z" transform="translate(-300.646 -134.798)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
       <path d="M481.387,367.89l-81.314,15.861-4.218,2.555H381.3l80.485-17.225Z" transform="translate(-300.646 -139.9)" opacity="0.1"/>
       <path d="M567.215,358.04v4.749l-19.6,1.191-.593-4.753Z" transform="translate(-386.474 -134.798)" opacity="0.2"/>
     </g>
-    <rect width="186.237" height="7.891" transform="translate(506.661 175.682) rotate(180)" fill="var(--color-user-theme-500, #6c63ff)"/>
-    <rect width="186.237" height="7.891" transform="translate(497.191 167.791) rotate(180)" fill="var(--color-user-theme-500, #6c63ff)"/>
-    <rect width="186.237" height="7.891" transform="translate(508.239 159.899) rotate(180)" fill="var(--color-user-theme-500, #6c63ff)"/>
-    <rect width="186.237" height="7.891" transform="translate(527.178 152.008) rotate(180)" fill="var(--color-user-theme-500, #6c63ff)"/>
+    <rect width="186.237" height="7.891" transform="translate(506.661 175.682) rotate(180)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+    <rect width="186.237" height="7.891" transform="translate(497.191 167.791) rotate(180)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+    <rect width="186.237" height="7.891" transform="translate(508.239 159.899) rotate(180)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+    <rect width="186.237" height="7.891" transform="translate(527.178 152.008) rotate(180)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
     <rect width="6.466" height="45.91" transform="translate(188.948 155.154) rotate(180)" fill="#3f3d56"/>
     <rect width="6.466" height="258.24" transform="translate(184.894 114.654) rotate(-112.092)" fill="#3f3d56"/>
     <rect width="56.256" height="21.985" transform="translate(119.113 223.695) rotate(180)" fill="#3f3d56"/>
@@ -55,10 +55,10 @@ export function UnderConstructionIllustration(props: React.SVGProps<SVGSVGElemen
     <path d="M0,0H.323A6.143,6.143,0,0,1,6.466,6.143h0A6.143,6.143,0,0,1,.323,12.286H0V0Z" transform="matrix(0.935, 0.354, -0.354, 0.935, 62.653, 199.674)" fill="#3f3d56"/>
     <rect width="6.466" height="94.406" transform="translate(427.548 106.011) rotate(180)" fill="#3f3d56"/>
     <ellipse cx="9.053" cy="9.053" rx="9.053" ry="9.053" transform="translate(176.662 101.485)" fill="#3f3d56"/>
-    <rect width="186.237" height="7.891" transform="translate(385.133 218.296) rotate(180)" fill="var(--color-user-theme-500, #6c63ff)"/>
-    <rect width="186.237" height="7.891" transform="translate(396.181 210.404) rotate(180)" fill="var(--color-user-theme-500, #6c63ff)"/>
-    <rect width="186.237" height="7.891" transform="translate(388.289 204.091) rotate(180)" fill="var(--color-user-theme-500, #6c63ff)"/>
-    <rect width="186.237" height="7.891" transform="translate(399.338 196.2) rotate(180)" fill="var(--color-user-theme-500, #6c63ff)"/>
+    <rect width="186.237" height="7.891" transform="translate(385.133 218.296) rotate(180)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+    <rect width="186.237" height="7.891" transform="translate(396.181 210.404) rotate(180)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+    <rect width="186.237" height="7.891" transform="translate(388.289 204.091) rotate(180)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+    <rect width="186.237" height="7.891" transform="translate(399.338 196.2) rotate(180)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
     <g transform="translate(0 233.394)">
       <path d="M277.765,681.081h-.85c.078-.184-3.7-9.847-3.7-9.847l-2.268-5.527-1.522-3.7-2.268-5.527-2.469-5.986a1.3,1.3,0,0,0-2.527,0l-2.469,5.986L257.424,662l-1.536,3.7-2.268,5.527s-3.764,9.664-3.686,9.847h-.879a2.153,2.153,0,1,0,0,4.307h28.71a2.153,2.153,0,1,0,0-4.307Z" transform="translate(-246.901 -649.501)" fill="#ff6584"/>
       <path d="M190.126,435.7h-12l2.268-5.527h7.464Z" transform="translate(-167.605 -423.192)" fill="#f2f2f2"/>

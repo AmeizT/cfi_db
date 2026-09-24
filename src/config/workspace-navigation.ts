@@ -1,3 +1,6 @@
+import { usesRegionalShell } from "@/features/regional-shell/scope"
+import type { User } from "@/features/auth/schemas/user"
+import { region } from "@/layouts/navigation/menu/region.nav"
 import { createReportSectionWizardHref } from "@/features/create/routing"
 import type { IconSvgElement } from "@hugeicons/react"
 import type { LucideIcon } from "lucide-react"
@@ -215,7 +218,7 @@ export const workspaceNavigation: NavigationSection[] = [
                 key: "current-report",
                 label: "Current Report",
                 href: APP_ROUTES.reports.current,
-                match: ["/create"],
+                match: ["/record-center"],
                 icon: NotesIconLineDutone,
                 activeIcon: NotesIconDuotone,
             },
@@ -399,6 +402,55 @@ export const quickCreateActions: QuickCreateAction[] = [
     },
 ]
 
-export function getWorkspaceNavigationSections() {
-    return workspaceNavigation
+export function getWorkspaceNavigationSections(user?: User | null, pathname = ""): NavigationSection[] {
+    if (usesRegionalShell(user)) {
+        const regionId = user?.active_regional_zone?.region ?? user?.active_region?.id
+        const menu = region(undefined, String(regionId ?? ""))
+        const pick = (labels: string[]): NavigationItem[] => menu.flatMap(group => group.items)
+            .filter(item => labels.includes(item.label) && item.href && !item.hidden)
+            .map(item => ({ key: `regional-${regionId}-${item.label.toLowerCase()}`, label: item.label,
+                href: item.href!, icon: item.icon, activeIcon: item.activeIcon, permission: "viewRegionalReports" }))
+        return [
+            { items: [{ key: "executive-summary", label: "Summary", href: "/summary/regional", icon: NotesIconLineDutone, activeIcon: NotesIconDuotone }] },
+            ...(regionId ? [
+                { title: "Oversight", items: pick(["Compliance", "Risk"]) },
+                { title: "Performance", items: pick(["Finance", "Growth", "Ministry", "Leadership"]) },
+                { title: "Administration", items: pick(["Assemblies", "Users"]) },
+            ] : []),
+        ]
+    }
+    const summaryItems: NavigationItem[] = []
+    if (user?.can_view_executive_summary) summaryItems.push({
+        key: "executive-summary", label: "Executive Summary", href: "/summary/regional",
+        icon: NotesIconLineDutone, activeIcon: NotesIconDuotone,
+    })
+    if (user?.can_view_assembly_summary) summaryItems.push({
+        key: "assembly-summary", label: "Assembly Summary", href: "/summary/assembly",
+        icon: NotesIconLineDutone, activeIcon: NotesIconDuotone,
+    })
+    const withSummary = (sections: NavigationSection[]) => summaryItems.length
+        ? [{ ...sections[0], items: [...(sections[0]?.items ?? []), ...summaryItems] }, ...sections.slice(1)]
+        : sections
+    if (!user?.is_region_staff || user?.is_superuser) return withSummary(workspaceNavigation)
+
+    // Assembly selection does not change regional assignments. Only honor a URL
+    // context when it belongs to one of the user's assigned regions.
+    const requestedId = pathname.match(/^\/regional-staff\/regions?\/([^/]+)/)?.[1]
+    const assigned = user.assigned_regions ?? []
+    const selected = assigned.find((entry) => String(entry.id) === requestedId)
+        ?? assigned.find((entry) => entry.id === user.active_region?.id)
+        ?? assigned[0]
+    if (!selected) return withSummary([])
+
+    return withSummary(region(undefined, String(selected.id)).map((group) => ({
+        title: group.id === "administration" ? "Administration" : group.label,
+        items: group.items.filter((item) => item.href && !item.hidden).map((item) => ({
+            key: `regional-${selected.id}-${item.label.toLowerCase()}`,
+            label: item.label,
+            href: item.href!,
+            icon: item.icon,
+            activeIcon: item.activeIcon,
+            permission: "viewRegionalReports",
+        })),
+    })))
 }

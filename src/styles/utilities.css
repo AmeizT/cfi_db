@@ -1,0 +1,346 @@
+@utility text-muted {
+  color: var(--muted-foreground);
+}
+
+@utility shadow-inset-light {
+  box-shadow:
+    0 1px 2px 0 rgb(0, 0, 0, 0.05),
+    inset 0 1px 0 0 rgb(255, 255, 255, 0.12);
+}
+
+@utility center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@utility squircle {
+  corner-shape: squircle superellipse(2);
+}
+
+@utility squircle-24 {
+  border-radius: 20px;
+  corner-shape: squircle;
+}
+
+@utility squircle-sm {
+  clip-path: path('M50,0 C75,0 100,25 100,50 C100,75 75,100 50,100 C25,100 0,75 0,50 C0,25 25,0 50,0 Z');
+}
+
+@utility squircle-md {
+  clip-path: path('M50,0 C85,0 100,15 100,50 C100,85 85,100 50,100 C15,100 0,85 0,50 C0,15 15,0 50,0 Z');
+}
+
+@utility squircle-lg {
+  clip-path: path('M50,0 C92,0 100,8 100,50 C100,92 92,100 50,100 C8,100 0,92 0,50 C0,8 8,0 50,0 Z');
+}
+
+@utility shadow-subtle-elevation {
+  box-shadow:
+    0 4px 8px rgba(41, 41, 41, 0.06),
+    0 2px 4px rgba(41, 41, 41, 0.04),
+    0 1px 2px rgba(41, 41, 41, 0.04),
+    0 0 0 1px rgba(41, 41, 41, 0.08),
+    inset 0 -0.5px 0.5px rgba(41, 41, 41, 0.08);
+}
+
+@utility shadow-inner-border {
+  outline: 1px solid rgba(255, 255, 255, 0.85);
+  outline-offset: -1px;
+}
+
+@utility text-stroke {
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: #000;
+  -webkit-text-stroke-width: 2px;
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Both names have live consumers; share the implementation. */
+@utility scrollbar-hidden {
+  @apply no-scrollbar;
+}
+
+@utility border-xs {
+  border-width: 0.5px;
+}
+
+@utility border-sm {
+  border-width: 1px;
+}
+
+@utility border-md {
+  @apply border-sm;
+}
+
+@utility shadow-offset-muted {
+  box-shadow: 0 1.5px 0 0 var(--color-assembly-theme);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+
+  &:active {
+    box-shadow: none;
+    transform: translateY(3px);
+  }
+}
+
+@utility shadow-offset-primary {
+  box-shadow: 0 1.5px 0 0 color-mix(in srgb, var(--assembly-theme) 65%, black);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+
+  &:active {
+    box-shadow: none;
+    transform: translateY(3px);
+  }
+}
+
+@utility shadow-offset-surface {
+  box-shadow: 0 1.5px 0 0 color-mix(in srgb, var(--assembly-theme) 40%, white);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+
+  &:active {
+    box-shadow: none;
+    transform: translateY(3px);
+  }
+}
+
+@utility shadow-offset-muted-active {
+  box-shadow: 0 1.5px 0 0 var(--assembly-theme);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+}
+
+@utility bg-theme {
+
+  @apply bg-legacy-theme;
+}
+
+@utility bg-theme-50 {
+
+  @apply bg-legacy-theme-50;
+}
+
+@utility bg-theme-100 {
+
+  @apply bg-legacy-theme-100;
+}
+
+@utility bg-theme-200 {
+
+  @apply bg-legacy-theme-200;
+}
+
+@utility bg-theme-300 {
+
+  @apply bg-legacy-theme-300;
+}
+
+@utility bg-theme-400 {
+
+  @apply bg-legacy-theme-400;
+}
+
+@utility bg-theme-500 {
+
+  @apply bg-legacy-theme-500;
+}
+
+@utility bg-theme-600 {
+
+  @apply bg-legacy-theme-600;
+}
+
+@utility bg-theme-700 {
+
+  @apply bg-legacy-theme-700;
+}
+
+@utility bg-theme-800 {
+
+  @apply bg-legacy-theme-800;
+}
+
+@utility text-theme {
+
+  @apply text-legacy-theme;
+}
+
+@utility text-theme-foreground {
+
+  @apply text-legacy-theme-foreground;
+}
+
+@utility text-theme-50 {
+
+  @apply text-legacy-theme-50;
+}
+
+@utility text-theme-100 {
+
+  @apply text-legacy-theme-100;
+}
+
+@utility text-theme-200 {
+
+  @apply text-legacy-theme-200;
+}
+
+@utility text-theme-300 {
+
+  @apply text-legacy-theme-300;
+}
+
+@utility text-theme-400 {
+
+  @apply text-legacy-theme-400;
+}
+
+@utility text-theme-500 {
+
+  @apply text-legacy-theme-500;
+}
+
+@utility text-theme-600 {
+
+  @apply text-legacy-theme-600;
+}
+
+@utility text-theme-700 {
+
+  @apply text-legacy-theme-700;
+}
+
+@utility text-theme-800 {
+
+  @apply text-legacy-theme-800;
+}
+
+@utility border-theme {
+
+  @apply border-legacy-theme;
+}
+
+@utility border-theme-50 {
+
+  @apply border-legacy-theme-50;
+}
+
+@utility border-theme-100 {
+
+  @apply border-legacy-theme-100;
+}
+
+@utility border-theme-200 {
+
+  @apply border-legacy-theme-200;
+}
+
+@utility border-theme-300 {
+
+  @apply border-legacy-theme-300;
+}
+
+@utility border-theme-400 {
+
+  @apply border-legacy-theme-400;
+}
+
+@utility border-theme-500 {
+
+  @apply border-legacy-theme-500;
+}
+
+@utility border-theme-600 {
+
+  @apply border-legacy-theme-600;
+}
+
+@utility border-theme-700 {
+
+  @apply border-legacy-theme-700;
+}
+
+@utility border-theme-800 {
+
+  @apply border-legacy-theme-800;
+}
+
+@utility divide-theme-50 {
+
+  @apply border-legacy-theme-50;
+}
+
+@utility divide-theme-100 {
+
+  @apply border-legacy-theme-100;
+}
+
+@utility divide-theme-500 {
+
+  @apply border-legacy-theme-500;
+}
+
+@utility ring-theme {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--assembly-theme) 20%, transparent);
+}
+
+@utility ring-theme-500 {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--assembly-theme) 20%, white);
+}
+
+@utility shadow-theme-50 {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--assembly-theme) 20%, white);
+}
+
+@utility shadow-theme-500 {
+  box-shadow: 0 1px 2px 0 color-mix(in srgb, var(--assembly-theme) 30%, black);
+}
+
+@utility fill-theme {
+
+  @apply fill-legacy-theme;
+}
+
+@utility fill-theme-500 {
+
+  @apply fill-legacy-theme-500;
+}
+
+@utility stroke-theme {
+
+  @apply stroke-legacy-theme;
+}
+
+@utility stroke-theme-500 {
+
+  @apply stroke-legacy-theme-500;
+}
+
+@utility bg-theme-gradient-x {
+  background-image: linear-gradient(
+    to right,
+    var(--assembly-theme),
+    color-mix(in srgb, var(--assembly-theme) 72%, black)
+  );
+}
+
+@utility bg-theme-gradient-b {
+  background-image: linear-gradient(
+    to bottom,
+    var(--assembly-theme),
+    color-mix(in srgb, var(--assembly-theme) 82%, black)
+  );
+}
+
+@utility bg-theme-gradient-br {
+  background-image: linear-gradient(
+    to bottom right,
+    var(--assembly-theme),
+    color-mix(in srgb, var(--assembly-theme) 72%, black)
+  );
+}

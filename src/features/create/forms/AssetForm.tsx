@@ -1,6 +1,6 @@
 "use client"
 import { Field, FormShell, Section } from "./FormShell"
-import { assetTypes, conditions } from "./contracts"
+import { assetTypes, conditions } from "@/features/create/forms/contracts"
 
 export function AssetForm() {
     return <FormShell entity="assets" title="Asset">

@@ -6,7 +6,7 @@ import { MemberSelector } from "./MemberSelector"
 function HomecellFields() {
     const { register } = useFormContext()
     return <>
-        <Section title="Homecell information">
+        <Section title="Cell group information">
             <Field name="group_name" label="Group name" required />
             <Field name="description" label="Description" type="textarea" maxLength={10000} />
             <Field name="non_church_members" label="Non-church members" type="textarea" maxLength={10000} />
@@ -18,6 +18,6 @@ function HomecellFields() {
         </Section>
     </>
 }
-export function HomecellForm() {
-    return <FormShell entity="homecells" title="Homecell"><HomecellFields /></FormShell>
+export function HomecellForm({ onCancel, onCreated }: { onCancel?: () => void; onCreated?: (id: string) => void } = {}) {
+    return <FormShell entity="homecells" title="Cell group" inline={onCancel ? { onCancel, onCreated, fullFormHref: "/spaces/new", presentation: "detail" } : undefined}><HomecellFields /></FormShell>
 }

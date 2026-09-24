@@ -12,7 +12,7 @@ import { AttendanceGrid, attendanceMetrics, getSundays } from "../components/Att
 import { AttendanceDetailDrawer } from "../components/AttendanceDrawer"
 import type { AttendanceRecord } from "../types/attendance"
 
-const zeroMetrics = Object.fromEntries(attendanceMetrics.map((metric) => [metric, 0]))
+const emptyMetrics = Object.fromEntries(attendanceMetrics.map((metric) => [metric, undefined]))
 
 export function serializeAttendanceRecord(record: AttendanceRecord): AttendanceRecord {
     return {
@@ -30,7 +30,7 @@ export function serializeAttendanceRecord(record: AttendanceRecord): AttendanceR
     } as AttendanceRecord
 }
 
-export default function AttendanceFormView({ period, reportId }: { period: string; reportId?: string | number | null }) {
+export default function AttendanceFormView({ period, reportId, formId, onSaved }: { period: string; reportId?: string | number | null; formId?: string; onSaved?: () => void }) {
     const [year, month] = period.split("-").map(Number)
     const assemblyId = useActiveAssemblyId()
     const queryClient = useQueryClient()
@@ -49,11 +49,11 @@ export default function AttendanceFormView({ period, reportId }: { period: strin
             const body = await response.json()
             const loaded: AttendanceRecord[] = Array.isArray(body) ? body : body.results ?? []
             const existing = new Map(loaded.map((record) => [record.timestamp, record]))
-            return getSundays(year, month).map((timestamp) => ({ ...zeroMetrics, service_type: "sunday", timestamp, ...existing.get(timestamp) } as AttendanceRecord))
+            return getSundays(year, month).map((timestamp) => ({ ...emptyMetrics, service_type: "sunday", timestamp, ...existing.get(timestamp) } as AttendanceRecord))
         },
     })
     const records = React.useMemo(
-        () => (query.data ?? getSundays(year, month).map((timestamp) => ({ ...zeroMetrics, service_type: "sunday", timestamp } as AttendanceRecord))).map((record) => edits[record.timestamp] ?? record),
+        () => (query.data ?? getSundays(year, month).map((timestamp) => ({ ...emptyMetrics, service_type: "sunday", timestamp } as AttendanceRecord))).map((record) => edits[record.timestamp] ?? record),
         [edits, month, query.data, year],
     )
     const dirtyDates = React.useMemo(() => new Set(Object.keys(edits)), [edits])
@@ -76,6 +76,7 @@ export default function AttendanceFormView({ period, reportId }: { period: strin
             queryClient.setQueryData<AttendanceRecord[]>(queryKey, (current = []) => current.map((record) => body.records.find((saved: AttendanceRecord) => saved.timestamp === record.timestamp) ?? record))
             await Promise.all([queryClient.invalidateQueries({ queryKey }), queryClient.invalidateQueries({ queryKey: ["reports"] }), queryClient.invalidateQueries({ queryKey: ["reports-workflow"] }), queryClient.invalidateQueries({ queryKey: ["attendanceAnalytics"] })])
             toast.success(`${body.count} attendance ${body.count === 1 ? "week" : "weeks"} saved.`)
+            onSaved?.()
         },
         onError: (body: { message?: string; errors?: { entries?: Record<string, Record<string, string[] | string>> } }) => {
             const changed = records.filter((record) => dirtyDates.has(record.timestamp))
@@ -137,7 +138,13 @@ export default function AttendanceFormView({ period, reportId }: { period: strin
     const changed = records.filter((record) => dirtyDates.has(record.timestamp))
 
     return (
-        <div className="space-y-0">
+        <form id={formId} className="space-y-0" onSubmit={event => {
+            if (event.target !== event.currentTarget) return
+            event.preventDefault()
+            if (mutation.isPending || detailsMutation.isPending) return
+            if (!changed.length) { onSaved?.(); return }
+            mutation.mutate(changed.map(serializeAttendanceRecord) as AttendanceRecord[])
+        }}>
             {query.isError ? (
                 <p className="text-sm text-destructive">
                     Unable to load attendance for this reporting period.
@@ -161,7 +168,7 @@ export default function AttendanceFormView({ period, reportId }: { period: strin
                     {changed.length === 1 ? "week" : "weeks"}
                 </p>
 
-                <Button
+                {!formId && <Button
                     type="button"
                     disabled={!changed.length || mutation.isPending}
                     onClick={() =>
@@ -177,7 +184,7 @@ export default function AttendanceFormView({ period, reportId }: { period: strin
                     ) : null}
 
                     Save attendance
-                </Button>
+                </Button>}
             </div>
 
             <AttendanceDetailDrawer
@@ -189,6 +196,6 @@ export default function AttendanceFormView({ period, reportId }: { period: strin
                 }}
                 isSaving={detailsMutation.isPending}
             />
-        </div>
+        </form>
     )
 }

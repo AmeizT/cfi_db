@@ -112,15 +112,15 @@ function getDefaultFormState(period?: string | null): SundaySchoolFormState {
         teacher: "",
         service_date: getDefaultServiceDate(period),
         class_name: "beginners",
-        boys: "0",
-        girls: "0",
-        male_visitors: "0",
-        female_visitors: "0",
-        male_first_timers: "0",
-        female_first_timers: "0",
+        boys: "",
+        girls: "",
+        male_visitors: "",
+        female_visitors: "",
+        male_first_timers: "",
+        female_first_timers: "",
         lesson_title: "",
         scripture_reference: "",
-        offering: "0",
+        offering: "",
         remarks: "",
     }
 }
@@ -257,11 +257,15 @@ export function SundaySchoolAttendanceForm({
     period,
     onCancel,
     onSaved,
+    formId,
+    matrix = false,
 }: {
     record?: SundaySchoolAttendance | null
     reportId?: string | number | null
     period?: string | null
     onCancel?: () => void
+    formId?: string
+    matrix?: boolean
     onSaved?: (record: SundaySchoolAttendance) => void
 }) {
     const assemblyId = useActiveAssemblyId()
@@ -296,13 +300,13 @@ export function SundaySchoolAttendanceForm({
                     ? "Sunday School attendance updated"
                     : "Sunday School attendance created"
             )
-            onSaved?.(savedRecord)
             await Promise.all([
                 queryClient.invalidateQueries({
                     queryKey: assemblyQueryKeys.scope(assemblyId),
                 }),
                 queryClient.invalidateQueries({ queryKey: ["reports-workflow"] }),
             ])
+            onSaved?.(savedRecord)
         },
         onError: (error) => {
             toast.error(getErrorMessage(error))
@@ -318,13 +322,13 @@ export function SundaySchoolAttendanceForm({
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
-        saveMutation.mutate(toPayload(form, reportId))
+        if (!saveMutation.isPending) saveMutation.mutate(toPayload(form, reportId))
     }
 
     const members = membersQuery.data ?? []
 
     return (
-        <form className="grid gap-5" onSubmit={handleSubmit}>
+        <form id={formId} className="grid gap-5" onSubmit={handleSubmit}>
             <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Service date">
                     <Input
@@ -370,6 +374,12 @@ export function SundaySchoolAttendanceForm({
                 </Field>
             </div>
 
+            {matrix ? <div className="overflow-x-auto rounded-lg border border-border-subtle"><table className="w-full text-sm">
+                <thead><tr className="border-b border-border-subtle"><th className="px-3 py-2 text-left">Metric</th><th className="px-3 py-2 text-left">{form.service_date || "Service attendance"}</th></tr></thead>
+                <tbody>{([
+                    ["boys", "Boys"], ["girls", "Girls"], ["male_visitors", "Male visitors"], ["female_visitors", "Female visitors"], ["male_first_timers", "Male first timers"], ["female_first_timers", "Female first timers"],
+                ] as const).map(([key, label]) => <tr key={key} className="border-b border-border-subtle"><th scope="row" className="px-3 py-2 text-left font-medium">{label}</th><td className="p-2"><Input aria-label={label} min={0} required type="number" value={form[key]} placeholder="—" className="placeholder:text-muted-foreground" onChange={event => updateField(key, event.target.value)} /></td></tr>)}</tbody>
+            </table></div> : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {([
                     ["boys", "Boys"],
@@ -385,11 +395,15 @@ export function SundaySchoolAttendanceForm({
                             required
                             type="number"
                             value={form[key]}
+                            placeholder="—"
+                            className="placeholder:text-muted-foreground"
                             onChange={(event) => updateField(key, event.target.value)}
                         />
                     </Field>
                 ))}
             </div>
+
+            )}
 
             <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Lesson title">
@@ -410,6 +424,8 @@ export function SundaySchoolAttendanceForm({
                         step="0.01"
                         type="number"
                         value={form.offering}
+                        placeholder="—"
+                        className="placeholder:text-muted-foreground"
                         onChange={(event) => updateField("offering", event.target.value)}
                     />
                 </Field>
@@ -432,12 +448,12 @@ export function SundaySchoolAttendanceForm({
                         Cancel
                     </Button>
                 ) : null}
-                <Button type="submit" disabled={saveMutation.isPending}>
+                {!formId && <Button type="submit" disabled={saveMutation.isPending}>
                     {saveMutation.isPending ? (
                         <Loader2Icon className="size-4 animate-spin" />
                     ) : null}
                     {saveMutation.isPending ? "Saving..." : "Save attendance"}
-                </Button>
+                </Button>}
             </div>
         </form>
     )
