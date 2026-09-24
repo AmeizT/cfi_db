@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   // typedRoutes: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === "production"
+      ? { exclude: ["error", "warn", "info"] }
+      : false
   },
   experimental: {
     typedEnv: true,

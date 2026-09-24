@@ -1,4 +1,7 @@
 import type { NextResponse } from "next/server"
+import { getBackendApiUrl } from "./backend-url"
+
+export { getBackendApiUrl } from "./backend-url"
 
 export const ACCESS_COOKIE_NAME = "accessToken"
 export const REFRESH_COOKIE_NAME = "refreshToken"
@@ -9,26 +12,6 @@ export interface AuthTokens {
     refresh?: string
 }
 
-function configuredBackendUrl() {
-    const isDevelopment = process.env.NODE_ENV === "development"
-    const url = process.env.NEXT_PUBLIC_API_URL
-        || (isDevelopment
-            ? process.env.NEXT_PUBLIC_SERVER_DEV_URL
-            : process.env.NEXT_PUBLIC_SERVER_PROD_URL)
-
-    if (!url) {
-        throw new Error(
-            "Missing Django API URL. Set NEXT_PUBLIC_API_URL or the matching NEXT_PUBLIC_SERVER_*_URL."
-        )
-    }
-
-    return url.replace(/\/+$/, "")
-}
-
-export function getBackendApiUrl(path: string) {
-    const cleanPath = path.replace(/^\/+/, "")
-    return `${configuredBackendUrl()}/${cleanPath}`
-}
 
 function decodeJwtExpiry(token: string) {
     try {

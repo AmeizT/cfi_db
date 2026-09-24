@@ -4,7 +4,7 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useQuery } from "@tanstack/react-query"
-import { getUser } from "@/features/auth/services/get-user"
+import { getUserClient } from "@/features/auth/services/get-user-client"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
@@ -43,7 +43,7 @@ export function VariableExpenditureForm() {
 
     const { data: user } = useQuery({
         queryKey: ["user"],
-        queryFn: () => getUser()
+        queryFn: getUserClient
     })
 
     const form = useForm<Expense>({

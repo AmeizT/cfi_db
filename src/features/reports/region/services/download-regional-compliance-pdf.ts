@@ -1,4 +1,4 @@
-import { getServerUrl } from "@/config/urls"
+import { apiRoutes } from "@/config/urls"
 
 export type MonthNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
 
@@ -27,10 +27,7 @@ type DownloadRegionalCompliancePdfInput = {
 }
 
 function getRegionalCompliancePdfUrl(regionId: string | number) {
-    return getServerUrl(
-        `api/v1/reports/region/${regionId}/compliance/monthly-report.pdf`,
-        { trailingSlash: false }
-    )
+    return apiRoutes.regional.complianceMonthlyReportPdf(regionId)
 }
 
 function parseFilename(contentDisposition: string | null) {

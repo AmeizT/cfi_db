@@ -137,3 +137,44 @@ test("a refetch error retains an already cached user", async () => {
     assert.deepEqual(queryClient.getQueryData(queryKey), user)
     assert.equal(queryClient.getQueryState(queryKey)?.status, "error")
 })
+
+test("diagnostics contain host, deadline, status, elapsed time and category without credentials", async () => {
+    const events: unknown[] = []
+    await fetchCurrentUser({
+        endpoint: "https://name:secret@api.example.test/me/?token=secret",
+        cookieHeader: "accessToken=secret",
+        fetchImpl: async (_url, init) => {
+            assert.equal((init?.headers as { Cookie: string }).Cookie, "accessToken=secret")
+            assert.equal(init?.cache, "no-store")
+            return new Response(null, { status: 401 })
+        },
+        log: event => events.push(event),
+    })
+    assert.equal(events.length, 1)
+    const event = events[0] as import("./get-user-core").CurrentUserRequestLog
+    assert.equal(event.apiHost, "api.example.test")
+    assert.equal(event.timeoutMs, 5000)
+    assert.equal(event.status, 401)
+    assert.equal(event.failureCategory, "unauthenticated")
+    assert.ok(event.durationMs >= 0)
+    assert.doesNotMatch(JSON.stringify(events), /secret|accessToken|token=|name:/)
+})
+
+test("body-read timeout is classified as timeout, with the received response status", async () => {
+    const events: import("./get-user-core").CurrentUserRequestLog[] = []
+    await assert.rejects(fetchCurrentUser({
+        endpoint,
+        cookieHeader: "session=redacted",
+        timeoutMs: 2,
+        fetchImpl: async (_url, init) => new Response(new ReadableStream({
+            start(controller) {
+                init?.signal?.addEventListener("abort", () => {
+                    controller.error(new DOMException("aborted", "AbortError"))
+                })
+            },
+        })),
+        log: event => events.push(event),
+    }), error => assertCurrentUserError(error, "timeout"))
+    assert.equal(events[0].failureCategory, "timeout")
+    assert.equal(events[0].status, 200)
+})

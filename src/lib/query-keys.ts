@@ -1,5 +1,5 @@
 import type { QueryClient, QueryKey } from "@tanstack/react-query"
-import { getUser } from "@/features/auth/services/get-user"
+import { getUserClient } from "@/features/auth/services/get-user-client"
 import type { User } from "@/features/auth/schemas/user"
 
 export const userQueryKeys = {
@@ -47,10 +47,13 @@ export async function refreshAfterAssemblySwitch(
     })
 
     queryClient.removeQueries({ predicate: isAssemblyQuery })
-    await queryClient.invalidateQueries({ queryKey: userQueryKeys.current, exact: true })
+    // Mark stale without starting a second fetch before the explicit fetchQuery.
+    await queryClient.invalidateQueries({
+        queryKey: userQueryKeys.current, exact: true, refetchType: "none",
+    })
     await queryClient.fetchQuery({
         queryKey: userQueryKeys.current,
-        queryFn: getUser,
+        queryFn: getUserClient,
         staleTime: 0,
     })
     await queryClient.refetchQueries({ predicate: isAssemblyQuery, type: "active" })
