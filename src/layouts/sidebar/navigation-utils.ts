@@ -48,7 +48,8 @@ export function flattenNavigationItems(items: NavigationItem[]): NavigationItem[
 }
 
 export function getNavigationMatchScore(pathname: string, item: NavigationItem) {
-    return [item.href, ...(item.match ?? [])].reduce((score, path) => {
+    return [item.href, ...(item.match ?? [])].reduce((score, href) => {
+        const path = href.split(/[?#]/, 1)[0]
         const matches = pathname === path || pathname.startsWith(`${path}/`)
         return matches ? Math.max(score, path.length) : score
     }, -1)

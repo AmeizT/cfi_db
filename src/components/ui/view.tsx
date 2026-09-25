@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 import { motion } from "motion/react"
 import { Separator } from "./separator"
 import { ReportNavigator } from "@/features/reports/statements/components/ReportNavigator"
+import { Flex } from "./box";
 
 
 type AsProp<T extends React.ElementType> = {
@@ -17,6 +18,7 @@ interface TabItem {
 }
 
 type ViewTabsProps = {
+    children?: React.ReactNode
     items: TabItem[]
     activeKey?: string
     className?: string
@@ -37,6 +39,8 @@ type ViewBaseProps = {
 
 type ViewHeaderProps = React.ComponentPropsWithoutRef<"header"> & {
     pagename?: React.ReactNode
+    description?: React.ReactNode
+    subpagename?: React.ReactNode
     actions?: React.ReactNode
     showReportNavigator?: boolean
     headingAs?: "h1" | "h2" | "div"
@@ -75,7 +79,7 @@ const View = (<T extends React.ElementType = "div">({
 }) as ViewType
 
 
-View.Header = ({ pagename, actions, showReportNavigator = false, headingAs = "div", ...props }) => {
+View.Header = ({ description, pagename, subpagename, actions, showReportNavigator = false, headingAs = "div", ...props }) => {
     const Heading = headingAs
 
     return (
@@ -85,9 +89,19 @@ View.Header = ({ pagename, actions, showReportNavigator = false, headingAs = "di
             "sm:h-18 sm:flex-row sm:items-center sm:py-0",
             "lg:px-6"
         )}>
-                <Heading className="min-w-0 text-2xl font-bold tracking-tight text-foreground capitalize lg:text-[24px]">
-                    {pagename}
-                </Heading>
+                <Flex direction="column" align="start">
+                    <Heading className="min-w-0 text-2xl font-bold tracking-tight text-foreground capitalize lg:text-[24px]">
+                        {pagename} <span className="font-semibold text-zinc-400 dark:text-muted">
+                            {subpagename}
+                        </span>
+                    </Heading>
+
+                    {/* {description && (
+                        <p className="text-sm text-muted-foreground">
+                            {description}
+                        </p>
+                    )} */}
+                </Flex>
                 
                 {showReportNavigator || actions ? (
                     <div className="flex w-full flex-wrap items-center gap-x-4 sm:ml-auto sm:w-auto sm:flex-nowrap">
@@ -110,7 +124,7 @@ View.Header = ({ pagename, actions, showReportNavigator = false, headingAs = "di
     )
 }
 
-function ViewTabs({ items, activeKey, className, pathname }: ViewTabsProps) {
+function ViewTabs({ items, activeKey, className, pathname, children }: ViewTabsProps) {
     if (!items?.length) return null
 
     return (
@@ -134,6 +148,7 @@ function ViewTabs({ items, activeKey, className, pathname }: ViewTabsProps) {
                             <Link
                                 key={tab.key}
                                 href={tab.href}
+                                aria-current={isActiveTab ? "page" : undefined}
                                 className={`px-4 lg:px-2 h-full inline-flex justify-center items-center relative z-0 text-sm font-semibold whitespace-nowrap rounded-full lg:rounded-lg ${isActiveTab ? "text-primary-foreground lg:text-primary lg:hover:bg-primary/5" : "text-foreground hover:bg-accent"}`}
                             >
                                 {tab.label}
@@ -148,6 +163,7 @@ function ViewTabs({ items, activeKey, className, pathname }: ViewTabsProps) {
                             </Link>
                         )
                     })}
+                    {children}
                 </div>
 
                 <div data-id="separator" className="px-6 mt-1 hidden lg:flex">

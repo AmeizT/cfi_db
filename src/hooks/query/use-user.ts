@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
-import { getUser } from "@/features/auth/services/get-user"
+import { getUserClient } from "@/features/auth/services/get-user-client"
 import { userQueryKeys } from "@/lib/query-keys"
 
 export function useUser() {
     return useQuery({
         queryKey: userQueryKeys.current,
-        queryFn: getUser,
+        queryFn: getUserClient,
         staleTime: 60_000,
     })
 }

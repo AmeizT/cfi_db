@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
     ArrowRight,
@@ -44,7 +44,7 @@ const peopleCards: CreateCardItem[] = [
         description: "Add or manage church members",
         icon: Users,
         action: "form",
-        href: "/create/members",
+        href: "/members/directory/new",
         accent: "purple",
     },
     {
@@ -52,7 +52,7 @@ const peopleCards: CreateCardItem[] = [
         description: "Create and manage households",
         icon: House,
         action: "form",
-        href: "/create/households",
+        href: "/members/households/new",
         accent: "rose",
     },
     {
@@ -74,7 +74,7 @@ const peopleCards: CreateCardItem[] = [
         description: "Create and manage homecells",
         icon: UsersRound,
         action: "form",
-        href: "/create/homecells",
+        href: "/spaces/new",
         accent: "teal",
     },
 ]
@@ -85,7 +85,7 @@ const financeCards: CreateCardItem[] = [
         description: "Add or update church assets",
         icon: BriefcaseBusiness,
         action: "form",
-        href: "/create/assets",
+        href: "/assets/new",
         accent: "blue",
     },
     // {
@@ -181,6 +181,8 @@ function TileCard({
 
 import type { CardAccent } from "./types"
 import { cn } from "@/lib/utils"
+import { useUser } from "@/hooks/query/use-user";
+import { greetByTime } from "@/utils/greet-by-time";
 
 const coneStyles: Record<
     CardAccent,
@@ -277,21 +279,21 @@ export function GradientCone({
 
             <span
                 className={cn(
-                    "absolute -bottom-[56px] -right-[56px] size-[112px] rounded-full",
+                    "absolute -bottom-14 -right-14 size-28 rounded-full",
                     colors.ring3,
                 )}
             />
 
             <span
                 className={cn(
-                    "absolute -bottom-[39px] -right-[39px] size-[78px] rounded-full",
+                    "absolute -bottom-9.75 -right-9.75 size-19.5 rounded-full",
                     colors.ring4,
                 )}
             />
 
             <span
                 className={cn(
-                    "absolute -bottom-[22px] -right-[22px] size-[44px] rounded-full",
+                    "absolute -bottom-5.5 -right-5.5 size-11 rounded-full",
                     colors.ring5,
                 )}
             />
@@ -405,6 +407,9 @@ export function CreateDashboard({
 }: CreateDashboardProps) {
     const [query, setQuery] = useState("")
     const q = query.trim().toLowerCase()
+    const { data: user } = useUser()
+    const initialNow = new Date().toISOString()
+    const referenceNow = React.useMemo(() => new Date(initialNow), [initialNow])
 
     const filteredReports = useMemo(
         () => reportCards.filter((item) => !q || `${item.title} ${item.description}`.toLowerCase().includes(q)),
@@ -444,21 +449,20 @@ export function CreateDashboard({
         ? reportStatusLabel(currentReport.status)
         : "Loading"
 
+    const greeting = greetByTime(referenceNow)
+
     return (
         <main className="flex-1">
-            <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-start gap-10 px-4 pb-20 pt-11 sm:px-8 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="mx-auto grid max-w-360 grid-cols-1 items-start gap-10 px-4 pb-20 pt-11 sm:px-8">
                 <div className="min-w-0">
                     <div className="mb-10">
-                        <h1 className="text-[34px] font-bold leading-[1.15] tracking-[-0.02em]">
-                            Good evening, Ellerie
+                        <h1 className="text-center text-3xl font-medium">
+                            What do you want to create?
                         </h1>
-                        <p className="mb-6 mt-1 text-base text-muted-foreground">
-                            What would you like to create?
-                        </p>
 
-                        <div className="flex flex-col items-start gap-2.5 sm:flex-row sm:items-center sm:gap-4">
-                            <label className="flex w-full max-w-[480px] flex-1 items-center gap-2.5 rounded-[10px] border border-input bg-card px-3.5 py-3 transition focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/10">
-                                <Search className="size-[17px] text-muted-foreground" strokeWidth={1.75} />
+                        <div className="hidden _flex flex-col items-start gap-2.5 sm:flex-row sm:items-center sm:gap-4">
+                            <label className="flex w-full max-w-120 flex-1 items-center gap-2.5 rounded-[10px] border border-input bg-card px-3.5 py-3 transition focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/10">
+                                <Search className="size-4.25 text-muted-foreground" strokeWidth={1.75} />
                                 <input
                                     value={query}
                                     onChange={(event) => setQuery(event.target.value)}
@@ -489,13 +493,13 @@ export function CreateDashboard({
                             </span>
                         </div>
 
-                        <div className="grid gap-3.5 md:grid-cols-[1.15fr_1fr]">
+                        <div className="grid gap-2 md:grid-cols-[1.15fr_1fr]">
                             <button
                                 type="button"
                                 onClick={() => onOpenSetup()}
                                 disabled={reportLoading || reportOpening}
                                 aria-busy={reportOpening}
-                                className="group relative flex min-h-77.5 flex-col justify-between overflow-hidden rounded-[14px] bg-primary p-6 text-left text-primary-foreground transition duration-200 hover:shadow-xl disabled:pointer-events-none disabled:opacity-60"
+                                className="group relative flex min-h-77.5 flex-col justify-between overflow-hidden rounded-3xl bg-primary p-6 text-left text-primary-foreground transition duration-200 hover:shadow-xl disabled:pointer-events-none disabled:opacity-60"
                             >
                                 <div className="relative z-10">
                                     <div className="mb-4.5 flex items-start justify-between">
@@ -534,7 +538,8 @@ export function CreateDashboard({
                                                 {submitted}/{total}
                                             </span>
                                         </div>
-                                        <span className="rounded-full border border-primary-foreground/20 px-2.5 py-1 text-xs font-medium text-primary-foreground/75">
+
+                                        <span className="rounded-full border-0 border-primary-foreground/20 px-3 py-1.5 text-xs font-semibold text-primary-foreground/75 bg-assembly-theme-20">
                                             {reportPeriodLabel}
                                         </span>
                                     </div>
@@ -547,14 +552,14 @@ export function CreateDashboard({
                                     </p>
                                 </div>
 
-                                <span className="relative z-10 inline-flex w-fit items-center gap-2 rounded-[10px] bg-primary-foreground px-4 py-2.5 text-sm font-semibold text-primary transition group-hover:gap-3 group-hover:bg-primary-foreground/90">
+                                <span className="relative z-10 inline-flex w-fit items-center gap-2 rounded-xl bg-primary-foreground px-4 py-2.5 text-sm font-semibold text-primary transition group-hover:bg-primary-foreground/90">
                                     {reportActionLabel}
-                                    <ArrowRight className="size-[15px]" strokeWidth={2.25} />
+                                    <ArrowRight className="size-3.75" strokeWidth={2.25} />
                                 </span>
                                 <GradientCone variant="inverse" />
                             </button>
 
-                            <div className="grid grid-cols-2 auto-rows-[160px] gap-3.5">
+                            <div className="grid grid-cols-2 auto-rows-[160px] gap-2">
                                 {filteredReports.slice(0, 3).map((item, index) => (
                                     <RowCard
                                         key={item.title}
@@ -576,7 +581,7 @@ export function CreateDashboard({
                                 People &amp; membership
                             </h2>
                         </div>
-                        <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
                             {filteredPeople.map((item) => (
                                 <TileCard
                                     key={item.title}
@@ -593,7 +598,7 @@ export function CreateDashboard({
                         <div className="mb-4">
                             <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Finance</h2>
                         </div>
-                        <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                             {filteredFinance.map((item) => (
                                 <TileCard
                                     key={item.title}
@@ -607,7 +612,7 @@ export function CreateDashboard({
                     </section>
                 </div>
 
-                <aside className="flex flex-col gap-4 xl:sticky xl:top-[88px]">
+                <aside className="hidden _flex flex-col gap-4 xl:sticky xl:top-[88px]">
                     <div className="rounded-[14px] border border-border bg-card p-5 text-card-foreground">
                         <h3 className="text-[14.5px] font-semibold">Continue where you left off</h3>
 

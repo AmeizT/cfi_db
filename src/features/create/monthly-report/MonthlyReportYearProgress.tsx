@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarRangeIcon, Loader2Icon } from "lucide-react";
+import { CalendarRangeIcon, ChevronDownIcon, Loader2Icon } from "lucide-react";
 
 import {
   Accordion,
@@ -139,26 +139,75 @@ export function MonthlyReportYearProgress({
     (activePeriodStart && report.period_start === activePeriodStart),
   );
 
+  const submitted = submittedCount;
+  const total = reports.length || 12
+
+  const circumference = 138.2
+  const ringOffset = circumference * (1 - submitted / total)
+
   return (
     <Sheet>
       <SheetTrigger asChild>
         <Button
-          type="button"
-          variant="outline"
-          className="h-11 gap-2 rounded-xl border-border-subtle bg-background px-3 text-left shadow-none"
-          aria-label={`Open ${year} report progress`}
-        >
-          <CalendarRangeIcon className="size-4 text-primary" aria-hidden="true" />
-          <span className="leading-tight">
-            <span className="block text-xs font-bold text-foreground">{year} Progress</span>
-            <span className="hidden text-[0.6875rem] font-medium text-muted-foreground sm:block">
-              {query.isLoading ? "Loading reports" : `${submittedCount} of ${reports.length || 12} submitted`}
-            </span>
-          </span>
-        </Button>
+  type="button"
+  className="
+    h-10 gap-3 rounded-xl
+    bg-primary px-4
+    text-primary-foreground
+    shadow-none
+    hover:bg-primary/90
+  "
+  aria-label={`Open ${year} report progress`}
+>
+  <div
+  className="grid size-8 shrink-0 place-items-center"
+  title={`${submitted} of ${total} submitted this year`}
+>
+  <svg
+    viewBox="0 0 52 52"
+    className="col-start-1 row-start-1 size-8 -rotate-90"
+  >
+    <circle
+      cx="26"
+      cy="26"
+      r="22"
+      fill="none"
+      stroke="currentColor"
+      opacity="0.25"
+      strokeWidth="4"
+    />
+
+    <circle
+      cx="26"
+      cy="26"
+      r="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="4"
+      strokeLinecap="round"
+      strokeDasharray={circumference}
+      strokeDashoffset={ringOffset}
+    />
+  </svg>
+
+  <span className="col-start-1 row-start-1 text-[9px] font-bold leading-none">
+    {submitted}/{total}
+  </span>
+</div>
+
+  <span className="whitespace-nowrap text-sm font-semibold">
+    {year} Progress
+  </span>
+
+  <ChevronDownIcon
+    className="ml-1 size-5 shrink-0"
+    strokeWidth={2}
+    aria-hidden="true"
+  />
+</Button>
       </SheetTrigger>
 
-      <SheetContent side="right" className="w-[min(32rem,96vw)] gap-0 p-0 sm:max-w-none">
+      <SheetContent side="right" className="w-[min(28rem,96vw)] gap-0 p-0 sm:max-w-none">
         <SheetHeader className="border-b border-border-subtle px-5 py-5 pr-12">
           <SheetTitle className="text-xl">{year} Report Progress</SheetTitle>
           <SheetDescription>

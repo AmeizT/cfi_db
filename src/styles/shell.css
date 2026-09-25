@@ -1,0 +1,143 @@
+:root {
+
+  --shell-chrome-background: var(--assembly-theme-300);
+  --shell-chrome-foreground: var(--assembly-theme-900);
+  --shell-chrome-muted-foreground: var(--assembly-theme-800);
+  --shell-chrome-hover: var(--assembly-theme-200);
+  --shell-chrome-active: var(--assembly-theme-400);
+  --assembly-sidebar-active: color-mix(in oklab, var(--assembly-theme) 78%, oklch(25% 0.015 250) 22%);
+  --assembly-sidebar-active-foreground: var(--color-white);
+  --shell-sidebar-background: var(--assembly-theme-50);
+  --shell-sidebar-foreground: color-mix(in oklab, var(--assembly-theme-900) 20%, var(--color-zinc-800));
+  --shell-sidebar-muted-foreground: var(--muted-foreground);
+  --shell-sidebar-hover: color-mix(in oklab, var(--assembly-theme-900) 7%, transparent);
+  --shell-sidebar-active: var(--assembly-sidebar-active);
+  --shell-sidebar-active-foreground: var(--assembly-sidebar-active-foreground);
+  --shell-sidebar-border: color-mix(in oklab, var(--shell-sidebar-foreground) 10%, transparent);
+  --shell-sidebar-connector: color-mix(in oklab, var(--shell-sidebar-muted-foreground) 40%, transparent);
+  --shell-focus-ring: var(--assembly-theme-500);
+
+  --sidebar-rail: var(--shell-chrome-background);
+  --sidebar-icon: var(--shell-chrome-foreground);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: var(--color-assembly-theme-100);
+  --sidebar-accent-active: var(--shell-sidebar-active);
+  --sidebar-text-active: var(--shell-sidebar-active-foreground);
+
+  --navbar-height: 3rem;
+}
+
+:root[data-shell-color-mode="full"] {
+  --shell-chrome-background: var(--assembly-theme-950);
+  --shell-chrome-foreground: var(--assembly-theme-foreground);
+  --shell-chrome-muted-foreground: var(--assembly-theme-100);
+  --shell-chrome-hover: var(--assembly-theme-600);
+  --shell-chrome-active: var(--assembly-theme-500);
+}
+
+.dark {
+  --sidebar: var(--color-zinc-950);
+  --sidebar-icon: var(--color-mist-300);
+  --sidebar-rail: var(--color-zinc-900);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: var(--color-zinc-800);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --shell-sidebar-background: color-mix(in oklab, var(--color-neutral-950) 92%, var(--assembly-theme-950));
+  --shell-sidebar-foreground: var(--color-zinc-200);
+  --shell-sidebar-muted-foreground: var(--muted-foreground);
+  --shell-sidebar-hover: color-mix(in oklab, var(--color-white) 6%, transparent);
+  --shell-sidebar-border: color-mix(in oklab, var(--color-white) 8%, transparent);
+  --shell-sidebar-connector: var(--color-neutral-800);
+}
+
+/* Keep these aliases after .dark: at equal specificity they preserve the existing root sidebar colors. Nested .dark elements retain their own overrides. */
+
+:root {
+  --sidebar: var(--shell-sidebar-background);
+  --sidebar-foreground: var(--shell-sidebar-foreground);
+  --sidebar-accent: var(--shell-sidebar-hover);
+  --sidebar-accent-foreground: var(--shell-sidebar-foreground);
+  --sidebar-border: var(--shell-sidebar-border);
+  --sidebar-ring: var(--shell-sidebar-foreground);
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+
+  --color-sidebar-rail: var(--sidebar-rail);
+  --color-sidebar-icon: var(--sidebar-icon);
+
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent-active: var(--sidebar-accent-active);
+  --color-sidebar-text-active: var(--sidebar-text-active);
+
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+.assembly-sidebar-branch {
+  --sidebar-connector-left: 18px;
+  position: relative;
+  isolation: isolate;
+}
+
+.assembly-sidebar-branch::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  left: var(--sidebar-connector-left);
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1.5px solid var(--shell-sidebar-connector);
+}
+
+.assembly-sidebar-branch[data-connector-targeted="true"]::before {
+  bottom: auto;
+  height: var(--sidebar-connector-end, 0px);
+  width: var(--sidebar-connector-width, 18px);
+  border-bottom: 1.5px solid var(--shell-sidebar-connector);
+  border-bottom-left-radius: 14px;
+}
+
+.assembly-sidebar-branch > [data-sidebar="menu-sub-item"] > [data-sidebar="menu-sub-button"] > * {
+  position: relative;
+  z-index: 2;
+}
+
+[data-sidebar="menu-button"][data-active="true"],
+[data-sidebar="menu-sub-button"][data-active="true"] {
+  /* Reference-inspired glass pill, reserved for the current route. Keep the
+     existing assembly fill through the text area and its computed foreground. */
+  position: relative;
+  border-radius: 9999px;
+  background-color: var(--assembly-sidebar-active);
+  background-image: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 14%) 0%,
+    rgb(255 255 255 / 4%) 18%,
+    transparent 38%,
+    transparent 65%,
+    rgb(0 0 0 / 12%) 100%
+  );
+  color: var(--assembly-sidebar-active-foreground);
+  /* An inset rim adds no border width, so selection never shifts the row. */
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--assembly-theme-300) 36%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 24%),
+    inset 0 -1px 0 rgb(0 0 0 / 22%),
+    inset 0 5px 10px color-mix(in oklab, var(--assembly-theme-200) 8%, transparent),
+    0 2px 6px rgb(0 0 0 / 12%);
+  backdrop-filter: blur(18px) saturate(125%);
+  -webkit-backdrop-filter: blur(18px) saturate(125%);
+}

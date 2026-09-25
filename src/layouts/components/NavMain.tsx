@@ -27,23 +27,6 @@ export function NavCore({items}: {items: MenuItem[]} ) {
                 Platform
             </SidebarGroupLabel>
             <SidebarMenu>
-                <SidebarMenuItem className="items-center gap-2">
-                    <SidebarMenuButton
-                    asChild
-                    tooltip="Quick Create"
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear">
-                        <Link href="/create"><span>Quick Create</span></Link>
-                    </SidebarMenuButton>
-
-                    {/* <Button
-                    size="icon"
-                    className="size-8 group-data-[collapsible=icon]:opacity-0"
-                    variant="outline">
-                        <Plus />
-                        <span className="sr-only">Create</span>
-                    </Button> */}
-                </SidebarMenuItem>
-
                 {items.map((item) => (
                     <React.Fragment key={item.name}>
                         {item?.children ? (

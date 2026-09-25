@@ -45,7 +45,22 @@ export function createMonthlyReportHref(
     params.set("amendment_context", options.amendment_context);
   }
 
-  return `/create?${params.toString()}`;
+  return `/record-center?${params.toString()}`;
+}
+
+/** Open a real upload panel, rather than the review/submission-only step. */
+export function getMonthlyReportUploadHref(report: WorkflowReport | null | undefined) {
+  if (!report?.id) return "/record-center";
+  const resumeSection = getMonthlyReportResumeSection(report);
+  const section = REPORT_WIZARD_SECTIONS.find(item => item.id === resumeSection && item.uploadUrl)
+    ?? REPORT_WIZARD_SECTIONS.find(item => item.uploadUrl);
+  if (!section) return "/record-center";
+  return createMonthlyReportHref(section.id, {
+    method: "upload",
+    upload_type: "excel",
+    report_id: report.id,
+    amendment_context: report.status === "reopened" ? "reopened" : null,
+  });
 }
 
 export type MonthlyReportMethod = ReportWizardMethod;

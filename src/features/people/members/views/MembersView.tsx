@@ -286,18 +286,20 @@ export function MembersView({ embedded = false, group = "all" }: { embedded?: bo
             icon: Edit02Icon,
             variant: "default" as const,
             onClick: () => setEditingMember(row.member),
-        }, {
+        }] : []),
+        {
             label: "Delete member",
             icon: Delete03Icon,
             variant: "destructive" as const,
             onClick: () => {
+                if (deleteMutation.isPending) return
                 if (window.confirm(`Delete ${row.member.full_name}? Their historical records will be preserved.`)) {
                     deleteMutation.mutate(row.member.member_key)
                 }
             },
-        }] : []),
+        },
         {
-            label: "Transfer Member",
+            label: "Transfer member",
             icon: UserSwitchIcon,
             variant: "default",
             onClick: () => setTransferMember(row.member),
@@ -308,7 +310,7 @@ export function MembersView({ embedded = false, group = "all" }: { embedded?: bo
         <View className="gap-0">
             {!embedded ? <View.Header pagename="Members" /> : null}
 
-            {!embedded ? <View.TabBar items={tabs} /> : null}
+            {!embedded ? <View.Tabs items={tabs} /> : null}
 
             <View.Body className="gap-4 p-0">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -374,6 +376,7 @@ export function MembersView({ embedded = false, group = "all" }: { embedded?: bo
                         showToolbar={false}
                         showDefaultRowActions={false}
                         rowActions={getRowActions}
+                        rowActionsColumnId="full_name"
                         enableDelete={false}
                         resource="members"
                         exportFilename="members"

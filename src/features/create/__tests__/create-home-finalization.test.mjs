@@ -13,24 +13,25 @@ async function sourceFiles(directory) {
   return nested.flat();
 }
 
-test("Create Home topbar omits yearly progress while the report card retains its count", async () => {
+test("Record Center uses reporting navigation while the report card retains its count", async () => {
   const [topbar, dashboard] = await Promise.all([
-    readFile("src/features/create/CreateTopbar.tsx", "utf8"),
+    readFile("src/features/record-center/views/RecordCenterShell.tsx", "utf8"),
     readFile("src/features/create/CreateDashboard.tsx", "utf8"),
   ]);
 
-  assert.doesNotMatch(topbar, /year.*progress|submitted.*total|percentage/i);
+  assert.match(topbar, /<MonthlyReportSplitButton/);
+  assert.doesNotMatch(topbar, /href=["']\/record-center\/(members|households|assets|cell-groups)/);
   assert.match(dashboard, /\{submitted\}\/\{total\}/);
   assert.match(dashboard, /title=\{`\$\{submitted\} of \$\{total\} submitted this year`\}/);
 });
 
-test("Create Home uses semantic theme surfaces and a shared five-band inverse cone", async () => {
+test("Record Center uses semantic theme surfaces and a shared five-band inverse cone", async () => {
   const [hub, dashboard] = await Promise.all([
     readFile("src/features/create/CreateHub.tsx", "utf8"),
     readFile("src/features/create/CreateDashboard.tsx", "utf8"),
   ]);
 
-  assert.match(hub, /min-h-screen bg-background/);
+  assert.match(hub, /min-h-screen font-sans text-foreground/);
   assert.match(dashboard, /bg-primary p-6 text-left text-primary-foreground/);
   assert.match(dashboard, /<GradientCone variant="inverse" \/>/);
   assert.match(dashboard, /pointer-events-none absolute bottom-0 right-0/);

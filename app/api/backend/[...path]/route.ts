@@ -12,6 +12,8 @@ import {
     setAuthCookies,
 } from "@/features/auth/server/auth-session"
 
+import { getBackendRequestPath } from "@/features/auth/server/backend-url"
+
 const BODYLESS_METHODS = new Set(["GET", "HEAD"])
 const AUTH_PATH_PATTERN = /\/auth\/(?:login|logout|jwt\/refresh)\/?$/
 
@@ -53,7 +55,7 @@ async function forwardRequest(
 ) {
     // Next normalizes the gateway URL without a terminal slash. Django's API
     // routes use trailing slashes, so restore it before forwarding upstream.
-    const djangoPath = path.endsWith("/") ? path : `${path}/`
+    const djangoPath = getBackendRequestPath(path)
     const target = new URL(getBackendApiUrl(djangoPath))
     target.search = request.nextUrl.search
 

@@ -73,6 +73,7 @@ export type DataGridProps<T> = {
     onRowClick?: (row: T) => void
     isLoading?: boolean
     emptyState?: React.ReactNode
+    trailingRow?: React.ReactNode
     loadingMode?: "skeleton" | "overlay"
     expandedRow?: (row: T) => React.ReactNode
     options?: DataTableOptions
@@ -82,6 +83,7 @@ export type DataGridProps<T> = {
     showFilters?: boolean
     showRowActions?: boolean
     showDefaultRowActions?: boolean
+    rowActionsColumnId?: string
     rowActions?: (row: T) => DataTableAction[]
     enableDelete?: boolean
     enableExport?: boolean

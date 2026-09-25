@@ -48,6 +48,7 @@ export const AssemblySummarySchema = z.object({
     currency: z.string().optional(),
     primary_currency: z.string().nullable().optional(),
     avatar: z.string().url().nullable().optional(),
+    avatar_fallback_color: z.string().nullable().optional(),
     avatar_fallback: z.string().nullable().optional(),
 })
 
@@ -71,6 +72,12 @@ export const AssemblySchema = AssemblySummarySchema.extend({
     assigned_pastors: z.array(z.number()),
 })
 
+export const ZoneIdentitySchema = z.object({
+    id: z.number(), name: z.string(), region: z.number(),
+    zone_avatar: z.string().nullable().optional(), zone_avatar_fallback: z.string().nullable().optional(),
+})
+export type ZoneIdentity = z.infer<typeof ZoneIdentitySchema>
+
 export const UserSchema = z.object({
     id: z.number(),
     user_id: z.string().regex(nanoidRegex, "Invalid NanoID format"),
@@ -82,12 +89,19 @@ export const UserSchema = z.object({
     email: z.string().email(),
     recovery_email: z.string().email().nullable(),
 
-    church: z.number(),
+    church: z.number().nullable(),
     assembly: AssemblySummarySchema.nullable(),
     assemblies: z.array(AssemblySummarySchema),
 
     roles: z.array(RoleSchema),
 
+    uses_regional_shell: z.boolean().optional(),
+    is_superuser: z.boolean().optional(),
+    regional_zones: z.array(ZoneIdentitySchema).optional(),
+    active_regional_zone: ZoneIdentitySchema.nullable().optional(),
+    regional_zone: z.number().nullable().optional(),
+    can_view_executive_summary: z.boolean().optional(),
+    can_view_assembly_summary: z.boolean().optional(),
     is_region_staff: z.boolean().optional().default(false),
     active_region: RegionSummarySchema.nullable(),
     region_roles: z.array(RegionRoleSchema),
@@ -99,6 +113,7 @@ export const UserSchema = z.object({
 
     is_active: z.boolean(),
     is_admin: z.boolean(),
+    can_create_assembly: z.boolean().optional(),
     can_manage_church_appearance: z.boolean().optional(),
     is_onboarded: z.boolean(),
     is_student: flexibleBoolean,

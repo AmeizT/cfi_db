@@ -4,11 +4,21 @@ import { useQuery } from "@tanstack/react-query"
 import { useActiveAssemblyId } from "@/hooks/query/use-user"
 import {
   getCurrentReport,
+  getReportDetail,
   getReportActivity,
   getReportsOverview,
   getSubmittedReport,
   getSubmittedSection,
 } from "./api"
+
+// Share the status popover's authoritative report state with inline editors.
+export function useReportDetail(reportId: number, enabled = true) {
+  return useQuery({
+    queryKey: ["reports-workflow", "status-popover", reportId],
+    queryFn: () => getReportDetail(reportId),
+    enabled: enabled && Number.isFinite(reportId) && reportId > 0,
+  })
+}
 
 export function useReportsOverview(year: number) {
   const assemblyId = useActiveAssemblyId()

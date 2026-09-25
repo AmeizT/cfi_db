@@ -23,11 +23,11 @@ interface FinanceSummaryChartProps {
 }
 
 const COLORS = [
-    "var(--user-theme)",
+    "var(--assembly-theme)",
     "#ef4444",
     "#10b981",
     "#f59e0b",
-    "color-mix(in srgb, var(--user-theme) 60%, white)",
+    "color-mix(in srgb, var(--assembly-theme) 60%, white)",
 ]
 
 export function FinanceSummaryChart({ data }: FinanceSummaryChartProps) {

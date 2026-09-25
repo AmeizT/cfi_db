@@ -1,4 +1,12 @@
-import type { ReportCapabilities, ReportStatus } from "@/features/reports/workflow/types"
+import type { ReportCapabilities, ReportStatus, WorkflowReport } from "@/features/reports/workflow/types"
+
+export function isReportDataReadOnly(
+    report: Pick<WorkflowReport, "status" | "capabilities"> | undefined,
+): boolean {
+    // Missing permission data must not temporarily enable editing while loading.
+    return !report?.capabilities
+        || !getReportContextActionVisibility(report.status, report.capabilities).editInWizard
+}
 
 export type ReportContextActionVisibility = {
     editInWizard: boolean

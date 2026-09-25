@@ -40,26 +40,26 @@ export function QuietStreetIllustration(props: React.SVGProps<SVGSVGElement>) {
             <rect x="115.29041" y="249.8692" width="44.95039" height="39.10088" fill="#fff"/>
             <rect y="448.61997" width="963.95079" height="2" fill="#3f3d56"/>
             <ellipse cx="151.87223" cy="352.47204" rx="29.09932" ry="59.37437" fill="#3f3d56"/>
-            <path d="M255.62882,674.25425c-11.65458-69.92526-.11734-139.59789.00056-140.29293l2.267.384c-.11734.69167-11.58834,69.99825.00056,139.53164Z" transform="translate(-101.06939 -224.59595)" fill="var(--color-user-theme-500, #6c63ff)"/>
-            <rect x="251.0257" y="571.20214" width="29.84136" height="2.29972" transform="translate(-339.58156 -31.50095) rotate(-28.1416)" fill="var(--color-user-theme-500, #6c63ff)"/>
-            <rect x="237.02319" y="564.48509" width="2.29972" height="29.84239" transform="translate(-486.12468 291.37147) rotate(-61.84204)" fill="var(--color-user-theme-500, #6c63ff)"/>
-            <ellipse cx="81.9552" cy="260.90342" rx="56.91484" ry="116.12927" fill="var(--color-user-theme-500, #6c63ff)"/>
+            <path d="M255.62882,674.25425c-11.65458-69.92526-.11734-139.59789.00056-140.29293l2.267.384c-.11734.69167-11.58834,69.99825.00056,139.53164Z" transform="translate(-101.06939 -224.59595)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+            <rect x="251.0257" y="571.20214" width="29.84136" height="2.29972" transform="translate(-339.58156 -31.50095) rotate(-28.1416)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+            <rect x="237.02319" y="564.48509" width="2.29972" height="29.84239" transform="translate(-486.12468 291.37147) rotate(-61.84204)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+            <ellipse cx="81.9552" cy="260.90342" rx="56.91484" ry="116.12927" fill="var(--color-assembly-theme-500, #6c63ff)"/>
             <path d="M189.364,675.40405c-22.76459-136.58529-.22963-272.67316.00056-274.03181l2.267.384c-.22962,1.35528-22.69834,137.0771.00057,273.27052Z" transform="translate(-101.06939 -224.59595)" fill="#3f3d56"/>
             <rect x="179.27648" y="475.12522" width="58.36761" height="2.29972" transform="translate(-301.0624 -69.97216) rotate(-28.1416)" fill="#3f3d56"/>
             <rect x="152.98936" y="460.88882" width="2.29972" height="58.36761" transform="translate(-451.74248 170.111) rotate(-61.84258)" fill="#3f3d56"/>
-            <ellipse cx="216.75351" cy="191.008" rx="77.88347" ry="158.91374" fill="var(--color-user-theme-500, #6c63ff)"/>
+            <ellipse cx="216.75351" cy="191.008" rx="77.88347" ry="158.91374" fill="var(--color-assembly-theme-500, #6c63ff)"/>
             <path d="M326.9161,675.40405c-31.1399-186.83717-.3144-372.9922.00056-374.85051l2.267.384c-.3144,1.85494-31.07366,187.64393.00056,374.08922Z" transform="translate(-101.06939 -224.59595)" fill="#3f3d56"/>
             <rect x="312.69421" y="401.83114" width="79.87126" height="2.29972" transform="translate(-249.45002 -10.63875) rotate(-28.1416)" fill="#3f3d56"/>
             <rect x="277.14586" y="381.92603" width="2.29972" height="79.87126" transform="translate(-326.03583 243.55793) rotate(-61.84329)" fill="#3f3d56"/>
             <ellipse cx="871.02934" cy="352.47204" rx="29.09932" ry="59.37437" fill="#3f3d56"/>
-            <path d="M969.41153,674.25425c11.65459-69.92526.11734-139.59789-.00056-140.29293l-2.267.384c.11733.69167,11.58833,69.99825-.00056,139.53164Z" transform="translate(-101.06939 -224.59595)" fill="var(--color-user-theme-500, #6c63ff)"/>
-            <rect x="957.94412" y="557.43132" width="2.29972" height="29.84136" transform="translate(-99.02545 923.51928) rotate(-61.8584)" fill="var(--color-user-theme-500, #6c63ff)"/>
-            <rect x="971.94611" y="578.25643" width="29.84239" height="2.29972" transform="translate(-257.69773 309.6834) rotate(-28.15796)" fill="var(--color-user-theme-500, #6c63ff)"/>
-            <ellipse cx="940.94638" cy="260.90342" rx="56.91484" ry="116.12927" fill="var(--color-user-theme-500, #6c63ff)"/>
+            <path d="M969.41153,674.25425c11.65459-69.92526.11734-139.59789-.00056-140.29293l-2.267.384c.11733.69167,11.58833,69.99825-.00056,139.53164Z" transform="translate(-101.06939 -224.59595)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+            <rect x="957.94412" y="557.43132" width="2.29972" height="29.84136" transform="translate(-99.02545 923.51928) rotate(-61.8584)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+            <rect x="971.94611" y="578.25643" width="29.84239" height="2.29972" transform="translate(-257.69773 309.6834) rotate(-28.15796)" fill="var(--color-assembly-theme-500, #6c63ff)"/>
+            <ellipse cx="940.94638" cy="260.90342" rx="56.91484" ry="116.12927" fill="var(--color-assembly-theme-500, #6c63ff)"/>
             <path d="M1035.67632,675.40405c22.76459-136.58529.22962-272.67316-.00056-274.03181l-2.267.384c.22962,1.35528,22.69834,137.0771-.00056,273.27052Z" transform="translate(-101.06939 -224.59595)" fill="#3f3d56"/>
             <rect x="1015.43021" y="447.09128" width="2.29972" height="58.36761" transform="translate(16.06635 923.44761) rotate(-61.8584)" fill="#3f3d56"/>
             <rect x="1041.71733" y="488.92276" width="58.36761" height="2.29972" transform="translate(-205.59609 338.75568) rotate(-28.15742)" fill="#3f3d56"/>
-            <ellipse cx="806.14806" cy="191.008" rx="77.88347" ry="158.91374" fill="var(--color-user-theme-500, #6c63ff)"/>
+            <ellipse cx="806.14806" cy="191.008" rx="77.88347" ry="158.91374" fill="var(--color-assembly-theme-500, #6c63ff)"/>
             <path d="M898.12426,675.40405c31.1399-186.83717.31439-372.9922-.00056-374.85051l-2.267.384c.3144,1.85494,31.07365,187.64393-.00056,374.08922Z" transform="translate(-101.06939 -224.59595)" fill="#3f3d56"/>
             <rect x="871.26065" y="363.04537" width="2.29972" height="79.87126" transform="translate(4.52428 757.59634) rotate(-61.8584)" fill="#3f3d56"/>
             <rect x="906.809" y="420.7118" width="79.87126" height="2.29972" transform="translate(-188.10195 272.08136) rotate(-28.15671)" fill="#3f3d56"/>

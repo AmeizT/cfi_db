@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import ts from "typescript";
 
 import {
   createMonthlyReportHref,
   getMonthlyReportResumeSection,
+  getMonthlyReportUploadHref,
 } from "../monthly-report/routing.ts";
 import {
   createReportWizardHref,
@@ -20,7 +22,7 @@ test("new monthly report routing preserves the complete report context", () => {
   });
   const url = new URL(href, "https://workspace.test");
 
-  assert.equal(url.pathname, "/create");
+  assert.equal(url.pathname, "/record-center");
   assert.equal(url.searchParams.get("workspace"), "monthly-report");
   assert.equal(url.searchParams.get("section"), "expenses");
   assert.equal(url.searchParams.get("method"), "upload");
@@ -119,13 +121,13 @@ test("Create Home resolves the active report before routing and uses the existin
     readFile("src/features/create/CreateDashboard.tsx", "utf8"),
   ]);
 
-  assert.match(hub, /useCurrentReport\(\)/);
+  assert.match(hub, /useCurrentReport\(validPeriod/);
   assert.match(hub, /if \(currentReport\.id\) return \{ report: currentReport, request \}/);
   assert.match(hub, /startCurrentReport/);
   assert.match(hub, /getMonthlyReportResumeSection\(report\)/);
   assert.match(hub, /report_id: report\.id/);
   assert.match(hub, /createCentralTemplatesHref/);
-  assert.match(hub, /router\.replace\(href\)/);
+  assert.match(hub, /router\.replace\(destination\)/);
   assert.match(dashboard, /action: "templates"/);
   assert.match(dashboard, /title: "Manual entry"[\s\S]*action: "report"[\s\S]*tab: "manual"/);
   assert.match(dashboard, /title: "Uploads"[\s\S]*action: "report"[\s\S]*tab: "uploads"/);
@@ -155,8 +157,8 @@ test("the new Create workspace reuses production report forms and APIs without t
 
 test("legacy monthly report routes remain mounted on the legacy implementation", async () => {
   const [legacyPage, legacyCreatePage, legacyView] = await Promise.all([
-    readFile("app/(authenticated)/(headless)/(forms)/report-wizard/page.tsx", "utf8"),
-    readFile("app/(authenticated)/(headless)/(forms)/report-wizard/create/page.tsx", "utf8"),
+    readFile("app/(authenticated)/(shell)/(forms)/report-wizard/page.tsx", "utf8"),
+    readFile("app/(authenticated)/(shell)/(forms)/report-wizard/create/page.tsx", "utf8"),
     readFile("src/features/report-wizard/views/ReportWizardView.tsx", "utf8"),
   ]);
 
@@ -164,4 +166,51 @@ test("legacy monthly report routes remain mounted on the legacy implementation",
   assert.match(legacyCreatePage, /report-wizard\/create\/attendance/);
   assert.match(legacyView, /CentralCreateWorkspace/);
   assert.match(legacyView, /ReportWizardSidebar/);
+});
+
+
+test("New Uploads opens the current report in an upload-capable section with Excel selected", () => {
+  for (const id of [50, 127]) {
+    const report = { id, status: "draft", sections: [] };
+    const url = new URL(getMonthlyReportUploadHref(report), "https://workspace.test");
+    assert.equal(url.pathname, "/record-center");
+    assert.equal(url.searchParams.get("workspace"), "monthly-report");
+    assert.equal(url.searchParams.get("method"), "upload");
+    assert.equal(url.searchParams.get("upload_type"), "excel");
+    assert.equal(url.searchParams.get("report_id"), String(id));
+    assert.notEqual(url.searchParams.get("section"), "review");
+  }
+  assert.equal(getMonthlyReportUploadHref(null), "/record-center");
+  assert.equal(getMonthlyReportUploadHref({ id: null }), "/record-center");
+  const reopened = new URL(getMonthlyReportUploadHref({ id: 8, status: "reopened", sections: [] }), "https://workspace.test");
+  assert.equal(reopened.searchParams.get("amendment_context"), "reopened");
+});
+
+
+test("report footer stays outside the form scroller and progress has its own scroller", async () => {
+  const source = await readFile("src/features/create/monthly-report/MonthlyReportWorkspace.tsx", "utf8");
+  const tree = ts.createSourceFile("workspace.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const elements = [];
+  const collect = node => {
+    if (ts.isJsxElement(node)) elements.push(node);
+    ts.forEachChild(node, collect);
+  };
+  collect(tree);
+  const scrollRegion = name => elements.find(node => node.openingElement.attributes.properties.some(
+    prop => ts.isJsxAttribute(prop) && prop.name.getText(tree) === "data-report-scroll" && prop.initializer?.text === name,
+  ));
+  const form = scrollRegion("form");
+  const progress = scrollRegion("progress");
+  assert.ok(form);
+  assert.ok(progress);
+  assert.match(form.getText(tree), /overflow-auto/);
+  assert.match(progress.getText(tree), /overflow-y-auto/);
+  assert.match(form.getText(tree), /<ManualEntryPanel/);
+  assert.doesNotMatch(form.getText(tree), /<MonthlyReportFooter/);
+  assert.match(form.parent.getText(tree), /<MonthlyReportFooter/);
+  assert.equal(form.parent.parent, progress.parent);
+  const footer = await readFile("src/features/create/monthly-report/MonthlyReportFooter.tsx", "utf8");
+  assert.match(footer, /sticky bottom-0[^"\n]*shrink-0/);
+  assert.match(footer, /form=\{submitFormId\}/);
+  assert.match(footer, /onClick=\{onSkip\}/);
 });

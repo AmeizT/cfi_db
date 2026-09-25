@@ -37,11 +37,11 @@ import { getReportContextActionVisibility } from "@/features/workspace/config/re
 import { cn } from "@/lib/utils"
 import {
   amendReport,
-  getReportDetail,
   getSubmittedReport,
   requestReportReopening,
   startCurrentReport,
 } from "../api"
+import { useReportDetail } from "../hooks"
 import { formatReportDate, formatReportPeriod, reportPeriodHref } from "../format"
 import { REPORT_SECTIONS, type ReportStatus, type WorkflowReport } from "../types"
 
@@ -145,11 +145,7 @@ export function ReportStatusPopover() {
   const [dialog, setDialog] = React.useState<"amend" | "reopen" | null>(null)
   const [reason, setReason] = React.useState("")
 
-  const reportQuery = useQuery({
-    queryKey: ["reports-workflow", "status-popover", reportId],
-    queryFn: () => getReportDetail(reportId),
-    enabled: Number.isFinite(reportId) && reportId > 0,
-  })
+  const reportQuery = useReportDetail(reportId)
   const report = reportQuery.data
   const submittedQuery = useQuery({
     queryKey: ["reports-workflow", "status-popover", "submitted", reportId],

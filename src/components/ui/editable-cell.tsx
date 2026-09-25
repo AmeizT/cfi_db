@@ -64,7 +64,8 @@ export function EditableCell<T, K extends keyof T>({
     })
 
     function beginEditing() {
-        if (mutation.isPending) return
+        // A double-click in the input selects text; it must not reset the draft.
+        if (editing || mutation.isPending) return
         cancelRef.current = false
         setDraft(editorValue(initialValue, editor.type))
         setEditing(true)
@@ -132,6 +133,20 @@ export function EditableCell<T, K extends keyof T>({
             )}
             onDoubleClick={beginEditing}
         >
+            {/* Keep the display in flow so the absolute editor retains the cell's height. */}
+            <span
+                aria-hidden={editing || undefined}
+                className={cn(
+                    "flex min-h-lh w-full items-center capitalize",
+                    editing && "invisible",
+                    editor.type === "number" ? "justify-end text-right tabular-nums" : "text-left",
+                )}
+            >
+                <span className="min-w-0 flex-1">{displayValue ?? editorValue(initialValue, editor.type)}</span>
+                {mutation.isPending ? (
+                    <Loader2Icon className="ml-2 size-3.5 shrink-0 animate-spin text-muted-foreground" aria-label="Saving" />
+                ) : null}
+            </span>
             {editing ? (
                 editor.type === "select" ? (
                     <select
@@ -166,17 +181,7 @@ export function EditableCell<T, K extends keyof T>({
                         onKeyDown={handleKeyDown}
                     />
                 )
-            ) : (
-                <span className={cn(
-                    "flex w-full items-center capitalize",
-                    editor.type === "number" ? "justify-end text-right tabular-nums" : "text-left",
-                )}>
-                    <span className="min-w-0 flex-1">{displayValue ?? editorValue(initialValue, editor.type)}</span>
-                    {mutation.isPending ? (
-                        <Loader2Icon className="ml-2 size-3.5 shrink-0 animate-spin text-muted-foreground" aria-label="Saving" />
-                    ) : null}
-                </span>
-            )}
+            ) : null}
         </div>
     )
 }

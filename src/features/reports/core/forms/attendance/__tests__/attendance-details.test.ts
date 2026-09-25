@@ -53,3 +53,31 @@ test("attendance detail saves keep numeric metrics and supported metadata", () =
     assert.equal(payload.weather, "sunny")
     assert.equal(payload.notes, "Full morning service")
 })
+
+test("empty weekly cells show a dash while saved and explicitly entered zeros remain visible", async () => {
+    const { createElement } = await import("react")
+    const { renderToStaticMarkup } = await import("react-dom/server")
+    const { AttendanceGrid } = await import("../components/AttendanceGrid")
+    const render = (records: AttendanceRecord[]) => renderToStaticMarkup(createElement(AttendanceGrid, {
+        year: 2026, month: 7, records, dirtyDates: new Set<string>(), errors: {},
+        updateRecord() {}, openDetails() {},
+    }))
+    const cell = (markup: string, metric: string) => markup.match(new RegExp(`<input[^>]*aria-label="${metric} for 2026-07-05"[^>]*>`))?.[0] ?? ""
+    const empty = cell(render([]), "men")
+    assert.match(empty, /value=""/)
+    assert.match(empty, /placeholder="—"/)
+    assert.match(empty, /placeholder:text-muted-foreground/)
+    const saved = render([{ ...record, men: 0, women: 12 }])
+    assert.match(cell(saved, "men"), /value="0"/)
+    assert.match(cell(saved, "women"), /value="12"/)
+    assert.match(cell(render([{ ...record, id: undefined, men: 0 } as AttendanceRecord]), "men"), /value="0"/)
+    assert.match(saved, /flex items-center justify-between gap-2/)
+    assert.match(saved, /aria-label="Add details for 2026-07-05"/)
+})
+
+test("blank draft metrics retain the existing zero-valued save contract", () => {
+    const payload = serializeAttendanceRecord({ timestamp: "2026-07-05" } as AttendanceRecord)
+    assert.equal(payload.men, 0)
+    assert.equal(payload.women, 0)
+    assert.equal(serializeAttendanceRecord({ ...record, men: 0 }).men, 0)
+})

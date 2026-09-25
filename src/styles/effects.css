@@ -1,0 +1,253 @@
+:root{
+    --page-bg: #eeecf2;
+    --ink: #2c2840;
+    --ink-muted: var(--muted-foreground);
+    --icon-badge-bg: #e2dfe9;
+    --tree-line: rgba(30,25,50,0.14);
+ 
+    /* neutral glass (hover pills, dropdowns, command palette) */
+    --glass-bg-top: rgba(255,255,255,0.75);
+    --glass-bg-bottom: rgba(255,255,255,0.35);
+    --glass-shadow-outer: 0 6px 16px rgba(30,25,50,0.10);
+    --glass-highlight-top: inset 0 1px 0 rgba(255,255,255,0.9);
+    --glass-highlight-bottom: inset 0 -1px 0 rgba(30,25,50,0.04);
+    --glass-blur: 10px;
+    --glass-icon-bg: rgba(255,255,255,0.5);
+ 
+    /* active/accent glass (the blue pill) */
+    --active-grad: linear-gradient(180deg, #6fb0ea 0%, #4288d6 45%, #2a68b8 100%);
+    --active-glow: 0 10px 26px rgba(60,130,210,0.35), 0 2px 6px rgba(40,100,180,0.3);
+    --active-highlight-top: inset 0 1.5px 0 rgba(255,255,255,0.65);
+    --active-highlight-bottom: inset 0 -14px 22px rgba(0,0,0,0.16);
+    --active-sheen: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 100%);
+    --active-icon-bg: rgba(255,255,255,0.24);
+  }
+ 
+  .dark {
+    --page-bg: #0e0e10;
+    --ink: #e7e7ea;
+    --ink-muted: var(--muted-foreground);
+    --icon-badge-bg: #26262a;
+    --tree-line: rgba(255,255,255,0.16);
+ 
+    --glass-bg-top: rgba(28,28,30,0.96);
+    --glass-bg-bottom: rgba(18,18,20,0.94);
+    --glass-shadow-outer: 0 10px 30px rgba(0,0,0,0.42);
+    --glass-highlight-top: inset 0 1px 0 rgba(255,255,255,0.10);
+    --glass-highlight-bottom: inset 0 -1px 0 rgba(255,255,255,0.025);
+    --glass-blur: 16px;
+    --glass-icon-bg: rgba(255,255,255,0.08);
+ 
+    --active-grad: linear-gradient(180deg, #3d84c9 0%, #2166a8 45%, #144a80 100%);
+    --active-glow: 0 10px 28px rgba(30,100,190,0.45), 0 2px 6px rgba(20,70,140,0.4);
+    --active-highlight-top: inset 0 1.5px 0 rgba(255,255,255,0.55);
+    --active-highlight-bottom: inset 0 -14px 22px rgba(0,0,0,0.28);
+    --active-sheen: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0) 100%);
+    --active-icon-bg: rgba(255,255,255,0.18);
+  }
+ 
+  :root, .dark {
+    --glass-bg: linear-gradient(180deg, var(--glass-bg-top), var(--glass-bg-bottom));
+    --glass-shadow: var(--glass-shadow-outer), var(--glass-highlight-top), var(--glass-highlight-bottom);
+  }
+ 
+/* Compatibility names share the same surface as the shared UI primitives. */
+.glass-surface,
+.dropdown,
+.command {
+  background: var(--surface);
+  border: 0px 1px 1px 1px solid var(--border-subtle);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+}
+
+/* Shared neutral selection, including callers with their own hover classes.
+   Foreground stays with each primitive so destructive items retain their color. */
+.glass-surface :where(
+  [data-slot="command-item"],
+  [data-slot="dropdown-menu-item"],
+  [data-slot="dropdown-menu-checkbox-item"],
+  [data-slot="dropdown-menu-radio-item"],
+  [data-slot="dropdown-menu-sub-trigger"]
+):not([data-disabled="true"]):not([data-disabled=""]):is(
+  :hover, :focus, [data-selected="true"], [data-highlighted], [data-state="open"]
+) {
+  background-color: var(--accent);
+}
+
+/* CommandDialog paints the surface once, on its outer content wrapper. */
+[data-slot="dialog-content"].glass-surface > [data-slot="command"] {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.dropdown-item{
+    padding:9px 12px;
+    border-radius:9px;
+    font-size:14.5px;
+    font-weight:500;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+ 
+.dropdown-item.danger{color:#e8836c;}
+ 
+.dropdown-divider{height:1px;background:var(--tree-line);margin:5px 4px;}
+ 
+@utility bg-noise {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+  }
+
+  & > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+ 
+@utility bg-crosshatch {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 1.75px,
+      rgb(255 255 255 / 0.1) 1.75px,
+      rgb(255 255 255 / 0.1) 2.75px
+    );
+
+    mix-blend-mode: soft-light;
+    opacity: 0.50;
+  }
+
+  & > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+ 
+  @utility border-wavy {
+  border: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='6' viewBox='0 0 20 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 3 Q5 0 10 3 T20 3' fill='none' stroke='%23e4e4e7' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: bottom;
+  background-size: 20px 6px;
+  padding-bottom: 10px;
+    
+}
+ 
+  .active-glass {
+    position: relative;
+    overflow: hidden;
+
+    border-radius: 9999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(55, 128, 190, 0.44) 0%,
+            rgba(24, 73, 116, 0.58) 42%,
+            rgba(15, 48, 79, 0.68) 100%
+        );
+
+    border: 1px solid rgba(105, 184, 255, 0.28);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+        inset 0 8px 18px rgba(96, 177, 255, 0.08),
+        0 4px 12px rgba(0, 0, 0, 0.16);
+
+    backdrop-filter: blur(18px) saturate(125%);
+    -webkit-backdrop-filter: blur(18px) saturate(125%);
+
+    color: rgba(255, 255, 255, 0.96);
+}
+ 
+  .active-glass::before {
+    content: "";
+    position: absolute;
+    inset: 1px 1px auto 1px;
+
+    height: 52%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.13),
+            rgba(255, 255, 255, 0.035) 55%,
+            transparent
+        );
+
+    pointer-events: none;
+}
+ 
+  .active-glass::after {
+    content: "";
+    position: absolute;
+
+    left: 14%;
+    right: 14%;
+    top: -20%;
+
+    height: 80%;
+
+    border-radius: 9999px;
+
+    background: rgba(80, 170, 255, 0.12);
+    filter: blur(18px);
+
+    pointer-events: none;
+}
+ 
+  .pill-hover {
+  position: relative;
+  border-radius: 999px;
+
+  /* faint two-stop gradient — lighter at top, fading down. This alone
+     is what keeps it from looking like a flat gray fill */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.09),
+    rgba(255, 255, 255, 0.03)
+  );
+
+  /* the depth comes from these two shadows working together */
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.35),       /* outer shadow — lifts it off the page */
+    inset 0 1px 0 rgba(255, 255, 255, 0.14); /* inset top highlight — the "glass edge" catching light */
+
+  /* real refraction of whatever sits behind it */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari still needs the prefix */
+}
+ 
+  .pill-hover .icon-badge {
+  background: rgba(255, 255, 255, 0.08);
+}

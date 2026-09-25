@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import test from "node:test"
 
-test("sidebar uses one Quick Create implementation with topbar and sidebar triggers", async () => {
+test("sidebar uses one New launcher implementation with topbar and sidebar triggers", async () => {
     const [sidebar, topbar, quickCreate] = await Promise.all([
         readFile("src/layouts/ContextSidebar.tsx", "utf8"),
         readFile("src/layouts/topbar.tsx", "utf8"),
@@ -10,7 +10,8 @@ test("sidebar uses one Quick Create implementation with topbar and sidebar trigg
     ])
     assert.match(sidebar, /<QuickCreate\s+onAction=\{closeMobile\}\s+trigger=/)
     assert.match(topbar, /<QuickCreate \/>/)
-    assert.match(quickCreate, /router\.push\("\/create"\)/)
+    assert.match(quickCreate, /NewLauncherMenu/)
+    assert.doesNotMatch(quickCreate, /router\.push/)
 })
 
 test("shortcut and primary navigation groups share an expanded collapsible treatment", async () => {
@@ -26,26 +27,25 @@ test("shortcut and primary navigation groups share an expanded collapsible treat
     assert.match(group, /defaultOpen = true/)
 })
 
-test("desktop shell is neutral and the themed sidebar uses the floating primitive", async () => {
+test("desktop shell is assembly tinted and the content inset stays neutral", async () => {
     const [shell, sidebar, primitive] = await Promise.all([
         readFile("src/layouts/app-shell.tsx", "utf8"),
         readFile("src/layouts/ContextSidebar.tsx", "utf8"),
         readFile("src/components/ui/sidebar.tsx", "utf8"),
     ])
-    assert.match(shell, /bg-zinc-50/)
-    assert.match(shell, /dark:bg-zinc-950/)
+    assert.match(shell, /bg-sidebar/)
+    assert.match(shell, /bg-white dark:bg-neutral-900/)
     assert.match(sidebar, /variant = "floating"/)
-    assert.match(primitive, /bg-sidebar flex h-full/)
-    assert.match(primitive, /group-data-\[variant=floating\]:rounded-2xl/)
+    assert.match(primitive, /bg-sidebar[^"\n]*flex h-full/)
+    assert.match(primitive, /group-data-\[variant=floating\]:rounded-3xl/)
 })
 
-test("application sidebar and inset do not draw a shared-edge border or shadow", async () => {
+test("application sidebar avoids a shared-edge border and the inset has no shadow", async () => {
     const [shell, sidebar] = await Promise.all([
         readFile("src/layouts/app-shell.tsx", "utf8"),
         readFile("src/layouts/ContextSidebar.tsx", "utf8"),
     ])
 
-    assert.match(shell, /md:border-0 md:shadow-none/)
-    assert.match(sidebar, /\[&>\[data-slot=sidebar-inner\]\]:border-0/)
-    assert.match(sidebar, /\[&>\[data-slot=sidebar-inner\]\]:shadow-none/)
+    assert.match(shell, /md:rounded-\[20px\] md:ring-1 md:ring-sidebar-border md:shadow-none/)
+    assert.match(sidebar, /\*:data-\[slot=sidebar-inner\]:border-0/)
 })

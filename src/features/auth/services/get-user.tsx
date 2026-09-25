@@ -1,14 +1,9 @@
-"use server"
-
 import React from "react"
-import { url } from "@/config/urls"
 import { cookies } from "next/headers"
-import { fetchCurrentUser } from "./get-user-core"
+import { getCurrentUserForCookies } from "../server/current-user"
 
+// Request-local RSC memoization; never share authenticated users across requests.
 export const getUser = React.cache(async () => {
     const cookieStore = await cookies()
-    return fetchCurrentUser({
-        endpoint: url.currentUser,
-        cookieHeader: cookieStore.toString(),
-    })
+    return getCurrentUserForCookies(cookieStore.toString())
 })

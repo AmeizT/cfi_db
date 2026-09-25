@@ -15,9 +15,21 @@ export function useActionSounds() {
         debounceMs: 2000,
     })
 
+    const click = useSound("/sounds/click.wav", {
+        volume: 0.25,
+        debounceMs: 80,
+    })
+
+    const disabledClick = useSound("/sounds/click-disabled.wav", {
+        volume: 0.3,
+        debounceMs: 200,
+    })
+
     return {
         playSuccess: success.play,
         playError: error.play,
         playStartup: startup.play,
+        playClick: click.play,
+        playDisabledClick: disabledClick.play,
     }
 }

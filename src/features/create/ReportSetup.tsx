@@ -35,14 +35,14 @@ export function ReportSetup({ initialTab, onBack, onContinue }: ReportSetupProps
 
     return (
         <main className="flex-1">
-            <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-start gap-10 px-4 pb-20 pt-8 sm:px-8 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="mx-auto grid max-w-360 grid-cols-1 items-start gap-10 px-4 pb-20 pt-8 sm:px-8 xl:grid-cols-[minmax(0,1fr)_320px]">
                 <div>
                     <button
                         type="button"
                         onClick={onBack}
                         className="mb-5 inline-flex items-center gap-2 py-1 text-[13.5px] font-medium text-muted-foreground transition hover:text-foreground"
                     >
-                        <ArrowLeft className="size-[15px]" />
+                        <ArrowLeft className="size-3.75" />
                         Back to Create
                     </button>
 
@@ -56,13 +56,13 @@ export function ReportSetup({ initialTab, onBack, onContinue }: ReportSetupProps
                             type="button"
                             className="flex items-center gap-2 whitespace-nowrap rounded-[10px] border border-border bg-card px-3 py-2 text-[13.5px] font-medium text-card-foreground transition hover:border-primary/40"
                         >
-                            <CalendarDays className="size-[15px]" strokeWidth={1.75} />
+                            <CalendarDays className="size-3.75" strokeWidth={1.75} />
                             August 2026
                             <ChevronDown className="size-3" />
                         </button>
                     </div>
 
-                    <div className="mb-[22px] inline-flex gap-0.5 rounded-[10px] bg-muted p-1">
+                    <div className="mb-5.5 inline-flex gap-0.5 rounded-[10px] bg-muted p-1">
                         {(["manual", "uploads"] as const).map((value) => (
                             <button
                                 key={value}

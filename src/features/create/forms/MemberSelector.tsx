@@ -5,7 +5,7 @@ import { useController, useFormContext } from "react-hook-form"
 import { useActiveAssemblyId } from "@/hooks/query/use-user"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { getCreateOptions, type CreateOptions } from "./actions"
+import { getCreateOptions, type CreateOptions } from "@/features/create/forms/actions"
 
 export function MemberSelector({ name, label, multiple = false }: { name: string; label: string; multiple?: boolean }) {
     const assemblyId = useActiveAssemblyId()

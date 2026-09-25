@@ -4,6 +4,7 @@
 
 import React from "react"
 import * as XLSX from "xlsx"
+import { buildReviewedSpreadsheet } from "../lib/reviewed-spreadsheet"
 import { AlertCircleIcon, CheckCircle2Icon, FileIcon } from "lucide-react"
 import { UploadDropzone } from "./UploadDropzone"
 import { UploadPreviewTable } from "./UploadPreviewTable"
@@ -59,12 +60,30 @@ type UploadResult = {
     errors?: ApiUploadError[]
 }
 
+export type UploadReviewProps = {
+    data: RowData[]
+    errors: UploadError[]
+    disabled: boolean
+    onChange: (index: number, field: string, value: string) => void
+    onAdd: (row: RowData) => void
+    onRemove: (index: number) => void
+    onSubmit: () => Promise<void>
+    onCancel: () => void
+}
+
 type UploadEngineProps = {
+    disabled?: boolean
+    onSaved?: () => void
+    renderReview?: (props: UploadReviewProps) => React.ReactNode
     config: UploadConfig
+    illustration?: React.ReactNode
     initialMode?: UploadMode
 }
 
-export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngineProps) {
+export function UploadEngine({ config, initialMode = "spreadsheet", illustration, disabled = false, onSaved, renderReview }: UploadEngineProps) {
+    const Review = renderReview
+    const edited = React.useRef(false)
+    const saving = React.useRef(false)
     const [mode, setMode] = React.useState<UploadMode>(initialMode)
     const [ocrUploadState, setOcrUploadState] = React.useState<OcrUploadState>("idle")
     const [data, setData] = React.useState<RowData[]>([])
@@ -76,6 +95,7 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
     const [progress, setProgress] = React.useState(0)
 
     const resetPreview = React.useCallback(() => {
+        edited.current = false
         setData([])
         setErrors([])
         setWarnings([])
@@ -120,6 +140,8 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
     }
 
     const handleFileUpload = async (selectedFile: File) => {
+        if (disabled || saving.current) return
+        edited.current = false
         const isImage = selectedFile.type.startsWith("image/")
             || /\.(jpe?g|png|webp)$/i.test(selectedFile.name)
 
@@ -239,7 +261,8 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
     }
 
     const handleCellChange = (rowIndex: number, field: string, value: string) => {
-        if (isOcrSaving) return
+        if (disabled || isOcrSaving || spreadsheetLoading) return
+        edited.current = true
 
         setData((rows) => rows.map((row, index) => (
             index === rowIndex ? { ...row, [field]: value } : row
@@ -252,12 +275,12 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
     }
 
     const handleSubmit = async () => {
-        if (mode === "image") {
-            await submitImageRows()
-            return
-        }
-
-        await submitSpreadsheet()
+        if (disabled || saving.current) return
+        saving.current = true
+        try {
+            if (mode === "image") await submitImageRows()
+            else await submitSpreadsheet()
+        } finally { saving.current = false }
     }
 
     const submitSpreadsheet = async () => {
@@ -267,7 +290,10 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
         setProgress(0)
 
         const formData = new FormData()
-        formData.append("file", file)
+        if (renderReview && edited.current) {
+            // Preserve the upload parser and endpoint; submit the reviewed first sheet.
+            formData.append("file", buildReviewedSpreadsheet(data))
+        } else formData.append("file", file)
 
         try {
             const { body } = await postFormData<UploadResult>(
@@ -283,6 +309,7 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
             } else {
                 resetPreview()
                 toast.success("Upload successful")
+                onSaved?.()
             }
         } catch (error) {
             toast.error(getErrorMessage(error))
@@ -322,6 +349,7 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
             } else {
                 resetOcrUpload()
                 toast.success("Extracted rows saved")
+                onSaved?.()
             }
         } catch (error) {
             setOcrUploadState("preview")
@@ -333,19 +361,21 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
         <div className="space-y-6 h-full" aria-busy={isOcrBusy}>
             {showUnifiedUpload && (
                 <UploadDropzone
+                    illustration={illustration}
                     onUpload={handleFileUpload}
                     accept={accept}
                     label="Drop report files here or browse"
-                    disabled={spreadsheetLoading || isOcrParsing}
+                    disabled={disabled || spreadsheetLoading || isOcrParsing}
                 />
             )}
 
             {showOcrUpload && (
                 <UploadDropzone
+                    illustration={illustration}
                     onUpload={handleFileUpload}
                     accept={accept}
                     label="Reading the selected image"
-                    disabled={isOcrParsing}
+                    disabled={disabled || isOcrParsing}
                     previewUrl={imagePreviewUrl}
                 >
                     {isOcrParsing && (
@@ -393,7 +423,15 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
                 </div>
             )}
 
-            {showSpreadsheetPreview && (
+            {Review && (showSpreadsheetPreview || showOcrPreview) && data.length > 0 && <>
+                <Review data={data} errors={errors} disabled={disabled || spreadsheetLoading || isOcrBusy} onChange={handleCellChange}
+                    onAdd={row => { edited.current = true; setData(current => [...current, row]) }}
+                    onRemove={index => { if (data.length === 1) { resetOcrUpload(); return; } edited.current = true; setData(current => current.filter((_, i) => i !== index)); setErrors(current => current.filter(error => error.row !== index + 2).map(error => error.row > index + 2 ? { ...error, row: error.row - 1 } : error)) }}
+                    onSubmit={handleSubmit} onCancel={resetOcrUpload} />
+                <UploadErrorsPanel errors={errors} />
+                {warnings.length > 0 && <ul className="text-sm text-muted-foreground">{warnings.map(warning => <li key={warning}>{warning}</li>)}</ul>}
+            </>}
+            {!renderReview && showSpreadsheetPreview && (
                 <>
                     <UploadPreviewTable
                         data={data}
@@ -410,7 +448,7 @@ export function UploadEngine({ config, initialMode = "spreadsheet" }: UploadEngi
                 </>
             )}
 
-            {showOcrPreview && data.length > 0 && (
+            {!renderReview && showOcrPreview && data.length > 0 && (
                 <div className="space-y-4" aria-busy={isOcrSaving}>
                     {warnings.length > 0 && (
                         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">

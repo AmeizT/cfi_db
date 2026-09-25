@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActiveAssemblyId } from "@/hooks/query/use-user"
 import { assemblyQueryKeys, keepPreviousAssemblyData } from "@/lib/query-keys"
-import { createHousehold, getHousehold, getHouseholds, updateHousehold, type HouseholdParams } from "./service"
+import { deleteHousehold, createHousehold, getHousehold, getHouseholds, updateHousehold, type HouseholdParams } from "./service"
 
 export function useHouseholds(params: HouseholdParams) {
     const assemblyId = useActiveAssemblyId()
@@ -38,5 +38,14 @@ export function useHousehold(id?: string | null) {
         queryKey: assemblyQueryKeys.key(assemblyId, "people", "household", id ?? "none"),
         queryFn: () => getHousehold(id!),
         enabled: Boolean(assemblyId && id),
+    })
+}
+
+
+export function useDeleteHousehold() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: deleteHousehold,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.all }),
     })
 }

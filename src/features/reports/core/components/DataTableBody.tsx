@@ -35,6 +35,7 @@ type DataTableBodyProps<T extends { id: number }> = {
     mutationQueryKey?: readonly unknown[]
     showRowActions: boolean
     showDefaultRowActions: boolean
+    rowActionsColumnId?: string
     rowActions?: (row: T) => DataTableAction[]
     selectable: boolean
     enableDelete: boolean
@@ -62,6 +63,7 @@ export function DataTableBody<T extends { id: number }>({
     showRowActions,
     showDefaultRowActions,
     rowActions,
+    rowActionsColumnId,
     selectable,
     enableDelete,
     pinUtilityColumns,
@@ -227,6 +229,19 @@ export function DataTableBody<T extends { id: number }>({
                                 <DataTableCell
                                     key={cell.id}
                                     cell={cell}
+                                    trailingContent={cell.column.id === rowActionsColumnId && (rowActions?.(row.original)?.length ?? 0) > 0 ? (
+                                        <span data-row-click-ignore onClick={(event) => event.stopPropagation()}>
+                                            <DataTableDropdownMenu
+                                                actions={rowActions?.(row.original)}
+                                                rowId={String(row.original.id)}
+                                                resource={resource}
+                                                enableDelete={enableDelete}
+                                                showDefaultActions={showDefaultRowActions}
+                                                mutationQueryKey={mutationQueryKey}
+                                                triggerClassName="opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(pointer:coarse)]:opacity-100"
+                                            />
+                                        </span>
+                                    ) : undefined}
                                     row={row}
                                     styles={styles}
                                     isEditable={isEditable}

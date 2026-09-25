@@ -2,14 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { Separator } from "@/components/ui/separator";
+import { SkippedSectionNotice } from "@/features/reports/workflow/components/SkippedSectionNotice";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeftIcon,
   CheckCircle2Icon,
-  DatabaseIcon,
+  ClipboardListIcon,
   DownloadIcon,
-  ListChecksIcon,
   Loader2Icon,
   SkipForwardIcon,
 } from "lucide-react";
@@ -31,19 +31,13 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { FinancialUploadReview } from "@/features/manual-entry/components/FinancialUploadReview";
 import { FinancialEntriesForm } from "@/features/manual-entry/components/FinancialEntriesForm";
 import { SundaySchoolAttendanceForm } from "@/features/people/sunday-school/views/SundaySchoolAttendanceView";
-import { ReportWizardSectionCard } from "@/features/report-wizard/components/ReportWizardSectionCard";
+import styles from "./monthly-report.module.css";
 import {
+  createCentralTemplatesHref,
   REPORT_WIZARD_SECTIONS,
   formatReportWizardPeriod,
   getReportWizardSectionByRoute,
@@ -69,9 +63,8 @@ import {
   formatReportPeriod,
   reportPeriodHref,
 } from "@/features/reports/workflow/format";
+import { UploadIllustration } from "./UploadIllustration";
 import { UploadEngine } from "@/features/uploads/components/UploadEngine";
-import { AssemblySwitcher } from "@/layouts/dashboard/AssemblySwitcher";
-import { ProfileDropdown } from "@/layouts/dashboard/ProfileDropdown";
 
 import { MonthlyReportEntryMode } from "./MonthlyReportEntryMode";
 import { MonthlyReportFooter } from "./MonthlyReportFooter";
@@ -90,12 +83,12 @@ const SKIP_REASONS = [
 
 const SECTION_DESCRIPTIONS: Record<string, string> = {
   attendance: "Record weekly service attendance for this reporting period.",
-  "sunday-school": "Record Sunday School classes, children, visitors, first timers, and offerings.",
-  tithes: "Record individual gifts received during this reporting period.",
-  revenue: "Record income received outside regular tithe entries.",
-  expenses: "Record activity costs and other non-operating expenses.",
-  overhead: "Record the assembly's regular operating expenses.",
-  review: "Check every report section, resolve any findings, and submit the official report.",
+  "sunday-school": "Record classes, attendance, visitors, and offerings for this reporting period.",
+  tithes: "Record individual tithe contributions for this reporting period.",
+  revenue: "Record general income received during this reporting period.",
+  expenses: "Record other expenses for this reporting period.",
+  overhead: "Record operating costs for this reporting period.",
+  review: "Review each section before submitting the monthly report.",
 };
 
 function normalizeMethod(value: string | null): ReportWizardMethod {
@@ -129,20 +122,24 @@ function ManualEntryPanel({
   report,
   reportId,
   period: requestedPeriod,
+  formId,
+  onSaved,
 }: {
   section: ReportWizardSection;
   report: ReportWizardReport | null;
   reportId: string | null;
   period?: string;
+  formId?: string;
+  onSaved?: () => void;
 }) {
   const period = requestedPeriod ?? report?.period_start?.slice(0, 7) ?? new Date().toISOString().slice(0, 7);
   const effectiveReportId = report?.id ?? reportId ?? undefined;
 
   if (section.id === "sunday-school") {
-    return <SundaySchoolAttendanceForm period={period} reportId={effectiveReportId} />;
+    return <SundaySchoolAttendanceForm period={period} reportId={effectiveReportId} matrix formId={formId} onSaved={onSaved} />;
   }
   if (section.id === "attendance") {
-    return <AttendanceFormView period={period} reportId={effectiveReportId} />;
+    return <AttendanceFormView period={period} reportId={effectiveReportId} formId={formId} onSaved={onSaved} />;
   }
 
   const kind = section.id === "tithes"
@@ -153,7 +150,7 @@ function ManualEntryPanel({
         ? "overhead"
         : "expenses";
 
-  return <FinancialEntriesForm kind={kind} period={period} reportId={effectiveReportId} />;
+  return <FinancialEntriesForm kind={kind} period={period} reportId={effectiveReportId} inline formId={formId} onSaved={onSaved} />;
 }
 
 function ReviewSubmitPanel({ reportId }: { reportId: string | null }) {
@@ -245,7 +242,9 @@ function ReviewSubmitPanel({ reportId }: { reportId: string | null }) {
   );
 }
 
-function UploadPanel({ section }: { section: ReportWizardSection }) {
+function UploadPanel({ section, formId, onSaved, disabled }: { section: ReportWizardSection; formId: string; onSaved: () => void; disabled: boolean }) {
+  const queryClient = useQueryClient();
+  const kind = section.id === "tithes" || section.id === "revenue" || section.id === "overhead" ? section.id : section.id === "expenses" ? "expenses" : null;
   if (!section.uploadUrl) {
     return (
       <Alert>
@@ -265,7 +264,7 @@ function UploadPanel({ section }: { section: ReportWizardSection }) {
           The file type is detected automatically. Review extracted values before they are added to the report.
         </p>
       </div>
-      <UploadEngine config={{
+      <UploadEngine disabled={disabled} onSaved={() => { void Promise.all([queryClient.invalidateQueries({ queryKey: ["assembly"] }), queryClient.invalidateQueries({ queryKey: ["reports"] }), queryClient.invalidateQueries({ queryKey: ["reports-workflow"] })]).then(onSaved); }} renderReview={kind ? props => <FinancialUploadReview {...props} kind={kind} formId={formId} /> : undefined} illustration={<UploadIllustration formats={section.imageUploadUrl ? ["XLSX", "JPEG"] : ["XLSX", "CSV"]} />} config={{
         type: section.uploadType ?? section.id,
         uploadUrl: section.uploadUrl,
         imageUploadUrl: section.imageUploadUrl,
@@ -399,10 +398,6 @@ function SkipSectionDialog({
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!notes.trim()) {
-      toast.error("Enter a reason note before skipping this section.");
-      return;
-    }
     skipMutation.mutate();
   }
 
@@ -428,10 +423,9 @@ function SkipSectionDialog({
             </NativeSelect>
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="create-report-skip-notes">Notes</Label>
+            <Label htmlFor="create-report-skip-notes">Notes (optional)</Label>
             <Textarea
               id="create-report-skip-notes"
-              required
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
             />
@@ -452,6 +446,7 @@ function SkipSectionDialog({
 }
 
 export function MonthlyReportWorkspace({ section: sectionParam }: { section: string }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [skipOpen, setSkipOpen] = React.useState(false);
   const section = getReportWizardSectionByRoute(sectionParam);
@@ -482,6 +477,7 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
       : [];
   const workflowSection = workflowReportQuery.data?.sections.find((item) => item.key === section.backendId);
   const sectionIsNotRequired = workflowSection?.status === "not_required";
+  const sectionIsSkipped = workflowSection?.status === "skipped";
   const sectionHasNoActivity = workflowSection?.status === "no_activity";
   const showNoActivityDeclaration = Boolean(
     reportId &&
@@ -507,11 +503,13 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
   } as const;
   const backHref = backSection ? createMonthlyReportHref(backSection.id, routeOptions) : null;
   const nextHref = nextSection ? createMonthlyReportHref(nextSection.id, routeOptions) : null;
+  const entryFormId = `monthly-report-${section.id}-${reportId ?? "draft"}`;
+  const canEdit = Boolean(workflowReportQuery.data?.capabilities.is_editable);
+  const continueAfterSave = () => { if (nextHref) router.push(nextHref); };
   const reportPeriodStart = workflowReportQuery.data?.period_start ?? activeReport?.period_start ?? null;
   const reportYear = reportPeriodStart
     ? new Date(`${reportPeriodStart}T00:00:00`).getFullYear()
     : new Date().getFullYear();
-  const assemblyName = workflowReportQuery.data?.assembly.name ?? activeReport?.assembly?.name;
 
   const progressRail = (
     <ReportProgressRail
@@ -523,50 +521,29 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
       uploadType={uploadType}
       reportId={reportId}
       amendmentContext={amendmentContext}
-      className="h-full"
+      className="min-h-full md:h-full"
     />
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1560px] flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
-          <Button variant="ghost" size="sm" asChild className="-ml-2 text-foreground">
-            <Link href="/create">
-              <ArrowLeftIcon className="size-4" aria-hidden="true" />
-              Back to Create
-            </Link>
-          </Button>
-          <span className="hidden h-7 w-px bg-border sm:block" />
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <DatabaseIcon className="size-5" aria-hidden="true" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
-                Monthly Report
-              </h1>
-              {workflowReportQuery.data ? <ReportStatusBadge status={workflowReportQuery.data.status} /> : null}
-            </div>
-            <p className="truncate text-xs text-muted-foreground sm:text-sm">
-              {periodLabel}{assemblyName ? ` · ${assemblyName}` : ""}
-            </p>
+    <div className="flex h-full min-h-0 min-w-0 flex-col gap-4 py-4 text-foreground">
+      <header className="shrink-0 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+            <h1 className="text-lg font-semibold tracking-tight sm:text-xl">Monthly Report <span className="text-muted-foreground">{periodLabel}</span></h1>
+            {workflowReportQuery.data ? <ReportStatusBadge status={workflowReportQuery.data.status} /> : null}
           </div>
-
-          <div className="ml-auto flex items-center gap-2">
-            <MonthlyReportYearProgress
-              year={reportYear}
-              activeReportId={reportId}
-              activePeriodStart={reportPeriodStart}
-              method={method}
-              uploadType={uploadType}
-              amendmentContext={amendmentContext}
-            />
-            <div className="hidden sm:block"><AssemblySwitcher /></div>
-            <ProfileDropdown />
-          </div>
-
-          <div className="flex w-full items-center justify-between gap-3 border-t border-border pt-3">
+          <MonthlyReportYearProgress
+            year={reportYear}
+            activeReportId={reportId}
+            activePeriodStart={reportPeriodStart}
+            method={method}
+            uploadType={uploadType}
+            amendmentContext={amendmentContext}
+          />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <MonthlyReportEntryMode
               section={section}
               method={method}
@@ -574,38 +551,38 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
               reportId={reportId}
               amendmentContext={amendmentContext}
             />
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="xl:hidden">
-                  <ListChecksIcon className="size-4" aria-hidden="true" />
-                  Report progress
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[min(24rem,96vw)] p-0 sm:max-w-none">
-                <SheetHeader className="sr-only">
-                  <SheetTitle>Report progress</SheetTitle>
-                  <SheetDescription>Navigate monthly report sections.</SheetDescription>
-                </SheetHeader>
-                {progressRail}
-              </SheetContent>
-            </Sheet>
+            <Separator orientation="vertical" className="mx-1 data-[orientation=vertical]:h-4 bg-border-subtle" />
+            <Button variant="ghost" size="sm" asChild>
+              <Link href={createCentralTemplatesHref(section.id, routeOptions)}>Templates</Link>
+            </Button>
+            <Button variant="ghost" size="sm" disabled title="No section guide is available">Guide</Button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-[1560px] items-start gap-5 px-3 py-5 sm:px-5 lg:px-8 xl:grid-cols-[minmax(0,1fr)_21rem]">
-        <div className="min-w-0 pb-16">
-          <ReportWizardSectionCard
-            title={section.label}
-            description={SECTION_DESCRIPTIONS[section.id] ?? "Complete this report section."}
-          >
-            {sectionIsNotRequired ? (
-              <Alert>
+      <main className="grid min-h-0 min-w-0 flex-1 grid-rows-[minmax(0,1fr)_minmax(0,0.5fr)] gap-2 overflow-hidden md:grid-cols-[minmax(0,2.6fr)_minmax(0,1fr)] md:grid-rows-1">
+        <section aria-labelledby="report-section-title" className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-muted/20">
+          <div className="flex min-h-20 shrink-0 items-center gap-3 border-b border-border-subtle px-4 py-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+              <ClipboardListIcon aria-hidden="true" className="size-4.5" />
+            </span>
+            <div className="min-w-0">
+              <h2 id="report-section-title" className="text-base font-semibold">{section.label}</h2>
+              <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{SECTION_DESCRIPTIONS[section.id] ?? "Complete this report section."}</p>
+            </div>
+          </div>
+          <div data-report-scroll="form" className="min-h-0 min-w-0 flex-1 overflow-auto overscroll-contain p-2 sm:p-4">
+            {sectionIsSkipped && reportId ? (
+              <SkippedSectionNotice reportId={reportId} section={section} editable={Boolean(workflowReportQuery.data?.capabilities.is_editable)} />
+            ) : sectionIsNotRequired ? (
+              <div className="space-y-4"><Alert>
                 <AlertTitle>Not required</AlertTitle>
                 <AlertDescription>
-                  Sunday School reporting begins in September 2026. No entry or declaration is needed for this period.
+                  Sunday School reporting begins in September 2026. This section does not require records for this period.
                 </AlertDescription>
               </Alert>
+              {reportId ? <NoActivityDeclaration section={section} reportId={reportId} periodLabel={periodLabel} confirmed={false} editable={Boolean(workflowReportQuery.data?.capabilities.is_editable)} /> : null}
+              </div>
             ) : sectionHasNoActivity && reportId ? (
               <NoActivityDeclaration
                 section={section}
@@ -617,16 +594,21 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
             ) : section.id === "review" ? (
               <ReviewSubmitPanel reportId={reportId} />
             ) : (
-              <div className="space-y-6">
+              <fieldset disabled={!canEdit} className="min-w-0 space-y-6">
                 {method === "upload" && section.uploadUrl ? (
-                  <UploadPanel section={section} />
+                  <UploadPanel key={`${reportId}-${section.id}`} section={section} formId={entryFormId} onSaved={continueAfterSave} disabled={!canEdit} />
                 ) : (
+                  <div className={section.id === "attendance" ? styles.attendance : undefined}>
                   <ManualEntryPanel
+                    key={`${reportId}-${section.id}`}
+                    formId={entryFormId}
+                    onSaved={continueAfterSave}
                     section={section}
                     report={activeReport}
                     reportId={reportId}
                     period={workflowReportQuery.data?.period_start.slice(0, 7)}
                   />
+                  </div>
                 )}
                 {showNoActivityDeclaration && reportId ? (
                   <NoActivityDeclaration
@@ -637,20 +619,24 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
                     editable={Boolean(workflowReportQuery.data?.capabilities.is_editable)}
                   />
                 ) : null}
-              </div>
+              </fieldset>
             )}
-          </ReportWizardSectionCard>
 
+          </div>
           <MonthlyReportFooter
+            backLabel={backSection?.navigationLabel ?? backSection?.label}
+            nextStep={nextSection ? sectionIndex + 2 : undefined}
+            stepCount={REPORT_WIZARD_SECTIONS.length}
+            submitFormId={canEdit && (method !== "upload" || ["tithes", "revenue", "overhead", "expenses"].includes(section.id)) && section.id !== "review" && !sectionIsSkipped && !sectionIsNotRequired && !sectionHasNoActivity ? entryFormId : undefined}
             backHref={backHref}
             nextHref={nextHref}
             nextLabel={nextSection ? `Continue to ${nextSection.navigationLabel ?? nextSection.label}` : undefined}
-            canSkip={Boolean(reportId) && section.id !== "review" && !sectionIsNotRequired && !sectionHasNoActivity}
+            canSkip={Boolean(reportId) && section.id !== "review" && !sectionIsNotRequired && !sectionHasNoActivity && !sectionIsSkipped && Boolean(workflowReportQuery.data?.capabilities.is_editable)}
             onSkip={() => setSkipOpen(true)}
           />
-        </div>
+        </section>
 
-        <div className="sticky top-[9.5rem] hidden h-[calc(100dvh-11rem)] min-h-0 xl:block">
+        <div data-report-scroll="progress" className="min-h-0 min-w-0 overflow-y-auto overscroll-contain rounded-2xl">
           {progressRail}
         </div>
       </main>

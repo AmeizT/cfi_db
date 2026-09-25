@@ -24,7 +24,7 @@ test("wizard step links preserve report entry context", () => {
             report_id: 42,
             amendment_context: "reopened",
         }),
-        "/create/templates?return_section=expenses&method=upload&upload_type=photo&report_id=42&amendment_context=reopened"
+        "/record-center/templates?return_section=expenses&method=upload&upload_type=photo&report_id=42&amendment_context=reopened"
     )
 })
 
@@ -58,7 +58,7 @@ test("Templates uses ReportTemplateCard with canonical download endpoints", asyn
     assert.doesNotMatch(templates, /<article|Monthly Assembly Report|Engagement Report|Outreach Report/)
     assert.match(card, /<a href=\{downloadUrl\} download=\{fileName\}>/)
     assert.match(card, /Excel workbook/)
-    assert.match(templates, /createReportWizardHref/)
+    assert.doesNotMatch(templates, /CentralCreateWorkspace|Create resources|createReportWizardHref/)
     assert.match(types, /uploadType: "sunday-school"/)
     assert.match(types, /apiRoutes\.downloadTemplate\.sundaySchool/)
     assert.match(types, /apiRoutes\.uploadExcel\.sundaySchool/)

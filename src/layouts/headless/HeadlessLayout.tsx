@@ -3,6 +3,7 @@
 import * as React from "react"
 
 import { ScreenLoader } from "@/components/ui/screen-loader"
+import { workspaceThemeColor } from "@/features/regional-shell/scope"
 import { applyChurchTheme } from "@/features/appearance/lib/apply-church-theme"
 import { useShellColorMode } from "@/features/appearance/hooks/use-shell-color-mode"
 import { JethroLauncher } from "@/features/jethro/components/JethroLauncher"
@@ -10,11 +11,12 @@ import { useUser } from "@/hooks/query/use-user"
 
 export function HeadlessLayout({ children }: { children: Readonly<React.ReactNode> }) {
     const { data: user, isPending } = useUser()
+    const assemblyColor = workspaceThemeColor(user)
     useShellColorMode()
 
     React.useLayoutEffect(() => {
-        applyChurchTheme(user?.assembly?.avatar_fallback)
-    }, [user?.assembly?.avatar_fallback])
+        applyChurchTheme(assemblyColor)
+    }, [assemblyColor])
 
     if (isPending) return <ScreenLoader />
 

@@ -1,0 +1,217 @@
+:root {
+  --main: oklch(0.97 0 0);
+  --main-secondary: oklch(97% 0 0);
+  --main-foreground: oklch(0.925 0 0);
+  --main-muted: oklch(0.96 0 0);
+  --main-background: oklch(0.97 0 0);
+  --main-invert: oklch(0.205 0 0);
+
+  --primary-invert: oklch(1 0 0);
+  --primary: var(--assembly-theme);
+  --primary-foreground: var(--assembly-theme-foreground);
+  --primary-muted: var(--assembly-theme-100);
+  --background: var(--color-white);
+  --foreground: oklch(0.18 0 0);
+
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+
+  --muted: var(--color-zinc-200);
+  --muted-foreground: var(--color-neutral-600);
+
+  --accent: var(--color-zinc-100);
+  --accent-foreground: var(--foreground);
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: var(--color-zinc-300);
+  --border-subtle: color-mix(
+    in oklab,
+    var(--color-zinc-200) 70%,
+    transparent
+  );
+  --border-offset: oklch(0.84 0 0);
+  --popover-border: var(--border-subtle);
+
+  --input: oklch(0.9 0 0);
+  --ring: var(--assembly-theme-400);
+
+  --chart-1: var(--assembly-theme-600);
+  --chart-2: var(--color-green-500);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.6558 0.189856 250.8341);
+  --chart-5: oklch(0.398 0.07 227.392);
+  --chart-6: oklch(0.828 0.189 84.429);
+
+  --base: var(--color-zinc-50);
+  --icon-active: var(--assembly-theme-50);
+
+  --surface: var(--color-zinc-50);
+  --surface-subtle: var(--color-zinc-100);
+  --surface-foreground: var(--color-zinc-100);
+
+  --base-gradient-from: var(--color-zinc-50);
+  --base-gradient-to: var(--color-zinc-100);
+}
+
+
+
+.dark {
+  --main: oklch(0.178 0 0);
+  --main-secondary: oklch(0.205 0 0);
+  --main-foreground: oklch(0.269 0 0);
+  --main-muted: oklch(0.168 0 0);
+  --main-background: oklch(0.145 0 0);
+  --main-invert: oklch(0.8 0 0);
+  --primary-invert: oklch(0 0 0);
+  --primary-muted: oklch(0.708 0 0);
+
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: var(--foreground);
+  --popover: var(--color-neutral-950);
+  --popover-foreground: var(--foreground);
+  --primary: var(--assembly-theme);
+  --primary-foreground: var(--assembly-theme-foreground);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: var(--color-neutral-400);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: var(--color-neutral-700);
+  --border-subtle: var(--color-neutral-800);
+  --border-offset: oklch(0.37 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.62 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --icon-active: var(--color-zinc-300);
+  --surface: oklch(0.205 0 0);
+  --surface-foreground: var(--color-neutral-800);
+  --surface-subtle: oklch(0.269 0 0);
+  --surface-card-shadow: var(--color-zinc-800);
+  --base-gradient-from: var(--color-zinc-700);
+  /* Historical typo: correcting it would change the inherited gradient endpoint. */
+  --base-graident-to: var(--color-zinc-950); 
+  --spinner-gradient:
+    linear-gradient(
+        0deg,
+        rgba(143, 143, 143, 0.5) 30%,
+        transparent 0 70%,
+        rgba(143, 143, 143, 1) 0
+      )
+      50%/8% 100%,
+    linear-gradient(
+        90deg,
+        rgba(143, 143, 143, 0.25) 30%,
+        transparent 0 70%,
+        rgba(143, 143, 143, 0.75) 0
+      )
+      50%/100% 8%;
+  --loader-main-color: oklch(1 0 0);
+  --loader-faded-color: oklch(1 0 0 / 30%);
+  --loader-bg-color: oklch(1 0 0);
+}
+
+
+
+@theme {
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --shadow-card: 0 4px 24px rgba(11,29,58,0.10), 0 1px 4px rgba(11,29,58,0.06);
+  --shadow-surface: 0px 1px 1px 0px rgba(0,0,0,0.12), 0px 0px 0px 1px rgba(229,229,229),0px 2px 5px 0px rgba(229,229,229,0.9);
+  --shadow-card-dark: 
+  0 8px 32px rgba(0, 0, 0, 0.6),
+  0 2px 8px rgba(0, 0, 0, 0.4),
+  inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+    --shadow-control:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(0, 0, 0, 0.10);
+
+  --shadow-control-hover:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.07),
+    0 0 0 1px rgba(0, 0, 0, 0.13);
+
+  --shadow-control-dark:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 1px 2px rgba(0, 0, 0, 0.30),
+    0 0 0 1px rgba(255, 255, 255, 0.10);
+}
+
+
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-offset: var(--border-offset);
+  --color-popover-border: var(--popover-border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-base-gradient-from: var(--base-gradient-from);
+  --color-base-gradient-to: var(--base-gradient-to);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-icon-active: var(--icon-active);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --font-geist: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --font-sans:
+    -apple-system,
+    BlinkMacSystemFont,
+    var(--inter-variable),
+    "Segoe UI Variable Display",
+    "Segoe UI",
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    Arial,
+    sans-serif;
+
+  --shadow-elevation-01: 0px 4px 16px 0px rgba(0, 0, 0, 0.05);
+  --shadow-elevation-sm:
+        0 4px 8px rgba(41, 41, 41, 0.06),
+        0 2px 4px rgba(41, 41, 41, 0.04),
+        0 1px 2px rgba(41, 41, 41, 0.04),
+        0 0 0 1px rgba(41, 41, 41, 0.08),
+        inset 0 -0.5px 0.5px rgba(41, 41, 41, 0.08);
+}

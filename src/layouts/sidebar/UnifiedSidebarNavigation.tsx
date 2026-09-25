@@ -31,11 +31,13 @@ import {
     containsActiveNavigationItem,
     getActiveParentKey,
 } from "./navigation-utils"
+import { useActionSounds } from "@/hooks/use-action-sounds";
 
 type UnifiedSidebarNavigationProps = {
     sections: NavigationSection[]
+    suppressActive?: boolean
     activeKey: string | undefined
-    onNavigate: () => void
+    onNavigate: (item: { key: string; href: string }) => void
     collapsibleSections?: boolean
     shortcutActions?: {
         canManageShortcuts: boolean
@@ -49,10 +51,12 @@ type UnifiedSidebarNavigationProps = {
 export function UnifiedSidebarNavigation({
     sections,
     activeKey,
+    suppressActive = false,
     onNavigate,
     collapsibleSections = false,
     shortcutActions,
 }: UnifiedSidebarNavigationProps) {
+    const { playClick, playDisabledClick } = useActionSounds()
     const activeParentKey = getActiveParentKey(sections, activeKey)
     const [expandedKey, setExpandedKey] = React.useState<string | null>(
         activeParentKey ?? null
@@ -108,7 +112,7 @@ export function UnifiedSidebarNavigation({
     }
 
     function renderLeaf(item: NavigationItem, nested = false) {
-        const active = activeKey === item.key
+        const active = !suppressActive && activeKey === item.key
         const Icon = iconFor(item, active)
         const content = item.disabled ? (
             <>
@@ -121,7 +125,7 @@ export function UnifiedSidebarNavigation({
         ) : (
             <Link
                 href={item.href}
-                onClick={onNavigate}
+                onNavigate={() => onNavigate(item)}
                 aria-current={active ? "page" : undefined}
             >
                 <NavIcon icon={Icon} strokeWidth={2} />
@@ -136,6 +140,7 @@ export function UnifiedSidebarNavigation({
                         size="sm"
                         asChild={!item.disabled}
                         isActive={active}
+                        data-connector-target={!item.disabled && activeKey === item.key}
                         aria-disabled={item.disabled || undefined}
                         className={cn(
                             "text-sm font-medium",
@@ -173,7 +178,7 @@ export function UnifiedSidebarNavigation({
         const children = item.children ?? []
         if (!children.length || item.disabled) return renderLeaf(item)
 
-        const branchActive = containsActiveNavigationItem(item, activeKey)
+        const branchActive = !suppressActive && containsActiveNavigationItem(item, activeKey)
         const open = expandedKey === item.key
 
         return (
@@ -192,6 +197,7 @@ export function UnifiedSidebarNavigation({
                             tooltip={item.label}
                             aria-label={`Toggle ${item.label} navigation`}
                             aria-expanded={open}
+                            onClick={() => { playClick() }}
                             className={cn(
                                 "group/nav-item text-sm font-medium",
                                 "data-[state=open]:bg-transparent",
@@ -205,8 +211,8 @@ export function UnifiedSidebarNavigation({
                                 <span
                                     className={cn(
                                         "absolute inset-0 flex items-center justify-center",
-                                        "transition-all duration-150",
-                                        "group-hover/nav-item:scale-90",
+                                        "",
+                                        // "group-hover/nav-item:scale-90",
                                         "group-hover/nav-item:opacity-0"
                                     )}
                                 >
@@ -220,7 +226,7 @@ export function UnifiedSidebarNavigation({
                                     aria-hidden="true"
                                     className={cn(
                                         "size-2! mx-auto my-auto",
-                                        "fill-user-theme-900 dark:fill-white",
+                                        "fill-current",
                                         "absolute inset-0 size-5",
                                         "rotate-90 scale-90 opacity-0",
                                         "transition-all duration-150",
@@ -234,8 +240,75 @@ export function UnifiedSidebarNavigation({
                             <span>{item.label}</span>
                         </SidebarMenuButton>
                     </CollapsibleTrigger>
-                    <CollapsibleContent initial={false}>
-                        <SidebarMenuSub>
+                    <CollapsibleContent>
+                        <SidebarMenuSub
+                            className="assembly-sidebar-branch"
+                            ref={(group) => {
+                                if (!group) return
+
+                                const rowSelector = '[data-sidebar="menu-sub-button"]'
+                                const rowFor = (target: EventTarget | null) => {
+                                    if (!(target instanceof Element)) return null
+                                    const row = target.closest('[data-sidebar="menu-sub-item"]')
+                                    const button = row?.querySelector<HTMLElement>(rowSelector)
+                                    return button && group.contains(button)
+                                        && button.getAttribute("aria-disabled") !== "true" ? button : null
+                                }
+                                const activeChild = group.querySelector<HTMLElement>(
+                                    `${rowSelector}[data-connector-target="true"]`,
+                                )
+                                let hovered = rowFor(group.querySelector(`${rowSelector}:hover`))
+                                let focused = rowFor(document.activeElement)
+                                const updateConnector = () => {
+                                    const target = hovered ?? focused ?? activeChild
+                                    if (!target) {
+                                        delete group.dataset.connectorTargeted
+                                        return
+                                    }
+                                    const bounds = group.getBoundingClientRect()
+                                    const child = target.getBoundingClientRect()
+                                    const icon = target.querySelector("svg")?.getBoundingClientRect()
+                                    // End before the icon: the former 28px reach ran underneath it.
+                                    const left = parseFloat(getComputedStyle(group).getPropertyValue("--sidebar-connector-left")) || 18
+                                    const width = icon ? Math.max(14, icon.left - bounds.left - left - 4) : 18
+                                    group.style.setProperty("--sidebar-connector-end", `${child.top - bounds.top + child.height / 2}px`)
+                                    group.style.setProperty("--sidebar-connector-width", `${width}px`)
+                                    group.dataset.connectorTargeted = "true"
+                                }
+                                const onPointerOver = (event: PointerEvent) => {
+                                    if (event.pointerType === "touch") return
+                                    hovered = rowFor(event.target)
+                                    updateConnector()
+                                }
+                                const onPointerLeave = () => {
+                                    hovered = null
+                                    updateConnector()
+                                }
+                                const onFocusIn = (event: FocusEvent) => {
+                                    focused = rowFor(event.target)
+                                    updateConnector()
+                                }
+                                const onFocusOut = (event: FocusEvent) => {
+                                    focused = rowFor(event.relatedTarget)
+                                    updateConnector()
+                                }
+                                group.addEventListener("pointerover", onPointerOver)
+                                group.addEventListener("pointerleave", onPointerLeave)
+                                group.addEventListener("focusin", onFocusIn)
+                                group.addEventListener("focusout", onFocusOut)
+                                updateConnector()
+                                const observer = new ResizeObserver(updateConnector)
+                                observer.observe(group)
+                                for (const child of group.children) observer.observe(child)
+                                return () => {
+                                    observer.disconnect()
+                                    group.removeEventListener("pointerover", onPointerOver)
+                                    group.removeEventListener("pointerleave", onPointerLeave)
+                                    group.removeEventListener("focusin", onFocusIn)
+                                    group.removeEventListener("focusout", onFocusOut)
+                                }
+                            }}
+                        >
                             {children.map((child) => renderLeaf(child, true))}
                         </SidebarMenuSub>
                     </CollapsibleContent>

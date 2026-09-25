@@ -62,6 +62,7 @@ export function TransferMemberDialog({
     async function invalidateTransferState() {
         await Promise.all([
             queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "members") }),
+            queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "member-directory") }),
             queryClient.invalidateQueries({ queryKey: memberTransferQueryKeys.scope(assemblyId) }),
             queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "assembly-memberships") }),
             queryClient.invalidateQueries({ queryKey: assemblyQueryKeys.key(assemblyId, "people", "former-members") }),

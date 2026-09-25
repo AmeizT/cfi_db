@@ -1,12 +1,7 @@
-import { MailIcon, MoreHorizontalIcon, PencilIcon, PhoneIcon, Trash2Icon } from "lucide-react"
+import { MailIcon, PhoneIcon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { MemberActionsMenu } from "./member-actions-menu"
 import type { Member } from "@/features/people/members/schemas/member"
 import {
     displayValue,
@@ -30,12 +25,16 @@ export function MemberProfileHeader({
     canManage = false,
     onEdit,
     onDelete,
+    onTransfer,
+    deleting,
 }: {
     member: Member
     assemblyName?: string
     canManage?: boolean
     onEdit?: () => void
     onDelete?: () => void
+    onTransfer: () => void
+    deleting?: boolean
 }) {
     return (
         <EntityProfileHeader
@@ -57,17 +56,7 @@ export function MemberProfileHeader({
                 <>
                     {member.email ? <Button asChild size="sm" variant="outline"><a href={`mailto:${member.email}`}><MailIcon aria-hidden="true" className="size-4" /> Message</a></Button> : null}
                     {member.phone_number ? <Button asChild size="sm" variant="outline"><a href={`tel:${member.phone_number}`}><PhoneIcon aria-hidden="true" className="size-4" /> Call</a></Button> : null}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild><Button size="icon" variant="ghost" aria-label="More member actions"><MoreHorizontalIcon className="size-4" /></Button></DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {canManage ? (
-                                <>
-                                    <DropdownMenuItem onSelect={onEdit}><PencilIcon className="size-4" /> Edit member</DropdownMenuItem>
-                                    <DropdownMenuItem variant="destructive" onSelect={onDelete}><Trash2Icon className="size-4" /> Delete member</DropdownMenuItem>
-                                </>
-                            ) : <DropdownMenuItem disabled>More actions are not available</DropdownMenuItem>}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <MemberActionsMenu memberName={member.full_name} canManage={canManage} onTransfer={onTransfer} onEdit={onEdit} onDelete={onDelete} deleting={deleting} />
                 </>
             )}
         />

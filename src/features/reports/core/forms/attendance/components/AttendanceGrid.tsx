@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Plus } from "lucide-react"
 import type { AttendanceRecord } from "../types/attendance"
 
 export function getSundays(year: number, month: number) {
@@ -69,28 +70,29 @@ export function AttendanceGrid({ year, month, records, dirtyDates, errors, disab
                         </th>
                         
                         {sundays.map((day) => <th key={day} className="sticky top-0 z-20 min-w-32 border-b border-border-subtle p-2 text-center">
-                            <button
-                                type="button"
-                                className="cursor-pointer font-semibold transition-colors hover:text-primary"
-                                onClick={() => openDetails(recordMap[day] ?? { timestamp: day } as AttendanceRecord)}
-                                disabled={disabled}
-                            >
-                                {new Date(`${day}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
-                            </button>
-                            
-                            <span className="mt-0 block text-[11px] font-normal text-muted-foreground">
+                            <div className="flex items-center justify-between gap-2">
+                                <button
+                                    type="button"
+                                    className="cursor-pointer font-semibold transition-colors hover:text-primary"
+                                    onClick={() => openDetails(recordMap[day] ?? { timestamp: day } as AttendanceRecord)}
+                                    disabled={disabled}
+                                >
+                                    {new Date(`${day}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label={`${hasAttendanceDetails(recordMap[day]) ? "Edit details" : "Add details"} for ${day}`}
+                                    className="rounded-md p-1 text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                                    onClick={() => openDetails(recordMap[day] ?? { timestamp: day } as AttendanceRecord)}
+                                    disabled={disabled}
+                                >
+                                    <Plus className="size-4" aria-hidden="true" />
+                                </button>
+                            </div>
+                            <span className="sr-only">
                                 {recordMap[day]?.id ? dirtyDates.has(day) ? "Unsaved changes" : "Saved" : "Not saved"}
                             </span>
 
-                            <button
-                                type="button"
-                                className="mt-1 rounded-md px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/10 disabled:pointer-events-none disabled:opacity-50"
-                                onClick={() => openDetails(recordMap[day] ?? { timestamp: day } as AttendanceRecord)}
-                                disabled={disabled}
-                            >
-                                {hasAttendanceDetails(recordMap[day]) ? "Edit details" : "Add details"}
-                            </button>
-                            
                             {errors[day] ? <span className="mt-1 block text-xs font-normal text-destructive" role="alert">{errors[day]}</span> : null}
                         </th>)}
                     </tr>
@@ -119,6 +121,7 @@ export function AttendanceGrid({ year, month, records, dirtyDates, errors, disab
                                         className="min-w-28"
                                     >
                                         <input
+                                            id={`${day}-${metric}`}
                                             ref={(node) => {
                                                 if (!inputRefs.current[colIndex]) {
                                                     inputRefs.current[colIndex] = []
@@ -128,15 +131,16 @@ export function AttendanceGrid({ year, month, records, dirtyDates, errors, disab
                                             }}
                                             aria-label={`${metric.replaceAll("_", " ")} for ${day}`}
                                             type="number"
-                                            min="0"
+                                            // min="0"
                                             step="1"
                                             disabled={disabled}
-                                            className="w-full bg-transparent p-2 text-center outline-none focus:ring-2 focus:ring-inset focus:ring-ring"
-                                            value={record[metric] ?? 0}
+                                            className="w-full bg-transparent p-2 text-center outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-inset focus:ring-ring"
+                                            placeholder="—"
+                                            value={record[metric] ?? ""}
                                             onChange={(event) =>
                                                 updateRecord({
                                                     ...record,
-                                                    [metric]: Math.max(
+                                                    [metric]: event.target.value === "" ? undefined : Math.max(
                                                         0,
                                                         Number(event.target.value) || 0
                                                     ),

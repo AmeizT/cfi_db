@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { ChildDirectoryRow } from "@/features/people/children/schema"
 import type { Member } from "@/features/people/members/schemas/member"
@@ -7,21 +8,25 @@ function memberRoles(member: Member) {
     return [...member.positions, ...member.ministries].filter(Boolean).join(", ") || "Member"
 }
 
-export function DirectoryMemberListItem({ member, selected }: { member: Member; selected: boolean }) {
+export function DirectoryMemberListItem({ member, selected, actions }: { member: Member; selected: boolean; actions?: ReactNode }) {
     return (
-        <EntityListItem
-            selected={selected}
-            leading={(
-                <Avatar className="size-10">
-                    {member.avatar ? <AvatarImage src={member.avatar} alt="" /> : null}
-                    <AvatarFallback>{getInitials(member.full_name)}</AvatarFallback>
-                </Avatar>
-            )}
-            title={member.full_name}
-            description={`${member.gender} · ${member.age ?? "Age unavailable"}`}
-            meta={memberRoles(member)}
-            aria-label={`Open ${member.full_name}'s profile`}
-        />
+        <div className="group/member-row relative">
+            <EntityListItem
+                className={actions ? "pr-14" : undefined}
+                selected={selected}
+                leading={(
+                    <Avatar className="size-10">
+                        {member.avatar ? <AvatarImage src={member.avatar} alt="" /> : null}
+                        <AvatarFallback>{getInitials(member.full_name)}</AvatarFallback>
+                    </Avatar>
+                )}
+                title={member.full_name}
+                description={`${member.gender} · ${member.age ?? "Age unavailable"}`}
+                meta={memberRoles(member)}
+                aria-label={`Open ${member.full_name}'s profile`}
+            />
+            {actions ? <div className="absolute right-3 top-3">{actions}</div> : null}
+        </div>
     )
 }
 

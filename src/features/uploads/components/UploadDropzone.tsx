@@ -14,6 +14,7 @@ type UploadDropzoneProps = {
     label?: string
     disabled?: boolean
     previewUrl?: string | null
+    illustration?: React.ReactNode
     children?: React.ReactNode
 }
 
@@ -24,6 +25,7 @@ export function UploadDropzone({
     label = "Drag & drop or click to browse",
     disabled = false,
     previewUrl,
+    illustration,
     children,
 }: UploadDropzoneProps) {
     const [isDragging, setIsDragging] = React.useState(false)
@@ -126,11 +128,11 @@ export function UploadDropzone({
                     />
                 )}
 
-                <div className="relative flex items-center gap-2 text-primary transition-transform duration-200">
+                {illustration ?? <div className="relative flex items-center gap-2 text-primary transition-transform duration-200">
                     {acceptsSpreadsheets ? <FileSpreadsheetIcon className="size-9" aria-hidden="true" /> : null}
                     <UploadCloudIcon className="size-12" aria-hidden="true" />
                     {acceptsImages ? <FileImageIcon className="size-9" aria-hidden="true" /> : null}
-                </div>
+                </div>}
 
                 <div className="relative text-center">
                     <p className="text-sm font-medium text-gray-700 dark:text-neutral-200">

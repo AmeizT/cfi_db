@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { History, Pin } from "lucide-react"
+import { Pin } from "lucide-react"
 
 import {
     SidebarMenu,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sidebar"
 import { SidebarNavigationGroup } from "@/layouts/sidebar/SidebarNavigationGroup"
 import type { ShortcutDestination } from "./shortcuts"
-import { History2Icon } from '@solar-icons/react/line-duotone/history-2'
+import { ClockCircleIcon } from '@solar-icons/react/line-duotone/clock-circle'
 
 export function SidebarShortcuts({
     pinned,
@@ -23,7 +23,7 @@ export function SidebarShortcuts({
     pinned: ShortcutDestination[]
     recent: ShortcutDestination[]
     activeKey: string | undefined
-    onNavigate: () => void
+    onNavigate: (item: { key: string; href: string }) => void
     onUnpin: (key: string) => void
 }) {
     const isEmpty = pinned.length === 0 && recent.length === 0
@@ -43,8 +43,9 @@ export function SidebarShortcuts({
                         >
                             <Link
                                 href={item.href}
-                                onClick={onNavigate}
+                                onNavigate={() => onNavigate(item)}
                                 aria-label={item.accessibleLabel}
+                                aria-current={activeKey === item.key ? "page" : undefined}
                             >
                                 <Pin aria-hidden="true" className="rotate-45" />
                                 <span>{item.label}</span>
@@ -75,10 +76,15 @@ export function SidebarShortcuts({
                         >
                             <Link
                                 href={item.href}
-                                onClick={onNavigate}
+                                onNavigate={() => onNavigate(item)}
                                 aria-label={item.accessibleLabel}
+                                aria-current={activeKey === item.key ? "page" : undefined}
                             >
-                                <History2Icon strokeWidth={2} className="size-5" aria-hidden="true" />
+                                <ClockCircleIcon
+                                    strokeWidth={2}
+                                    className="size-5"
+                                    aria-hidden="true"
+                                />
                                 <span>{item.label}</span>
                             </Link>
                         </SidebarMenuButton>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SendIcon, XCircleIcon } from "lucide-react";
+import { CheckIcon, ChevronRightIcon, CircleHelpIcon, SendIcon, XCircleIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -37,11 +37,11 @@ type ReportProgressRailProps = {
 };
 
 const stateStyles: Record<StepState, string> = {
-  current: "bg-primary/10 text-primary ring-1 ring-inset ring-primary/15",
+  current: "bg-primary/10 text-foreground ring-1 ring-inset ring-primary/25",
   completed: "text-foreground hover:bg-accent",
   "no-activity": "text-cyan-700 hover:bg-cyan-50 dark:text-cyan-300 dark:hover:bg-cyan-950/40",
   "not-required": "text-muted-foreground hover:bg-accent",
-  "in-progress": "text-primary hover:bg-primary/5",
+  "in-progress": "text-foreground hover:bg-accent",
   skipped: "text-amber-700 dark:text-amber-400",
   error: "bg-destructive/5 text-destructive",
   pending: "text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -56,16 +56,16 @@ function StepIndicator({
   stepNumber: number;
   review: boolean;
 }) {
-  if (review) {
+  if (review && state !== "current") {
     return (
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300">
         <SendIcon className="size-4" aria-hidden="true" />
       </span>
     );
   }
   if (state === "error") {
     return (
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
         <XCircleIcon className="size-4" aria-hidden="true" />
       </span>
     );
@@ -73,11 +73,11 @@ function StepIndicator({
 
   const indicatorClass =
     state === "completed"
-      ? "bg-emerald-500 text-white dark:bg-emerald-600"
+      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
       : state === "skipped"
-        ? "bg-amber-500 text-white dark:bg-amber-600"
+        ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
         : state === "no-activity"
-          ? "bg-cyan-500 text-white dark:bg-cyan-600"
+          ? "bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300"
           : state === "current"
             ? "bg-primary text-primary-foreground shadow-sm"
             : "border border-border bg-muted text-muted-foreground";
@@ -85,11 +85,11 @@ function StepIndicator({
   return (
     <span
       className={cn(
-        "flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold",
+        "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold",
         indicatorClass,
       )}
     >
-      {stepNumber}
+      {state === "completed" ? <CheckIcon aria-hidden="true" className="size-4" /> : stepNumber}
     </span>
   );
 }
@@ -137,23 +137,23 @@ export function ReportProgressRail({
     <aside
       aria-label="Report progress"
       className={cn(
-        "flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-background p-3 shadow-elevation-01",
+        "flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-muted/20 p-4",
         className,
       )}
     >
-      <div className="shrink-0 border-b border-border-subtle px-3 pb-4 pt-2">
-        <p className="text-xs font-semibold text-primary">Report progress</p>
-        <h2 className="mt-2 text-xl font-bold tracking-tight text-foreground">
-          {periodLabel} Report
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Step {Math.max(steps.findIndex((step) => step.id === current.id) + 1, 1)} of {steps.length}
-          {" · "}{resolvedCount} resolved
-        </p>
+      <div className="min-h-16 shrink-0 border-b border-border-subtle px-1 pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm font-semibold text-foreground">Report progress</p>
+          <div className="flex items-center gap-2.5">
+            <progress aria-label="Resolved report sections" max={steps.length} value={resolvedCount} className="block h-1.5 w-16 overflow-hidden rounded-full sm:w-20 [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary" />
+            <span className="text-xs font-semibold tabular-nums text-foreground" aria-label={`${resolvedCount} of ${steps.length} sections resolved`}>{resolvedCount}/{steps.length}</span>
+          </div>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">{periodLabel}</p>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-3 pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-300">
-        <ol className="grid gap-0.5">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-3 pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border">
+        <ol className="grid gap-1">
           {steps.map((step, index) => {
             const snapshot = sections.find((item) => item.name === step.backendId);
             const state = getStepState(step, current, snapshot);
@@ -178,12 +178,13 @@ export function ReportProgressRail({
                   )}
                 >
                   <StepIndicator state={state} stepNumber={index + 1} review={step.id === "review"} />
-                  <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="text-sm font-semibold leading-5 text-current">
                       {step.navigationLabel ?? step.label}
                     </span>
                     <span className="text-xs leading-4 text-current opacity-70">{description}</span>
                   </span>
+                  <ChevronRightIcon aria-hidden="true" className="size-3.5 shrink-0 opacity-40" />
                 </Link>
               </li>
             );
@@ -191,7 +192,8 @@ export function ReportProgressRail({
         </ol>
       </div>
 
-      <div className="mt-2 shrink-0 rounded-xl border border-primary/15 bg-primary/5 p-4">
+      <div className="mt-2 shrink-0 rounded-xl border border-border-subtle bg-background p-3">
+        <p className="mb-2 flex items-center gap-2 text-sm font-medium"><CircleHelpIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" /> Reporting guidance</p>
         <p className="text-xs leading-5 text-muted-foreground">
           After submission, you can request to reopen and edit the report during
           the grace period. Once locked, it becomes read-only.

@@ -1,5 +1,8 @@
 "use client"
 
+import { useUser } from "@/hooks/query/use-user"
+import { filterNavigationSections } from "@/layouts/sidebar/navigation-utils"
+
 import React from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,11 +14,11 @@ import {
     CommandList,
 } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/utils/cn"
 import { MinimalisticMagnifierIcon } from '@solar-icons/react/line-duotone/minimalistic-magnifier'
 import { NavIcon } from "./dashboard/AppNavIcon"
-import { workspaceNavigation, type NavigationItem } from "@/config/workspace-navigation"
+import { getWorkspaceNavigationSections, type NavigationItem } from "@/config/workspace-navigation"
 import { Separator } from "@/components/ui/separator";
 
 function flattenSearchItems(items: NavigationItem[]): NavigationItem[] {
@@ -25,14 +28,16 @@ function flattenSearchItems(items: NavigationItem[]): NavigationItem[] {
     ])
 }
 
-const searchGroups = workspaceNavigation
+function getSearchGroups(user: Parameters<typeof getWorkspaceNavigationSections>[0], pathname: string) {
+    return filterNavigationSections(getWorkspaceNavigationSections(user, pathname), user)
     .map((section, index) => ({
         area: section.title ?? (index === 0 ? "Home" : "Library"),
         items: flattenSearchItems(section.items).filter(
-        (item) => !item.disabled && !item.permission,
+        (item) => !item.disabled && (!item.permission || user?.is_region_staff),
         ),
     }))
     .filter((group) => group.items.length > 0)
+}
 
 export function AppSearch({
     variant = "topbar",
@@ -40,6 +45,9 @@ export function AppSearch({
     variant?: "topbar" | "sidebar"
 } = {}) {
     const router = useRouter();
+    const pathname = usePathname()
+    const { data: user } = useUser()
+    const searchGroups = getSearchGroups(user, pathname)
     const [searchOpen, setSearchOpen] = React.useState(false);
     const isSidebar = variant === "sidebar"
 
@@ -55,11 +63,11 @@ export function AppSearch({
                     variant="ghost"
                     aria-label="Search CFI Workspace"
                     className={cn(
-                        "size-10 shrink-0 justify-center",
+                        "size-9 shrink-0 justify-center",
                         isSidebar ? [
-                            "h-9 w-full justify-start rounded-full px-3",
-                            "bg-sidebar-accent text-(--shell-sidebar-muted-foreground)",
-                            "hover:bg-sidebar-accent-active hover:text-sidebar-foreground",
+                            "h-9 w-full justify-start rounded-[0.625rem] px-2",
+                            "bg-[#00000012] text-(--shell-sidebar-muted-foreground)",
+                            "hover:bg-sidebar-accent hover:text-sidebar-foreground",
                         ] : [
                             "text-(--shell-chrome-foreground)",
                             "hover:bg-(--shell-chrome-hover)",

@@ -10,6 +10,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import View from "@/components/ui/view"
 import { cn } from "@/lib/utils"
 import {
     MEMBERS_LIFECYCLE_NAVIGATION,
@@ -24,6 +25,10 @@ export function MembersSectionNavigation() {
     const primaryLinks = MEMBERS_SECTION_NAVIGATION.filter(
         (item) => item.key !== "lifecycle"
     )
+    const activeKey = primaryLinks.find(
+        (item) => pathname === item.href || pathname.startsWith(`${item.href}/`)
+    )?.key
+    const tabs = primaryLinks.map((item) => ({ ...item, href: withQuery(item.href) }))
     const activeLifecycleItem = MEMBERS_LIFECYCLE_NAVIGATION.find(
         (item) => pathname === item.href || pathname.startsWith(`${item.href}/`)
     )
@@ -36,33 +41,16 @@ export function MembersSectionNavigation() {
     return (
         <nav
             aria-label="Members sections"
-            className="relative z-10 shrink-0 border-b border-border-subtle bg-background px-2 sm:px-4 lg:px-6"
+            className="relative z-10 shrink-0 bg-background"
         >
-            <div className="flex h-10 max-w-full items-center gap-1 overflow-visible">
-                {primaryLinks.map((item) => {
-                    const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
-                    return (
-                        <Link
-                            key={item.key}
-                            href={withQuery(item.href)}
-                            aria-current={active ? "page" : undefined}
-                            className={cn(
-                                "relative inline-flex h-8 shrink-0 items-center rounded-lg px-2.5 text-sm font-semibold text-foreground outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring sm:px-3",
-                                active && "bg-primary/10 text-primary"
-                            )}
-                        >
-                            {item.label}
-                        </Link>
-                    )
-                })}
-
+            <View.Tabs items={tabs} activeKey={activeKey}>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <button
                             type="button"
                             aria-current={lifecycleActive ? "page" : undefined}
                             className={cn(
-                                "inline-flex h-8 shrink-0 items-center gap-1 rounded-lg px-2.5 text-sm font-semibold text-foreground outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring sm:px-3",
+                                "inline-flex h-8 lg:h-7 shrink-0 items-center gap-1 rounded-lg px-2.5 text-sm font-semibold text-foreground outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring sm:px-3",
                                 lifecycleActive && "bg-primary/10 text-primary"
                             )}
                         >
@@ -88,7 +76,7 @@ export function MembersSectionNavigation() {
                         })}
                     </DropdownMenuContent>
                 </DropdownMenu>
-            </div>
+            </View.Tabs>
         </nav>
     )
 }

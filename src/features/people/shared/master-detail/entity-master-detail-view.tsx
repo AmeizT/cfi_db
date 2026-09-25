@@ -34,20 +34,21 @@ export function EntityMasterDetailView<TEntity, TTab extends string>({
     onSelect,
     onTabChange,
 }: EntityMasterDetailViewProps<TEntity, TTab>) {
+    const draftActive = Boolean(config.detailOverlay?.active)
     const firstId = entities[0] ? config.getEntityId(entities[0]) : null
 
     React.useEffect(() => {
-        if (isListLoading || error || typeof window === "undefined") return
+        if (draftActive || isListLoading || error || typeof window === "undefined") return
         const desktop = window.matchMedia("(min-width: 1024px)").matches
         if (!selectedId && firstId && desktop) onSelect(firstId, { replace: true })
-    }, [error, firstId, isListLoading, onSelect, selectedId])
+    }, [draftActive, error, firstId, isListLoading, onSelect, selectedId])
 
     React.useEffect(() => {
-        if (isListLoading || !selectedId || selectedEntity || !firstId) return
+        if (draftActive || isListLoading || !selectedId || selectedEntity || !firstId) return
         onSelect(firstId, { replace: true })
-    }, [firstId, isListLoading, onSelect, selectedEntity, selectedId])
+    }, [draftActive, firstId, isListLoading, onSelect, selectedEntity, selectedId])
 
-    const detailVisible = Boolean(selectedId)
+    const detailVisible = draftActive || Boolean(selectedId)
     const visibleTabs = config.tabs.filter((tab) => tab.visible !== false)
     const resolvedActiveTab = visibleTabs.some((tab) => tab.value === activeTab)
         ? activeTab
@@ -58,6 +59,7 @@ export function EntityMasterDetailView<TEntity, TTab extends string>({
             <EntityListPanel
                 hidden={detailVisible}
                 pagination={pagination}
+                listStart={config.listStart}
                 header={(
                     <EntityListHeader
                         key={search}
@@ -79,7 +81,7 @@ export function EntityMasterDetailView<TEntity, TTab extends string>({
                     : entities.length === 0 ? <EntityMasterDetailEmpty>{config.emptyState}</EntityMasterDetailEmpty>
                     : entities.map((entity) => {
                         const id = config.getEntityId(entity)
-                        const selected = id === selectedId
+                        const selected = !draftActive && id === selectedId
                         return (
                             <div key={id}>
                                 <div onClick={() => onSelect(id)}>
@@ -92,10 +94,11 @@ export function EntityMasterDetailView<TEntity, TTab extends string>({
 
             <EntityDetailPanel
                 visible={detailVisible}
-                mobileTitle={selectedEntity ? config.getEntityLabel(selectedEntity) : undefined}
-                onBack={() => onSelect(null)}
+                mobileTitle={draftActive ? config.detailOverlay?.title : selectedEntity ? config.getEntityLabel(selectedEntity) : undefined}
+                onBack={() => draftActive ? config.detailOverlay?.onBack() : onSelect(null)}
             >
-                {isDetailLoading ? <EntityDetailSkeleton />
+                {config.detailOverlay && <div hidden={!draftActive}>{config.detailOverlay.content}</div>}
+                {!draftActive && (isDetailLoading ? <EntityDetailSkeleton />
                     : selectedEntity ? (
                         <>
                             {config.renderHeader(selectedEntity)}
@@ -104,7 +107,7 @@ export function EntityMasterDetailView<TEntity, TTab extends string>({
                                 {resolvedActiveTab === "overview" ? config.renderOverview(selectedEntity) : config.renderTabContent({ entity: selectedEntity, tab: resolvedActiveTab })}
                             </div>
                         </>
-                    ) : <EntityNeutralDetail />}
+                    ) : <EntityNeutralDetail />)}
             </EntityDetailPanel>
         </div>
     )

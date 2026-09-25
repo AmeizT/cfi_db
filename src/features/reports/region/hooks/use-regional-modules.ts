@@ -1,3 +1,4 @@
+import { useRegionalZoneKey } from "@/features/regional-shell/use-regional-zone-key"
 import { useQuery } from "@tanstack/react-query"
 import {
     getRegionalCompliance,
@@ -27,56 +28,63 @@ const regionalModuleFetchers: Record<
 }
 
 export function useRegionalOverview(regionId: string | number) {
+    const zone = useRegionalZoneKey()
     return useQuery<RegionalOverviewResponse>({
-        queryKey: ["regional", regionId, "overview"],
+        queryKey: ["regional", regionId, zone, "overview"],
         queryFn: () => getRegionalOverview(regionId),
         enabled: Boolean(regionId),
     })
 }
 
 export function useRegionalFinance(regionId: string | number) {
+    const zone = useRegionalZoneKey()
     return useQuery<RegionalModuleResponse>({
-        queryKey: ["regional", regionId, "finance"],
+        queryKey: ["regional", regionId, zone, "finance"],
         queryFn: () => getRegionalFinance(regionId),
         enabled: Boolean(regionId),
     })
 }
 
 export function useRegionalCompliance(regionId: string | number) {
+    const zone = useRegionalZoneKey()
     return useQuery<RegionalModuleResponse>({
-        queryKey: ["regional", regionId, "compliance"],
+        queryKey: ["regional", regionId, zone, "compliance"],
         queryFn: () => getRegionalCompliance(regionId),
         enabled: Boolean(regionId),
     })
 }
 
 export function useRegionalRisk(regionId: string | number) {
+    const zone = useRegionalZoneKey()
     return useQuery<RegionalModuleResponse>({
-        queryKey: ["regional", regionId, "risk"],
+        queryKey: ["regional", regionId, zone, "risk"],
         queryFn: () => getRegionalRisk(regionId),
         enabled: Boolean(regionId),
     })
 }
 
 export function useRegionalGrowth(regionId: string | number) {
+    const zone = useRegionalZoneKey()
     return useQuery<RegionalModuleResponse>({
-        queryKey: ["regional", regionId, "growth"],
+        queryKey: ["regional", regionId, zone, "growth"],
         queryFn: () => getRegionalGrowth(regionId),
         enabled: Boolean(regionId),
     })
 }
 
 export function useRegionalMinistry(regionId: string | number) {
+    const zone = useRegionalZoneKey()
     return useQuery<RegionalModuleResponse>({
-        queryKey: ["regional", regionId, "ministry"],
+        queryKey: ["regional", regionId, zone, "ministry"],
         queryFn: () => getRegionalMinistry(regionId),
         enabled: Boolean(regionId),
     })
 }
 
 export function useRegionalLeadership(regionId: string | number) {
+    const zone = useRegionalZoneKey()
     return useQuery<RegionalModuleResponse>({
-        queryKey: ["regional", regionId, "leadership"],
+        queryKey: ["regional", regionId, zone, "leadership"],
         queryFn: () => getRegionalLeadership(regionId),
         enabled: Boolean(regionId),
     })
@@ -86,8 +94,9 @@ export function useRegionalModule(
     regionId: string | number,
     module: RegionalModuleKey
 ) {
+    const zone = useRegionalZoneKey()
     return useQuery<RegionalModuleResponse>({
-        queryKey: ["regional", regionId, module],
+        queryKey: ["regional", regionId, zone, module],
         queryFn: () => regionalModuleFetchers[module](regionId),
         enabled: Boolean(regionId),
     })

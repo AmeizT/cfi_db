@@ -43,6 +43,11 @@ test("Members workspace uses one route-aware H1 and one local navigation row", a
     assert.match(navigation, /<DropdownMenuContent/)
     assert.match(navigation, /activeLifecycleItem/)
     assert.doesNotMatch(navigation, /View\.TabBar/)
+    assert.match(navigation, /<View\.Tabs items=\{tabs\} activeKey=\{activeKey\}>/)
+    assert.match(navigation, /primaryLinks\.map\(\(item\) => \(\{ \.\.\.item, href: withQuery\(item\.href\) \}\)\)/)
+    assert.match(navigation, /pathname\.startsWith\(`\$\{item\.href\}\/`\)/)
+    assert.ok(navigation.indexOf("<View.Tabs") < navigation.indexOf("<DropdownMenu>"))
+    assert.ok(navigation.indexOf("</DropdownMenu>") < navigation.indexOf("</View.Tabs>"))
 })
 
 test("Members child views do not render duplicate page headings", async () => {

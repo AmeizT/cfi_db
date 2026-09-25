@@ -5,7 +5,7 @@ import { useFormContext } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Field, FormShell, Section, useCreateOptions, type FieldProps } from "./FormShell"
 import { MemberSelector } from "./MemberSelector"
-import { education, genders, prefixes, relationships, statuses } from "./contracts"
+import { education, genders, prefixes, relationships, statuses } from "@/features/create/forms/contracts"
 
 const personal: FieldProps[] = [
     { name: "prefix", label: "Title", choices: prefixes }, { name: "middle_name", label: "Middle name", maxLength: 100 },
