@@ -128,7 +128,7 @@ export function ReportSourceBanner() {
             ) : null}
             <Button asChild variant="outline" size="sm"><Link href={reportHref}>View report</Link></Button>
             {visibility.amendReport ? (
-              <Button variant="outline" size="sm" onClick={() => setDialog("amend")}>Amend report</Button>
+              <Button variant="outline" size="sm" onClick={() => setDialog("amend")}>Reopen report</Button>
             ) : null}
             {visibility.requestReopening ? (
               <Button variant="outline" size="sm" onClick={() => setDialog("reopen")}>Request reopening</Button>
@@ -140,10 +140,10 @@ export function ReportSourceBanner() {
       <Dialog open={dialog !== null} onOpenChange={(open) => !open && setDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{dialog === "amend" ? "Amend monthly report" : "Request report reopening"}</DialogTitle>
+            <DialogTitle>{dialog === "amend" ? "Reopen report" : "Request report reopening"}</DialogTitle>
             <DialogDescription>
               {dialog === "amend"
-                ? "Give a reason for the correction. The selected section will then open in the Report Wizard."
+                ? "Give a reason for reopening. The report becomes editable again during the grace period, with its data and submitted version preserved."
                 : "Explain why this locked report needs to be reopened for correction."}
             </DialogDescription>
           </DialogHeader>
@@ -160,7 +160,7 @@ export function ReportSourceBanner() {
               onClick={() => mutation.mutate()}
             >
               {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-              {dialog === "amend" ? "Start amendment" : "Send request"}
+              {dialog === "amend" ? "Reopen report" : "Send request"}
             </Button>
           </DialogFooter>
         </DialogContent>

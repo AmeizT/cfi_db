@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { CheckIcon, ChevronRightIcon, CircleHelpIcon, SendIcon, XCircleIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ type ReportProgressRailProps = {
   reportId?: string | number | null;
   amendmentContext?: string | null;
   className?: string;
+  compact?: boolean;
 };
 
 const stateStyles: Record<StepState, string> = {
@@ -130,30 +132,44 @@ export function ReportProgressRail({
   reportId,
   amendmentContext,
   className,
+  compact = false,
 }: ReportProgressRailProps) {
   const resolvedCount = getResolvedReportSectionCount(sections);
+  const railRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!compact) return;
+    const rail = railRef.current;
+    const active = rail?.querySelector<HTMLElement>('[aria-current="step"]');
+    if (!rail || !active) return;
+    // Scroll only the horizontal rail, without moving the page vertically.
+    const railBounds = rail.getBoundingClientRect();
+    const bounds = active.getBoundingClientRect();
+    if (bounds.left < railBounds.left || bounds.right > railBounds.right) {
+      rail.scrollTo({ left: rail.scrollLeft + bounds.left - railBounds.left - 4, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    }
+  }, [compact, current.id]);
 
   return (
     <aside
       aria-label="Report progress"
       className={cn(
-        "flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-muted/20 p-4",
+        compact ? "min-w-0 w-full lg:hidden" : "flex w-full flex-col rounded-3xl bg-background p-5",
         className,
       )}
     >
-      <div className="min-h-16 shrink-0 border-b border-border-subtle px-1 pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-semibold text-foreground">Report progress</p>
+      <div className={compact ? "hidden" : "shrink-0 px-1 pb-3"}>
+        <div className="flex flex-col gap-4">
+          <p className="text-xl font-semibold text-foreground">This Report</p>
           <div className="flex items-center gap-2.5">
-            <progress aria-label="Resolved report sections" max={steps.length} value={resolvedCount} className="block h-1.5 w-16 overflow-hidden rounded-full sm:w-20 [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary" />
+            <progress aria-label="Resolved report sections" max={steps.length} value={resolvedCount} className="block h-2 min-w-0 flex-1 overflow-hidden rounded-full [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary" />
             <span className="text-xs font-semibold tabular-nums text-foreground" aria-label={`${resolvedCount} of ${steps.length} sections resolved`}>{resolvedCount}/{steps.length}</span>
           </div>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">{periodLabel}</p>
+        <p className="sr-only">{periodLabel}</p>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-3 pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border">
-        <ol className="grid gap-1">
+      <div ref={railRef} className={compact ? "min-w-0 overflow-x-auto snap-x snap-proximity scroll-px-1 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" : "flex-1 py-3 pr-1"}>
+        <ol className={compact ? "flex w-max gap-2" : "grid gap-1 [&>li]:border-b [&>li]:border-border-subtle"}>
           {steps.map((step, index) => {
             const snapshot = sections.find((item) => item.name === step.backendId);
             const state = getStepState(step, current, snapshot);
@@ -162,7 +178,7 @@ export function ReportProgressRail({
               : stepDescription(state);
 
             return (
-              <li key={step.id} className={cn(step.id === "review" && "mt-3 border-t border-border pt-3")}>
+              <li key={step.id} className={compact ? "shrink-0 snap-start" : cn(step.id === "review" && "mt-3 pt-3")}>
                 <Link
                   href={createMonthlyReportHref(step.id, {
                     method,
@@ -174,6 +190,7 @@ export function ReportProgressRail({
                   aria-current={state === "current" ? "step" : undefined}
                   className={cn(
                     "group flex min-w-0 items-center gap-3 rounded-xl px-3 py-2.5 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    compact && "whitespace-nowrap rounded-full border border-border px-4 py-3",
                     stateStyles[state],
                   )}
                 >
@@ -182,9 +199,9 @@ export function ReportProgressRail({
                     <span className="text-sm font-semibold leading-5 text-current">
                       {step.navigationLabel ?? step.label}
                     </span>
-                    <span className="text-xs leading-4 text-current opacity-70">{description}</span>
+                    <span className={compact ? "sr-only" : "text-xs leading-4 text-current opacity-70"}>{description}</span>
                   </span>
-                  <ChevronRightIcon aria-hidden="true" className="size-3.5 shrink-0 opacity-40" />
+                  {!compact ? <ChevronRightIcon aria-hidden="true" className="size-3.5 shrink-0 opacity-40" /> : null}
                 </Link>
               </li>
             );
@@ -192,7 +209,7 @@ export function ReportProgressRail({
         </ol>
       </div>
 
-      <div className="mt-2 shrink-0 rounded-xl border border-border-subtle bg-background p-3">
+      <div className={compact ? "hidden" : "mt-6 shrink-0 rounded-3xl bg-muted/50 p-4"}>
         <p className="mb-2 flex items-center gap-2 text-sm font-medium"><CircleHelpIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" /> Reporting guidance</p>
         <p className="text-xs leading-5 text-muted-foreground">
           After submission, you can request to reopen and edit the report during

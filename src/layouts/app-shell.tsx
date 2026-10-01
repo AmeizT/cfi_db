@@ -42,6 +42,7 @@ export function AppShell({
             <div className="@container/main flex min-h-0 flex-1 flex-col overflow-visible overscroll-auto pb-[env(safe-area-inset-bottom)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-300 md:overflow-y-auto md:overscroll-contain">
               {children}
             </div>
+
           </SidebarInset>
         </div>
 

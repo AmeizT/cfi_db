@@ -980,7 +980,7 @@ export function MonthlyReportDetailView({
                                     )
                                 }
                             >
-                                Amend report
+                                Reopen report
                             </Button>
                         ) : null}
 
@@ -1019,13 +1019,13 @@ export function MonthlyReportDetailView({
                     <DialogHeader>
                         <DialogTitle>
                             {dialog === "amend"
-                                ? "Amend submitted report"
+                                ? "Reopen report"
                                 : "Request report reopening"}
                         </DialogTitle>
 
                         <DialogDescription>
                             {dialog === "amend"
-                                ? "The submitted version stays immutable while you prepare a new version in the Report Wizard."
+                                ? "Reopening makes this report editable again during the grace period. The submitted version is preserved; submit again when your changes are complete."
                                 : "Explain why this locked report needs to be reopened for correction."}
                         </DialogDescription>
                     </DialogHeader>
@@ -1067,7 +1067,7 @@ export function MonthlyReportDetailView({
                             ) : null}
 
                             {dialog === "amend"
-                                ? "Start amendment"
+                                ? "Reopen report"
                                 : "Send request"}
                         </Button>
                     </DialogFooter>

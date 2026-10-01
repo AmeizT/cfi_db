@@ -1,5 +1,6 @@
 "use client"
 
+import { refreshReopenedReport } from "../refresh-reopened-report"
 import { createReportSectionWizardHref } from "@/features/create/routing"
 
 import * as React from "react"
@@ -131,13 +132,13 @@ function firstWizardSection(
   return fallback
 }
 
-export function ReportStatusPopover() {
+export function ReportStatusPopover({ reopenHref, sectionKey }: { reopenHref?: string; sectionKey?: string } = {}) {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
   const queryClient = useQueryClient()
   const reportId = getReportId(searchParams)
-  const requestedSection = searchParams.get("section")
+  const requestedSection = sectionKey ?? searchParams.get("section")
   const section = isWorkflowSectionKey(requestedSection)
     ? requestedSection
     : inferWorkflowSection(pathname, searchParams.get("type"))
@@ -164,15 +165,18 @@ export function ReportStatusPopover() {
         : requestReportReopening(reportId, reason.trim())
     },
     onSuccess: async (result) => {
-      await queryClient.invalidateQueries({ queryKey: ["reports-workflow"] })
       if (dialog === "amend" && "period_start" in result) {
-        toast.success("Amendment opened")
-        router.push(createReportSectionWizardHref(fallbackSection, {
+        await refreshReopenedReport(queryClient, reportId, result)
+        setDialog(null)
+        setReason("")
+        toast.success("Report reopened for editing")
+        router.push(reopenHref ?? createReportSectionWizardHref(fallbackSection, {
           report_id: reportId,
           amendment_context: "reopened",
         }))
         return
       }
+      await queryClient.invalidateQueries({ queryKey: ["reports-workflow"] })
       toast.success("Reopening request sent for review")
       setDialog(null)
       setReason("")
@@ -317,7 +321,7 @@ export function ReportStatusPopover() {
                     className="w-full sm:flex-1 sm:basis-0"
                     onClick={() => setDialog("amend")}
                 >
-                    Amend report
+                    Reopen report
                 </Button>
             ) : null}
 
@@ -338,11 +342,11 @@ export function ReportStatusPopover() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {dialog === "amend" ? "Amend monthly report" : "Request report reopening"}
+              {dialog === "amend" ? "Reopen report" : "Request report reopening"}
             </DialogTitle>
             <DialogDescription>
               {dialog === "amend"
-                ? "Give a reason for the correction. The selected section will then open in the Report Wizard."
+                ? "Reopening makes this report editable again during the grace period. Give a reason for the correction. Existing data and the submitted version will be preserved; submit again when your changes are complete."
                 : "Explain why this locked report needs to be reopened for correction."}
             </DialogDescription>
           </DialogHeader>
@@ -359,7 +363,7 @@ export function ReportStatusPopover() {
               onClick={() => correctionMutation.mutate()}
             >
               {correctionMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-              {dialog === "amend" ? "Start amendment" : "Send request"}
+              {dialog === "amend" ? "Reopen report" : "Send request"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -8,10 +8,11 @@ import { REPORT_WIZARD_SECTIONS, type ReportWizardSectionSnapshot } from '../../
 const statuses: ReportWizardSectionSnapshot['status'][] = ['completed', 'submitted', 'no_activity', 'not_required', 'skipped', 'in_progress', 'pending']
 const snapshots = REPORT_WIZARD_SECTIONS.map((section, index) => ({ name: section.backendId, status: statuses[index] }))
 
+for (const compact of [false, true]) {
 for (const current of REPORT_WIZARD_SECTIONS) {
-    test(`${current.label}: only the current row is highlighted, with unchanged counts and route context`, () => {
+    test(`${compact ? "Compact" : "Desktop"} ${current.label}: only the current row is highlighted, with unchanged counts and route context`, () => {
         const html = renderToStaticMarkup(createElement(ReportProgressRail, {
-            steps: REPORT_WIZARD_SECTIONS, current, sections: snapshots,
+            steps: REPORT_WIZARD_SECTIONS, current, sections: snapshots, compact,
             periodLabel: 'September 2026', method: 'upload', uploadType: 'excel',
             reportId: 127, amendmentContext: 'reopened', className: 'h-full',
         }))
@@ -36,4 +37,5 @@ for (const current of REPORT_WIZARD_SECTIONS) {
         assert.match(html, /Reporting guidance/)
         assert.ok(html.indexOf('Reporting guidance') > html.indexOf('</ol>'))
     })
+}
 }

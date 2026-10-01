@@ -38,7 +38,7 @@ export function RecordCenterShell({ children }: { children: ReactNode }) {
     const currentPeriod = reportingPeriods.find(period => period.value === periodValue)!
     const submitted = overview.data?.months.filter(report => report.status === "submitted" || report.status === "locked").length ?? 0
     return (
-        <View className={cn(pathname === "/record-center" && monthlyReportStyles.upperRegion, isMonthlyWorkspace && "mb-0 h-[calc(100dvh-var(--navbar-height))] min-h-0 overflow-hidden md:h-full md:flex-1")}>
+        <View className={cn(pathname === "/record-center" && monthlyReportStyles.upperRegion, isMonthlyWorkspace && "mb-0 h-auto min-w-0 shrink-0 lg:h-full lg:min-h-0 lg:flex-1 lg:overflow-hidden")}>
             {!isMonthlyWorkspace && <View.Header 
                 className="sm:h-auto"
                 pagename={isTemplates ? "Templates" : "Record Center"}
@@ -55,7 +55,7 @@ export function RecordCenterShell({ children }: { children: ReactNode }) {
                 </div>}
             </View.Header>}
 
-            <View.Body className={isMonthlyWorkspace ? "min-h-0 flex-1 overflow-hidden px-3 sm:px-6" : undefined}>{children}</View.Body>
+            <View.Body className={isMonthlyWorkspace ? "min-w-0 px-3 sm:px-6 lg:min-h-0 lg:flex-1 lg:px-0" : undefined}>{children}</View.Body>
         </View>
     )
 }
