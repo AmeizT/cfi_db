@@ -244,7 +244,7 @@ function Field({
     children: React.ReactNode
 }) {
     return (
-        <div className="grid gap-2">
+        <div className="grid min-w-0 grid-cols-1 gap-2">
             <Label>{label}</Label>
             {children}
         </div>
@@ -328,8 +328,8 @@ export function SundaySchoolAttendanceForm({
     const members = membersQuery.data ?? []
 
     return (
-        <form id={formId} className="grid gap-5" onSubmit={handleSubmit}>
-            <div className="grid gap-4 sm:grid-cols-3">
+        <form id={formId} className="grid min-w-0 max-w-full grid-cols-1 gap-5" onSubmit={handleSubmit}>
+            <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-3">
                 <Field label="Service date">
                     <Input
                         required
@@ -374,13 +374,13 @@ export function SundaySchoolAttendanceForm({
                 </Field>
             </div>
 
-            {matrix ? <div className="overflow-x-auto rounded-lg border border-border-subtle"><table className="w-full text-sm">
+            {matrix ? <div className="min-w-0 w-full max-w-full overflow-x-auto overscroll-x-contain rounded-lg border border-border-subtle"><table className="w-full text-sm">
                 <thead><tr className="border-b border-border-subtle"><th className="px-3 py-2 text-left">Metric</th><th className="px-3 py-2 text-left">{form.service_date || "Service attendance"}</th></tr></thead>
                 <tbody>{([
                     ["boys", "Boys"], ["girls", "Girls"], ["male_visitors", "Male visitors"], ["female_visitors", "Female visitors"], ["male_first_timers", "Male first timers"], ["female_first_timers", "Female first timers"],
                 ] as const).map(([key, label]) => <tr key={key} className="border-b border-border-subtle"><th scope="row" className="px-3 py-2 text-left font-medium">{label}</th><td className="p-2"><Input aria-label={label} min={0} required type="number" value={form[key]} placeholder="—" className="placeholder:text-muted-foreground" onChange={event => updateField(key, event.target.value)} /></td></tr>)}</tbody>
             </table></div> : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {([
                     ["boys", "Boys"],
                     ["girls", "Girls"],
@@ -405,7 +405,7 @@ export function SundaySchoolAttendanceForm({
 
             )}
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-3">
                 <Field label="Lesson title">
                     <Input
                         value={form.lesson_title}

@@ -54,13 +54,13 @@ export function JethroLauncher({ variant }: { variant?: JethroComposerVariant })
                             aria-label="Open Jethro"
                             onClick={() => setOpen(true)}
                             className="
-                                fixed right-4
+                                fixed right-[max(1rem,env(safe-area-inset-right))]
                                 bottom-[calc(2rem+env(safe-area-inset-bottom))]
                                 z-50 size-14 rounded-2xl border-0
                                 border-border-subtle dark:border-neutral-700 bg-linear-to-b from-background to-background dark:from-neutral-800 dark:to-background
                                 p-0 shadow-elevation-sm backdrop-blur-2xl
                                 hover:bg-background/90
-                                sm:right-6 sm:bottom-6
+                                sm:right-[max(1.5rem,env(safe-area-inset-right))] sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]
                             "
                         >
                             <JethroLogo className="size-11" />

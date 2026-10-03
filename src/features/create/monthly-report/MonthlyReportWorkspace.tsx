@@ -529,10 +529,10 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
   );
 
   return (
-    <div className="flex min-w-0 flex-col gap-4 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom))] text-foreground lg:h-full lg:min-h-0 lg:overflow-hidden lg:bg-sidebar lg:p-3 lg:pt-4">
+    <div className="flex min-w-0 w-full max-w-full flex-col gap-4 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom))] text-foreground lg:h-full lg:min-h-0 lg:overflow-hidden lg:bg-sidebar lg:p-3 lg:pt-4">
       <header className="flex shrink-0 flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
-        <div className="flex min-w-0 flex-wrap items-center gap-2.5">
-          <h1 className="text-lg font-semibold tracking-tight sm:text-xl">Monthly Report <span className="text-muted-foreground">{periodLabel}</span></h1>
+        <div className="flex min-w-0 flex-col items-start gap-2.5 lg:flex-row lg:flex-wrap lg:items-center">
+          <h1 className="text-lg font-semibold tracking-tight sm:text-xl">Monthly Report <span className="block text-muted-foreground lg:inline">{periodLabel}</span></h1>
           {workflowReportQuery.data ? <ReportStatusPopover sectionKey={section.backendId} reopenHref={createMonthlyReportHref(section.id, { ...routeOptions, amendment_context: "reopened" })} /> : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -547,10 +547,10 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
         </div>
       </header>
 
-      <div ref={contentStart} className="min-w-0 scroll-mt-4 lg:hidden">
+      <div ref={contentStart} className="min-w-0 max-w-full scroll-mt-[calc(var(--mobile-navbar-height)+1rem)] lg:hidden">
         {React.cloneElement(progressRail, { compact: true, className: undefined })}
       </div>
-      <main className="grid min-w-0 items-start gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,2.6fr)_minmax(0,1.15fr)] lg:grid-rows-1 lg:items-stretch">
+      <main className="grid min-w-0 max-w-full grid-cols-1 items-start gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,2.6fr)_minmax(0,1.15fr)] lg:grid-rows-1 lg:items-stretch">
         <section aria-labelledby="report-section-title" className="flex min-w-0 flex-col rounded-2xl bg-background lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:rounded-3xl">
           <div className="mx-4 flex shrink-0 items-center justify-between gap-3 border-b border-border-subtle py-4 lg:mx-6">
             <h2 id="report-section-title" className="text-lg font-semibold">{section.label}</h2>

@@ -70,15 +70,12 @@ test("browser-only responsive and session stores provide deterministic server sn
     assert.match(jethro, /\(\) => undefined/)
 })
 
-test("AssemblySwitcher keeps a stable Radix trigger element while loading", async () => {
+test("AssemblySwitcher keeps the switching form mounted outside its visual chooser", async () => {
     const source = await readFile("src/layouts/dashboard/AssemblySwitcher.tsx", "utf8")
-    const triggerStart = source.indexOf("const trigger = (")
-    const trigger = source.slice(triggerStart, source.indexOf("return (", triggerStart))
-    const popoverTrigger = source.slice(source.indexOf("<PopoverTrigger asChild>"), source.indexOf("</PopoverTrigger>"))
-    assert.match(trigger, /<Button/)
-    assert.match(source, /const triggerContent = isLoading \? \(/)
-    assert.doesNotMatch(trigger, /isLoading \? \(\s*<Skeleton/)
-    assert.match(popoverTrigger, /\{trigger\}/)
+    assert.ok(source.indexOf("<form ref={switchFormRef}") < source.indexOf("<AssemblyCardDeck"))
+    assert.match(source, /action=\{submitTeamspaceChange\}/)
+    assert.match(source, /onSelect=\{handleAssemblySelect\}/)
+    assert.match(source, /switchFormRef\.current\?\.requestSubmit\(\)/)
 })
 
 test("Overview receives a server clock and uses an explicit formatting locale", async () => {

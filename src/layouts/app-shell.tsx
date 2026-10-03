@@ -28,18 +28,18 @@ export function AppShell({
   }, [assemblyColor]);
 
   return (
-    <div className="flex min-h-dvh w-full flex-col bg-sidebar text-foreground [--navbar-height:3.5rem] md:h-dvh md:overflow-hidden md:[--navbar-height:3rem]">
-      <SidebarProvider className="bg-sidebar dark:bg-sidebar min-h-dvh flex-1 flex-col overflow-visible md:min-h-0 md:overflow-hidden">
+    <div className="flex min-h-dvh min-w-0 w-full max-w-full flex-col bg-sidebar text-foreground [--navbar-height:4rem] [--mobile-navbar-height:calc(var(--navbar-height)+env(safe-area-inset-top))] md:h-dvh md:overflow-hidden md:[--navbar-height:3rem]">
+      <SidebarProvider className="bg-sidebar dark:bg-sidebar min-h-dvh min-w-0 max-w-full flex-1 flex-col overflow-visible md:min-h-0 md:overflow-hidden">
         <NewLauncherProvider>
         <RecentVisitsTracker />
 
-        <div className="flex min-h-0 flex-1 overflow-visible md:overflow-hidden">
+        <div className="flex min-h-0 min-w-0 max-w-full flex-1 overflow-visible md:overflow-hidden">
           <ContextSidebar />
 
-          <SidebarInset className="min-h-0 min-w-0 flex-col overflow-visible bg-white dark:bg-neutral-900 md:my-2 md:mr-2 md:ml-2 md:overflow-hidden md:rounded-[20px] md:ring-1 md:ring-sidebar-border md:shadow-none">
+          <SidebarInset className="min-h-0 min-w-0 max-w-full flex-col overflow-visible pt-(--mobile-navbar-height) lg:pt-0 bg-white dark:bg-neutral-900 md:my-2 md:mr-2 md:ml-2 md:overflow-hidden md:rounded-[20px] md:ring-1 md:ring-sidebar-border md:shadow-none">
             <Topbar />
 
-            <div className="@container/main flex min-h-0 flex-1 flex-col overflow-visible overscroll-auto pb-[env(safe-area-inset-bottom)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-300 md:overflow-y-auto md:overscroll-contain">
+            <div className="@container/main flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-visible overscroll-auto pb-[env(safe-area-inset-bottom)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-300 md:overflow-y-auto md:overscroll-contain">
               {children}
             </div>
 

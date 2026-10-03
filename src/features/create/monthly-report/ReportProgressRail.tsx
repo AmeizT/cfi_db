@@ -153,7 +153,7 @@ export function ReportProgressRail({
     <aside
       aria-label="Report progress"
       className={cn(
-        compact ? "min-w-0 w-full lg:hidden" : "flex w-full flex-col rounded-3xl bg-background p-5",
+        compact ? "min-w-0 w-full max-w-full lg:hidden" : "flex w-full flex-col rounded-3xl bg-background p-5",
         className,
       )}
     >
@@ -168,7 +168,8 @@ export function ReportProgressRail({
         <p className="sr-only">{periodLabel}</p>
       </div>
 
-      <div ref={railRef} className={compact ? "min-w-0 overflow-x-auto snap-x snap-proximity scroll-px-1 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" : "flex-1 py-3 pr-1"}>
+      {/* Keep absolutely positioned sr-only labels inside the rail overflow boundary. */}
+      <div ref={railRef} className={compact ? "relative min-w-0 w-full max-w-full overflow-x-auto overscroll-x-contain snap-x snap-proximity scroll-px-1 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" : "flex-1 py-3 pr-1"}>
         <ol className={compact ? "flex w-max gap-2" : "grid gap-1 [&>li]:border-b [&>li]:border-border-subtle"}>
           {steps.map((step, index) => {
             const snapshot = sections.find((item) => item.name === step.backendId);

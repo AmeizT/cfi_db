@@ -10,7 +10,7 @@ import { ProfileDropdown } from "./dashboard/ProfileDropdown";
 
 export function Topbar() {
   return (
-    <header className="z-30 flex lg:hidden h-(--navbar-height) fixed inset-x-0 top-0 w-full shrink-0 justify-between items-center border-b border-border-subtle bg-background/80 backdrop-blur-2xl px-2 text-(--shell-chrome-foreground) sm:px-3">
+    <header className="z-30 flex lg:hidden h-(--mobile-navbar-height) pt-[env(safe-area-inset-top)] fixed inset-x-0 top-0 w-full shrink-0 justify-between items-center border-b border-border-subtle bg-background/80 backdrop-blur-2xl px-2 text-(--shell-chrome-foreground) sm:px-3">
       <div className="flex min-w-0 items-center gap-1.5">
         <SidebarTrigger
           aria-label="Toggle workspace navigation"

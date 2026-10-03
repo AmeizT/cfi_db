@@ -61,7 +61,7 @@ export function AttendanceGrid({ year, month, records, dirtyDates, errors, disab
     }
 
     return (
-        <div className="overflow-x-auto rounded-none border-0 border-black/7">
+        <div className="min-w-0 w-full max-w-full overflow-x-auto overscroll-x-contain rounded-none border-0 border-black/7">
             <table className="min-w-full border-collapse">
                 <thead>
                     <tr className="border-t-0 border-border-subtle">
