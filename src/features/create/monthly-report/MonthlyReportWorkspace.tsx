@@ -2,13 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Separator } from "@/components/ui/separator";
 import { SkippedSectionNotice } from "@/features/reports/workflow/components/SkippedSectionNotice";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2Icon,
-  ClipboardListIcon,
   DownloadIcon,
   Loader2Icon,
   SkipForwardIcon,
@@ -58,7 +56,8 @@ import {
   submitReport,
   updateReportSection,
 } from "@/features/reports/workflow/api";
-import { ReportStatusBadge } from "@/features/reports/workflow/components/ReportStatusBadge";
+import { ReportStatusPopover } from "@/features/reports/workflow/components/ReportStatusPopover";
+import { useReportDetail } from "@/features/reports/workflow/hooks";
 import {
   formatReportPeriod,
   reportPeriodHref,
@@ -72,6 +71,10 @@ import { MonthlyReportYearProgress } from "./MonthlyReportYearProgress";
 import { ReportProgressRail } from "./ReportProgressRail";
 import { createMonthlyReportHref } from "./routing";
 
+// Presentation order shared by the panel, mobile tabs, and Previous/Next.
+const sectionOrder = ["attendance", "sunday-school", "tithes", "revenue", "overhead", "expenses", "review"];
+const monthlyReportSections = [...REPORT_WIZARD_SECTIONS].sort((a, b) => sectionOrder.indexOf(a.id) - sectionOrder.indexOf(b.id));
+
 const SKIP_REASONS = [
   { value: "records_unavailable", label: "Records unavailable" },
   { value: "responsible_person_unavailable", label: "Responsible person unavailable" },
@@ -81,15 +84,6 @@ const SKIP_REASONS = [
   { value: "other", label: "Other" },
 ];
 
-const SECTION_DESCRIPTIONS: Record<string, string> = {
-  attendance: "Record weekly service attendance for this reporting period.",
-  "sunday-school": "Record classes, attendance, visitors, and offerings for this reporting period.",
-  tithes: "Record individual tithe contributions for this reporting period.",
-  revenue: "Record general income received during this reporting period.",
-  expenses: "Record other expenses for this reporting period.",
-  overhead: "Record operating costs for this reporting period.",
-  review: "Review each section before submitting the monthly report.",
-};
 
 function normalizeMethod(value: string | null): ReportWizardMethod {
   if (value === "upload") return "upload";
@@ -457,11 +451,7 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
   const reportsQuery = useReports({ year: String(new Date().getFullYear()) });
   const reports = React.useMemo(() => toReportWizardList(reportsQuery.data), [reportsQuery.data]);
   const numericReportId = Number(reportId);
-  const workflowReportQuery = useQuery({
-    queryKey: ["reports-workflow", "wizard-report", numericReportId],
-    queryFn: () => getReportDetail(numericReportId),
-    enabled: Number.isFinite(numericReportId) && numericReportId > 0,
-  });
+  const workflowReportQuery = useReportDetail(numericReportId);
   const activeReport = React.useMemo(() => {
     if (reportId) return reports.find((report) => String(report.id) === reportId) ?? null;
     return reports.find(isPartialReportWizardReport) ?? null;
@@ -492,9 +482,9 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
     : activeReport
       ? formatReportWizardPeriod(activeReport)
       : "Current period";
-  const sectionIndex = REPORT_WIZARD_SECTIONS.findIndex((item) => item.id === section.id);
-  const nextSection = REPORT_WIZARD_SECTIONS[sectionIndex + 1];
-  const backSection = REPORT_WIZARD_SECTIONS[sectionIndex - 1];
+  const sectionIndex = monthlyReportSections.findIndex((item) => item.id === section.id);
+  const nextSection = monthlyReportSections[sectionIndex + 1];
+  const backSection = monthlyReportSections[sectionIndex - 1];
   const routeOptions = {
     method,
     upload_type: method === "upload" ? uploadType : null,
@@ -511,9 +501,22 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
     ? new Date(`${reportPeriodStart}T00:00:00`).getFullYear()
     : new Date().getFullYear();
 
+  const submitFormId = canEdit && (method !== "upload" || ["tithes", "revenue", "overhead", "expenses"].includes(section.id)) && section.id !== "review" && !sectionIsSkipped && !sectionIsNotRequired && !sectionHasNoActivity ? entryFormId : undefined;
+  const contentStart = React.useRef<HTMLDivElement>(null);
+  const previousSection = React.useRef(section.id);
+  React.useEffect(() => {
+    const changed = previousSection.current !== section.id;
+    previousSection.current = section.id;
+    if (changed && window.matchMedia("(max-width: 1023px)").matches) {
+      contentStart.current?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    }
+  }, [section.id]);
+
+  const entryMode = <MonthlyReportEntryMode section={section} method={method} uploadType={uploadType} reportId={reportId} amendmentContext={amendmentContext} />;
+
   const progressRail = (
     <ReportProgressRail
-      steps={REPORT_WIZARD_SECTIONS}
+      steps={monthlyReportSections}
       current={section}
       sections={sectionSnapshots}
       periodLabel={periodLabel}
@@ -521,57 +524,39 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
       uploadType={uploadType}
       reportId={reportId}
       amendmentContext={amendmentContext}
-      className="min-h-full md:h-full"
+      className="min-h-full"
     />
   );
 
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-col gap-4 py-4 text-foreground">
-      <header className="shrink-0 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-wrap items-center gap-2.5">
-            <h1 className="text-lg font-semibold tracking-tight sm:text-xl">Monthly Report <span className="text-muted-foreground">{periodLabel}</span></h1>
-            {workflowReportQuery.data ? <ReportStatusBadge status={workflowReportQuery.data.status} /> : null}
-          </div>
-          <MonthlyReportYearProgress
-            year={reportYear}
-            activeReportId={reportId}
-            activePeriodStart={reportPeriodStart}
-            method={method}
-            uploadType={uploadType}
-            amendmentContext={amendmentContext}
-          />
+    <div className="flex min-w-0 w-full max-w-full flex-col gap-4 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom))] text-foreground lg:h-full lg:min-h-0 lg:overflow-hidden lg:bg-sidebar lg:p-3 lg:pt-4">
+      <header className="flex shrink-0 flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
+        <div className="flex min-w-0 flex-col items-start gap-2.5 lg:flex-row lg:flex-wrap lg:items-center">
+          <h1 className="text-lg font-semibold tracking-tight sm:text-xl">Monthly Report <span className="block text-muted-foreground lg:inline">{periodLabel}</span></h1>
+          {workflowReportQuery.data ? <ReportStatusPopover sectionKey={section.backendId} reopenHref={createMonthlyReportHref(section.id, { ...routeOptions, amendment_context: "reopened" })} /> : null}
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <MonthlyReportEntryMode
-              section={section}
-              method={method}
-              uploadType={uploadType}
-              reportId={reportId}
-              amendmentContext={amendmentContext}
-            />
-            <Separator orientation="vertical" className="mx-1 data-[orientation=vertical]:h-4 bg-border-subtle" />
-            <Button variant="ghost" size="sm" asChild>
-              <Link href={createCentralTemplatesHref(section.id, routeOptions)}>Templates</Link>
-            </Button>
-            <Button variant="ghost" size="sm" disabled title="No section guide is available">Guide</Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="order-first w-full lg:order-last lg:w-auto">
+            <MonthlyReportYearProgress year={reportYear} activeReportId={reportId} activePeriodStart={reportPeriodStart} method={method} uploadType={uploadType} amendmentContext={amendmentContext} />
           </div>
+          <div className="w-full lg:hidden">{entryMode}</div>
+          <Button variant="outline" size="sm" className="rounded-full bg-background" asChild>
+            <Link href={createCentralTemplatesHref(section.id, routeOptions)}>Templates</Link>
+          </Button>
+          <Button variant="outline" size="sm" className="rounded-full bg-background" disabled title="No section guide is available">Guide</Button>
         </div>
       </header>
 
-      <main className="grid min-h-0 min-w-0 flex-1 grid-rows-[minmax(0,1fr)_minmax(0,0.5fr)] gap-2 overflow-hidden md:grid-cols-[minmax(0,2.6fr)_minmax(0,1fr)] md:grid-rows-1">
-        <section aria-labelledby="report-section-title" className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-muted/20">
-          <div className="flex min-h-20 shrink-0 items-center gap-3 border-b border-border-subtle px-4 py-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-              <ClipboardListIcon aria-hidden="true" className="size-4.5" />
-            </span>
-            <div className="min-w-0">
-              <h2 id="report-section-title" className="text-base font-semibold">{section.label}</h2>
-              <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{SECTION_DESCRIPTIONS[section.id] ?? "Complete this report section."}</p>
-            </div>
+      <div ref={contentStart} className="min-w-0 max-w-full scroll-mt-[calc(var(--mobile-navbar-height)+1rem)] lg:hidden">
+        {React.cloneElement(progressRail, { compact: true, className: undefined })}
+      </div>
+      <main className="grid min-w-0 max-w-full grid-cols-1 items-start gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,2.6fr)_minmax(0,1.15fr)] lg:grid-rows-1 lg:items-stretch">
+        <section aria-labelledby="report-section-title" className="flex min-w-0 flex-col rounded-2xl bg-background lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:rounded-3xl">
+          <div className="mx-4 flex shrink-0 items-center justify-between gap-3 border-b border-border-subtle py-4 lg:mx-6">
+            <h2 id="report-section-title" className="text-lg font-semibold">{section.label}</h2>
+            <div className="hidden lg:block">{entryMode}</div>
           </div>
-          <div data-report-scroll="form" className="min-h-0 min-w-0 flex-1 overflow-auto overscroll-contain p-2 sm:p-4">
+          <div data-report-scroll="form" className="min-w-0 shrink-0 flex-1 p-2 sm:p-4 lg:px-6">
             {sectionIsSkipped && reportId ? (
               <SkippedSectionNotice reportId={reportId} section={section} editable={Boolean(workflowReportQuery.data?.capabilities.is_editable)} />
             ) : sectionIsNotRequired ? (
@@ -626,8 +611,8 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
           <MonthlyReportFooter
             backLabel={backSection?.navigationLabel ?? backSection?.label}
             nextStep={nextSection ? sectionIndex + 2 : undefined}
-            stepCount={REPORT_WIZARD_SECTIONS.length}
-            submitFormId={canEdit && (method !== "upload" || ["tithes", "revenue", "overhead", "expenses"].includes(section.id)) && section.id !== "review" && !sectionIsSkipped && !sectionIsNotRequired && !sectionHasNoActivity ? entryFormId : undefined}
+            stepCount={monthlyReportSections.length}
+            submitFormId={submitFormId}
             backHref={backHref}
             nextHref={nextHref}
             nextLabel={nextSection ? `Continue to ${nextSection.navigationLabel ?? nextSection.label}` : undefined}
@@ -636,7 +621,7 @@ export function MonthlyReportWorkspace({ section: sectionParam }: { section: str
           />
         </section>
 
-        <div data-report-scroll="progress" className="min-h-0 min-w-0 overflow-y-auto overscroll-contain rounded-2xl">
+        <div data-report-scroll="progress" className="hidden min-w-0 rounded-3xl lg:block lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain">
           {progressRail}
         </div>
       </main>

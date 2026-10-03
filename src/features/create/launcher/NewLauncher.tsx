@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { Building2, Box, ChevronRight, FileText, LayoutTemplate, Link2, UploadCloud, UserRound, UsersRound, type LucideIcon } from "lucide-react"
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuGroup, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuGroup, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useActiveAssemblyId, useUser } from "@/hooks/query/use-user"
 import { useCurrentReport } from "@/features/reports/workflow/hooks"
@@ -109,7 +109,7 @@ export function NewLauncherMenu({ children, onAction }: { children: React.ReactE
             <DropdownMenuContent
                 align="start"
                 collisionPadding={8}
-                className="z-110 w-[min(22rem,calc(100vw-1rem))] rounded-3xl p-2.5"
+                className="z-110 grid w-[min(38rem,calc(100vw-1rem))] grid-cols-1 gap-3 rounded-3xl p-3 font-sans sm:grid-cols-2"
                 onCloseAutoFocus={event => {
                     const action = pendingAction.current
                     pendingAction.current = null
@@ -121,7 +121,7 @@ export function NewLauncherMenu({ children, onAction }: { children: React.ReactE
                     onAction?.()
                 }}
             >
-                <DropdownMenuGroup aria-label="Generate">
+                <DropdownMenuGroup aria-label="Generate" className="min-w-0 space-y-1.5">
                     <DropdownMenuLabel className="px-3 pt-2 pb-1.5 text-xs font-semibold text-muted-foreground">Generate</DropdownMenuLabel>
                     <MonthlyReportItem onSelect={href => { pendingAction.current = { href } }} />
                     <ReportUploadsItem onSelect={href => { pendingAction.current = { href } }} />
@@ -130,10 +130,8 @@ export function NewLauncherMenu({ children, onAction }: { children: React.ReactE
                     ))}
                 </DropdownMenuGroup>
 
-                <DropdownMenuSeparator className="mx-2 my-2 bg-border-subtle" />
-
-                <DropdownMenuGroup aria-label="Records">
-                    <DropdownMenuLabel className="px-3 pt-1.5 pb-1.5 text-xs font-semibold text-muted-foreground">Records</DropdownMenuLabel>
+                <DropdownMenuGroup aria-label="Records" className="min-w-0 space-y-1.5 border-t border-border-subtle pt-2 sm:border-t-0 sm:pt-0">
+                    <DropdownMenuLabel className="px-3 pt-2 pb-1.5 text-xs font-semibold text-muted-foreground">Records</DropdownMenuLabel>
                     {actions.filter(action => action.key !== "assembly" || user.data?.can_create_assembly).map(action => (
                         <LauncherItem
                             key={action.key}
@@ -158,7 +156,7 @@ function LauncherItem({ label, description, icon: Icon, disabled, onSelect }: {
 }) {
     return (
         <DropdownMenuItem textValue={label} disabled={disabled} onSelect={onSelect}
-            className="h-auto min-h-16 gap-3 rounded-xl px-3 py-2.5">
+            className="group h-auto min-h-20 cursor-pointer gap-3 rounded-2xl border border-border/50 bg-background/35 px-3 py-3 transition-colors hover:border-assembly-theme-500/25 hover:bg-accent focus:border-assembly-theme-500/25 focus:bg-accent">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-assembly-theme-500/15 text-assembly-theme-600 dark:text-assembly-theme-400">
                 <Icon aria-hidden="true" strokeWidth={1.75} className="size-5 text-inherit" />
             </span>

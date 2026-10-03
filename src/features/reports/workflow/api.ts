@@ -21,8 +21,8 @@ async function request<T>(endpoint: string, init?: RequestInit): Promise<T> {
   })
   const payload = await response.json().catch(() => null)
   if (!response.ok) {
-    const detail = payload?.detail ?? payload?.report ?? payload?.findings?.[0]?.message
-    throw new Error(typeof detail === "string" ? detail : "The report request could not be completed.")
+    const detail = payload?.detail ?? payload?.report ?? payload?.reason ?? payload?.findings?.[0]?.message
+    throw new Error(typeof detail === "string" ? detail : Array.isArray(detail) ? detail.join(" ") : "The report request could not be completed.")
   }
   return payload as T
 }

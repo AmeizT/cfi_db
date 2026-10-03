@@ -16,8 +16,8 @@ export function InlineEntryTable({ headers, rows, renderCells, onAdd, onRemove, 
     totalLabel: string
     dirtyLabel?: string
 }) {
-    return <div className="space-y-3">
-        <div className="overflow-x-auto rounded-lg border border-border-subtle">
+    return <div className="min-w-0 max-w-full space-y-3">
+        <div className="min-w-0 w-full max-w-full overflow-x-auto overscroll-x-contain rounded-lg border border-border-subtle">
             <table className="w-full border-collapse text-sm">
                 <thead><tr className="border-b border-border-subtle bg-muted/30">
                     {headers.map((label, index) => <th key={index} scope="col" className="whitespace-nowrap px-3 py-2 text-left font-medium text-muted-foreground">{label}</th>)}

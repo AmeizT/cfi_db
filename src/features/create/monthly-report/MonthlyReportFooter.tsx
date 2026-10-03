@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeftIcon, ArrowRightIcon, InfoIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, InfoIcon, HomeIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -27,9 +27,9 @@ export function MonthlyReportFooter({
   submitFormId,
 }: MonthlyReportFooterProps) {
   return (
-    <footer className="sticky bottom-0 z-10 shrink-0 space-y-3 bg-[color-mix(in_oklab,var(--muted)_20%,var(--background))] px-2 pt-3 pb-2 sm:px-4 sm:pb-4">
+    <footer className="mt-auto shrink-0 space-y-6 px-2 pt-6 pb-4 sm:px-4 lg:px-6 lg:pb-6">
       {canSkip ? (
-        <div className="flex flex-col gap-3 rounded-xl bg-muted/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-3xl bg-muted/50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-2.5">
             <InfoIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
             <div className="text-xs leading-5"><p className="font-semibold text-foreground">Unable to complete this section now?</p><p className="text-muted-foreground">Skipped sections can be updated later while the report is editable.</p></div>
@@ -37,21 +37,22 @@ export function MonthlyReportFooter({
           <Button type="button" variant="outline" className="shrink-0 border border-border-subtle bg-background" onClick={onSkip}>Skip this section</Button>
         </div>
       ) : null}
-      <div className="flex items-center justify-between gap-3 border-t border-border-subtle pt-3">
+      <div aria-label="Report section navigation" className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-2 rounded-full bg-muted/60 p-1.5">
+        <Button variant="ghost" size="icon" asChild className="rounded-full"><Link href="/" aria-label="Home"><HomeIcon className="size-4" /></Link></Button>
         {backHref ? (
-          <Button variant="outline" asChild className="h-auto min-h-12 justify-center border border-border-subtle px-4 py-2.5 sm:justify-start">
+          <Button variant="outline" asChild title={backLabel ? `Previous: ${backLabel}` : "Previous"} className="rounded-full border-0 bg-background px-4">
             <Link href={backHref}>
               <ArrowLeftIcon className="size-4" aria-hidden="true" />
-              <span className="text-left">Previous{backLabel ? <span className="block text-xs font-normal text-muted-foreground">{backLabel}</span> : null}</span>
+              <span>Previous</span>
             </Link>
           </Button>
-        ) : <span />}
+         ) : <Button variant="ghost" disabled className="rounded-full"><ArrowLeftIcon className="size-4" />Previous</Button>}
 
         <div className="grid gap-2 sm:flex sm:items-center sm:gap-3">
-          {submitFormId ? <Button type="submit" form={submitFormId} className="h-auto min-h-12 px-5 py-2.5">Save &amp; Continue<ArrowRightIcon className="size-4" aria-hidden="true" /></Button> : nextHref ? (
-            <Button asChild className="h-auto min-h-12 px-5 py-2.5">
+          {submitFormId ? <Button type="submit" form={submitFormId} className="rounded-full px-4">Save &amp; Continue<ArrowRightIcon className="size-4" aria-hidden="true" /></Button> : nextHref ? (
+            <Button asChild className="rounded-full px-4">
               <Link href={nextHref}>
-                <span className="text-left whitespace-normal">{nextLabel}{nextStep && stepCount ? <span className="mt-0.5 block text-xs font-normal opacity-80">Step {nextStep} of {stepCount}</span> : null}</span>
+                <span title={nextStep && stepCount ? `Step ${nextStep} of ${stepCount}` : undefined}>{nextLabel.includes("Review") ? "Review" : "Next"}</span>
                 <ArrowRightIcon className="size-4" aria-hidden="true" />
               </Link>
             </Button>

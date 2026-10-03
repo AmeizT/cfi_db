@@ -21,7 +21,7 @@ test("shortcut and primary navigation groups share an expanded collapsible treat
         readFile("src/features/workspace/sidebar/SidebarShortcuts.tsx", "utf8"),
         readFile("src/layouts/sidebar/SidebarNavigationGroup.tsx", "utf8"),
     ])
-    assert.ok(sidebar.indexOf("<SidebarShortcuts") < sidebar.indexOf("sections={groupedSections}"))
+    assert.ok(sidebar.indexOf("<SidebarShortcuts") < sidebar.indexOf("sections={primarySections}"))
     assert.match(navigation, /<SidebarNavigationGroup key=\{key\} title=\{section\.title\}>/)
     assert.match(shortcuts, /<SidebarNavigationGroup title="Shortcuts">/)
     assert.match(group, /defaultOpen = true/)
@@ -48,4 +48,21 @@ test("application sidebar avoids a shared-edge border and the inset has no shado
 
     assert.match(shell, /md:rounded-\[20px\] md:ring-1 md:ring-sidebar-border md:shadow-none/)
     assert.match(sidebar, /\*:data-\[slot=sidebar-inner\]:border-0/)
+})
+
+
+test("sidebar restores workspace destinations without Dock or sidebar Jethro", async () => {
+    const [shell, sidebar, navigation] = await Promise.all([
+        readFile("src/layouts/app-shell.tsx", "utf8"),
+        readFile("src/layouts/ContextSidebar.tsx", "utf8"),
+        readFile("src/config/workspace-navigation.ts", "utf8"),
+    ])
+    assert.doesNotMatch(shell + sidebar, /Dock/)
+    assert.match(sidebar, /item.key !== "jethro-ai"/)
+    assert.doesNotMatch(sidebar, /title: "Workspace"/)
+    assert.ok(sidebar.indexOf('<AppSearch variant="sidebar"') < sidebar.indexOf('sections={[{ items: homeItems }]}'))
+    assert.match(sidebar, /\{ \.\.\.assemblySummary, label: "Summary" \}/)
+    assert.match(navigation, /label: "Home"/)
+    assert.match(navigation, /if \(user\?\.can_view_assembly_summary\) summaryItems.push/)
+    assert.match(shell, /<JethroLauncher \/>/)
 })

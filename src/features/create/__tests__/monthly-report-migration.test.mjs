@@ -151,7 +151,7 @@ test("the new Create workspace reuses production report forms and APIs without t
   assert.match(workspace, /updateReportSection/);
   assert.match(workspace, /submitReport/);
   assert.doesNotMatch(workspace, /CentralCreateWorkspace/);
-  assert.match(progress, />Report progress</);
+  assert.match(progress, />This Report</);
   assert.doesNotMatch(progress, />Report Wizard</);
 });
 
@@ -187,7 +187,7 @@ test("New Uploads opens the current report in an upload-capable section with Exc
 });
 
 
-test("report footer stays outside the form scroller and progress has its own scroller", async () => {
+test("report content grows naturally and the skip footer cannot overlay the form", async () => {
   const source = await readFile("src/features/create/monthly-report/MonthlyReportWorkspace.tsx", "utf8");
   const tree = ts.createSourceFile("workspace.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const elements = [];
@@ -203,14 +203,18 @@ test("report footer stays outside the form scroller and progress has its own scr
   const progress = scrollRegion("progress");
   assert.ok(form);
   assert.ok(progress);
-  assert.match(form.getText(tree), /overflow-auto/);
-  assert.match(progress.getText(tree), /overflow-y-auto/);
+  assert.doesNotMatch(form.openingElement.getText(tree), /overflow-auto|overflow-y-auto|h-full/);
+  assert.match(progress.openingElement.getText(tree), /lg:overflow-y-auto/);
+  assert.match(form.parent.openingElement.getText(tree), /lg:overflow-y-auto/);
   assert.match(form.getText(tree), /<ManualEntryPanel/);
   assert.doesNotMatch(form.getText(tree), /<MonthlyReportFooter/);
   assert.match(form.parent.getText(tree), /<MonthlyReportFooter/);
   assert.equal(form.parent.parent, progress.parent);
   const footer = await readFile("src/features/create/monthly-report/MonthlyReportFooter.tsx", "utf8");
-  assert.match(footer, /sticky bottom-0[^"\n]*shrink-0/);
+  assert.doesNotMatch(footer, /sticky|fixed|absolute/);
   assert.match(footer, /form=\{submitFormId\}/);
   assert.match(footer, /onClick=\{onSkip\}/);
+  assert.match(source, /pb-\[calc\(2rem\+env\(safe-area-inset-bottom\)\)\]/);
+  const shell = await readFile("src/features/record-center/views/RecordCenterShell.tsx", "utf8");
+  assert.doesNotMatch(shell, /h-\[calc\(100dvh|overflow-hidden md:h-full|min-h-0 flex-1 overflow-hidden/);
 });

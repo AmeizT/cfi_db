@@ -3,7 +3,6 @@
 import * as React from "react"
 import { usePathname } from "next/navigation"
 import { Plus } from "lucide-react"
-import { CameraAddIcon } from '@solar-icons/react/bold-duotone/camera-add'
 
 import {
     Sidebar,
@@ -51,22 +50,31 @@ export function ContextSidebar({
     const regionalShell = usesRegionalShell(user)
     const { setOpenMobile } = useSidebar()
     const sections = React.useMemo(
-        () => filterNavigationSections(getWorkspaceNavigationSections(user, pathname), user),
+        () => filterNavigationSections(getWorkspaceNavigationSections(user, pathname), user)
+            .map(section => ({ ...section, items: section.items.filter(item => item.key !== "jethro-ai") }))
+            .filter(section => section.items.length > 0),
         [user, pathname]
     )
     const activeKey = getActiveNavigationKey(pathname, sections)
     const administration = sections.find(
         (section) => section.title === "Administration"
     )
-    const primarySections = sections.filter(
-        (section) => section.title !== "Administration"
-    )
-    const leadingSections = primarySections.filter(
-        (section) => !section.title || section.title === "AI Assistant"
-    )
-    const groupedSections = primarySections.filter(
-        (section) => section.title && section.title !== "AI Assistant"
-    )
+    const homeItems = sections.flatMap(section => section.items).filter(item => item.key === "home")
+    const assemblySummary = sections.flatMap(section => section.items).find(item => item.key === "assembly-summary")
+    const hasReporting = sections.some(section => section.title === "Reporting")
+    // Reorganize only the rendered navigation; Shortcuts retains the original sections.
+    const primarySections = sections
+        .filter(section => section.title !== "Administration")
+        .map(section => {
+            const items = section.items.filter(item => item.key !== "home" && !(hasReporting && item.key === "assembly-summary"))
+            return {
+                ...section,
+                items: section.title === "Reporting" && assemblySummary
+                    ? [{ ...assemblySummary, label: "Summary" }, ...items]
+                    : items,
+            }
+        })
+        .filter(section => section.items.length > 0)
     const shortcuts = useSidebarShortcuts({ pathname, sections, user })
     const matchingShortcutKey = getActiveShortcutKey(
         activeKey, sections, [...shortcuts.pinned, ...shortcuts.recent],
@@ -126,6 +134,15 @@ export function ContextSidebar({
                 </div>
 
                 <AppSearch variant="sidebar" />
+                {homeItems.length > 0 && (
+                    <UnifiedSidebarNavigation
+                        sections={[{ items: homeItems }]}
+                        activeKey={activeKey}
+                        suppressActive={Boolean(activeShortcutKey)}
+                        onNavigate={navigateOriginal}
+                        shortcutActions={regionalShell ? undefined : shortcuts}
+                    />
+                )}
             </SidebarHeader>
 
             <SidebarContent className="
@@ -141,14 +158,6 @@ export function ContextSidebar({
                 hover:scrollbar-thumb-assembly-theme-500
                 md:pb-2
             ">
-                <UnifiedSidebarNavigation
-                    sections={leadingSections}
-                    activeKey={activeKey}
-                    suppressActive={Boolean(activeShortcutKey)}
-                    onNavigate={navigateOriginal}
-                    shortcutActions={regionalShell ? undefined : shortcuts}
-                />
-
                 {!regionalShell && <SidebarShortcuts
                     pinned={shortcuts.pinned}
                     recent={shortcuts.recent}
@@ -158,7 +167,7 @@ export function ContextSidebar({
                 />}
 
                 <UnifiedSidebarNavigation
-                    sections={groupedSections}
+                    sections={primarySections}
                     activeKey={activeKey}
                     suppressActive={Boolean(activeShortcutKey)}
                     onNavigate={navigateOriginal}

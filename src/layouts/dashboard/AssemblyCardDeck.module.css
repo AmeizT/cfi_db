@@ -1,0 +1,96 @@
+.root {
+    --deck-card-width: 38px;
+    --deck-card-height: 38px;
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    color: var(--foreground);
+    overflow: hidden;
+}
+.root[data-variant="sidebar"] { color: var(--sidebar-foreground); }
+.deck {
+    width: 100%;
+    max-width: 58px;
+    height: auto;
+    padding: 7px 5px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: 5px;
+    transition: max-width 380ms cubic-bezier(.22, 1, .36, 1);
+}
+.deck[data-expanded="true"] {
+    max-width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    transition-delay: 120ms;
+}
+.deck::-webkit-scrollbar { display: none; }
+.track { display: flex; align-items: flex-start; width: max-content; min-height: var(--deck-card-height); padding-right: 8px; }
+.card, .mobileCard {
+    box-sizing: border-box;
+    width: var(--deck-card-width);
+    height: var(--deck-card-height);
+    flex-shrink: 0;
+    display: flex;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl, 12px);
+    background: var(--muted);
+    color: var(--foreground);
+    /* box-shadow: 0 2px 4px color-mix(in srgb, var(--foreground) 12%, transparent); */
+}
+.card {
+    position: relative;
+    margin-right: calc(-1 * var(--deck-card-width));
+    transform: translate(calc(var(--peek) * 3px), calc(var(--peek) * -0.75px)) rotate(var(--tilt));
+    z-index: calc(10 - var(--peek));
+    transform-origin: center;
+    transition: transform 380ms cubic-bezier(.22, 1, .36, 1), margin-right 380ms cubic-bezier(.22, 1, .36, 1), opacity 180ms;
+    transition-delay: min(calc(var(--index) * 35ms), 280ms);
+    scroll-snap-align: start;
+}
+.card[data-hidden="true"] { opacity: 0; visibility: hidden; }
+.deck[data-expanded="true"] .card {
+    margin-right: 8px;
+    transform: translate(0, 0) rotate(0deg);
+    cursor: pointer;
+    transition-delay: calc(120ms + min(calc(var(--index) * 35ms), 280ms));
+}
+.card[data-active="true"] { z-index: 20; }
+.deck[data-expanded="true"] .card[data-active="true"], .mobileCard[data-active="true"] {
+    border-color: var(--ring);
+    /* box-shadow: 0 0 0 1px var(--ring); */
+}
+.card:focus-visible, .trigger:focus-visible, .mobileItem:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.artwork { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 18px; font-weight: 600; background: var(--muted); color: var(--assembly-sidebar-active-foreground, var(--foreground)); }
+.name {
+    position: absolute;
+    inset: 0 0 0 60px;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 500;
+    pointer-events: none;
+    transition: opacity 120ms ease-out;
+    transition-delay: 260ms;
+}
+.nameText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.root[data-expanded="true"] .name { opacity: 0; transition-delay: 0ms; }
+.trigger { position: absolute; inset: 0; border-radius: var(--radius-lg, 12px); cursor: pointer; }
+.root[data-expanded="true"] .trigger { pointer-events: none; }
+.loading { width: var(--deck-card-width); height: var(--deck-card-height); background: var(--muted); border-radius: var(--radius-lg, 12px); }
+.mobileGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-height: min(60dvh, 28rem); overflow-y: auto; padding: 4px; }
+.mobileItem { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; padding: 8px; border-radius: var(--radius-lg, 12px); cursor: pointer; }
+.mobileItem:disabled { opacity: .6; cursor: wait; }
+.mobileCard { --deck-card-width: 38px; --deck-card-height: 38px; }
+.mobileName { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .deck, .card, .name { transition: none; } }
+:global([data-collapsible="icon"]) .root { --deck-card-width: 28px; --deck-card-height: 28px; }
+:global([data-collapsible="icon"]) .name { opacity: 0; }
+:global([data-collapsible="icon"]) .deck { padding-inline: 2px; }

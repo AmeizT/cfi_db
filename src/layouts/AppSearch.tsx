@@ -65,8 +65,8 @@ export function AppSearch({
                     className={cn(
                         "size-9 shrink-0 justify-center",
                         isSidebar ? [
-                            "h-9 w-full justify-start rounded-[0.625rem] px-2",
-                            "bg-[#00000012] text-(--shell-sidebar-muted-foreground)",
+                            "h-8 w-full justify-start gap-2 rounded-full border-0 border-border-subtle px-2 py-0.5 sm:h-10 dark:border-neutral-800",
+                            "bg-sidebar-accent/60 text-(--shell-sidebar-muted-foreground)",
                             "hover:bg-sidebar-accent hover:text-sidebar-foreground",
                         ] : [
                             "text-(--shell-chrome-foreground)",
