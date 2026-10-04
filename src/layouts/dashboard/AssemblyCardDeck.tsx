@@ -3,6 +3,7 @@
 import React from "react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
 import { useIsMobile } from "@/hooks/use-mobile"
 import type { AssemblySummary } from "@/features/auth/schemas/user"
 import { getAssemblyThemeColor } from "@/features/appearance/lib/assembly-theme"
@@ -26,6 +27,10 @@ export function AssemblyCardDeck({ assemblies, activeAssembly, loading, pending,
     const [pinned, setPinned] = React.useState(false)
     const [mobileOpen, setMobileOpen] = React.useState(false)
     const isMobile = useIsMobile()
+    const Picker = isMobile ? Drawer : Dialog
+    const PickerContent = isMobile ? DrawerContent : DialogContent
+    const PickerTitle = isMobile ? DrawerTitle : DialogTitle
+    const PickerDescription = isMobile ? DrawerDescription : DialogDescription
     const chooserId = React.useId()
     const multiple = assemblies.length > 1
     const Card = multiple ? "button" : "div"
@@ -128,11 +133,11 @@ export function AssemblyCardDeck({ assemblies, activeAssembly, loading, pending,
                         if (!isMobile) requestAnimationFrame(() => deck.current?.querySelector<HTMLButtonElement>("button")?.focus())
                     }
                 }} />}
-            {multiple && <Dialog open={mobileOpen} onOpenChange={setMobileOpen}>
-                <DialogContent id={`${chooserId}-mobile`} className="max-w-sm rounded-2xl"
+            {multiple && <Picker open={mobileOpen} onOpenChange={setMobileOpen}>
+                <PickerContent id={`${chooserId}-mobile`} className={isMobile ? "data-[vaul-drawer-direction=bottom]:rounded-t-3xl px-4 pb-[max(1rem,env(safe-area-inset-bottom))]" : "max-w-sm rounded-2xl"}
                     onCloseAutoFocus={event => { event.preventDefault(); trigger.current?.focus() }}>
-                    <DialogTitle>Choose assembly</DialogTitle>
-                    <DialogDescription className="sr-only">Select the assembly you want to manage.</DialogDescription>
+                    <PickerTitle className="py-4 text-center">Choose assembly</PickerTitle>
+                    <PickerDescription className="sr-only">Select the assembly you want to manage.</PickerDescription>
                     <div className={styles.mobileGrid}>
                         {ordered.map((assembly, index) => (
                             <button key={assembly.id} type="button" className={styles.mobileItem}
@@ -146,8 +151,8 @@ export function AssemblyCardDeck({ assemblies, activeAssembly, loading, pending,
                             </button>
                         ))}
                     </div>
-                </DialogContent>
-            </Dialog>}
+                </PickerContent>
+            </Picker>}
         </div>
     )
 }

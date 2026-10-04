@@ -27,6 +27,7 @@ import { QuickCreate } from "@/layouts/quick-create"
 import { UnifiedSidebarNavigation } from "@/layouts/sidebar/UnifiedSidebarNavigation"
 import {
     filterNavigationSections,
+    getPrimaryNavigationSections,
     getActiveNavigationKey,
 } from "@/layouts/sidebar/navigation-utils"
 import { cn } from "@/lib/utils"
@@ -60,21 +61,7 @@ export function ContextSidebar({
         (section) => section.title === "Administration"
     )
     const homeItems = sections.flatMap(section => section.items).filter(item => item.key === "home")
-    const assemblySummary = sections.flatMap(section => section.items).find(item => item.key === "assembly-summary")
-    const hasReporting = sections.some(section => section.title === "Reporting")
-    // Reorganize only the rendered navigation; Shortcuts retains the original sections.
-    const primarySections = sections
-        .filter(section => section.title !== "Administration")
-        .map(section => {
-            const items = section.items.filter(item => item.key !== "home" && !(hasReporting && item.key === "assembly-summary"))
-            return {
-                ...section,
-                items: section.title === "Reporting" && assemblySummary
-                    ? [{ ...assemblySummary, label: "Summary" }, ...items]
-                    : items,
-            }
-        })
-        .filter(section => section.items.length > 0)
+    const primarySections = getPrimaryNavigationSections(sections)
     const shortcuts = useSidebarShortcuts({ pathname, sections, user })
     const matchingShortcutKey = getActiveShortcutKey(
         activeKey, sections, [...shortcuts.pinned, ...shortcuts.recent],

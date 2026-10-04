@@ -8,17 +8,18 @@ import { NewLauncherMenu } from "@/features/create/launcher/NewLauncher";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-export function QuickCreate({ trigger, onAction }: {
+export function QuickCreate({ trigger, onAction, mobile = false }: {
   trigger?: React.ReactElement;
   onAction?: () => void;
+  mobile?: boolean;
 } = {}) {
   const { data: user } = useUser();
   if (usesRegionalShell(user)) return null;
-  if (trigger) return <NewLauncherMenu onAction={onAction}>{trigger}</NewLauncherMenu>;
+  if (trigger) return <NewLauncherMenu mobile={mobile} onAction={onAction}>{trigger}</NewLauncherMenu>;
 
   return (
     <Tooltip>
-      <NewLauncherMenu onAction={onAction}>
+      <NewLauncherMenu mobile={mobile} onAction={onAction}>
         <TooltipTrigger asChild>
           <Button type="button" variant="ghost" size="icon"
             aria-label="New"

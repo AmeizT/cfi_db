@@ -94,3 +94,10 @@
 :global([data-collapsible="icon"]) .root { --deck-card-width: 28px; --deck-card-height: 28px; }
 :global([data-collapsible="icon"]) .name { opacity: 0; }
 :global([data-collapsible="icon"]) .deck { padding-inline: 2px; }
+
+/* Soften only the mobile stack; unfolded cards retain their existing geometry. */
+@media (max-width: 767px) {
+    .deck:not([data-expanded="true"]) .card:nth-child(2) { transform: translate(1px, -1px) rotate(-10deg); }
+    .deck:not([data-expanded="true"]) .card:nth-child(3) { transform: translate(0, 1px) rotate(8deg); }
+    .deck:not([data-expanded="true"]) .card:nth-child(4) { transform: translate(2px, 0) rotate(-5deg); }
+}

@@ -1,5 +1,6 @@
 "use client"
 
+import { useIsMobile } from "@/hooks/use-mobile"
 import { useUser } from "@/hooks/query/use-user"
 import { filterNavigationSections } from "@/layouts/sidebar/navigation-utils"
 
@@ -13,6 +14,7 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command"
+import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/utils/cn"
@@ -28,12 +30,12 @@ function flattenSearchItems(items: NavigationItem[]): NavigationItem[] {
     ])
 }
 
-function getSearchGroups(user: Parameters<typeof getWorkspaceNavigationSections>[0], pathname: string) {
+function getSearchGroups(user: Parameters<typeof getWorkspaceNavigationSections>[0], pathname: string, mobile = false) {
     return filterNavigationSections(getWorkspaceNavigationSections(user, pathname), user)
     .map((section, index) => ({
         area: section.title ?? (index === 0 ? "Home" : "Library"),
         items: flattenSearchItems(section.items).filter(
-        (item) => !item.disabled && (!item.permission || user?.is_region_staff),
+        (item) => !item.disabled && (mobile || !item.permission || user?.is_region_staff),
         ),
     }))
     .filter((group) => group.items.length > 0)
@@ -42,28 +44,34 @@ function getSearchGroups(user: Parameters<typeof getWorkspaceNavigationSections>
 export function AppSearch({
     variant = "topbar",
 }: {
-    variant?: "topbar" | "sidebar"
+    variant?: "topbar" | "sidebar" | "mobile"
 } = {}) {
+    const isMobile = useIsMobile()
     const router = useRouter();
     const pathname = usePathname()
     const { data: user } = useUser()
-    const searchGroups = getSearchGroups(user, pathname)
+    const searchGroups = getSearchGroups(user, pathname, variant === "mobile")
     const [searchOpen, setSearchOpen] = React.useState(false);
     const isSidebar = variant === "sidebar"
+    const mobile = variant === "mobile"
+    const Root = mobile ? Drawer : Popover
+    const Trigger = mobile ? DrawerTrigger : PopoverTrigger
+    const Content = mobile ? DrawerContent : PopoverContent
 
     function navigate(href: string) {
         setSearchOpen(false);
         router.push(href);
     }
     return (
-        <Popover open={searchOpen} onOpenChange={setSearchOpen}>
-            <PopoverTrigger asChild>
+        <Root open={searchOpen && (!mobile || isMobile)} onOpenChange={setSearchOpen}>
+            <Trigger asChild>
                 <Button
                     type="button"
                     variant="ghost"
                     aria-label="Search CFI Workspace"
                     className={cn(
                         "size-9 shrink-0 justify-center",
+                        mobile && "size-10 rounded-full border border-border bg-background/70 shadow-sm",
                         isSidebar ? [
                             "h-8 w-full justify-start gap-2 rounded-full border-0 border-border-subtle px-2 py-0.5 sm:h-10 dark:border-neutral-800",
                             "bg-sidebar-accent/60 text-(--shell-sidebar-muted-foreground)",
@@ -83,22 +91,19 @@ export function AppSearch({
                         Search
                     </span>
                 </Button>
-            </PopoverTrigger>
+            </Trigger>
 
-            <PopoverContent
-                side="bottom"
-                align="center"
-                alignOffset={-20}
-                sideOffset={-36}
-                collisionPadding={6}
-                className="w-[min(42rem,calc(100vw-1rem))] overflow-hidden p-0 rounded-3xl border-border bg-transparent"
+            <Content
+                {...(!mobile ? { side: "bottom" as const, align: "center" as const, alignOffset: -20, sideOffset: -36, collisionPadding: 6 } : {})}
+                className={mobile ? "h-[90dvh] data-[vaul-drawer-direction=bottom]:max-h-[90dvh] data-[vaul-drawer-direction=bottom]:mt-0 data-[vaul-drawer-direction=bottom]:rounded-t-3xl overflow-hidden pb-[env(safe-area-inset-bottom)]" : "w-[min(42rem,calc(100vw-1rem))] overflow-hidden p-0 rounded-3xl border-border bg-transparent"}
             >
-                <Command className="
+                {mobile && <><DrawerTitle className="px-4 py-3">Search Workspace</DrawerTitle><DrawerDescription className="sr-only">Search and open workspace destinations.</DrawerDescription></>}
+                <Command className={cn(mobile && "min-h-0 flex-1", `
                     bg-background/80 
                     backdrop-blur-2xl 
                     backdrop-saturate-150
                     border 
-                    border-white/10 shadow-2xl"
+                    border-white/10 shadow-2xl`)}
                 >
                     <div className="">
                         <CommandInput
@@ -109,7 +114,7 @@ export function AppSearch({
                     <Separator className="data-[orientation=horizontal]:w-[calc(100%-2rem)] mx-auto border-b border-border" />
                     </div>
 
-                    <CommandList className="max-h-[min(28rem,70dvh)] p-2">
+                    <CommandList className={mobile ? "min-h-0 flex-1 max-h-none overscroll-contain p-2" : "max-h-[min(28rem,70dvh)] p-2"}>
                         <CommandEmpty>No destination found.</CommandEmpty>
 
                         {searchGroups.map((group) => (
@@ -138,7 +143,7 @@ export function AppSearch({
                         ))}
                     </CommandList>
                 </Command>
-            </PopoverContent>
-        </Popover>
+            </Content>
+        </Root>
     )
 }

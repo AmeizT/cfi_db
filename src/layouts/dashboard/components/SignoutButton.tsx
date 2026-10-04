@@ -9,7 +9,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { logout } from "@/features/auth/utils/logout"
 import { ExitIcon } from '@solar-icons/react/line-duotone/exit'
 
-export function SignoutButton() {
+export function SignoutButton({ standalone = false }: { standalone?: boolean } = {}) {
     const router = useRouter()
     const [isPending, setIsPending] = useState(false)
 
@@ -29,8 +29,7 @@ export function SignoutButton() {
         }
     }
 
-    return (
-        <DropdownMenuItem asChild className="focus:text-red-600">
+    const button = (
             <Button
                 onClick={handleLogout}
                 disabled={isPending}
@@ -45,6 +44,6 @@ export function SignoutButton() {
 
                 {isPending ? "Logging out..." : "Logout"}
             </Button>
-        </DropdownMenuItem>
     )
+    return standalone ? button : <DropdownMenuItem asChild className="focus:text-red-600">{button}</DropdownMenuItem>
 }

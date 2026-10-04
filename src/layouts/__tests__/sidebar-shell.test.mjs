@@ -61,7 +61,7 @@ test("sidebar restores workspace destinations without Dock or sidebar Jethro", a
     assert.match(sidebar, /item.key !== "jethro-ai"/)
     assert.doesNotMatch(sidebar, /title: "Workspace"/)
     assert.ok(sidebar.indexOf('<AppSearch variant="sidebar"') < sidebar.indexOf('sections={[{ items: homeItems }]}'))
-    assert.match(sidebar, /\{ \.\.\.assemblySummary, label: "Summary" \}/)
+    assert.match(sidebar, /getPrimaryNavigationSections\(sections\)/)
     assert.match(navigation, /label: "Home"/)
     assert.match(navigation, /if \(user\?\.can_view_assembly_summary\) summaryItems.push/)
     assert.match(shell, /<JethroLauncher \/>/)

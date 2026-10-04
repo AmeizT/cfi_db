@@ -3,6 +3,8 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { Building2, Box, ChevronRight, FileText, LayoutTemplate, Link2, UploadCloud, UserRound, UsersRound, type LucideIcon } from "lucide-react"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { Drawer, DrawerTrigger, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuGroup, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useActiveAssemblyId, useUser } from "@/hooks/query/use-user"
@@ -92,24 +94,34 @@ const generateLinks = [
 
 type PendingAction = { entity: Entity } | { href: string }
 
-export function NewLauncherMenu({ children, onAction }: { children: React.ReactElement; onAction?: () => void }) {
+export function NewLauncherMenu({ children, onAction, mobile = false }: { children: React.ReactElement; onAction?: () => void; mobile?: boolean }) {
     const openQuickAdd = React.useContext(LauncherContext)
     if (!openQuickAdd) throw new Error("New launcher must be used within AppShell")
     const triggerRef = React.useRef<HTMLButtonElement>(null)
     const pendingAction = React.useRef<PendingAction | null>(null)
     const router = useRouter()
     const user = useUser()
+    const [open, setOpen] = React.useState(false)
+    const isMobile = useIsMobile()
+    function queueAction(action: PendingAction) {
+        pendingAction.current = action
+        if (mobile) setOpen(false)
+    }
+    const Root = mobile ? Drawer : DropdownMenu
+    const Trigger = mobile ? DrawerTrigger : DropdownMenuTrigger
+    const Content = mobile ? DrawerContent : DropdownMenuContent
+    const Group = mobile ? "div" : DropdownMenuGroup
+    const Label = mobile ? "p" : DropdownMenuLabel
     if (usesRegionalShell(user.data)) return null
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild ref={triggerRef}>
+        <Root open={open && (!mobile || isMobile)} onOpenChange={setOpen}>
+            <Trigger asChild ref={triggerRef}>
                 {children}
-            </DropdownMenuTrigger>
+            </Trigger>
 
-            <DropdownMenuContent
-                align="start"
-                collisionPadding={8}
-                className="z-110 grid w-[min(38rem,calc(100vw-1rem))] grid-cols-1 gap-3 rounded-3xl p-3 font-sans sm:grid-cols-2"
+            <Content
+                {...(!mobile ? { align: "start" as const, collisionPadding: 8 } : {})}
+                className={mobile ? "overflow-hidden data-[vaul-drawer-direction=bottom]:rounded-t-3xl p-3 pb-[max(1rem,env(safe-area-inset-bottom))]" : "z-110 grid w-[min(38rem,calc(100vw-1rem))] grid-cols-1 gap-3 rounded-3xl p-3 font-sans sm:grid-cols-2"}
                 onCloseAutoFocus={event => {
                     const action = pendingAction.current
                     pendingAction.current = null
@@ -121,42 +133,48 @@ export function NewLauncherMenu({ children, onAction }: { children: React.ReactE
                     onAction?.()
                 }}
             >
-                <DropdownMenuGroup aria-label="Generate" className="min-w-0 space-y-1.5">
-                    <DropdownMenuLabel className="px-3 pt-2 pb-1.5 text-xs font-semibold text-muted-foreground">Generate</DropdownMenuLabel>
-                    <MonthlyReportItem onSelect={href => { pendingAction.current = { href } }} />
-                    <ReportUploadsItem onSelect={href => { pendingAction.current = { href } }} />
-                    {generateLinks.map(action => (
-                        <LauncherItem key={action.href} {...action} onSelect={() => { pendingAction.current = { href: action.href } }} />
-                    ))}
-                </DropdownMenuGroup>
+                {mobile && <><DrawerTitle className="shrink-0 px-3 py-3">Create</DrawerTitle><DrawerDescription className="sr-only">Choose an existing record or report action.</DrawerDescription></>}
+                <div className={mobile ? "min-h-0 overflow-y-auto overscroll-contain" : "contents"}>
+                    <Group aria-label="Generate" className="min-w-0 space-y-1.5">
+                        <Label className="px-3 pt-2 pb-1.5 text-xs font-semibold text-muted-foreground">Generate</Label>
+                        <MonthlyReportItem mobile={mobile} onSelect={href => { queueAction({ href }) }} />
+                        <ReportUploadsItem mobile={mobile} onSelect={href => { queueAction({ href }) }} />
+                        {generateLinks.map(action => (
+                            <LauncherItem mobile={mobile} key={action.href} {...action} onSelect={() => { queueAction({ href: action.href }) }} />
+                        ))}
+                    </Group>
 
-                <DropdownMenuGroup aria-label="Records" className="min-w-0 space-y-1.5 border-t border-border-subtle pt-2 sm:border-t-0 sm:pt-0">
-                    <DropdownMenuLabel className="px-3 pt-2 pb-1.5 text-xs font-semibold text-muted-foreground">Records</DropdownMenuLabel>
-                    {actions.filter(action => action.key !== "assembly" || user.data?.can_create_assembly).map(action => (
-                        <LauncherItem
-                            key={action.key}
-                            label={action.label}
-                            description={action.description}
-                            icon={action.icon}
-                            onSelect={() => { pendingAction.current = { entity: action.key } }}
-                        />
-                    ))}
-                </DropdownMenuGroup>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                    <Group aria-label="Records" className="min-w-0 space-y-1.5 border-t border-border-subtle pt-2 sm:border-t-0 sm:pt-0">
+                        <Label className="px-3 pt-2 pb-1.5 text-xs font-semibold text-muted-foreground">Records</Label>
+                        {actions.filter(action => action.key !== "assembly" || user.data?.can_create_assembly).map(action => (
+                            <LauncherItem
+                                mobile={mobile}
+                                key={action.key}
+                                label={action.label}
+                                description={action.description}
+                                icon={action.icon}
+                                onSelect={() => { queueAction({ entity: action.key }) }}
+                            />
+                        ))}
+                    </Group>
+                </div>
+            </Content>
+        </Root>
     )
 }
 
-function LauncherItem({ label, description, icon: Icon, disabled, onSelect }: {
+function LauncherItem({ label, description, icon: Icon, disabled, onSelect, mobile = false }: {
+    mobile?: boolean
     label: string
     description: string
     icon: LucideIcon
     disabled?: boolean
     onSelect: () => void
 }) {
+    const Item = mobile ? "button" : DropdownMenuItem
     return (
-        <DropdownMenuItem textValue={label} disabled={disabled} onSelect={onSelect}
-            className="group h-auto min-h-20 cursor-pointer gap-3 rounded-2xl border border-border/50 bg-background/35 px-3 py-3 transition-colors hover:border-assembly-theme-500/25 hover:bg-accent focus:border-assembly-theme-500/25 focus:bg-accent">
+        <Item {...(mobile ? { type: "button" as const, onClick: onSelect } : { textValue: label, onSelect })} disabled={disabled}
+            className={`${mobile ? "flex w-full text-left min-h-16" : "min-h-20"} group h-auto cursor-pointer gap-3 rounded-2xl border border-border/50 bg-background/35 px-3 py-3 transition-colors hover:border-assembly-theme-500/25 hover:bg-accent focus:border-assembly-theme-500/25 focus:bg-accent`}>
             <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-assembly-theme-500/15 text-assembly-theme-600 dark:text-assembly-theme-400">
                 <Icon aria-hidden="true" strokeWidth={1.75} className="size-5 text-inherit" />
             </span>
@@ -165,16 +183,16 @@ function LauncherItem({ label, description, icon: Icon, disabled, onSelect }: {
                 <span className="block text-xs leading-relaxed text-muted-foreground">{description}</span>
             </span>
             <ChevronRight aria-hidden="true" strokeWidth={1.75} className="size-4 shrink-0 text-muted-foreground" />
-        </DropdownMenuItem>
+        </Item>
     )
 }
 
-function MonthlyReportItem({ onSelect }: { onSelect: (href: string) => void }) {
+function MonthlyReportItem({ onSelect, mobile = false }: { mobile?: boolean; onSelect: (href: string) => void }) {
     const reportQuery = useCurrentReport()
     const report = reportQuery.data
     const href = report?.id ? createMonthlyReportHref(getMonthlyReportResumeSection(report), { report_id: report.id }) : "/record-center"
 
-    return <LauncherItem
+    return <LauncherItem mobile={mobile}
         label="Monthly Report"
         description="Create a new monthly report"
         icon={FileText}
@@ -183,9 +201,9 @@ function MonthlyReportItem({ onSelect }: { onSelect: (href: string) => void }) {
     />
 }
 
-function ReportUploadsItem({ onSelect }: { onSelect: (href: string) => void }) {
+function ReportUploadsItem({ onSelect, mobile = false }: { mobile?: boolean; onSelect: (href: string) => void }) {
     const reportQuery = useCurrentReport()
-    return <LauncherItem
+    return <LauncherItem mobile={mobile}
         label="Uploads"
         description="Excel & OCR report uploads"
         icon={UploadCloud}

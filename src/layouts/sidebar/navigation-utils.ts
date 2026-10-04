@@ -95,3 +95,32 @@ export function getActiveParentKey(
             )
         )?.key
 }
+
+
+/** Shared presentation of the sidebar's primary groups, including Report Summary. */
+export function getPrimaryNavigationSections(sections: NavigationSection[]) {
+    const assemblySummary = sections.flatMap(section => section.items).find(item => item.key === "assembly-summary")
+    const hasReporting = sections.some(section => section.title === "Reporting")
+    return sections
+        .filter(section => section.title !== "Administration")
+        .map(section => {
+            const items = section.items.filter(item => item.key !== "home" && !(hasReporting && item.key === "assembly-summary"))
+            return {
+                ...section,
+                items: section.title === "Reporting" && assemblySummary
+                    ? [{ ...assemblySummary, label: "Summary" }, ...items]
+                    : items,
+            }
+        })
+        .filter(section => section.items.length > 0)
+}
+
+/** Dock drawers select existing groups after the shared permission filter. */
+export function getMobileNavigationGroups(sections: NavigationSection[]) {
+    const items = sections.flatMap(section => section.items)
+    return {
+        reports: getPrimaryNavigationSections(sections).find(section => section.title === "Reporting")?.items ?? [],
+        finance: items.find(item => item.key === "finance")?.children ?? [],
+        engagement: items.find(item => item.key === "engagement")?.children ?? [],
+    }
+}

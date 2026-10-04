@@ -12,6 +12,7 @@ import { useUser } from "@/hooks/query/use-user"
 import { ContextSidebar } from "@/layouts/ContextSidebar"
 import { NewLauncherProvider } from "@/features/create/launcher/NewLauncher"
 import { Topbar } from "@/layouts/topbar"
+import BottomMenu from "./BottomMenu";
 
 export function AppShell({
   children,
@@ -39,9 +40,11 @@ export function AppShell({
           <SidebarInset className="min-h-0 min-w-0 max-w-full flex-col overflow-visible pt-(--mobile-navbar-height) lg:pt-0 bg-white dark:bg-neutral-900 md:my-2 md:mr-2 md:ml-2 md:overflow-hidden md:rounded-[20px] md:ring-1 md:ring-sidebar-border md:shadow-none">
             <Topbar />
 
-            <div className="@container/main flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-visible overscroll-auto pb-[env(safe-area-inset-bottom)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-300 md:overflow-y-auto md:overscroll-contain">
+            <div className="@container/main flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-visible overscroll-auto pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-[env(safe-area-inset-bottom)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-300 md:overflow-y-auto md:overscroll-contain">
               {children}
             </div>
+
+            <BottomMenu />
 
           </SidebarInset>
         </div>

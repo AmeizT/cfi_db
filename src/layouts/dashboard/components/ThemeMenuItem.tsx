@@ -1,14 +1,15 @@
 import React from "react"
+import { Button } from "@/components/ui/button"
 import { PremiumThemeSelector } from "./ThemeSelector"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { PaintRollerIcon } from '@solar-icons/react/line-duotone/paint-roller'
 
-export function ThemeMenuItem() {
+export function ThemeMenuItem({ standalone = false }: { standalone?: boolean } = {}) {
     const [open, setOpen] = React.useState(false)
 
     return (
         <React.Fragment>
-            <DropdownMenuItem
+            {standalone ? <Button variant="ghost" className="w-full justify-start gap-2 font-normal" onClick={() => setOpen(true)}><PaintRollerIcon className="size-5" />Appearance</Button> : <DropdownMenuItem
                 onSelect={(e) => {
                     e.preventDefault()
                     setOpen(true)
@@ -16,7 +17,7 @@ export function ThemeMenuItem() {
             >
                 <PaintRollerIcon strokeWidth={2} className="size-5.5" />
                 Appearance
-            </DropdownMenuItem>
+            </DropdownMenuItem>}
 
             <PremiumThemeSelector open={open} onOpenChange={setOpen} />
         </React.Fragment>

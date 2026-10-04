@@ -159,7 +159,7 @@ test("mobile tap opens the grid picker, selecting updates assembly and closes it
     assert.equal(h.render().props["data-expanded"], false)
     h.trigger().props.onClick()
     h.render()
-    const dialog = () => h.all().find(n => n.type === "Dialog")
+    const dialog = () => h.all().find(n => n.type === "Drawer")
     assert.equal(dialog().props.open, true)
     assert.equal(h.root.props["data-expanded"], false)
     const items = h.all().filter(n => n.props.className === "mobileItem")
@@ -174,7 +174,7 @@ test("mobile tap opens the grid picker, selecting updates assembly and closes it
 test("single assembly never opens a mobile picker", () => {
     const h = harness(1, true)
     assert.equal(h.trigger(), undefined)
-    assert.equal(h.all().find(n => n.type === "Dialog"), undefined)
+    assert.equal(h.all().find(n => n.type === "Drawer"), undefined)
 })
 
 test("desktop tooltips expose full long names, with no name label inside cards", () => {

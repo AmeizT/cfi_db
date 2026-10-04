@@ -127,3 +127,18 @@ export function ProfileDropdown({
         </DropdownMenu>
     )
 }
+
+
+export function ProfileDrawerContent() {
+    const { data: user } = useUser()
+    return <div className="space-y-3 p-4">
+        <div className="flex items-center gap-3">
+            <Avatar><AvatarImage src={user?.avatar || undefined} /><AvatarFallback>{user?.first_name?.charAt(0) || "U"}</AvatarFallback></Avatar>
+            <div className="min-w-0"><p className="truncate font-medium">{user?.full_name || user?.first_name || "Account"}</p><p className="truncate text-xs text-muted-foreground">{user?.email}</p></div>
+        </div>
+        <Button variant="ghost" disabled className="w-full justify-start gap-2 font-normal"><SettingsIcon className="size-5" />Settings</Button>
+        <ThemeMenuItem standalone />
+        <div className="border-t border-border" />
+        <SignoutButton standalone />
+    </div>
+}

@@ -40,11 +40,11 @@ test("both transfer entry points refresh the same Directory cache used for brows
 test("selection uses a dropdown while the shared dialog remains outside its content", async () => {
     const source = await readFile("src/features/create/launcher/NewLauncher.tsx", "utf8")
     const menu = source.slice(source.indexOf("export function NewLauncherMenu"))
-    assert.match(menu, /<DropdownMenuTrigger asChild ref=\{triggerRef\}/)
-    assert.match(menu, /<DropdownMenuLabel[^>]*>Generate/)
-    assert.match(menu, /<DropdownMenuLabel[^>]*>Records/)
+    assert.match(menu, /<Trigger asChild ref=\{triggerRef\}/)
+    assert.match(menu, /<Label[^>]*>Generate/)
+    assert.match(menu, /<Label[^>]*>Records/)
     assert.doesNotMatch(menu, /<Dialog|<QuickAddForm/)
-    assert.match(menu, /pendingAction\.current = \{ entity: action\.key \}/)
+    assert.match(menu, /queueAction\(\{ entity: action\.key \}\)/)
     assert.match(menu, /onCloseAutoFocus/)
     assert.match(menu, /openQuickAdd\(action\.entity, triggerRef\.current\)/)
     assert.match(menu, /router\.push\(action\.href\)/)
@@ -56,7 +56,7 @@ test("selection uses a dropdown while the shared dialog remains outside its cont
 
 test("New menu preserves existing actions and Generate routes", async () => {
     const launcher = await readFile("src/features/create/launcher/NewLauncher.tsx", "utf8")
-    assert.equal((launcher.match(/<DropdownMenuGroup aria-label=/g) ?? []).length, 2)
+    assert.equal((launcher.match(/<Group aria-label=/g) ?? []).length, 2)
     for (const description of [
         "Create a new monthly report", "Excel & OCR report uploads", "Start from a saved template",
         "Add a new member", "Create a new household", "Create a new cell group", "Add a new asset",
@@ -66,8 +66,8 @@ test("New menu preserves existing actions and Generate routes", async () => {
     assert.match(launcher, /href: "\/record-center\/templates"/)
     const templates = await readFile("app/(authenticated)/(shell)/(forms)/record-center/templates/page.tsx", "utf8")
     assert.match(templates, /CentralCreateTemplatesView/)
-    assert.match(launcher, /textValue=\{label\}/)
-    assert.match(launcher, /collisionPadding=\{8\}/)
+    assert.match(launcher, /textValue: label/)
+    assert.match(launcher, /collisionPadding: 8/)
     assert.doesNotMatch(launcher, /<CommandInput|<input/)
 })
 
